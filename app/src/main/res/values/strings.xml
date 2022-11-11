@@ -1,13 +1,43 @@
 <resources>
-    <string name="app_name">odysseeDesVagabonds</string>
+    <string name="app_name">L\'odyssée des vagabonds</string>
+
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">L\'odyssée des vagabonds</string>
+    <string name="nav_header_subtitle">version 0.0.1</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_home">Accueil</string>
+    <string name="menu_character">Personnages</string>
+    <string name="menu_classe">Classes</string>
+    <string name="menu_race">Races</string>
+    <string name="menu_dice">Lancée de dés</string>
+
+
+    <string name="entity_name_creature">Créature</string>
+    <string name="entity_description_creature">créatures vivantes ou non, regroupe les personnages (joueurs ou non), les familiers et les monstres</string>
+    <string name="entity_name_building">Structure</string>
+    <string name="entity_description_building">Regroupe les structures naturels ou construites par quelqu\'un</string>
+    <string name="entity_name_armor">Armure</string>
+    <string name="entity_description_armor">desc armures</string>
+    <string name="entity_name_weapon">Arme</string>
+    <string name="entity_description_weapon">desc armes</string>
+    <string name="entity_name_consumable">Consommable</string>
+    <string name="entity_description_consumable">Regroupe ce qui peut etre ingéré (nourriture, boisson, potions)</string>
+    <string name="entity_name_object">Objets (autres)</string>
+    <string name="entity_description_object">desc objets</string>
+
+
+    <string name="stat_adc_code">AdC</string>
+    <string name="stat_adc_name">Aptitude de combat</string>
+    <string name="stat_adc_description">Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers</string>
+    <string name="stat_adt_code">AdC</string>
+    <string name="stat_adt_name">Aptitude de combat</string>
+    <string name="stat_adt_description">Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers</string>
+    <string name="stat_for_code">AdC</string>
+    <string name="stat_for_name">Aptitude de combat</string>
+    <string name="stat_for_description">Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers</string>
+
 </resources>

@@ -1,13 +1,13 @@
-package fr.btytgat.odysseedesvagabonds.ui.gallery
+package fr.btytgat.odysseedesvagabonds.ui.classe
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class GalleryViewModel : ViewModel() {
+class ClasseViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is gallery Fragment"
+        value = "TODO: affichage des classes"
     }
     val text: LiveData<String> = _text
 }
