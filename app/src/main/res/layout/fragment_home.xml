@@ -29,5 +29,6 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/orange"
+        android:tint="@color/white"
         app:srcCompat="@drawable/ic_add_character" />
 </androidx.constraintlayout.widget.ConstraintLayout>
