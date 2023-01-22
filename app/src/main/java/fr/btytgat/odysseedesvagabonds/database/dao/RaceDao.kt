@@ -7,10 +7,10 @@ import fr.btytgat.odysseedesvagabonds.database.entities.Race
 
 @Dao
 interface RaceDao {
-
-    @Query("SELECT * FROM " + Race.TABLE_NAME)
-    fun getAllRaces(): List<Race>
-
-    @Insert
-    fun insertRace(race: Race): Long
+//
+//    @Query("SELECT * FROM " + Race.TABLE_NAME)
+//    fun getAllRaces(): List<Race>
+//
+//    @Insert
+//    fun insertRace(race: Race): Long
 }

@@ -12,8 +12,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import fr.btytgat.odysseedesvagabonds.database.entities.Classe
 import fr.btytgat.odysseedesvagabonds.databinding.FragmentHomeBinding
+import fr.btytgat.odysseedesvagabonds.utils.DatabaseUtils
 
 class HomeFragment : Fragment() {
 
@@ -55,11 +55,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        val newClasse = Classe()
-
-        val key = database.push().key
-        database.child("Classe").child(key!!).setValue(newClasse)
+        DatabaseUtils.initDatabase()
     }
 
     override fun onDestroyView() {

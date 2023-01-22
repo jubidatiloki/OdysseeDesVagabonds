@@ -9,19 +9,19 @@ import fr.btytgat.odysseedesvagabonds.database.entities.Stat
 @Dao
 interface StatDao {
 
-    @Query("SELECT * FROM stat")
-    fun getAllStats(): List<Stat>
-
-
-
-    @Insert
-    fun insertAllStats(stat: List<Stat>)
-
-    @Insert
-    fun insertStat(stat: Stat): Long
-
-
-
-    @Delete
-    fun deleteStat(stat: Stat)
+//    @Query("SELECT * FROM stat")
+//    fun getAllStats(): List<Stat>
+//
+//
+//
+//    @Insert
+//    fun insertAllStats(stat: List<Stat>)
+//
+//    @Insert
+//    fun insertStat(stat: Stat): Long
+//
+//
+//
+//    @Delete
+//    fun deleteStat(stat: Stat)
 }

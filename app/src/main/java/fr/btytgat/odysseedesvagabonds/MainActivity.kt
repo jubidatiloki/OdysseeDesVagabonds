@@ -1,8 +1,6 @@
 package fr.btytgat.odysseedesvagabonds
 
-import android.content.ContentValues.TAG
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuCompat
@@ -13,16 +11,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
-import com.google.firebase.ktx.Firebase
-import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
-import fr.btytgat.odysseedesvagabonds.database.DatabaseUtils
-import fr.btytgat.odysseedesvagabonds.database.managers.ClasseManager
 import fr.btytgat.odysseedesvagabonds.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -53,23 +41,23 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val databaseManager = DatabaseManager.getInstance(this)
-        if(databaseManager.classeDao().getAllClasses().isEmpty()) {
-            DatabaseUtils.initDatabase(databaseManager)
-        }
-        val classeManager = ClasseManager(this)
-        val classes = classeManager.loadClasses()
-
-        Log.i("database", "classes size = " + classes.size)
-        classes.forEach {
-            Log.i("database", "classe = ${it.info?.name} - ${it.voies}")
-        }
-
-        val infos = databaseManager.infoDao().getAllInfos();
-        Log.i("database", "infos size = " + infos.size)
-        infos.forEach {
-            Log.i("database", "info = $it")
-        }
+//        val databaseManager = DatabaseManager.getInstance(this)
+//        if(databaseManager.classeDao().getAllClasses().isEmpty()) {
+//            DatabaseUtils.initDatabase(databaseManager)
+//        }
+//        val classeManager = ClasseManager(this)
+//        val classes = classeManager.loadClasses()
+//
+//        Log.i("database", "classes size = " + classes.size)
+//        classes.forEach {
+//            Log.i("database", "classe = ${it.info?.name} - ${it.voies}")
+//        }
+//
+//        val infos = databaseManager.infoDao().getAllInfos();
+//        Log.i("database", "infos size = " + infos.size)
+//        infos.forEach {
+//            Log.i("database", "info = $it")
+//        }
     }
 
 

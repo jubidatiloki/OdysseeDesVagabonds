@@ -10,8 +10,8 @@ import androidx.viewbinding.BuildConfig
 import fr.btytgat.odysseedesvagabonds.database.dao.*
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 
-@Database(entities = [Creature::class, Info::class, Classe::class, Voie::class, Rang::class, Stat::class, Race::class], version = 1, exportSchema = false)
-@TypeConverters(Converters::class)
+//@Database(entities = [Creature::class, Info::class, Classe::class, Voie::class, Rang::class, Stat::class, Race::class], version = 1, exportSchema = false)
+//@TypeConverters(Converters::class)
 abstract class DatabaseManager : RoomDatabase() {
 
     abstract fun creatureDao(): CreatureDao
@@ -23,7 +23,7 @@ abstract class DatabaseManager : RoomDatabase() {
     abstract fun raceDao(): RaceDao
 
 companion object{
-    private const val DATABASE_NAME = "MAKIDOO_PROJECT_DB"
+    private const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
 
     private var sInstance: DatabaseManager? = null
 
@@ -42,35 +42,35 @@ companion object{
 //    }
 
 
-    @Synchronized
-    fun getInstance(context: Context): DatabaseManager {
-        if (sInstance == null) {
-            var databaseBuilder = Room
-                .databaseBuilder(context.applicationContext, DatabaseManager::class.java, DATABASE_NAME)
-                .allowMainThreadQueries()
-                .openHelperFactory(sInstance as Nothing?)
-                .addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-
-                    }
-                })
-
-            if (BuildConfig.DEBUG) {
-                databaseBuilder = databaseBuilder
-                    .setJournalMode(JournalMode.TRUNCATE)
-            }
-
-//            databaseBuilder.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-
-
-            sInstance = databaseBuilder
-                .build()
-        }
-        return sInstance!!
+//    @Synchronized
+//    fun getInstance(context: Context): DatabaseManager {
+//        if (sInstance == null) {
+//            var databaseBuilder = Room
+//                .databaseBuilder(context.applicationContext, DatabaseManager::class.java, DATABASE_NAME)
+//                .allowMainThreadQueries()
+//                .openHelperFactory(sInstance as Nothing?)
+//                .addCallback(object : RoomDatabase.Callback() {
+//                    override fun onCreate(db: SupportSQLiteDatabase) {
+//                        super.onCreate(db)
+//
+//                    }
+//                })
+//
+//            if (BuildConfig.DEBUG) {
+//                databaseBuilder = databaseBuilder
+//                    .setJournalMode(JournalMode.TRUNCATE)
+//            }
+//
+////            databaseBuilder.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+//
+//
+//            sInstance = databaseBuilder
+//                .build()
+//        }
+//        return sInstance!!
     }
 
 
-}
+//}
 
 }
