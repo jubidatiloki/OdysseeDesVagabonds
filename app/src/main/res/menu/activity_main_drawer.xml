@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/menu_group_main"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_menu_tower"
@@ -12,6 +14,15 @@
             android:id="@+id/nav_character"
             android:icon="@drawable/ic_menu_character"
             android:title="@string/menu_character" />
+
+        <item
+            android:id="@+id/nav_dice"
+            android:icon="@drawable/ic_menu_dice"
+            android:title="@string/menu_dice" />
+
+    </group>
+
+    <group android:id="@+id/menu_group_secondary">
         <item
             android:id="@+id/nav_classe"
             android:icon="@drawable/ic_menu_classe"
@@ -20,13 +31,25 @@
             android:id="@+id/nav_race"
             android:icon="@drawable/ic_menu_race"
             android:title="@string/menu_race" />
-    </group>
-
-    <group android:menuCategory="secondary">
 
         <item
-            android:id="@+id/nav_dice"
-            android:icon="@drawable/ic_menu_dice"
-            android:title="@string/menu_dice"/>
+            android:id="@+id/nav_equipement"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Equipement" />
+
+        <item
+            android:id="@+id/nav_bestiaire"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Bestiaire" />
+        <item
+            android:id="@+id/nav_rules"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Règles" />
+        <item
+            android:id="@+id/nav_annex"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Annexe" />
     </group>
+
+
 </menu>

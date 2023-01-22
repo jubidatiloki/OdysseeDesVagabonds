@@ -70,32 +70,7 @@ companion object{
         return sInstance!!
     }
 
-    fun initDatabase(databaseManager: DatabaseManager) {
-        with(databaseManager){
-           infoDao().insertAllInfos(Info.populate())
-            val infos =infoDao().getAllInfos()
 
-            val mainStatGuerrier = statDao().insertStat(Stat.populateOneStat("FOR", 0))
-            val classeGuerrier = classeDao().insertClasse(Classe.populateOneClasse(infos.first { info -> info.name == "Guerier" }.id, mainStatGuerrier, 2, -2))
-
-            val mainStatDruide = statDao().insertStat(Stat.populateOneStat("INT", 0))
-            val classeDruide = classeDao().insertClasse(Classe.populateOneClasse(infos.first { info -> info.name == "druide" }.id, mainStatDruide, 0, 2))
-            val voieDruideBestiale = voieDao().insertVoie(Voie.populateOneVoie(infos.first { info -> info.name == "voie bestiale" }.id, classeDruide))
-            rangDao().insertRang(Rang.populateOneRang(infos.first { info -> info.name == "animal de compagnie" }.id, voieDruideBestiale))
-            rangDao().insertRang(Rang.populateOneRang(infos.first { info -> info.name == "transformation minime" }.id, voieDruideBestiale))
-            rangDao().insertRang(Rang.populateOneRang(infos.first { info -> info.name == "mutation partielle" }.id, voieDruideBestiale))
-            rangDao().insertRang(Rang.populateOneRang(infos.first { info -> info.name == "animal de combat" }.id, voieDruideBestiale))
-            rangDao().insertRang(Rang.populateOneRang(infos.first { info -> info.name == "transformation majeure" }.id, voieDruideBestiale))
-
-            val voieDruideProtecteur = voieDao().insertVoie(Voie.populateOneVoie(infos.first { info -> info.name.equals("voie du protecteur") }.id, classeDruide))
-            val voieDruideNature = voieDao().insertVoie(Voie.populateOneVoie(infos.first { info -> info.name.equals("voie de la nature") }.id, classeDruide))
-
-            raceDao().insertRace(Race.populateOneRace(infos.first { info -> info.name.equals("nain") }.id))
-            raceDao().insertRace(Race.populateOneRace(infos.first { info -> info.name.equals("draconien") }.id))
-            raceDao().insertRace(Race.populateOneRace(infos.first { info -> info.name.equals("humain") }.id))
-        }
-
-    }
 }
 
 }

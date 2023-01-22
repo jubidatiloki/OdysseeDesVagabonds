@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "593218911460",
+    "project_id": "odysseedesvagabonds",
+    "storage_bucket": "odysseedesvagabonds.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593218911460:android:cfdec8b67db21a971080f1",
+        "android_client_info": {
+          "package_name": "fr.btytgat.odysseedesvagabonds"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "593218911460-ufe9qeev51rcu96plfaq9q25shopgvkj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ8rSDoy_n38W2wJ3wSxgbya3lnhB-HFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "593218911460-ufe9qeev51rcu96plfaq9q25shopgvkj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

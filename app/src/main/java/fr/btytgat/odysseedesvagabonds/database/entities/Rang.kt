@@ -35,6 +35,7 @@ data class Rang(
         index = true,
         name = "id_voie"
     ) var idVoie: Long?,
+    var rangNumber: Int = 0,
     @Ignore
     var info: Info? = null,
 //    @ColumnInfo(
@@ -43,13 +44,13 @@ data class Rang(
 //    ) val idCompetence: Int?,
 ) {
 
-    constructor(): this(null, null, null)
+    constructor(): this(null, null, null, 0)
 
 
     companion object{
 
-        fun populateOneRang(idInfo: Long?, idVoie: Long?): Rang{
-            return Rang(null, idInfo, idVoie)
+        fun populateOneRang(idInfo: Long?, idVoie: Long?, rangNumber: Int): Rang{
+            return Rang(null, idInfo, idVoie, rangNumber)
         }
     }
 }
