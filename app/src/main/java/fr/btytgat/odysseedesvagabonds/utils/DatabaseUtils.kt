@@ -8,7 +8,7 @@ class DatabaseUtils {
 
 
     companion object{
-        private val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
+        val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
 
         val KEY_CLASSES = "CLASSES"
         val KEY_RACES = "RACES"

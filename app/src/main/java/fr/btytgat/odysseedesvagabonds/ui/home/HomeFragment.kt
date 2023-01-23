@@ -32,8 +32,6 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
-
         homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -55,7 +53,38 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        DatabaseUtils.initDatabase()
+        updateDataFields()
+
+        binding.btReset.setOnClickListener {
+            DatabaseUtils.initDatabase()
+            updateDataFields()
+        }
+
+        binding.btUpdateData.setOnClickListener {
+            updateDataFields()
+        }
+    }
+
+    fun updateDataFields(){
+        val nb_max_classe = 12
+        val nb_max_race = 8
+        val nb_max_voie = 8 + 11 * 4 + 7
+        val nb_max_rang = nb_max_voie * 5
+
+        with(DatabaseUtils){
+            database.child(KEY_CLASSES).get().addOnSuccessListener {
+                binding.tvClasse.setText("nb classes: \n${it.childrenCount} / $nb_max_classe")
+            }
+            database.child(KEY_RACES).get().addOnSuccessListener {
+                binding.tvRace.setText("nb races: \n${it.childrenCount} / $nb_max_race")
+            }
+            database.child(KEY_VOIES).get().addOnSuccessListener {
+                binding.tvVoie.setText("nb voies: \n${it.childrenCount} / $nb_max_voie")
+            }
+            database.child(KEY_RANGS).get().addOnSuccessListener {
+                binding.tvRang.setText("nb rangs: \n${it.childrenCount} / $nb_max_rang")
+            }
+        }
     }
 
     override fun onDestroyView() {

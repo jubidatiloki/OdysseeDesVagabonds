@@ -479,4 +479,93 @@ enum class VoieEnum (var voie: Voie){
         )
     ),
 
+
+    VOIE_DU_DRACONIEN(
+        Voie(
+            "VOIE_DU_DRACONIEN",
+            "Voie du draconien",
+            listOf(
+                RangEnum.RANG_1_DRACONIEN.name,
+                RangEnum.RANG_2_DRACONIEN.name,
+                RangEnum.RANG_3_DRACONIEN.name,
+                RangEnum.RANG_4_DRACONIEN.name,
+                RangEnum.RANG_5_DRACONIEN.name
+            )
+        )
+    ),
+
+
+    VOIE_DE_L_ELFE_SYLVAIN(
+        Voie(
+            "VOIE_DE_L_ELFE_SYLVAIN",
+            "Voie de l'elfe-sylvain",
+            listOf(
+                RangEnum.RANG_1_ELFE_SYLVAIN.name,
+                RangEnum.RANG_2_ELFE_SYLVAIN.name,
+                RangEnum.RANG_3_ELFE_SYLVAIN.name,
+                RangEnum.RANG_4_ELFE_SYLVAIN.name,
+                RangEnum.RANG_5_ELFE_SYLVAIN.name
+            )
+        )
+    ),
+
+
+    VOIE_DU_HAUT_ELFE(
+        Voie(
+            "VOIE_DU_HAUT_ELFE",
+            "Voie du haut-elfe",
+            listOf(
+                RangEnum.RANG_1_HAUT_ELFE.name,
+                RangEnum.RANG_2_HAUT_ELFE.name,
+                RangEnum.RANG_3_HAUT_ELFE.name,
+                RangEnum.RANG_4_HAUT_ELFE.name,
+                RangEnum.RANG_5_HAUT_ELFE.name
+            )
+        )
+    ),
+
+
+    VOIE_DU_GNOME(
+        Voie(
+            "VOIE_DU_GNOME",
+            "Voie du gnome",
+            listOf(
+                RangEnum.RANG_1_GNOME.name,
+                RangEnum.RANG_2_GNOME.name,
+                RangEnum.RANG_3_GNOME.name,
+                RangEnum.RANG_4_GNOME.name,
+                RangEnum.RANG_5_GNOME.name
+            )
+        )
+    ),
+
+
+    VOIE_DE_L_HUMAIN(
+        Voie(
+            "VOIE_DE_L_HUMAIN",
+            "Voie de l'humain",
+            listOf(
+                RangEnum.RANG_1_HUMAIN.name,
+                RangEnum.RANG_2_HUMAIN.name,
+                RangEnum.RANG_3_HUMAIN.name,
+                RangEnum.RANG_4_HUMAIN.name,
+                RangEnum.RANG_5_HUMAIN.name
+            )
+        )
+    ),
+
+
+    VOIE_DU_NAIN(
+        Voie(
+            "VOIE_DU_NAIN",
+            "Voie du nain",
+            listOf(
+                RangEnum.RANG_1_NAIN.name,
+                RangEnum.RANG_2_NAIN.name,
+                RangEnum.RANG_3_NAIN.name,
+                RangEnum.RANG_4_NAIN.name,
+                RangEnum.RANG_5_NAIN.name
+            )
+        )
+    ),
 }

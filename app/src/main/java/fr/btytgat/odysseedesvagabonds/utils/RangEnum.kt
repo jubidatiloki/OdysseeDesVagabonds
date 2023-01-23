@@ -2,7 +2,7 @@ package fr.btytgat.odysseedesvagabonds.utils
 
 import fr.btytgat.odysseedesvagabonds.database.entities.Rang
 
-enum class RangEnum (var rang: Rang){
+enum class RangEnum (var rang: Rang) {
     RANG_1_BESTIALE(
         Rang(
             "RANG_1_BESTIALE",
@@ -664,6 +664,279 @@ enum class RangEnum (var rang: Rang){
             5,
             "(passif) +2 INT\n" +
                     "(actif)  lève la conjuration d'une entité invoqué (cout = cout du rang du sort d'invocation)"
+        )
+    ),
+
+
+    RANG_1_DRACONIEN(
+        Rang(
+            "RANG_1_DRACONIEN",
+            "Griffes et crocs",
+            1,
+            "le draconien, doté de pattes puissante et d'une grande mâchoire peut mordre ou griffer au prix d'une action d'attaque, 1D6 + FOR DMG "
+        )
+    ),
+    RANG_2_DRACONIEN(
+        Rang(
+            "RANG_2_DRACONIEN",
+            "Cuir de dragon",
+            2,
+            "gagne +2 RD élémentaire (dans son élément ou choisi à ce rang) "
+        )
+    ),
+    RANG_3_DRACONIEN(
+        Rang(
+            "RANG_3_DRACONIEN",
+            "Coup de queue",
+            3,
+            "Une fois par tour pour une action gratuite, le draconien peut effectuer un coup de queue à une cible à son contact, ce qui inflige 1D6 dégâts physique et nécessite un test de FOR difficulté 10 pour ne pas tomber "
+        )
+    ),
+    RANG_4_DRACONIEN(
+        Rang(
+            "RANG_4_DRACONIEN",
+            "Libération",
+            4,
+            "Le draconien n'a plus l'impression de subir les malheurs de ses ancêtres et se sens plus en forme. +2 CHAN (annule le malus de stat) et le bonus de RD élémentaire du cuir de dragon passe à +4"
+        )
+    ),
+    RANG_5_DRACONIEN(
+        Rang(
+            "RANG_5_DRACONIEN",
+            "Accroissance draconique",
+            5,
+            "amélioration du passif racial choisi: \n" +
+                    "souffle: croissance des cornes, le souffle inflige désormais 2D6 DMG et gagne un effet :\n" +
+                    "- feu: brulure 1D6 DM pendant 1d6 tours (ne se cumule pas)\n" +
+                    "- glace: ralenti la cible et la limite à une action par tour (attaque ou mouvement) pendant 1d6 tours\n" +
+                    "- foudre: réduit la mana de la cible de DMG / 2\n" +
+                    "ailes: plus grandes ailes (ne sont plus abîmés), plus de limite de durée de vol, peut maintenant porter une créature de taille moyenne pendant FOR tours, peut maintenant se battre dans les airs"
+        )
+    ),
+
+
+    RANG_1_ELFE_SYLVAIN(
+        Rang(
+            "RANG_1_ELFE_SYLVAIN",
+            "Nature primordiale",
+            1,
+            "(passif) +5 INT aux tests liés à la connaissance d'une plante, d'un arbre ou d'un animal"
+        )
+    ),
+    RANG_2_ELFE_SYLVAIN(
+        Rang(
+            "RANG_2_ELFE_SYLVAIN",
+            "Cri sauvage",
+            2,
+            "(actif) test difficulté 10 pour imiter le cri / bruit, d'un animal qu'il connait"
+        )
+    ),
+    RANG_3_ELFE_SYLVAIN(
+        Rang(
+            "RANG_3_ELFE_SYLVAIN",
+            "Amis de la forêt",
+            3,
+            "(actif)  une fois par jour, en pleine nature, l'elfe sylvain pousse un puissant cri, qui appelle des animaux proches qui attaquent des ennemis au hasard, test de CON et selon résultat :\n" +
+                    "1-5: 1d6 DMG\n" +
+                    "6-10: 2x 1d6 DMG\n" +
+                    "11-15: 3x 1d6 DMG\n" +
+                    "16-19: 4x 1d6 DMG\n" +
+                    "20: 5x 1d6 DMG "
+        )
+    ),
+    RANG_4_ELFE_SYLVAIN(
+        Rang(
+            "RANG_4_ELFE_SYLVAIN",
+            "Equipement naturel",
+            4,
+            "(passif) ajoute 1d6 à ses armes et +2 DEF à ses armures qui ne contiennent pas de métal\n" +
+                    "(passif) n'a plus de malus de DEX lié) à la DEF  "
+        )
+    ),
+    RANG_5_ELFE_SYLVAIN(
+        Rang(
+            "RANG_5_ELFE_SYLVAIN",
+            "TODO",
+            5,
+            "TODO"
+        )
+    ),
+
+
+    RANG_1_HAUT_ELFE(
+        Rang(
+            "RANG_1_HAUT_ELFE",
+            "Sagesse ancestrale",
+            1,
+            "(passif) +5 tests liés aux tests sur les différentes races du continents et sur des évènements historiques passés"
+        )
+    ),
+    RANG_2_HAUT_ELFE(
+        Rang(
+            "RANG_2_HAUT_ELFE",
+            "Affinité magique",
+            2,
+            "(passif) +5 SOC pour parler une créature magique et +5 INT pour comprendre une créature magique"
+        )
+    ),
+    RANG_3_HAUT_ELFE(
+        Rang(
+            "RANG_3_HAUT_ELFE",
+            "Puit d'arcane",
+            3,
+            "(actif) une fois par jour, puise dans son être intérieur l'énergie dont il aurait besoin pour lancer des sorts, perd 1d10 PV, pour regagner RANG d6 mana (ne peut pas dépasser son montant de mana max à moins d'avoir le dépassement de mana  (magicien, voie magie universelle, rang 3) "
+        )
+    ),
+    RANG_4_HAUT_ELFE(
+        Rang(
+            "RANG_4_HAUT_ELFE",
+            "Visage immémorable",
+            4,
+            "(actif) une fois par jour, l'elfe peut prendre les traits d'un être monstrueux et dangereux qui a disparus des millénaires plus tôt (cf gandalf chez bilbo), lui donne +10 SOC, +10 CHA pour faire fuir ou convaincre les gens autour de lui\n"
+        )
+    ),
+    RANG_5_HAUT_ELFE(
+        Rang(
+            "RANG_5_HAUT_ELFE",
+            "Vitalité elfique",
+            5,
+            "(renforcement) augmente son dé de vie au dé 6\n" +
+                    "(passif) peut lancer 2 dé aux tests de CON (et prendre le meilleur résultat) "
+        )
+    ),
+
+
+    RANG_1_GNOME(
+        Rang(
+            "RANG_1_GNOME",
+            "Accessoire vraisemblablement indispensable",
+            1,
+            "(passif)Maitrise d'une arme ou d'un instrument de musique au choix, si choix d'une arme/instrument déjà maitrisé, donne +1 AdC/+1AdT et +1 DMG avec cette arme à la place (si instrument déja maitrisé, +2 pour un instrument)\n" +
+                    "(soutien) possède un porte bonheur (petit objet) qui lui donne +1 CHAN tant qu'il l'a sur lui"
+        )
+    ),
+    RANG_2_GNOME(
+        Rang(
+            "RANG_2_GNOME",
+            "Discussion insensée mais soit disant pertinente",
+            2,
+            "(actif) une fois par combat, si la cible du gnome est humanoïde et comprend sa langue, le gnome peut raconter sa vie au milieu du combat afin de perturber sa cible, test de SOC du gnome en opposition à un test de CHA de la cible. Si réussite, -3 dans toutes les DEF de la cible jusqu'au prochain tour + perte de son action d'attaque pour ce tour si elle joue après le gnome"
+        )
+    ),
+    RANG_3_GNOME(
+        Rang(
+            "RANG_3_GNOME",
+            "Dans ma sacoche, j'ai ...",
+            3,
+            "(passif) retrouve, trouve, achète (à avoir avec le MJ) une petite sacoche qui peut contenir jusqu'à 50kg d'objets en tout genre (non vivant uniquement, la nourriture ne se conserve pas mieux qu'en dehors) (le sac pourrait ne peser rien pour le gnome)"
+        )
+    ),
+    RANG_4_GNOME(
+        Rang(
+            "RANG_4_GNOME",
+            "P'tit bonhomme",
+            4,
+            "(passif) +3 DEF contre les ennemis de grandes tailles, +6 DEF contre les ennemis plus grands encore"
+        )
+    ),
+    RANG_5_GNOME(
+        Rang(
+            "RANG_5_GNOME",
+            "Chanceux",
+            5,
+            "(passif) 2 jets aux test CHAN\n" +
+                    "(passif) une fois par aventure, si doit subir des dégâts mortels, est téléporter dans un endroit proche en sécurité et regagne 2d6 PV et son porte bonheur est détruit (perd donc son +1 CHAN)"
+        )
+    ),
+
+
+    RANG_1_HUMAIN(
+        Rang(
+            "RANG_1_HUMAIN",
+            "Polyglotte",
+            1,
+            "(passif) l'humain peut parler 2 langues en plus du commun"
+        )
+    ),
+    RANG_2_HUMAIN(
+        Rang(
+            "RANG_2_HUMAIN",
+            "Origines marquées",
+            2,
+            "Selon origine :\n" +
+                    "Campagnard: +5 aux tests de SOC dans les campagnes et les villages\n" +
+                    "Orfèvre: connaissance de géologie gratuite, +5 aux tests permettant d'identifier un métal ou une pierre précieuse\n" +
+                    "Marin: connaissance natation et cartographie, +5 aux tests liés à la navigation\n" +
+                    "Erudit:  +5 aux tests d'INT liés à une connaissance au choix\n" +
+                    "Garde: +5 aux tests de CON lié à la fatigue\n" +
+                    "Marchand: +5 en SOC pour négocier avec d'autres marchands\n" +
+                    "Troubadour: maitrise d'un instrument, sait le jouer, mais n'a pas de bonus si n'a pas la voie du musicien du barde)"
+        )
+    ),
+    RANG_3_HUMAIN(
+        Rang(
+            "RANG_3_HUMAIN",
+            "Charme",
+            3,
+            "(passif) +5 aux tests de SOC et CHA contre les cibles du sexe opposé (ou non, selon les affinités de l'humain ...)"
+        )
+    ),
+    RANG_4_HUMAIN(
+        Rang(
+            "RANG_4_HUMAIN",
+            "Polyvalence",
+            4,
+            "(passif) gagne 2 rangs 1 ou 2 d'une autre classe "
+        )
+    ),
+    RANG_5_HUMAIN(
+        Rang(
+            "RANG_5_HUMAIN",
+            "Perfectionnement",
+            5,
+            "+2 dans la plus faible stat et dans une autre au choix"
+        )
+    ),
+
+
+    RANG_1_NAIN(
+        Rang(
+            "RANG_1_NAIN",
+            "Outils de nain",
+            1,
+            "(passif)Maitrise de la hache et du marteau, si c'était déjà le cas, donne +1 AdC et +1 DMG avec ces armes à la place"
+        )
+    ),
+    RANG_2_NAIN(
+        Rang(
+            "RANG_2_NAIN",
+            "Ivresse naine",
+            2,
+            "(passif) Suite à leur style de vie arrosé, bonus de +5 au tests de CON et peut refaire un jet en cas d'échec (hors échec critique) à un test de CON liés aux breuvages (poison compris)"
+        )
+    ),
+    RANG_3_NAIN(
+        Rang(
+            "RANG_3_NAIN",
+            "Tête de fer",
+            3,
+            "(gratuit) donne une attaque gratuite de coup de tête une fois par tour, 1D6 + CON DMG"
+        )
+    ),
+    RANG_4_NAIN(
+        Rang(
+            "RANG_4_NAIN",
+            "Acolyte des montagnes",
+            4,
+            "(soutien) dompte un bouquetin pouvant lui servir de monture (pas de compétence particulier pour le combat et panique si n'a pas la voie du cavalier de chevalier), mais a un bonus de +10 d'escalade avec celui-ci et galope à la même vitesse qu'un cheval"
+        )
+    ),
+    RANG_5_NAIN(
+        Rang(
+            "RANG_5_NAIN",
+            "Ténacité",
+            5,
+            "(passif) +2 CON, +2 RD physique, +2 RD magique, +2 RD dans un élément (au choix)"
         )
     ),
 }
