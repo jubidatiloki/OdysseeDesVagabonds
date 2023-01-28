@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home.HomeFragment">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_reset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reset database"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="10dp"
+        android:background="@drawable/background_orange_button" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_update_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update data"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/bt_reset"
+        android:layout_margin="10dp"
+        android:background="@drawable/background_orange_button" />
+
+
+    <TextView
+        android:id="@+id/tv_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/bt_update_data"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:singleLine="false"
+        android:text="Avancement création base de données :" />
+
+    <LinearLayout
+        android:id="@+id/ll_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tv_description">
+
+        <TextView
+            android:id="@+id/tv_classe"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="0.5"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:singleLine="false"
+            android:background="@drawable/background_square_button"
+            android:textColor="@color/white"
+            android:text="Nb classes" />
+
+        <TextView
+            android:id="@+id/tv_race"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="0.5"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:singleLine="false"
+            android:background="@drawable/background_square_button"
+            android:textColor="@color/white"
+            android:text="Nb races" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/ll_1">
+
+        <TextView
+            android:id="@+id/tv_voie"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="0.5"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:singleLine="false"
+            android:background="@drawable/background_square_button"
+            android:textColor="@color/white"
+            android:text="Nb voies" />
+
+        <TextView
+            android:id="@+id/tv_rang"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="0.5"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:singleLine="false"
+            android:background="@drawable/background_square_button"
+            android:textColor="@color/white"
+            android:text="Nb rangs" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/orange"
+        android:tint="@color/white"
+        app:srcCompat="@drawable/ic_add_character" />
+</androidx.constraintlayout.widget.ConstraintLayout>
