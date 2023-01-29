@@ -13,20 +13,10 @@
         android:roundIcon="@drawable/ic_dragon"
         android:supportsRtl="true"
         android:theme="@style/Theme.OdysseeDesVagabonds">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <activity android:name=".ui.home.view.HomeActivity"
             android:label="@string/app_name"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,8 +24,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.base.view.AbstractBaseActivity" />
-        <activity android:name=".ui.base.view.BaseDrawerActivity" />
+        <activity android:name=".ui.base.view.BaseActivity"/>
+        <activity android:name=".ui.character.view.CharacterActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
+        <activity android:name=".ui.classe.view.ClasseActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
+        <activity android:name=".ui.race.view.RaceActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
+        <activity android:name=".ui.dice.view.DiceActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
+        <activity android:name=".ui.bestiary.view.BestiaryActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
+        <activity android:name=".ui.rule.view.RuleActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
+        <activity android:name=".ui.equipment.view.EquipmentActivity"
+            android:theme="@style/Theme.OdysseeDesVagabonds.NoActionBar" />
     </application>
 
 </manifest>

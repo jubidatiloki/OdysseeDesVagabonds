@@ -9,11 +9,15 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">Accueil</string>
-    <string name="menu_character">Personnages</string>
-    <string name="menu_classe">Classes</string>
-    <string name="menu_race">Races</string>
-    <string name="menu_dice">Lancée de dés</string>
+    <string name="menu_title_home">Accueil</string>
+    <string name="menu_title_character">Personnages</string>
+    <string name="menu_title_dice">Lancée de dés</string>
+    <string name="menu_title_classe">Classes</string>
+    <string name="menu_title_race">Races</string>
+    <string name="menu_title_equipment">Equipements</string>
+    <string name="menu_title_bestiary">Bestiaire</string>
+    <string name="menu_title_rules">Règles système</string>
+    <string name="menu_title_annex">Annexe</string>
 
 
     <string name="entity_name_creature">Créature</string>

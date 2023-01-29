@@ -1,12 +1,10 @@
-package fr.btytgat.odysseedesvagabonds.ui.home
+package fr.btytgat.odysseedesvagabonds.ui.classe
 
 import fr.btytgat.odysseedesvagabonds.ui.base.IBaseView
 
-interface IHomeView {
+interface IRaceView {
 
     interface IActivity: IBaseView.IActivity{
-        fun updateDataFields()
-
 
     }
 

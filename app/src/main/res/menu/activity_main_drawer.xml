@@ -9,16 +9,16 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_menu_tower"
-            android:title="@string/menu_home" />
+            android:title="@string/menu_title_home" />
         <item
             android:id="@+id/nav_character"
             android:icon="@drawable/ic_menu_character"
-            android:title="@string/menu_character" />
+            android:title="@string/menu_title_character" />
 
         <item
             android:id="@+id/nav_dice"
             android:icon="@drawable/ic_menu_dice"
-            android:title="@string/menu_dice" />
+            android:title="@string/menu_title_dice" />
 
     </group>
 
@@ -26,29 +26,30 @@
         <item
             android:id="@+id/nav_classe"
             android:icon="@drawable/ic_menu_classe"
-            android:title="@string/menu_classe" />
+            android:title="@string/menu_title_classe" />
         <item
             android:id="@+id/nav_race"
             android:icon="@drawable/ic_menu_race"
-            android:title="@string/menu_race" />
+            android:title="@string/menu_title_race" />
 
         <item
-            android:id="@+id/nav_equipement"
+            android:id="@+id/nav_equipment"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Equipement" />
+            android:title="@string/menu_title_equipment" />
 
         <item
             android:id="@+id/nav_bestiaire"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Bestiaire" />
+            android:title="@string/menu_title_bestiary" />
         <item
             android:id="@+id/nav_rules"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Règles" />
+            android:title="@string/menu_title_rules" />
         <item
             android:id="@+id/nav_annex"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Annexe" />
+            android:visible="false"
+            android:title="@string/menu_title_annex" />
     </group>
 
 

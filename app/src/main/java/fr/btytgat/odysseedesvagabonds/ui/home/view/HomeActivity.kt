@@ -3,12 +3,12 @@ package fr.btytgat.odysseedesvagabonds.ui.home.view
 import android.os.Bundle
 import android.widget.TextView
 import fr.btytgat.odysseedesvagabonds.R
-import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseDrawerActivity
+import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
 import fr.btytgat.odysseedesvagabonds.ui.home.presenter.HomePresenter
 import fr.btytgat.odysseedesvagabonds.utils.DatabaseUtils
 
-class HomeActivity: BaseDrawerActivity(), IHomeView.IActivity {
+class HomeActivity: BaseActivity(), IHomeView.IActivity {
 
     lateinit var tvClasse: TextView
     lateinit var tvRace: TextView
@@ -17,7 +17,7 @@ class HomeActivity: BaseDrawerActivity(), IHomeView.IActivity {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.home_activity)
+        setContentView(R.layout.activity_home)
 
         tvClasse = findViewById(R.id.tv_classe)
         tvRace = findViewById(R.id.tv_race)
@@ -36,17 +36,21 @@ class HomeActivity: BaseDrawerActivity(), IHomeView.IActivity {
 
         with(DatabaseUtils){
             database.child(KEY_CLASSES).get().addOnSuccessListener {
-                tvClasse.setText("nb classes: \n${it.childrenCount} / $nb_max_classe")
+                tvClasse.text = "nb classes: \n${it.childrenCount} / $nb_max_classe"
             }
             database.child(KEY_RACES).get().addOnSuccessListener {
-                tvRace.setText("nb races: \n${it.childrenCount} / $nb_max_race")
+                tvRace.text = "nb races: \n${it.childrenCount} / $nb_max_race"
             }
             database.child(KEY_VOIES).get().addOnSuccessListener {
-                tvVoie.setText("nb voies: \n${it.childrenCount} / $nb_max_voie")
+                tvVoie.text = "nb voies: \n${it.childrenCount} / $nb_max_voie"
             }
             database.child(KEY_RANGS).get().addOnSuccessListener {
-                tvRang.setText("nb rangs: \n${it.childrenCount} / $nb_max_rang")
+                tvRang.text = "nb rangs: \n${it.childrenCount} / $nb_max_rang"
             }
         }
     }
+
+
+
+
 }
