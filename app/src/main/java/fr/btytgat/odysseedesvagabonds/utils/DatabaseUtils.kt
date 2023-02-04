@@ -10,11 +10,12 @@ class DatabaseUtils {
     companion object{
         val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
 
-        val KEY_CLASSES = "CLASSES"
-        val KEY_RACES = "RACES"
-        val KEY_STATS = "STATS"
-        val KEY_VOIES = "VOIES"
-        val KEY_RANGS = "RANGS"
+        val KEY_ROOT = "root"
+        val KEY_CLASSES = "classes"
+        val KEY_RACES = "races"
+        val KEY_STATS = "stats"
+        val KEY_VOIES = "voies"
+        val KEY_RANGS = "rangs"
 
         fun initDatabase(){
             Log.i("DATABASE", "starting creating datas ....")
@@ -32,7 +33,7 @@ class DatabaseUtils {
 
             ClasseEnum.values().forEach {
                 Log.i("DATABASE", "create classe - ${it.name}")
-                database.child(KEY_CLASSES).child(it.name).setValue(it.classe)
+                database.child(KEY_ROOT).child(KEY_CLASSES).child(it.name).setValue(it.classe)
             }
             Log.i("DATABASE", "finished creating classes ....")
         }
@@ -42,7 +43,7 @@ class DatabaseUtils {
 
             RaceEnum.values().forEach {
                 Log.i("DATABASE", "create races - ${it.name}")
-                database.child(KEY_RACES).child(it.name).setValue(it.race)
+                database.child(KEY_ROOT).child(KEY_RACES).child(it.name).setValue(it.race)
             }
             Log.i("DATABASE", "finished creating races ....")
 
@@ -53,7 +54,7 @@ class DatabaseUtils {
 
             StatEnum.values().forEach {
                 Log.i("DATABASE", "create stats - ${it.name}")
-                database.child(KEY_STATS).child(it.name).setValue(it.stat)
+                database.child(KEY_ROOT).child(KEY_STATS).child(it.name).setValue(it.stat)
             }
             Log.i("DATABASE", "finished creating stats ....")
 
@@ -64,7 +65,7 @@ class DatabaseUtils {
 
             VoieEnum.values().forEach {
                 Log.i("DATABASE", "create voies - ${it.name}")
-                database.child(KEY_VOIES).child(it.name).setValue(it.voie)
+                database.child(KEY_ROOT).child(KEY_VOIES).child(it.name).setValue(it.voie)
             }
             Log.i("DATABASE", "finished creating voies ....")
 
@@ -75,7 +76,7 @@ class DatabaseUtils {
 
             RangEnum.values().forEach {
                 Log.i("DATABASE", "create rangs - ${it.name}")
-                database.child(KEY_RANGS).child(it.name).setValue(it.rang)
+                database.child(KEY_ROOT).child(KEY_RANGS).child(it.name).setValue(it.rang)
             }
             Log.i("DATABASE", "finished creating rangs ....")
 

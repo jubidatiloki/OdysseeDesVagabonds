@@ -19,6 +19,11 @@
     <string name="menu_title_rules">Règles système</string>
     <string name="menu_title_annex">Annexe</string>
 
+    <string name="login_hint_login">Identifiant (pseudo ou email)</string>
+    <string name="login_hint_password">Mot de passe (6 caractères min.)</string>
+    <string name="login_sign_in">Connexion</string>
+    <string name="login_sign_up">Inscription</string>
+    <string name="login_no_account_yet">Nouveau sur l\'appli ?</string>
 
     <string name="entity_name_creature">Créature</string>
     <string name="entity_description_creature">créatures vivantes ou non, regroupe les personnages (joueurs ou non), les familiers et les monstres</string>
@@ -34,14 +39,6 @@
     <string name="entity_description_object">desc objets</string>
 
 
-    <string name="stat_adc_code">AdC</string>
-    <string name="stat_adc_name">Aptitude de combat</string>
-    <string name="stat_adc_description">Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers</string>
-    <string name="stat_adt_code">AdC</string>
-    <string name="stat_adt_name">Aptitude de combat</string>
-    <string name="stat_adt_description">Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers</string>
-    <string name="stat_for_code">AdC</string>
-    <string name="stat_for_name">Aptitude de combat</string>
-    <string name="stat_for_description">Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers</string>
+    <string name="dialog_title_logout">Etes-vous sûr de vouloir vous déconnecter ?</string>
 
 </resources>
