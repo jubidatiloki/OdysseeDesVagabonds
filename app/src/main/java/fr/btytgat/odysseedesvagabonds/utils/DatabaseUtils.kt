@@ -9,7 +9,6 @@ class DatabaseUtils {
 
     companion object{
         val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
-
         val KEY_SYSTEM = "SYSTEM"
         val KEY_CLASSES = "CLASSES"
         val KEY_RACES = "RACES"
@@ -25,7 +24,7 @@ class DatabaseUtils {
 //            createAllRaces()
 //            createAllVoies()
 //            createAllRangs()
-            Log.i("DATABASE", "finished creating datas ....")
+            Log.i("DATABASE", "finished creation datas")
 
         }
 

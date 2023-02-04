@@ -133,6 +133,18 @@
                     android:singleLine="false"
                     android:text="Nb stats"
                     android:textColor="@color/white" />
+
+                <TextView
+                    android:id="@+id/tv_infos"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="0.5"
+                    android:background="@drawable/background_square_button"
+                    android:gravity="center"
+                    android:singleLine="false"
+                    android:text="Nb infos"
+                    android:textColor="@color/white" />
             </LinearLayout>
 
 

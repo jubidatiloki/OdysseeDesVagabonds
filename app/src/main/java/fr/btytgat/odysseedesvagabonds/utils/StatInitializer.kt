@@ -32,7 +32,7 @@ class StatInitializer {
             )
             statAdc.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -59,7 +59,7 @@ class StatInitializer {
             )
             statAdt.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -85,7 +85,7 @@ class StatInitializer {
             )
             statCha.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -111,7 +111,7 @@ class StatInitializer {
             )
             statChan.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -137,7 +137,7 @@ class StatInitializer {
             )
             statCon.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -163,7 +163,7 @@ class StatInitializer {
             )
             statDefCac.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -189,7 +189,7 @@ class StatInitializer {
             )
             statDefDist.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -215,7 +215,7 @@ class StatInitializer {
             )
             statDefElem.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -241,7 +241,7 @@ class StatInitializer {
             )
             statDefMag.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -267,7 +267,7 @@ class StatInitializer {
             )
             statDex.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -293,7 +293,7 @@ class StatInitializer {
             )
             statDm.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -319,7 +319,7 @@ class StatInitializer {
             )
             statDv.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -345,7 +345,7 @@ class StatInitializer {
             )
             statEsq.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -371,7 +371,7 @@ class StatInitializer {
             )
             statFor.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -397,7 +397,7 @@ class StatInitializer {
             )
             statInit.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -423,7 +423,7 @@ class StatInitializer {
             )
             statInt.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -449,7 +449,7 @@ class StatInitializer {
             )
             statPer.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -475,7 +475,7 @@ class StatInitializer {
             )
             statPm.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -501,7 +501,7 @@ class StatInitializer {
             )
             statPv.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -527,7 +527,7 @@ class StatInitializer {
             )
             statRdFeu.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -554,7 +554,7 @@ class StatInitializer {
             )
             statRdFoudre.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -580,7 +580,7 @@ class StatInitializer {
             )
             statRdGlace.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -606,7 +606,7 @@ class StatInitializer {
             )
             statRdMag.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -633,7 +633,7 @@ class StatInitializer {
             )
             statRdPhy.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
 
@@ -659,7 +659,7 @@ class StatInitializer {
             )
             statSoc.let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
                     .child(it.uuid).setValue(it)
             }
         }

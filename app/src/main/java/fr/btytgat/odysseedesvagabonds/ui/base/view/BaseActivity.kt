@@ -1,18 +1,25 @@
 package fr.btytgat.odysseedesvagabonds.ui.base.view
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Handler
 import android.view.*
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.components.AnimationUtils
 import fr.btytgat.odysseedesvagabonds.ui.base.IBaseView
 import fr.btytgat.odysseedesvagabonds.ui.home.view.HomeActivity
+import fr.btytgat.odysseedesvagabonds.ui.login.view.LoginActivity
 
 open class BaseActivity: AppCompatActivity(), IBaseView.IActivity,
     NavigationView.OnNavigationItemSelectedListener {
@@ -35,13 +42,37 @@ open class BaseActivity: AppCompatActivity(), IBaseView.IActivity,
 
     override fun setNavigationViewMenuHeader(menu_header: Int) {
         try {
-            val actual_header = navigationView!!.getHeaderView(0)
-            navigationView.removeHeaderView(actual_header)
+            val actualHeader = navigationView!!.getHeaderView(0)
+
+
+            navigationView.removeHeaderView(actualHeader)
             val nav_header = LayoutInflater.from(this).inflate(menu_header, null as ViewGroup?)
+            var btLogout = nav_header.findViewById<ImageView>(R.id.iv_logout)
+            btLogout.setOnClickListener{
+                showDisconnectDialog()
+            }
             navigationView.addHeaderView(nav_header)
         } catch (var4: java.lang.Exception) {
             var4.printStackTrace()
         }
+    }
+
+    open fun showDisconnectDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.dialog_title_logout))
+            .setPositiveButton(
+                android.R.string.yes
+            ) { dialog: DialogInterface?, _: Int -> logout() }
+            .setNegativeButton(
+                android.R.string.no
+            ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
+            .show()
+    }
+
+    private fun logout(){
+        Firebase.auth.signOut()
+        finish()
+        startActivity(Intent(this, LoginActivity::class.java))
     }
 
     override fun setNavigationViewMenu(menu: Int) {
