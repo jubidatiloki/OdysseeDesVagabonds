@@ -1,8 +1,10 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
 import android.util.Log
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import fr.btytgat.odysseedesvagabonds.database.entities.Race
 
 class DatabaseUtils {
 
@@ -80,6 +82,25 @@ class DatabaseUtils {
             }
             Log.i("DATABASE", "finished creating rangs ....")
 
+        }
+
+
+
+
+
+        fun retrieveRace(ds: DataSnapshot): Race {
+            val race = Race(
+                healthDice = ds.child("healthDice").value as Long,
+                manaDice = ds.child("manaDice").value as Long,
+                name = ds.child("name").value as String,
+                description = ds.child("description").value as String,
+                uuid = ds.child("uuid").value as String,
+                uuidVoie = ds.child("uuidVoie").value as String,
+                history = ds.child("history").value as String,
+                statsChange = ds.child("statsChange").value as HashMap<String, Long>
+            )
+
+            return race
         }
     }
 

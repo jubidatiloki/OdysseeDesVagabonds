@@ -12,7 +12,7 @@ enum class RaceEnum(val race: Race) {
             "né de parents humains et elfes, leur conviction et leur nature dépend beaucoup d'où ils ont été élevé",
             "PEGI 18",
             "VOIE_DU_DEMI_ELFE",
-            hashMapOf()
+            hashMapOf("STAT_FOR" to 0, "STAT_INT" to 0, "STAT_SOC" to 0)
         )
     ),
     RACE_DEMI_ORQUE(

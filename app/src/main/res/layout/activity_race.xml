@@ -8,11 +8,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:background="@color/white">
 
         <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
+
+        <ExpandableListView
+            android:id="@+id/elv_races"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="0.5dp" />
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView

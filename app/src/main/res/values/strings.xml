@@ -19,7 +19,7 @@
     <string name="menu_title_rules">Règles système</string>
     <string name="menu_title_annex">Annexe</string>
 
-    <string name="login_hint_login">Identifiant (pseudo ou email)</string>
+    <string name="login_hint_login">Identifiant (email)</string>
     <string name="login_hint_password">Mot de passe (6 caractères min.)</string>
     <string name="login_sign_in">Connexion</string>
     <string name="login_sign_up">Inscription</string>
@@ -40,5 +40,8 @@
 
 
     <string name="dialog_title_logout">Etes-vous sûr de vouloir vous déconnecter ?</string>
+
+    <string name="health_dice">Dé de vie</string>
+    <string name="mana_dice">Dé de mana</string>
 
 </resources>
