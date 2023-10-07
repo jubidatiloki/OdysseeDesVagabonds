@@ -67,6 +67,7 @@ class RaceExpandableListAdapter internal constructor(
 
         val listStats = ArrayList<String>()
         for((key, value) in race.statsChange){
+
             listStats.add(key + " " + value)
         }
         val statAdapter = ArrayAdapter(context, R.layout.custom_stat_item, listStats)

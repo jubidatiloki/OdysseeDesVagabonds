@@ -39,6 +39,11 @@
     <string name="entity_description_object">desc objets</string>
 
 
+    <string name="error_auth_failed">La connexion a échoué. Vérifiez vos identifiants</string>
+    <string name="error_auth_login_empty">Identifiant non renseigné</string>
+    <string name="error_auth_password_empty">Mot de passe non renseigné</string>
+
+
     <string name="dialog_title_logout">Etes-vous sûr de vouloir vous déconnecter ?</string>
 
     <string name="health_dice">Dé de vie</string>

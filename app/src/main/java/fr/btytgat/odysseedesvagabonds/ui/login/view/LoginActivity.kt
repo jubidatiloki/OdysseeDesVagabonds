@@ -3,7 +3,6 @@ package fr.btytgat.odysseedesvagabonds.ui.login.view
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -39,10 +38,12 @@ class LoginActivity: AppCompatActivity() {
         tvSignUp = findViewById(R.id.tv_sign_up)
 
         btSignIn.setOnClickListener {
-            signIn(etLogin.text.toString(), etPassword.text.toString())
+            areDataValid(etLogin.text.toString(), etPassword.text.toString())
+                signIn(etLogin.text.toString(), etPassword.text.toString())
         }
         tvSignUp.setOnClickListener {
-            signUp(etLogin.text.toString(), etPassword.text.toString())
+            areDataValid(etLogin.text.toString(), etPassword.text.toString())
+                signUp(etLogin.text.toString(), etPassword.text.toString())
         }
     }
 
@@ -67,7 +68,7 @@ class LoginActivity: AppCompatActivity() {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
+                    Toast.makeText(baseContext, getString(R.string.error_auth_failed),
                         Toast.LENGTH_SHORT).show()
 //                    updateUI(null)
                 }
@@ -87,10 +88,24 @@ class LoginActivity: AppCompatActivity() {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
+                    Toast.makeText(baseContext, getString(R.string.error_auth_failed),
                         Toast.LENGTH_SHORT).show()
 //                    updateUI(null)
                 }
             }
+    }
+
+    private fun areDataValid(login: String, password: String): Boolean {
+        val msgError = java.lang.StringBuilder()
+        var errorCount = 0
+        if(login.isNullOrBlank()){
+            msgError.append(getString(R.string.error_auth_login_empty))
+            errorCount++
+        }
+        if(password.isNullOrBlank()){
+            if(errorCount > 0) msgError.append("\n")
+            msgError.append(getString(R.string.error_auth_password_empty))
+        }
+        return errorCount == 0
     }
 }

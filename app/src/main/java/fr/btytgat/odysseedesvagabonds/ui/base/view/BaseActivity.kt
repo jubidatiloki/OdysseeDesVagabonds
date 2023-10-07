@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import fr.btytgat.odysseedesvagabonds.BuildConfig
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.components.AnimationUtils
 import fr.btytgat.odysseedesvagabonds.ui.base.IBaseView
@@ -48,6 +49,8 @@ open class BaseActivity: AppCompatActivity(), IBaseView.IActivity,
             navigationView.removeHeaderView(actualHeader)
             val nav_header = LayoutInflater.from(this).inflate(menu_header, null as ViewGroup?)
             var btLogout = nav_header.findViewById<ImageView>(R.id.iv_logout)
+            val tvVersion  = nav_header.findViewById<TextView>(R.id.tv_version)
+            tvVersion.text = BuildConfig.VERSION_NAME
             btLogout.setOnClickListener{
                 showDisconnectDialog()
             }
