@@ -5,12 +5,18 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
+import fr.btytgat.odysseedesvagabonds.database.entities.Stat
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.RaceWrapper
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.RangWrapper
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.StatWrapper
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.VoieWrapper
 
 class DatabaseUtils {
 
 
-    companion object{
-        val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
+    companion object {
+        val database =
+            Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
 
         val KEY_ROOT = "root"
         val KEY_CLASSES = "classes"
@@ -19,7 +25,7 @@ class DatabaseUtils {
         val KEY_VOIES = "voies"
         val KEY_RANGS = "rangs"
 
-        fun initDatabase(){
+        fun initDatabase() {
             Log.i("DATABASE", "starting creating datas ....")
             createAllClasses()
             createAllRaces()
@@ -30,7 +36,7 @@ class DatabaseUtils {
 
         }
 
-        private fun createAllClasses(){
+        private fun createAllClasses() {
             Log.i("DATABASE", "starting creating classes ....")
 
             ClasseEnum.values().forEach {
@@ -40,7 +46,7 @@ class DatabaseUtils {
             Log.i("DATABASE", "finished creating classes ....")
         }
 
-        private fun createAllRaces(){
+        private fun createAllRaces() {
             Log.i("DATABASE", "starting creating races ....")
 
             RaceEnum.values().forEach {
@@ -51,7 +57,7 @@ class DatabaseUtils {
 
         }
 
-        private fun createAllStats(){
+        private fun createAllStats() {
             Log.i("DATABASE", "starting creating stats ....")
 
             StatEnum.values().forEach {
@@ -62,7 +68,7 @@ class DatabaseUtils {
 
         }
 
-        private fun createAllVoies(){
+        private fun createAllVoies() {
             Log.i("DATABASE", "starting creating voies ....")
 
             VoieEnum.values().forEach {
@@ -73,7 +79,7 @@ class DatabaseUtils {
 
         }
 
-        private fun createAllRangs(){
+        private fun createAllRangs() {
             Log.i("DATABASE", "starting creating rangs ....")
 
             RangEnum.values().forEach {
@@ -87,20 +93,60 @@ class DatabaseUtils {
 
 
 
-
-        fun retrieveRace(ds: DataSnapshot): Race {
-            val race = Race(
-                healthDice = ds.child("healthDice").value as Long,
-                manaDice = ds.child("manaDice").value as Long,
-                name = ds.child("name").value as String,
-                description = ds.child("description").value as String,
-                uuid = ds.child("uuid").value as String,
-                uuidVoie = ds.child("uuidVoie").value as String,
-                history = ds.child("history").value as String,
-                statsChange = ds.child("statsChange").value as HashMap<String, Long>
+        fun retrieveRace(ds: DataSnapshot): RaceWrapper {
+            Log.i("retrieveRace", "key=" + ds.key);
+            val raceWrapper = RaceWrapper(
+                healthDice = ds.child(RaceWrapper.keyHealthDice).value as Long,
+                manaDice = ds.child(RaceWrapper.keyManaDice).value as Long,
+                name = ds.child(RaceWrapper.keyName).value as String,
+                description = ds.child(RaceWrapper.keyDescription).value as String,
+                uuid = ds.child(RaceWrapper.keyUuid).value as String,
+                uuidVoie = ds.child(RaceWrapper.keyUuidVoie).value as String,
+                history = ds.child(RaceWrapper.keyHistory).value as String,
+                statsChange = ds.child(RaceWrapper.keyStatsChange).value as HashMap<String, Long>
             )
+            Log.i("retrieveRace", "raceWrapper=" + raceWrapper)
+            return raceWrapper
+        }
 
-            return race
+        fun retrieveVoie(ds: DataSnapshot): VoieWrapper {
+            Log.i("retrieveVoie", "key=" + ds.key);
+
+            val voieWrapper = VoieWrapper(
+                uuid = ds.child(VoieWrapper.keyUuid).value as String?,
+                name = ds.child(VoieWrapper.keyName).value as String?,
+                uuidRangs = if(ds.child(VoieWrapper.keyUuidRangs).value == null) emptyList() else ds.child(VoieWrapper.keyUuidRangs).value as List<String>,
+                restriction = ds.child(VoieWrapper.keyRestriction).value as Boolean?
+            )
+            Log.i("retrieveVoie", "value=$voieWrapper")
+            return voieWrapper
+        }
+
+
+        fun retrieveRang(ds: DataSnapshot): RangWrapper {
+            Log.i("retrieveRang", "key=" + ds.key);
+
+            return RangWrapper(
+                uuid = ds.child(RangWrapper.keyUuid).value as String?,
+                name = ds.child(RangWrapper.keyName).value as String?,
+                rangNumber = ds.child(RangWrapper.keyRangNumber).value as Int?,
+                description = ds.child(RangWrapper.keyDescription).value as String?
+            )
+        }
+
+        fun retrieveStat(ds: DataSnapshot): StatWrapper {
+
+            val statWrapper = StatWrapper(
+                uuid = ds.child(StatWrapper.keyUuid).value as String?,
+                description = ds.child(StatWrapper.keyDescription).value as String?,
+                haveMod = ds.child(StatWrapper.keyHaveMod).value as Boolean?,
+                isInnate = ds.child(StatWrapper.keyIsInnate).value as Boolean?,
+                name = ds.child(StatWrapper.keyName).value as String?,
+                shortName = ds.child(StatWrapper.keyShortName).value as String?,
+                subDescription = ds.child(StatWrapper.keySubDescription).value as String?
+            )
+            Log.i("retrieveStat", "value=$statWrapper");
+            return statWrapper
         }
     }
 

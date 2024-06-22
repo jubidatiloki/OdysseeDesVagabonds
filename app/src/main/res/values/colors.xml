@@ -11,4 +11,9 @@
     <color name="orange">#FF6600</color>
     <color name="orange_light">#FF9800</color>
     <color name="grey_light">#6A6A6A</color>
+
+
+    <color name="colorAccent">@color/orange</color>
+
+    <color name="header_bg">#887D6B</color>
 </resources>

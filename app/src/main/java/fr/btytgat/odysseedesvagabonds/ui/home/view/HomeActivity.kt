@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
@@ -14,6 +15,7 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
 
     lateinit var btReset: Button
     lateinit var btRefreshData: Button
+    lateinit var fab: FloatingActionButton
 
     lateinit var tvClasse: TextView
     lateinit var tvRace: TextView
@@ -26,6 +28,7 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
 
         btReset = findViewById(R.id.bt_reset)
         btRefreshData = findViewById(R.id.bt_update_data)
+        fab = findViewById(R.id.fab)
 
         tvClasse = findViewById(R.id.tv_classe)
         tvRace = findViewById(R.id.tv_race)
@@ -41,6 +44,9 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
 
         presenter = HomePresenter(this, this)
         presenter.onViewCreated()
+
+        fab.imageTintList = resources.getColorStateList(R.color.white, null)
+
     }
 
     override fun updateDataFields(){

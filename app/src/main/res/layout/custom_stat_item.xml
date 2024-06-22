@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:textSize="@dimen/normal_text"
     android:paddingTop="5dp"
+    android:paddingStart="10dp"
     android:paddingBottom="5dp">
 
 </TextView>

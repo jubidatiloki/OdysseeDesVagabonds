@@ -1,10 +1,10 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
-import fr.btytgat.odysseedesvagabonds.database.entities.Rang
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.RangWrapper
 
-enum class RangEnum (var rang: Rang) {
+enum class RangEnum (var rang: RangWrapper) {
     RANG_1_BESTIALE(
-        Rang(
+        RangWrapper(
             "RANG_1_BESTIALE",
             "Animal de compagnie",
             1,
@@ -16,7 +16,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_BESTIALE(
-        Rang(
+        RangWrapper(
             "RANG_2_BESTIALE",
             "Transformation minime",
             2,
@@ -24,7 +24,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_BESTIALE(
-        Rang(
+        RangWrapper(
             "RANG_3_BESTIALE",
             "Mutation partielle",
             3,
@@ -32,7 +32,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_BESTIALE(
-        Rang(
+        RangWrapper(
             "RANG_4_BESTIALE",
             "Animal de combat",
             4,
@@ -40,7 +40,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_BESTIALE(
-        Rang(
+        RangWrapper(
             "RANG_5_BESTIALE",
             "Transformation majeure",
             5,
@@ -50,7 +50,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_PROTECTEUR(
-        Rang(
+        RangWrapper(
             "RANG_1_PROTECTEUR",
             "Peau d'écorces",
             1,
@@ -58,7 +58,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_PROTECTEUR(
-        Rang(
+        RangWrapper(
             "RANG_2_PROTECTEUR",
             "Ecorces partagés",
             2,
@@ -66,7 +66,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_PROTECTEUR(
-        Rang(
+        RangWrapper(
             "RANG_3_PROTECTEUR",
             "Brume",
             3,
@@ -74,7 +74,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_PROTECTEUR(
-        Rang(
+        RangWrapper(
             "RANG_4_PROTECTEUR",
             "Instinct de survie",
             4,
@@ -82,7 +82,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_PROTECTEUR(
-        Rang(
+        RangWrapper(
             "RANG_5_PROTECTEUR",
             "Pissenlit protecteur",
             5,
@@ -92,7 +92,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_NATURE(
-        Rang(
+        RangWrapper(
             "RANG_1_NATURE",
             "Enfant de la nature",
             1,
@@ -100,7 +100,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_NATURE(
-        Rang(
+        RangWrapper(
             "RANG_2_NATURE",
             "Calme animal",
             2,
@@ -108,7 +108,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_NATURE(
-        Rang(
+        RangWrapper(
             "RANG_3_NATURE",
             "Fruit de la vie",
             3,
@@ -117,7 +117,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_NATURE(
-        Rang(
+        RangWrapper(
             "RANG_4_NATURE",
             "Invocation animale",
             4,
@@ -125,7 +125,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_NATURE(
-        Rang(
+        RangWrapper(
             "RANG_5_NATURE",
             "Tempête menaçante",
             5,
@@ -136,7 +136,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_VEGETAUX(
-        Rang(
+        RangWrapper(
             "RANG_1_VEGETAUX",
             "Vie sylvestre",
             1,
@@ -144,7 +144,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_VEGETAUX(
-        Rang(
+        RangWrapper(
             "RANG_2_VEGETAUX",
             "Se fondre dans la nature",
             2,
@@ -152,7 +152,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_VEGETAUX(
-        Rang(
+        RangWrapper(
             "RANG_3_VEGETAUX",
             "Lianes immobilisantes",
             3,
@@ -160,7 +160,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_VEGETAUX(
-        Rang(
+        RangWrapper(
             "RANG_4_VEGETAUX",
             "Arbrification",
             4,
@@ -168,7 +168,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_VEGETAUX(
-        Rang(
+        RangWrapper(
             "RANG_5_VEGETAUX",
             "Plante carnivore",
             5,
@@ -178,7 +178,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_ARTILLERIE(
-        Rang(
+        RangWrapper(
             "RANG_1_ARTILLERIE",
             "Apprenti artilleur",
             1,
@@ -186,7 +186,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_ARTILLERIE(
-        Rang(
+        RangWrapper(
             "RANG_2_ARTILLERIE",
             "Canon à mains",
             2,
@@ -194,7 +194,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_ARTILLERIE(
-        Rang(
+        RangWrapper(
             "RANG_3_ARTILLERIE",
             "Artilleur confirmé",
             3,
@@ -204,7 +204,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_ARTILLERIE(
-        Rang(
+        RangWrapper(
             "RANG_4_ARTILLERIE",
             "Médecin de campagne",
             4,
@@ -212,7 +212,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_ARTILLERIE(
-        Rang(
+        RangWrapper(
             "RANG_5_ARTILLERIE",
             "Artilleur vétéran",
             5,
@@ -224,7 +224,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_CHIMISTE(
-        Rang(
+        RangWrapper(
             "RANG_1_CHIMISTE",
             "Chimiste en herbe",
             1,
@@ -233,7 +233,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_CHIMISTE(
-        Rang(
+        RangWrapper(
             "RANG_2_CHIMISTE",
             "Expertise de la poudre",
             2,
@@ -242,7 +242,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_CHIMISTE(
-        Rang(
+        RangWrapper(
             "RANG_3_CHIMISTE",
             "Projectile explosif",
             3,
@@ -251,7 +251,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_CHIMISTE(
-        Rang(
+        RangWrapper(
             "RANG_4_CHIMISTE",
             "Démolisseur",
             4,
@@ -260,7 +260,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_CHIMISTE(
-        Rang(
+        RangWrapper(
             "RANG_5_CHIMISTE",
             "Sapeur",
             5,
@@ -272,7 +272,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_TIREUR(
-        Rang(
+        RangWrapper(
             "RANG_1_TIREUR",
             "Entraînement au tir",
             1,
@@ -280,7 +280,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_TIREUR(
-        Rang(
+        RangWrapper(
             "RANG_2_TIREUR",
             "Tenir en joue",
             2,
@@ -288,7 +288,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_TIREUR(
-        Rang(
+        RangWrapper(
             "RANG_3_TIREUR",
             "Pistoléro",
             3,
@@ -296,7 +296,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_TIREUR(
-        Rang(
+        RangWrapper(
             "RANG_4_TIREUR",
             "Rechargement rapide",
             4,
@@ -305,7 +305,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_TIREUR(
-        Rang(
+        RangWrapper(
             "RANG_5_TIREUR",
             "As de la gâchette",
             5,
@@ -316,7 +316,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_MECANIQUE(
-        Rang(
+        RangWrapper(
             "RANG_1_MECANIQUE",
             "Mécanicien",
             1,
@@ -324,7 +324,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_MECANIQUE(
-        Rang(
+        RangWrapper(
             "RANG_2_MECANIQUE",
             "Physique appliquée",
             2,
@@ -332,7 +332,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_MECANIQUE(
-        Rang(
+        RangWrapper(
             "RANG_3_MECANIQUE",
             "Automate",
             3,
@@ -340,7 +340,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_MECANIQUE(
-        Rang(
+        RangWrapper(
             "RANG_4_MECANIQUE",
             "Bidouillage",
             4,
@@ -351,7 +351,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_MECANIQUE(
-        Rang(
+        RangWrapper(
             "RANG_5_MECANIQUE",
             "Golem",
             5,
@@ -366,7 +366,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_FEU(
-        Rang(
+        RangWrapper(
             "RANG_1_FEU",
             "Esprit du Phoenix",
             1,
@@ -374,7 +374,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_FEU(
-        Rang(
+        RangWrapper(
             "RANG_2_FEU",
             "Boule de feu",
             2,
@@ -382,7 +382,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_FEU(
-        Rang(
+        RangWrapper(
             "RANG_3_FEU",
             "Mur de flamme",
             3,
@@ -390,7 +390,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_FEU(
-        Rang(
+        RangWrapper(
             "RANG_4_FEU",
             "Contrôle du feu",
             4,
@@ -398,7 +398,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_FEU(
-        Rang(
+        RangWrapper(
             "RANG_5_FEU",
             "Elémentaire de feu",
             5,
@@ -408,7 +408,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_TERRE(
-        Rang(
+        RangWrapper(
             "RANG_1_TERRE",
             "Esprit de Gaia",
             1,
@@ -416,7 +416,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_TERRE(
-        Rang(
+        RangWrapper(
             "RANG_2_TERRE",
             "Prison terrestre",
             2,
@@ -424,7 +424,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_TERRE(
-        Rang(
+        RangWrapper(
             "RANG_3_TERRE",
             "Poing de pierre",
             3,
@@ -432,7 +432,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_TERRE(
-        Rang(
+        RangWrapper(
             "RANG_4_TERRE",
             "Sens tellurique",
             4,
@@ -440,7 +440,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_TERRE(
-        Rang(
+        RangWrapper(
             "RANG_5_TERRE",
             "Elémentaire de pierre",
             5,
@@ -450,7 +450,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_EAU(
-        Rang(
+        RangWrapper(
             "RANG_1_EAU",
             "Esprit de Neptune",
             1,
@@ -458,7 +458,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_EAU(
-        Rang(
+        RangWrapper(
             "RANG_2_EAU",
             "Lance de givre",
             2,
@@ -466,7 +466,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_EAU(
-        Rang(
+        RangWrapper(
             "RANG_3_EAU",
             "Soutien marin",
             3,
@@ -475,7 +475,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_EAU(
-        Rang(
+        RangWrapper(
             "RANG_4_EAU",
             "Prison aqueuse",
             4,
@@ -483,7 +483,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_EAU(
-        Rang(
+        RangWrapper(
             "RANG_5_EAU",
             "Elémentaire de glace",
             5,
@@ -493,7 +493,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_AIR(
-        Rang(
+        RangWrapper(
             "RANG_1_AIR",
             "Esprit de Zephyr",
             1,
@@ -501,7 +501,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_AIR(
-        Rang(
+        RangWrapper(
             "RANG_2_AIR",
             "Murmures du vent",
             2,
@@ -509,7 +509,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_AIR(
-        Rang(
+        RangWrapper(
             "RANG_3_AIR",
             "Mur d'air",
             3,
@@ -518,7 +518,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_AIR(
-        Rang(
+        RangWrapper(
             "RANG_4_AIR",
             "Chaine d'éclairs",
             4,
@@ -526,7 +526,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_AIR(
-        Rang(
+        RangWrapper(
             "RANG_5_AIR",
             "Elémentaire d'air",
             5,
@@ -536,7 +536,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_ARCANES(
-        Rang(
+        RangWrapper(
             "RANG_1_ARCANES",
             "Esprit arcanique",
             1,
@@ -544,7 +544,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_ARCANES(
-        Rang(
+        RangWrapper(
             "RANG_2_ARCANES",
             "Eclat des arcanes",
             2,
@@ -552,7 +552,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_ARCANES(
-        Rang(
+        RangWrapper(
             "RANG_3_ARCANES",
             "Esprit arcanique",
             3,
@@ -560,7 +560,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_ARCANES(
-        Rang(
+        RangWrapper(
             "RANG_4_ARCANES",
             "Artéfact magique",
             4,
@@ -568,7 +568,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_ARCANES(
-        Rang(
+        RangWrapper(
             "RANG_5_ARCANES",
             "Déchainement des arcanes",
             5,
@@ -578,7 +578,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_MAGIE_UNIVERSELLE(
-        Rang(
+        RangWrapper(
             "RANG_1_MAGIE_UNIVERSELLE",
             "Savoir magique",
             1,
@@ -586,7 +586,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_MAGIE_UNIVERSELLE(
-        Rang(
+        RangWrapper(
             "RANG_2_MAGIE_UNIVERSELLE",
             "Cercle protection",
             2,
@@ -594,7 +594,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_MAGIE_UNIVERSELLE(
-        Rang(
+        RangWrapper(
             "RANG_3_MAGIE_UNIVERSELLE",
             "Transfert de mana",
             3,
@@ -603,7 +603,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_MAGIE_UNIVERSELLE(
-        Rang(
+        RangWrapper(
             "RANG_4_MAGIE_UNIVERSELLE",
             "Téléportation",
             4,
@@ -614,7 +614,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_MAGIE_UNIVERSELLE(
-        Rang(
+        RangWrapper(
             "RANG_5_MAGIE_UNIVERSELLE",
             "Archimage",
             5,
@@ -625,7 +625,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_LUMIERE(
-        Rang(
+        RangWrapper(
             "RANG_1_LUMIERE",
             "Orbe de lumière",
             1,
@@ -633,7 +633,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_LUMIERE(
-        Rang(
+        RangWrapper(
             "RANG_2_LUMIERE",
             "Lueur scintillante",
             2,
@@ -641,7 +641,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_LUMIERE(
-        Rang(
+        RangWrapper(
             "RANG_3_LUMIERE",
             "Perception vitale",
             3,
@@ -649,7 +649,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_LUMIERE(
-        Rang(
+        RangWrapper(
             "RANG_4_LUMIERE",
             "Armure du zénith",
             4,
@@ -658,7 +658,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_LUMIERE(
-        Rang(
+        RangWrapper(
             "RANG_5_LUMIERE",
             "Bannissement",
             5,
@@ -669,7 +669,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_DRACONIEN(
-        Rang(
+        RangWrapper(
             "RANG_1_DRACONIEN",
             "Griffes et crocs",
             1,
@@ -677,7 +677,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_DRACONIEN(
-        Rang(
+        RangWrapper(
             "RANG_2_DRACONIEN",
             "Cuir de dragon",
             2,
@@ -685,7 +685,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_DRACONIEN(
-        Rang(
+        RangWrapper(
             "RANG_3_DRACONIEN",
             "Coup de queue",
             3,
@@ -693,7 +693,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_DRACONIEN(
-        Rang(
+        RangWrapper(
             "RANG_4_DRACONIEN",
             "Libération",
             4,
@@ -701,7 +701,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_DRACONIEN(
-        Rang(
+        RangWrapper(
             "RANG_5_DRACONIEN",
             "Accroissance draconique",
             5,
@@ -716,7 +716,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_ELFE_SYLVAIN(
-        Rang(
+        RangWrapper(
             "RANG_1_ELFE_SYLVAIN",
             "Nature primordiale",
             1,
@@ -724,7 +724,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_ELFE_SYLVAIN(
-        Rang(
+        RangWrapper(
             "RANG_2_ELFE_SYLVAIN",
             "Cri sauvage",
             2,
@@ -732,7 +732,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_ELFE_SYLVAIN(
-        Rang(
+        RangWrapper(
             "RANG_3_ELFE_SYLVAIN",
             "Amis de la forêt",
             3,
@@ -745,7 +745,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_ELFE_SYLVAIN(
-        Rang(
+        RangWrapper(
             "RANG_4_ELFE_SYLVAIN",
             "Equipement naturel",
             4,
@@ -754,7 +754,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_ELFE_SYLVAIN(
-        Rang(
+        RangWrapper(
             "RANG_5_ELFE_SYLVAIN",
             "TODO",
             5,
@@ -764,7 +764,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_HAUT_ELFE(
-        Rang(
+        RangWrapper(
             "RANG_1_HAUT_ELFE",
             "Sagesse ancestrale",
             1,
@@ -772,7 +772,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_HAUT_ELFE(
-        Rang(
+        RangWrapper(
             "RANG_2_HAUT_ELFE",
             "Affinité magique",
             2,
@@ -780,7 +780,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_HAUT_ELFE(
-        Rang(
+        RangWrapper(
             "RANG_3_HAUT_ELFE",
             "Puit d'arcane",
             3,
@@ -788,7 +788,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_HAUT_ELFE(
-        Rang(
+        RangWrapper(
             "RANG_4_HAUT_ELFE",
             "Visage immémorable",
             4,
@@ -796,7 +796,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_HAUT_ELFE(
-        Rang(
+        RangWrapper(
             "RANG_5_HAUT_ELFE",
             "Vitalité elfique",
             5,
@@ -807,7 +807,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_GNOME(
-        Rang(
+        RangWrapper(
             "RANG_1_GNOME",
             "Accessoire vraisemblablement indispensable",
             1,
@@ -816,7 +816,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_GNOME(
-        Rang(
+        RangWrapper(
             "RANG_2_GNOME",
             "Discussion insensée mais soit disant pertinente",
             2,
@@ -824,7 +824,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_GNOME(
-        Rang(
+        RangWrapper(
             "RANG_3_GNOME",
             "Dans ma sacoche, j'ai ...",
             3,
@@ -832,7 +832,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_GNOME(
-        Rang(
+        RangWrapper(
             "RANG_4_GNOME",
             "P'tit bonhomme",
             4,
@@ -840,7 +840,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_GNOME(
-        Rang(
+        RangWrapper(
             "RANG_5_GNOME",
             "Chanceux",
             5,
@@ -851,7 +851,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_HUMAIN(
-        Rang(
+        RangWrapper(
             "RANG_1_HUMAIN",
             "Polyglotte",
             1,
@@ -859,7 +859,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_HUMAIN(
-        Rang(
+        RangWrapper(
             "RANG_2_HUMAIN",
             "Origines marquées",
             2,
@@ -874,7 +874,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_HUMAIN(
-        Rang(
+        RangWrapper(
             "RANG_3_HUMAIN",
             "Charme",
             3,
@@ -882,7 +882,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_HUMAIN(
-        Rang(
+        RangWrapper(
             "RANG_4_HUMAIN",
             "Polyvalence",
             4,
@@ -890,7 +890,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_HUMAIN(
-        Rang(
+        RangWrapper(
             "RANG_5_HUMAIN",
             "Perfectionnement",
             5,
@@ -900,7 +900,7 @@ enum class RangEnum (var rang: Rang) {
 
 
     RANG_1_NAIN(
-        Rang(
+        RangWrapper(
             "RANG_1_NAIN",
             "Outils de nain",
             1,
@@ -908,7 +908,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_2_NAIN(
-        Rang(
+        RangWrapper(
             "RANG_2_NAIN",
             "Ivresse naine",
             2,
@@ -916,7 +916,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_3_NAIN(
-        Rang(
+        RangWrapper(
             "RANG_3_NAIN",
             "Tête de fer",
             3,
@@ -924,7 +924,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_4_NAIN(
-        Rang(
+        RangWrapper(
             "RANG_4_NAIN",
             "Acolyte des montagnes",
             4,
@@ -932,7 +932,7 @@ enum class RangEnum (var rang: Rang) {
         )
     ),
     RANG_5_NAIN(
-        Rang(
+        RangWrapper(
             "RANG_5_NAIN",
             "Ténacité",
             5,

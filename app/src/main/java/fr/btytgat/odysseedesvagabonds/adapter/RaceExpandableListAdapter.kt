@@ -1,5 +1,6 @@
 package fr.btytgat.odysseedesvagabonds.adapter
 
+import android.app.ActionBar
 import android.content.Context
 import android.graphics.Typeface
 import android.view.LayoutInflater
@@ -63,16 +64,16 @@ class RaceExpandableListAdapter internal constructor(
         tvDescription.text = race.description
         tvDV.text = context.getString(R.string.health_dice) + " " + race.healthDice
         tvDM.text = context.getString(R.string.mana_dice) + " "+ race.manaDice
-        tvVoie.text = race.uuidVoie
+        tvVoie.text = race.voieRacial.name
 
         val listStats = ArrayList<String>()
         for((key, value) in race.statsChange){
-
-            listStats.add(key + " " + value)
+            listStats.add(key.shortName + " " + value)
         }
         val statAdapter = ArrayAdapter(context, R.layout.custom_stat_item, listStats)
         lvStats.adapter = statAdapter
         lvStats.divider = null
+
 
         return convertView
     }

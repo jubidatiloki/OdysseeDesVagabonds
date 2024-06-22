@@ -1,10 +1,10 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
-import fr.btytgat.odysseedesvagabonds.database.entities.Stat
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.StatWrapper
 
-enum class StatEnum (var stat: Stat){
+enum class StatEnum(var stat: StatWrapper) {
     STAT_ADC(
-        Stat(
+        StatWrapper(
             "STAT_ADC",
             "Aptitude de combat",
             "AdC",
@@ -16,7 +16,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_ADT(
-        Stat(
+        StatWrapper(
             "STAT_ADT",
             "Aptitude de tir",
             "AdT",
@@ -28,7 +28,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_CHA(
-        Stat(
+        StatWrapper(
             "STAT_CHA",
             "Charisme",
             "CHA",
@@ -39,7 +39,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_CHAN(
-        Stat(
+        StatWrapper(
             "STAT_CHAN",
             "Chance",
             "CHAN",
@@ -50,7 +50,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_CON(
-        Stat(
+        StatWrapper(
             "STAT_CON",
             "Constitution",
             "CON",
@@ -62,7 +62,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DEF_CAC(
-        Stat(
+        StatWrapper(
             "STAT_DEF_CAC",
             "Défense au corps à corps",
             "DEF CaC",
@@ -73,7 +73,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DEF_DIST(
-        Stat(
+        StatWrapper(
             "STAT_DEF_DIST",
             "Défense à distance",
             "DEF DIST",
@@ -84,7 +84,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DEF_ELEM(
-        Stat(
+        StatWrapper(
             "STAT_DEF_ELEM",
             "Défense élémentaire",
             "DEF ELEM",
@@ -95,7 +95,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DEF_MAG(
-        Stat(
+        StatWrapper(
             "STAT_DEF_MAG",
             "Défense magique",
             "DEF MAG",
@@ -106,7 +106,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DEX(
-        Stat(
+        StatWrapper(
             "STAT_DEX",
             "Dextérité",
             "DEX",
@@ -118,7 +118,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DV(
-        Stat(
+        StatWrapper(
             "STAT_DV",
             "Dé de vie",
             "DV",
@@ -129,7 +129,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_DM(
-        Stat(
+        StatWrapper(
             "STAT_DM",
             "Dé de mana",
             "DM",
@@ -140,7 +140,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_ESQ(
-        Stat(
+        StatWrapper(
             "STAT_ESQ",
             "Esquive",
             "ESQ",
@@ -153,7 +153,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_FOR(
-        Stat(
+        StatWrapper(
             "STAT_FOR",
             "Force",
             "FOR",
@@ -165,7 +165,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_INIT(
-        Stat(
+        StatWrapper(
             "STAT_INIT",
             "Initiative",
             "INIT",
@@ -176,7 +176,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_INT(
-        Stat(
+        StatWrapper(
             "STAT_INT",
             "Intelligence",
             "INT",
@@ -188,7 +188,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_PER(
-        Stat(
+        StatWrapper(
             "STAT_PER",
             "Perception",
             "PER",
@@ -199,7 +199,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_PV(
-        Stat(
+        StatWrapper(
             "STAT_PV",
             "Point de vie",
             "PV",
@@ -212,7 +212,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_PM(
-        Stat(
+        StatWrapper(
             "STAT_PM",
             "Point de mana",
             "PM",
@@ -224,7 +224,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_SOC(
-        Stat(
+        StatWrapper(
             "STAT_SOC",
             "Social",
             "SOC",
@@ -235,7 +235,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_RD_PHY(
-        Stat(
+        StatWrapper(
             "STAT_RD_PHY",
             "Réduction de dégât physique",
             "RD PHY",
@@ -246,7 +246,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_RD_MAG(
-        Stat(
+        StatWrapper(
             "STAT_RD_MAG",
             "Réduction de dégât magique",
             "RD MAG",
@@ -257,7 +257,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_RD_FEU(
-        Stat(
+        StatWrapper(
             "STAT_RD_FEU",
             "Réduction de dégât de feu",
             "RD FEU",
@@ -268,7 +268,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_RD_GLACE(
-        Stat(
+        StatWrapper(
             "STAT_RD_GLACE",
             "Réduction de dégât de glace",
             "RD GLACE",
@@ -279,7 +279,7 @@ enum class StatEnum (var stat: Stat){
         )
     ),
     STAT_RD_FOUDRE(
-        Stat(
+        StatWrapper(
             "STAT_RD_FOUDRE",
             "Réduction de dégât de foudre",
             "RD FOUDRE",

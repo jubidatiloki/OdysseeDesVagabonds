@@ -1,10 +1,11 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.RaceWrapper
 
-enum class RaceEnum(val race: Race) {
+enum class RaceEnum(val race: RaceWrapper) {
     RACE_DEMI_ELFE(
-        Race(
+        RaceWrapper(
             "RACE_DEMI_ELFE",
             "Demi-elfe",
             4,
@@ -16,7 +17,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_DEMI_ORQUE(
-        Race(
+        RaceWrapper(
             "RACE_DEMI_ORQUE",
             "Demi-orque",
             10,
@@ -28,7 +29,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_DRACONIEN(
-        Race(
+        RaceWrapper(
             "RACE_DRACONIEN",
             "Draconien",
             8,
@@ -40,7 +41,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_ELFE_SYLVAIN(
-        Race(
+        RaceWrapper(
             "RACE_ELFE_SYLVAIN",
             "Elfe-sylvain",
             8,
@@ -52,7 +53,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_HAUT_ELFE(
-        Race(
+        RaceWrapper(
             "RACE_HAUT_ELFE",
             "Haut-elfe",
             6,
@@ -64,7 +65,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_GNOME(
-        Race(
+        RaceWrapper(
             "RACE_GNOME",
             "Gnome",
             6,
@@ -76,7 +77,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_HUMAIN(
-        Race(
+        RaceWrapper(
             "RACE_HUMAIN",
             "Humain",
             6,
@@ -88,7 +89,7 @@ enum class RaceEnum(val race: Race) {
         )
     ),
     RACE_NAIN(
-        Race(
+        RaceWrapper(
             "RACE_NAIN",
             "Nain",
             8,

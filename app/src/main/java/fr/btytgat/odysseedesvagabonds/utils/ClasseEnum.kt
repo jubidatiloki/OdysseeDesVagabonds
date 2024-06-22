@@ -1,10 +1,11 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
 import fr.btytgat.odysseedesvagabonds.database.entities.Classe
+import fr.btytgat.odysseedesvagabonds.utils.wrapper.ClasseWrapper
 
-enum class ClasseEnum(val classe: Classe) {
+enum class ClasseEnum(val classe: ClasseWrapper) {
     CLASSE_BARBARE(
-        Classe("CLASSE_BARBARE",
+        ClasseWrapper("CLASSE_BARBARE",
             "Barbare",
             -1,
             -1,
@@ -19,7 +20,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_BARDE(
-        Classe("CLASSE_BARDE",
+        ClasseWrapper("CLASSE_BARDE",
             "Barde",
             0,
             0,
@@ -34,7 +35,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_CHEVALIER(
-        Classe("CLASSE_CHEVALIER",
+        ClasseWrapper("CLASSE_CHEVALIER",
             "Chevalier",
             1,
             -1,
@@ -49,7 +50,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_DRUIDE(
-        Classe("CLASSE_DRUIDE",
+        ClasseWrapper("CLASSE_DRUIDE",
             "Druide",
             0,
             1,
@@ -64,7 +65,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_GUERRIER(
-        Classe("CLASSE_GUERRIER",
+        ClasseWrapper("CLASSE_GUERRIER",
             "Guerrier",
             1,
             -1,
@@ -79,7 +80,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_INGENIEUR(
-        Classe("CLASSE_INGENIEUR",
+        ClasseWrapper("CLASSE_INGENIEUR",
             "Ingénieur",
             1,
             -1,
@@ -94,7 +95,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_MAGICIEN(
-        Classe("CLASSE_MAGICIEN",
+        ClasseWrapper("CLASSE_MAGICIEN",
             "Magicien",
             -1,
             1,
@@ -112,7 +113,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_MOINE(
-        Classe("CLASSE_MOINE",
+        ClasseWrapper("CLASSE_MOINE",
             "Moine",
             1,
             0,
@@ -127,7 +128,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_NECROMANCIEN(
-        Classe("CLASSE_NECROMANCIEN",
+        ClasseWrapper("CLASSE_NECROMANCIEN",
             "Nécromancien",
             -1,
             1,
@@ -142,7 +143,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_PRETRE(
-        Classe("CLASSE_PRETRE",
+        ClasseWrapper("CLASSE_PRETRE",
             "Prêtre",
             0,
             1,
@@ -157,7 +158,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_RODEUR(
-        Classe("CLASSE_RODEUR",
+        ClasseWrapper("CLASSE_RODEUR",
             "Rodeur",
             0,
             0,
@@ -172,7 +173,7 @@ enum class ClasseEnum(val classe: Classe) {
         )
     ),
     CLASSE_VOLEUR(
-        Classe("CLASSE_VOLEUR",
+        ClasseWrapper("CLASSE_VOLEUR",
             "Voleur",
             0,
             0,

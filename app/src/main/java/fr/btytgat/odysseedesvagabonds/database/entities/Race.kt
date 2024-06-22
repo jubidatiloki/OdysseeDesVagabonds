@@ -8,6 +8,6 @@ data class Race(
     var manaDice: Long,
     var description: String = "",
     var history: String = "",
-    var uuidVoie: String,
-    var statsChange: HashMap<String, Long>
+    var voieRacial: Voie,
+    var statsChange: HashMap<Stat, Long>
 )
