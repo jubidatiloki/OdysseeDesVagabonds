@@ -2,26 +2,30 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.EntityEnum
 import fr.btytgat.odysseedesvagabonds.utils.ClasseEnum
 import fr.btytgat.odysseedesvagabonds.utils.RaceEnum
 import fr.btytgat.odysseedesvagabonds.utils.RangEnum
 import fr.btytgat.odysseedesvagabonds.utils.VoieEnum
+import java.util.UUID
 
 
-@Entity(tableName = "info")
+@Entity(tableName = Info.TABLE_NAME)
 data class Info(
-    @PrimaryKey(autoGenerate = true) var id: Long?,
-    var name: String,
-    var entity: String,
+    @PrimaryKey(autoGenerate = true) var uuid: UUID?,
+    var title: String = "",
     var description: String? = "",
+    var subDescription: String? = "",
     var history: String? = "",
 
-) {
+): BaseEntity() {
 
-    constructor(): this(id = null, name = "", entity = "", description = null, history = null)
+    constructor(): this(uuid = null, title = "", description = "", subDescription = null, history = null)
 
     companion object{
+
+        const val TABLE_NAME = "Info"
 
 //        fun populate(): List<Info>{
 //            return listOf(
