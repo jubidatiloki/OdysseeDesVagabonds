@@ -10,7 +10,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white">
+            android:background="@color/colorPrimary">
 
             <include
                 android:id="@+id/toolbar"
@@ -47,6 +47,7 @@
                 android:gravity="center"
                 android:singleLine="false"
                 android:text="Avancement création base de données :"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/bt_update_data" />
@@ -63,8 +64,9 @@
                     android:layout_height="100dp"
                     android:layout_margin="10dp"
                     android:layout_weight="0.5"
-                    android:background="@drawable/background_square_button"
+                    android:background="@drawable/card_rounded_gradient"
                     android:gravity="center"
+                    android:elevation="8dp"
                     android:singleLine="false"
                     android:text="Nb classes"
                     android:textColor="@color/white" />
@@ -75,8 +77,9 @@
                     android:layout_height="100dp"
                     android:layout_margin="10dp"
                     android:layout_weight="0.5"
-                    android:background="@drawable/background_square_button"
+                    android:background="@drawable/card_rounded_gradient"
                     android:gravity="center"
+                    android:elevation="8dp"
                     android:singleLine="false"
                     android:text="Nb races"
                     android:textColor="@color/white" />
@@ -95,8 +98,9 @@
                     android:layout_height="100dp"
                     android:layout_margin="10dp"
                     android:layout_weight="0.5"
-                    android:background="@drawable/background_square_button"
+                    android:background="@drawable/card_rounded_gradient"
                     android:gravity="center"
+                    android:elevation="8dp"
                     android:singleLine="false"
                     android:text="Nb voies"
                     android:textColor="@color/white" />
@@ -107,8 +111,9 @@
                     android:layout_height="100dp"
                     android:layout_margin="10dp"
                     android:layout_weight="0.5"
-                    android:background="@drawable/background_square_button"
+                    android:background="@drawable/card_rounded_gradient"
                     android:gravity="center"
+                    android:elevation="8dp"
                     android:singleLine="false"
                     android:text="Nb rangs"
                     android:textColor="@color/white" />
@@ -128,8 +133,9 @@
                     android:layout_height="100dp"
                     android:layout_margin="10dp"
                     android:layout_weight="0.5"
-                    android:background="@drawable/background_square_button"
+                    android:background="@drawable/card_rounded_gradient"
                     android:gravity="center"
+                    android:elevation="8dp"
                     android:singleLine="false"
                     android:text="Nb stats"
                     android:textColor="@color/white" />
@@ -140,8 +146,9 @@
                     android:layout_height="100dp"
                     android:layout_margin="10dp"
                     android:layout_weight="0.5"
-                    android:background="@drawable/background_square_button"
+                    android:background="@drawable/card_rounded_gradient"
                     android:gravity="center"
+                    android:elevation="8dp"
                     android:singleLine="false"
                     android:text="Nb infos"
                     android:textColor="@color/white" />
@@ -157,7 +164,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/fab_margin"
                 android:layout_marginBottom="16dp"
-                android:backgroundTint="@color/orange"
+                android:backgroundTint="@color/colorAccent"
                 android:tint="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
