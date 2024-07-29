@@ -1,8 +1,8 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
-import fr.btytgat.odysseedesvagabonds.database.entities.Rang
+import fr.btytgat.odysseedesvagabonds.database.entities.Talent
 
-enum class RangEnum (var rang: Rang) {
+enum class RangEnum (var rang: Talent) {
 //    RANG_1_BESTIALE(
 //        Rang(
 //            "RANG_1_BESTIALE",

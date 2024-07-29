@@ -5,9 +5,8 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 
-
 @Entity(
-    tableName = Race.TABLE_NAME,
+    tableName = Classe.TABLE_NAME,
     foreignKeys = [(ForeignKey(
         entity = Info::class,
         childColumns = [("info")],
@@ -15,17 +14,16 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
         onDelete = ForeignKey.CASCADE,
         onUpdate = ForeignKey.CASCADE
     ))])
-data class Race(
-    @PrimaryKey(autoGenerate = false) var uuid: String,
-    var name: String = "",
-    var healthDice: Int,
-    var manaDice: Int,
+data class StatChangeGroup(
+    @PrimaryKey(autoGenerate = false) val uuid: String,
+    var name: String,
     var info: String?,
-    var voieUuid: String,
-    var statsChangeUuid: String?,
-    var specialStatChangeUuid: List<String>?     // à utiliser si statChangeUuid est null, pour gérer le cas du démi-elfe et de l'humain
-): BaseEntity() {
+    var statChange: HashMap<String, Int>
+
+    ): BaseEntity(){
+
     companion object {
-        const val TABLE_NAME = "Race"
+        const val TABLE_NAME = "Stat"
     }
+
 }

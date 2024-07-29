@@ -4,26 +4,26 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import fr.btytgat.odysseedesvagabonds.database.entities.Voie
+import fr.btytgat.odysseedesvagabonds.database.entities.Path
 
 @Dao
 interface VoieDao {
 
     @Query("SELECT * FROM voie")
-    fun getAllVoies(): List<Voie>
+    fun getAllVoies(): List<Path>
 
     @Query("SELECT * FROM voie WHERE id_classe = :idClasse")
-    fun getAllVoiesByClasse(idClasse: Long?): List<Voie>
+    fun getAllVoiesByClasse(idClasse: Long?): List<Path>
 
 
     @Insert
-    fun insertAllVoies(voies: List<Voie>)
+    fun insertAllVoies(voies: List<Path>)
 
     @Insert
-    fun insertVoie(voie: Voie): Long
+    fun insertVoie(voie: Path): Long
 
 
 
     @Delete
-    fun deleteVoie(voie: Voie)
+    fun deleteVoie(path: Path)
 }

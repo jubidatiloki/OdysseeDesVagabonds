@@ -39,4 +39,14 @@ class DBConverters {
         val type = object : TypeToken<HashMap<UUID, Int>>() {}.type
         return gson.fromJson(value, type)
     }
+
+    @TypeConverter
+    fun fromStringList(value: List<String>?): String? {
+        return value?.joinToString(separator = ",")
+    }
+
+    @TypeConverter
+    fun toStringList(value: String?): List<String>? {
+        return value?.split(",")
+    }
 }

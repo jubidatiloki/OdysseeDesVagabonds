@@ -6,11 +6,11 @@ import androidx.room.Relation
 
 data class VoieRang(
     @Embedded
-    val voie: Voie,
+    val voie: Path,
     @Relation(
         parentColumn = "id",
         entityColumn = "voie"
     )
-    val rangs: List<Rang>
+    val rangs: List<Talent>
 ) {
 }

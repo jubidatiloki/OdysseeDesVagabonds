@@ -1,9 +1,9 @@
 package fr.btytgat.odysseedesvagabonds.utils
 
-import fr.btytgat.odysseedesvagabonds.database.entities.Voie
+import fr.btytgat.odysseedesvagabonds.database.entities.Path
 
 
-enum class VoieEnum (var voie: Voie){
+enum class VoieEnum (var voie: Path){
 
 //    VOIE_DE_LA_BRUTE(
 //        Voie(

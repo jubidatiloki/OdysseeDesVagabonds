@@ -1,12 +1,8 @@
 package fr.btytgat.odysseedesvagabonds.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Transaction
 import fr.btytgat.odysseedesvagabonds.database.entities.Classe
-import fr.btytgat.odysseedesvagabonds.database.entities.Voie
-import java.util.UUID
 
 @Dao
 interface ClasseDao {
