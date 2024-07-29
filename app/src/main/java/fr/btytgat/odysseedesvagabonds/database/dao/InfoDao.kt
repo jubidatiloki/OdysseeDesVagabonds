@@ -12,6 +12,15 @@ interface InfoDao {
     @Query("SELECT * FROM info")
     fun getAllInfos(): List<Info>
 
+    @Insert
+    fun insertInfo(info: Info)
+
+    @Insert
+    fun insertAllInfos(infos: List<Info>)
+
+    @Delete
+    fun deleteInfo(info: Info)
+
 //    @Query("SELECT * FROM info WHERE id = :id")
 //    fun getInfoById(id: Long?): Info
 //

@@ -84,6 +84,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/ll_1">
@@ -114,6 +115,25 @@
 
             </LinearLayout>
 
+
+            <LinearLayout
+                android:id="@+id/ll_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/ll_2">
+
+                <TextView
+                    android:id="@+id/tv_stats"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="0.5"
+                    android:background="@drawable/background_square_button"
+                    android:gravity="center"
+                    android:singleLine="false"
+                    android:text="Nb stats"
+                    android:textColor="@color/white" />
+            </LinearLayout>
 
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton

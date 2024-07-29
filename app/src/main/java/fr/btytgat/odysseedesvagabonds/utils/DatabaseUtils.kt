@@ -10,19 +10,21 @@ class DatabaseUtils {
     companion object{
         val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
 
+        val KEY_SYSTEM = "SYSTEM"
         val KEY_CLASSES = "CLASSES"
         val KEY_RACES = "RACES"
         val KEY_STATS = "STATS"
         val KEY_VOIES = "VOIES"
         val KEY_RANGS = "RANGS"
+        val KEY_INFOS = "INFOS"
 
         fun initDatabase(){
             Log.i("DATABASE", "starting creating datas ....")
-            createAllClasses()
-            createAllRaces()
-            createAllVoies()
-            createAllRangs()
-            createAllStats()
+            StatInitializer.populateStats(database)
+//            createAllClasses()
+//            createAllRaces()
+//            createAllVoies()
+//            createAllRangs()
             Log.i("DATABASE", "finished creating datas ....")
 
         }
@@ -48,16 +50,6 @@ class DatabaseUtils {
 
         }
 
-        private fun createAllStats(){
-            Log.i("DATABASE", "starting creating stats ....")
-
-            StatEnum.values().forEach {
-                Log.i("DATABASE", "create stats - ${it.name}")
-                database.child(KEY_STATS).child(it.name).setValue(it.stat)
-            }
-            Log.i("DATABASE", "finished creating stats ....")
-
-        }
 
         private fun createAllVoies(){
             Log.i("DATABASE", "starting creating voies ....")

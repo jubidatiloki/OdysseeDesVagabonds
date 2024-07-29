@@ -5,7 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.viewbinding.BuildConfig
 import fr.btytgat.odysseedesvagabonds.database.dao.*
@@ -20,7 +19,7 @@ abstract class DatabaseManager : RoomDatabase() {
     abstract fun raceDao(): RaceDao
 
     companion object {
-        private const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
+        const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
 
         private var sInstance: DatabaseManager? = null
 
