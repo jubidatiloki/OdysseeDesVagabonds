@@ -64,7 +64,7 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
             database.child(KEY_SYSTEM).child(KEY_PATHS).get().addOnSuccessListener {
                 tvVoie.text = "nb voies: \n${it.childrenCount} / $nb_max_voie"
             }
-            database.child(KEY_SYSTEM).child(KEY_TALENTS).get().addOnSuccessListener {
+            database.child(KEY_SYSTEM).child(KEY_TALENT_GROUPS).get().addOnSuccessListener {
                 tvRang.text = "nb talents: \n${it.childrenCount} / $nb_max_rang"
             }
             database.child(KEY_SYSTEM).child(KEY_STATS).get().addOnSuccessListener {

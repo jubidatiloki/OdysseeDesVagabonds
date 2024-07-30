@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
+import java.util.*
 
 @Entity(
     tableName = Classe.TABLE_NAME,
@@ -20,7 +21,7 @@ data class Stat(
     var shortName: String,
     var isInnate: Boolean,  // true si stat d'une creature, false si c'est un buff externe (equipement, potion, temporaire)
     var haveMod: Boolean,    // pour pouvoir ensuite faire un getter du mod (pour les stats qui en ont un uniquement)
-    var info: String?,
+    var info: UUID?,
 
     ): BaseEntity(){
 

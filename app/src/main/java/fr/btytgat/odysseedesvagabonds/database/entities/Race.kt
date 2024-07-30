@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
+import java.util.*
 
 
 @Entity(
@@ -16,12 +17,12 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
         onUpdate = ForeignKey.CASCADE
     ))])
 data class Race(
-    @PrimaryKey(autoGenerate = false) var uuid: String,
+    @PrimaryKey(autoGenerate = false) val uuid: UUID,
     var name: String = "",
     var healthDice: Int,
     var manaDice: Int,
-    var info: String?,
-    var voieUuid: String,
+    var info: UUID?,
+    var pathUuid: UUID,
     var statsChangeUuid: String?,
     var specialStatChangeUuid: List<String>?     // à utiliser si statChangeUuid est null, pour gérer le cas du démi-elfe et de l'humain
 ): BaseEntity() {

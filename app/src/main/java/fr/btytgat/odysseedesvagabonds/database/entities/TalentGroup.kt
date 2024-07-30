@@ -4,14 +4,13 @@ import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import java.util.*
 
-
-data class Path(
+data class TalentGroup(
     @PrimaryKey(autoGenerate = true) var uuid: UUID,
     var name: String,
-    var uuidTalentGroups: List<UUID> = emptyList(),
-    var info: UUID?,
+    var talentIndex: Int,
+    var uuidTalents: List<UUID> = emptyList()
 ): BaseEntity(){
     companion object {
-        const val TABLE_NAME = "Path"
+        const val TABLE_NAME = "TALENT"
     }
 }

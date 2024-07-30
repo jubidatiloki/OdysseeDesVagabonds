@@ -16,7 +16,8 @@ class DatabaseUtils {
         val KEY_STATS = "STATS"
         val KEY_PATHS = "PATHS"
         val KEY_INFOS = "INFOS"
-        val KEY_TALENTS = "TALENT"
+        val KEY_TALENTS = "TALENTS"
+        val KEY_TALENT_GROUPS = "TALENT_GROUPS"
         val KEY_STAT_CHANGES = "STAT_CHANGES"
 
         fun initDatabase() {
