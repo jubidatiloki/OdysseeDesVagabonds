@@ -17,7 +17,7 @@ class RaceInitializer {
 
         fun nain(database: DatabaseReference) {
             val infoTalent1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Outils de nain",
                 "Maitrise de la hache et du marteau, si c'était déjà le cas, donne +1 AdC et +1 DMG avec ces armes à la place",
                 "",
@@ -29,7 +29,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -42,7 +42,7 @@ class RaceInitializer {
             }
 
             val talentGroup1 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#1 - Outils de nain",
                 1,
                 listOf(talent1.uuid)
@@ -54,7 +54,7 @@ class RaceInitializer {
             }
 
             val infoTalent2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Ivresse naine",
                 "bonus de +5 au tests de CON et peut refaire un jet en cas d'échec (hors échec critique) à un test de CON liés aux breuvages (poison compris)",
                 "\"ca tient chaud dans les profondeurs de la terre\"",
@@ -66,7 +66,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent2.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -78,7 +78,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup2 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#2 - Ivresse naine",
                 2,
                 listOf(talent2.uuid)
@@ -90,7 +90,7 @@ class RaceInitializer {
             }
 
             val infoTalent3 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Tête de fer",
                 "donne une attaque gratuite de coup de tête une fois par tour, 1D6 + CON DMG",
                 "",
@@ -102,7 +102,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent3 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent3.uuid,
                 TalentType.ACTIF.name,
                 false,
@@ -114,7 +114,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup3 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#3 - Tête de fer",
                 3,
                 listOf(talent3.uuid)
@@ -126,7 +126,7 @@ class RaceInitializer {
             }
 
             val infoTalent4 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Acolyte des montagnes",
                 "dompte un bouquetin pouvant lui servir de monture (pas de compétence particulier pour le combat et panique si n'a pas la voie du cavalier de chevalier), mais a un bonus de +10 d'escalade avec celui-ci et galope à la même vitesse qu'un cheval",
                 "",
@@ -138,7 +138,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent4 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent4.uuid,
                 TalentType.SUPPORT.name,
                 false,
@@ -150,7 +150,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup4 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#4 - Acolyte des montagnes",
                 4,
                 listOf(talent4.uuid)
@@ -163,7 +163,7 @@ class RaceInitializer {
 
 
             val infoTalent5 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Ténacité",
                 "+2 CON, +2 RD physique, +2 RD magique, +2 RD dans un élément (élément au choix)",
                 "",
@@ -175,7 +175,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -187,7 +187,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup5 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#5 - Ténacité",
                 5,
                 listOf(talent5.uuid)
@@ -199,7 +199,7 @@ class RaceInitializer {
             }
 
             val infoPath = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Voie du nain",
                 "",
                 "",
@@ -211,7 +211,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val path = Path(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Voie du nain",
                 listOf(
                     talentGroup1.uuid,
@@ -246,7 +246,7 @@ class RaceInitializer {
 
 
             val info = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - nain",
                 "se reconnait à  leurs petites tailles, leurs barbes, leur pioches, leurs air raleurs et désagréable, leur addiction pour l'alcool, .... ah et ils aiment pas les elfes aussi",
                 "",
@@ -260,7 +260,7 @@ class RaceInitializer {
             }
 
             val race = Race(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Nain",
                 8,
                 4,
@@ -279,7 +279,7 @@ class RaceInitializer {
 
         fun gnome(database: DatabaseReference) {
             val infoTalent1_1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Accessoire vraisemblablement indispensable",
                 "Maitrise d'une arme ou d'un instrument de musique au choix, si choix d'une arme/instrument déjà maitrisé, donne +1 AdC/+1AdT et +1 DMG avec cette arme à la place (si instrument déja maitrisé, +2 pour un instrument)",
                 "",
@@ -291,7 +291,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent1_1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent1_1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -304,7 +304,7 @@ class RaceInitializer {
             }
 
             val infoTalent1_2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Accessoire vraisemblablement indispensable",
                 "possède un porte bonheur (petit objet) qui lui donne +1 CHAN tant qu'il l'a sur lui",
                 "",
@@ -316,7 +316,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent1_2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent1_1.uuid,
                 TalentType.SUPPORT.name,
                 false,
@@ -329,7 +329,7 @@ class RaceInitializer {
             }
 
             val talentGroup1 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#1 - Accessoire vraisemblablement indispensable",
                 1,
                 listOf(talent1_1.uuid, talent1_2.uuid)
@@ -342,7 +342,7 @@ class RaceInitializer {
 
 
             val infoTalent2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Discussion insensée mais soit disant pertinente",
                 "une fois par combat, si la cible du gnome est humanoïde et comprend sa langue, le gnome peut raconter sa vie au milieu du combat afin de perturber sa cible, test de SOC du gnome en opposition à un test de CHA de la cible. Si réussite, -3 dans toutes les DEF de la cible jusqu'au prochain tour + perte de son action d'attaque pour ce tour si elle joue après le gnome",
                 "",
@@ -354,7 +354,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent2.uuid,
                 TalentType.ACTIF.name,
                 false,
@@ -366,7 +366,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup2 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#2 - Discussion insensée mais soit disant pertinente",
                 2,
                 listOf(talent2.uuid)
@@ -379,7 +379,7 @@ class RaceInitializer {
 
 
             val infoTalent3 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Dans ma sacoche j'ai ...",
                 "retrouve, trouve, achète (à avoir avec le MJ) une petite sacoche qui peut contenir jusqu'à 50kg d'objets en tout genre (non vivant uniquement, la nourriture ne se conserve pas mieux qu'en dehors) (le sac ne pèse rien pour le gnome)",
                 "",
@@ -391,7 +391,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent3 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent3.uuid,
                 TalentType.SUPPORT.name,
                 false,
@@ -403,7 +403,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup3 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#3 - Dans ma sacoche j'ai ...",
                 3,
                 listOf(talent3.uuid)
@@ -416,7 +416,7 @@ class RaceInitializer {
 
 
             val infoTalent4 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - P'tit bonhomme",
                 "+3 DEF contre les ennemis de grandes tailles, +6 DEF contre les ennemis plus grands encore",
                 "s'ils n'exprimaient pas aussi souvent leurs idées farfelues, les gnomes seraient les meilleurs ninjas qui existent",
@@ -428,7 +428,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent4 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent4.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -440,7 +440,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup4 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#4 - P'tit bonhomme",
                 4,
                 listOf(talent4.uuid)
@@ -453,7 +453,7 @@ class RaceInitializer {
 
 
             val infoTalent5_1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Chanceux",
                 "+2 CHAN",
                 "",
@@ -465,7 +465,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5_1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -477,7 +477,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val infoTalent5_2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Chanceux",
                 "une fois par aventure, si doit subir des dégâts mortels d'une attaque, ne meurt pas et regagne 2d6 PV et son porte bonheur est détruit (perd donc son +1 CHAN)",
                 "",
@@ -489,7 +489,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5_2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
                 TalentType.PASSIF.name,
                 true,
@@ -501,7 +501,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup5 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#5 - Chanceux",
                 5,
                 listOf(talent5_1.uuid, talent5_2.uuid)
@@ -514,7 +514,7 @@ class RaceInitializer {
 
 
             val infoPath = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Voie du gnome",
                 "",
                 "",
@@ -526,7 +526,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val path = Path(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Voie du gnome",
                 listOf(
                     talentGroup1.uuid,
@@ -563,7 +563,7 @@ class RaceInitializer {
 
 
             val info = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - gnome",
                 "petit, bavard, curieux et pas toujours mignon",
                 "",
@@ -577,7 +577,7 @@ class RaceInitializer {
             }
 
             val race = Race(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Gnome",
                 6,
                 6,
@@ -596,7 +596,7 @@ class RaceInitializer {
 
         fun hautElfe(database: DatabaseReference) {
             val infoTalent1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Sagesse ancestrale",
                 " +5 tests liés aux tests sur les différentes races du continents et sur des évènements historiques passés",
                 "",
@@ -608,7 +608,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -621,7 +621,7 @@ class RaceInitializer {
             }
 
             val talentGroup1 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#1 - Sagesse ancestrale",
                 1,
                 listOf(talent1.uuid)
@@ -633,7 +633,7 @@ class RaceInitializer {
             }
 
             val infoTalent2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Affinité magique",
                 " +5 SOC pour parler une créature magique et +5 INT pour comprendre une créature magiqu",
                 "ca tient chaud dans les profondeurs de la terre",
@@ -645,7 +645,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent2.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -657,7 +657,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup2 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#2 - Affinité magique",
                 2,
                 listOf(talent2.uuid)
@@ -669,7 +669,7 @@ class RaceInitializer {
             }
 
             val infoTalent3 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Puit d'arcane",
                 "une fois par jour, puise dans son être intérieur l'énergie dont il aurait besoin pour lancer des sorts, perd 1d10 PV, pour regagner RANG d6 mana  ",
                 "(ne peut pas dépasser son montant de mana max à moins d'avoir le dépassement de mana  (magicien, voie magie universelle, rang 3)",
@@ -681,7 +681,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent3 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent3.uuid,
                 TalentType.ACTIF.name,
                 false,
@@ -693,7 +693,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup3 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#3 - Puit d'arcane",
                 3,
                 listOf(talent3.uuid)
@@ -705,7 +705,7 @@ class RaceInitializer {
             }
 
             val infoTalent4 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Visage impensable",
                 "une fois par jour, l'elfe peut prendre les traits d'un être monstrueux et dangereux qui a disparus des millénaires plus tôt (cf gandalf chez bilbo), lui donne +10 SOC, +10 CHA pour faire fuir ou convaincre les gens autour de lui",
                 "",
@@ -717,7 +717,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent4 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent4.uuid,
                 TalentType.ACTIF.name,
                 false,
@@ -729,7 +729,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup4 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#4 - Visage impensable",
                 4,
                 listOf(talent4.uuid)
@@ -742,7 +742,7 @@ class RaceInitializer {
 
 
             val infoTalent5_1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Vitalité elfique",
                 "augmente son dé de vie au dé 6 ",
                 "retro actif",
@@ -754,7 +754,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5_1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
                 TalentType.REINFORCEMENT.name,
                 false,
@@ -766,7 +766,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val infoTalent5_2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Vitalité elfique",
                 "peut lancer 2 dé aux tests de CON (et prendre le meilleur résultat) ",
                 "",
@@ -778,7 +778,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5_2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -792,7 +792,7 @@ class RaceInitializer {
 
 
             val talentGroup5 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#5 - Vitalité elfique",
                 5,
                 listOf(talent5_1.uuid, talent5_2.uuid)
@@ -805,7 +805,7 @@ class RaceInitializer {
             }
 
             val infoPath = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Voie du haut-elfe",
                 "",
                 "",
@@ -817,7 +817,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val path = Path(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Voie du haut-elfe",
                 listOf(
                     talentGroup1.uuid,
@@ -854,7 +854,7 @@ class RaceInitializer {
 
 
             val info = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - haut-elfe",
                 "aime la magie, être hautain et desteste les nains",
                 "",
@@ -868,7 +868,7 @@ class RaceInitializer {
             }
 
             val race = Race(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Haut-elfe",
                 4,
                 8,
@@ -887,7 +887,7 @@ class RaceInitializer {
 
         fun elfeSylvain(database: DatabaseReference) {
             val infoTalent1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Nature primordiale",
                 "+5 INT aux tests liés à la connaissance d'une plante, d'un arbre ou d'un animal",
                 "",
@@ -899,7 +899,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -912,7 +912,7 @@ class RaceInitializer {
             }
 
             val talentGroup1 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#1 - Nature primordiale",
                 1,
                 listOf(talent1.uuid)
@@ -924,7 +924,7 @@ class RaceInitializer {
             }
 
             val infoTalent2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Cri sauvage",
                 "test difficulté 10 pour imiter le cri / bruit, d'un animal qu'il connait",
                 "",
@@ -936,7 +936,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent2.uuid,
                 TalentType.ACTIF.name,
                 false,
@@ -948,7 +948,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup2 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#2 - Cri sauvage",
                 2,
                 listOf(talent2.uuid)
@@ -960,7 +960,7 @@ class RaceInitializer {
             }
 
             val infoTalent3 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Amis de la forêt",
                 "une fois par jour, en pleine nature (ou il y a de la vie), l'elfe sylvain pousse un puissant cri, qui appelle des animaux proches qui attaquent des ennemis au hasard",
                 " test de CON pour définir les dégâts :\n" +
@@ -977,7 +977,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent3 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent3.uuid,
                 TalentType.ACTIF.name,
                 false,
@@ -989,7 +989,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talentGroup3 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#3 - Amis de la forêt",
                 3,
                 listOf(talent3.uuid)
@@ -1001,7 +1001,7 @@ class RaceInitializer {
             }
 
             val infoTalent4_1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Équipement naturel",
                 "ajoute 1d6 à ses armes et +2 DEF à ses armures qui ne contiennent pas de métal",
                 "",
@@ -1013,7 +1013,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent4_1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent4_1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -1025,7 +1025,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val infoTalent4_2 = Info(
-                    UUID.randomUUID(),
+                    UUID.randomUUID().toString(),
             "Info - Équipement naturel",
             "n'a plus de malus de DEX lié) à la DEF  si celle-ci n'est pas métallique",
             "",
@@ -1037,7 +1037,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent4_2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent4_1.uuid,
                 TalentType.REINFORCEMENT.name,
                 false,
@@ -1050,7 +1050,7 @@ class RaceInitializer {
             }
 
             val talentGroup4 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#4 - Équipement naturel",
                 4,
                 listOf(talent4_1.uuid, talent4_2.uuid)
@@ -1063,7 +1063,7 @@ class RaceInitializer {
 
 
             val infoTalent5_1 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Harmonie avec la nature",
                 "+1 DEX et +1 CON",
                 "",
@@ -1075,7 +1075,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5_1 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
                 TalentType.PASSIF.name,
                 false,
@@ -1087,7 +1087,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val infoTalent5_2 = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Harmonie avec la nature",
                 "avantage sur le jet de CON de la compétence de niveau 3 amis de la forêt",
                 "",
@@ -1099,7 +1099,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val talent5_2 = Talent(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
                 TalentType.REINFORCEMENT.name,
                 false,
@@ -1113,7 +1113,7 @@ class RaceInitializer {
 
 
             val talentGroup5 = TalentGroup(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "#5 - Harmonie avec la forêt",
                 5,
                 listOf(talent5_1.uuid, talent5_2.uuid)
@@ -1126,7 +1126,7 @@ class RaceInitializer {
             }
 
             val infoPath = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - Voie de l'elfe sylvain",
                 "",
                 "",
@@ -1138,7 +1138,7 @@ class RaceInitializer {
                     .child(it.uuid.toString()).setValue(it)
             }
             val path = Path(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Voie de l'elfe-sylvain",
                 listOf(
                     talentGroup1.uuid,
@@ -1173,7 +1173,7 @@ class RaceInitializer {
 
 
             val info = Info(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Info - elfe-sylvain",
                 "probablement né dans la foret",
                 "aime faire des choses avec les abres, ou comme ils aiment l'appeller 'entrer en communion avec la nature'",
@@ -1187,7 +1187,7 @@ class RaceInitializer {
             }
 
             val race = Race(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "Elfe-sylvain",
                 8,
                 6,

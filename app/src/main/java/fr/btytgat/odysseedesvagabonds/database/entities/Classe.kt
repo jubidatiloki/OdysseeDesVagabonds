@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
-import java.util.*
 
 
 @Entity(
@@ -18,7 +17,7 @@ import java.util.*
         onUpdate = CASCADE
     ))])
 data class Classe(
-    @PrimaryKey(autoGenerate = false) var uuid: UUID,
+    @PrimaryKey(autoGenerate = false) var uuid: String,
     var name: String,
     var healthDiceModifier: Int,      // -1: decreased, 0: no change, 1: increased
     var manaDiceModifier: Int,        // -1: decreased, 0: no change, 1: increased

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
+import java.util.*
 
 @Entity(
     tableName = Classe.TABLE_NAME,
@@ -15,7 +16,7 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
         onUpdate = ForeignKey.CASCADE
     ))])
 data class StatChangeGroup(
-    @PrimaryKey(autoGenerate = false) val uuid: String,
+    @PrimaryKey(autoGenerate = false) val uuid: String = UUID.randomUUID().toString(),
     var name: String,
     var info: String?,
     var statChange: HashMap<String, Int>

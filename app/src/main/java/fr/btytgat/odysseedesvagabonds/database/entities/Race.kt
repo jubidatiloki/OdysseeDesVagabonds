@@ -17,12 +17,12 @@ import java.util.*
         onUpdate = ForeignKey.CASCADE
     ))])
 data class Race(
-    @PrimaryKey(autoGenerate = false) val uuid: UUID,
+    @PrimaryKey(autoGenerate = false) val uuid: String = UUID.randomUUID().toString(),
     var name: String = "",
     var healthDice: Int,
     var manaDice: Int,
-    var info: UUID?,
-    var pathUuid: UUID,
+    var info: String?,
+    var pathUuid: String,
     var statsChangeUuid: String?,
     var specialStatChangeUuid: List<String>?     // à utiliser si statChangeUuid est null, pour gérer le cas du démi-elfe et de l'humain
 ): BaseEntity() {

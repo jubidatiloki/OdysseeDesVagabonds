@@ -8,7 +8,7 @@ import java.util.*
 
 @Entity(tableName = Info.TABLE_NAME)
 data class Info(
-    @PrimaryKey val uuid: UUID = UUID.randomUUID(),
+    @PrimaryKey val uuid: String = UUID.randomUUID().toString(),
     var title: String = "",
     var description: String? = "",
     var subDescription: String? = "",

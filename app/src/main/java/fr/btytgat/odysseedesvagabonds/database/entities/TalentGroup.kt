@@ -5,10 +5,10 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import java.util.*
 
 data class TalentGroup(
-    @PrimaryKey(autoGenerate = true) var uuid: UUID,
+    @PrimaryKey(autoGenerate = true) var uuid: String = UUID.randomUUID().toString(),
     var name: String,
     var talentIndex: Int,
-    var uuidTalents: List<UUID> = emptyList()
+    var uuidTalents: List<String> = emptyList()
 ): BaseEntity(){
     companion object {
         const val TABLE_NAME = "TALENT"
