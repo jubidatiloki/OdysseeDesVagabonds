@@ -22,7 +22,8 @@ data class Classe(
     var healthDiceModifier: Int,      // -1: decreased, 0: no change, 1: increased
     var manaDiceModifier: Int,        // -1: decreased, 0: no change, 1: increased
     var info: String?,
-//    var uuidVoies: List<UUID> = emptyList(),
+    var paths: List<String> = emptyList(),
+    var maxPathsTaken: Int = 3
 ): BaseEntity(){
 
     companion object {

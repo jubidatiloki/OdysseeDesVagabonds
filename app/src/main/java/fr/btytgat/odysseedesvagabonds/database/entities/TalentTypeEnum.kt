@@ -1,6 +1,6 @@
 package fr.btytgat.odysseedesvagabonds.database.entities
 
-enum class TalentType(title: String, description: String, subDescription: String) {
+enum class TalentTypeEnum(title: String, description: String, subDescription: String) {
     PASSIF("Passif", "actif en permanence", "sauf mention contraire"),
     REINFORCEMENT("Renforcement", "amélioration d'un autre talent", ""),
     SUPPORT("Soutien", "Compagnion, familier, monture, invocation, ...", ""),

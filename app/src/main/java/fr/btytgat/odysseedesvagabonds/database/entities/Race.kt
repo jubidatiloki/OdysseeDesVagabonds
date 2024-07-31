@@ -22,9 +22,9 @@ data class Race(
     var healthDice: Int,
     var manaDice: Int,
     var info: String?,
-    var pathUuid: String,
-    var statsChangeUuid: String?,
-    var specialStatChangeUuid: List<String>?     // à utiliser si statChangeUuid est null, pour gérer le cas du démi-elfe et de l'humain
+    var path: String,
+    var statsChange: String?,
+    var specialStatChange: List<String>?     // à utiliser si statChangeUuid est null, pour gérer le cas du démi-elfe et de l'humain
 ): BaseEntity() {
     companion object {
         const val TABLE_NAME = "Race"

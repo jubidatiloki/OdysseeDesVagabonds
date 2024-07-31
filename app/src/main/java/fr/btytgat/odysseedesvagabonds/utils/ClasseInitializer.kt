@@ -6,6 +6,10 @@ class ClasseInitializer {
 
     companion object {
         fun populateClasses(databaseManager: DatabaseManager) {
+
+
+
+
 //            val infoBarbare = Info(
 //                "INFO_CLASSE_BARBARE",
 //                "Classe barbare",
@@ -21,6 +25,19 @@ class ClasseInitializer {
 //                infoBarbare.uuid,
 //            )
         }
+    }
+
+
+    fun druide(){
+
+    }
+
+    fun ingenieur(){
+
+    }
+
+    fun magicien() {
+
     }
 
 }

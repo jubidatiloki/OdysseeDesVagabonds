@@ -31,7 +31,7 @@ class RaceInitializer {
             val talent1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -68,7 +68,7 @@ class RaceInitializer {
             val talent2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent2.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -104,7 +104,7 @@ class RaceInitializer {
             val talent3 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent3.uuid,
-                TalentType.ACTIF.name,
+                TalentTypeEnum.ACTIF.name,
                 false,
                 0
             )
@@ -140,7 +140,7 @@ class RaceInitializer {
             val talent4 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent4.uuid,
-                TalentType.SUPPORT.name,
+                TalentTypeEnum.SUPPORT.name,
                 false,
                 null
             )
@@ -177,7 +177,7 @@ class RaceInitializer {
             val talent5 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -220,7 +220,7 @@ class RaceInitializer {
                     talentGroup4.uuid,
                     talentGroup5.uuid
                 ),
-                infoPath.uuid
+                infoPath.uuid,
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
@@ -293,7 +293,7 @@ class RaceInitializer {
             val talent1_1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent1_1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -318,7 +318,7 @@ class RaceInitializer {
             val talent1_2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent1_1.uuid,
-                TalentType.SUPPORT.name,
+                TalentTypeEnum.SUPPORT.name,
                 false,
                 null
             )
@@ -356,9 +356,12 @@ class RaceInitializer {
             val talent2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent2.uuid,
-                TalentType.ACTIF.name,
+                TalentTypeEnum.ACTIF.name,
                 false,
-                2
+                2,
+                false,
+                false,
+                "une fois par cible par combat (impossible de l'utiliser sur les cibles à proximité des victimes de cette compétence)"
             )
             talent2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
@@ -393,7 +396,7 @@ class RaceInitializer {
             val talent3 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent3.uuid,
-                TalentType.SUPPORT.name,
+                TalentTypeEnum.SUPPORT.name,
                 false,
                 null
             )
@@ -430,7 +433,7 @@ class RaceInitializer {
             val talent4 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent4.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -467,7 +470,7 @@ class RaceInitializer {
             val talent5_1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -491,7 +494,7 @@ class RaceInitializer {
             val talent5_2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 true,
                 null
             )
@@ -610,7 +613,7 @@ class RaceInitializer {
             val talent1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -647,7 +650,7 @@ class RaceInitializer {
             val talent2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent2.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -683,9 +686,12 @@ class RaceInitializer {
             val talent3 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent3.uuid,
-                TalentType.ACTIF.name,
+                TalentTypeEnum.ACTIF.name,
                 false,
-                1
+                1,
+                false,
+                false,
+                "une fois par jour"
             )
             talent3.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
@@ -719,9 +725,12 @@ class RaceInitializer {
             val talent4 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent4.uuid,
-                TalentType.ACTIF.name,
+                TalentTypeEnum.ACTIF.name,
                 false,
-                null
+                null,
+                false,
+                false,
+                "une fois par jour"
             )
             talent4.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
@@ -756,7 +765,7 @@ class RaceInitializer {
             val talent5_1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
-                TalentType.REINFORCEMENT.name,
+                TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null
             )
@@ -780,7 +789,7 @@ class RaceInitializer {
             val talent5_2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -901,7 +910,7 @@ class RaceInitializer {
             val talent1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -938,7 +947,7 @@ class RaceInitializer {
             val talent2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent2.uuid,
-                TalentType.ACTIF.name,
+                TalentTypeEnum.ACTIF.name,
                 false,
                 1
             )
@@ -979,9 +988,12 @@ class RaceInitializer {
             val talent3 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent3.uuid,
-                TalentType.ACTIF.name,
+                TalentTypeEnum.ACTIF.name,
                 false,
-                2
+                2,
+                false,
+                false,
+                "une fois par jour"
             )
             talent3.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
@@ -1015,7 +1027,7 @@ class RaceInitializer {
             val talent4_1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent4_1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -1039,7 +1051,7 @@ class RaceInitializer {
             val talent4_2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent4_1.uuid,
-                TalentType.REINFORCEMENT.name,
+                TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null
             )
@@ -1077,7 +1089,7 @@ class RaceInitializer {
             val talent5_1 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
-                TalentType.PASSIF.name,
+                TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
@@ -1101,7 +1113,7 @@ class RaceInitializer {
             val talent5_2 = Talent(
                 UUID.randomUUID().toString(),
                 infoTalent5_1.uuid,
-                TalentType.REINFORCEMENT.name,
+                TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null
             )

@@ -6,10 +6,12 @@ import java.util.*
 
 
 data class Path(
-    @PrimaryKey(autoGenerate = true) var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey(autoGenerate = true) val uuid: String = UUID.randomUUID().toString(),
     var name: String,
     var uuidTalentGroups: List<String> = emptyList(),
     var info: String?,
+    var category: String? = null,
+    var maxTaken: Int = 1         // nb max de voies pouvant être prises pour la catégorie choisie
 ): BaseEntity(){
     companion object {
         const val TABLE_NAME = "Path"
