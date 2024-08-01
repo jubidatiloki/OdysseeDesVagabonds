@@ -19,6 +19,13 @@
     <string name="menu_title_rules">Règles système</string>
     <string name="menu_title_annex">Annexe</string>
 
+
+    <string name="title_stepper_one">Introduction</string>
+    <string name="title_stepper_second">Potentiel</string>
+    <string name="title_stepper_third">Destinée</string>
+    <string name="title_stepper_fourth">Capacités</string>
+    <string name="title_stepper_fifth">Récap</string>
+
     <string name="login_hint_login">Identifiant (pseudo ou email)</string>
     <string name="login_hint_password">Mot de passe (6 caractères min.)</string>
     <string name="login_sign_in">Connexion</string>
