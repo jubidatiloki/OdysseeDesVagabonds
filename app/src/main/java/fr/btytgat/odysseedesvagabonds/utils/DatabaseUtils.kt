@@ -24,7 +24,7 @@ class DatabaseUtils {
             Log.i("DATABASE", "starting creating datas ....")
             StatInitializer.populateStats(database)
             RaceInitializer.populateRaces(database)
-
+            ClasseInitializer.populateClasses(database)
 
             Log.i("DATABASE", "finished creation datas")
 
