@@ -12,11 +12,24 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+
     </style>
+
+    <!-- Custom style for menu background -->
+    <style name="CustomPopupMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+    </style>
+
 
     <style name="Theme.OdysseeDesVagabonds.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:actionMenuTextAppearance">@color/colorPrimary</item>
     </style>
 
     <style name="Theme.OdysseeDesVagabonds.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

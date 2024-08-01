@@ -78,7 +78,8 @@ open class BaseActivity: AppCompatActivity(), IBaseView.IActivity,
     override fun setNavigationViewMenu(menu: Int) {
         try {
             navigationView.menu.clear()
-            navigationView.setBackgroundColor(R.color.colorPrimary)
+
+
             navigationView.inflateMenu(menu)
         } catch (var3: Exception) {
             var3.printStackTrace()
