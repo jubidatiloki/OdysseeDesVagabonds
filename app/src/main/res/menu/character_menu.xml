@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/step_one"
+        android:title="@string/title_stepper_one" />
+
+    <item
+        android:id="@+id/step_second"
+        android:title="@string/title_stepper_second" />
+
+    <item
+        android:id="@+id/step_third"
+        android:title="@string/title_stepper_third" />
+
+    <item
+        android:id="@+id/step_fourth"
+        android:title="@string/title_stepper_fourth" />
+
+    <item
+        android:id="@+id/step_fifth"
+        android:title="@string/title_stepper_fifth" />
+</menu>

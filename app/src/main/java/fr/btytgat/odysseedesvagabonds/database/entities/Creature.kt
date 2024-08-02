@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import java.util.*
 
 @Entity(
@@ -17,11 +18,15 @@ import java.util.*
     ]
 )
 data class Creature(
-    @PrimaryKey(autoGenerate = true) val id: Long?,
+    @PrimaryKey val uuid: UUID = UUID.randomUUID(),
     @ColumnInfo(
         index = true,
         name = "id_info"
     ) val idInfo: Long?,
     val creationDate: Date?,
     val lastUpdate: Date?
-)
+): BaseEntity(){
+    companion object {
+        const val TABLE_NAME = "Creature"
+    }
+}

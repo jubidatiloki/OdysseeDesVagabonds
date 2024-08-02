@@ -1,14 +1,12 @@
 package fr.btytgat.odysseedesvagabonds.adapter
 
-import android.app.ActionBar
 import android.content.Context
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.BaseExpandableListAdapter
-import android.widget.ListView
+import android.widget.LinearLayout
 import android.widget.TextView
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
@@ -50,30 +48,30 @@ class RaceExpandableListAdapter internal constructor(
     override fun getChildView(listPosition: Int, expandedListPosition: Int, isLastChidl: Boolean, convertView: View?, parent: ViewGroup?): View {
         var convertView = convertView
         val race = getChild(listPosition, expandedListPosition) as Race
+        val layoutInflater = this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
         if (convertView == null) {
-            val layoutInflater =
-                this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertView = layoutInflater.inflate(R.layout.custom_item_race, null)
         }
 
         val tvDescription = convertView!!.findViewById<TextView>(R.id.tv_description)
         val tvDV = convertView!!.findViewById<TextView>(R.id.tv_dv)
         val tvDM = convertView!!.findViewById<TextView>(R.id.tv_dm)
-        val lvStats = convertView!!.findViewById<ListView>(R.id.lv_stats)
+        val llStats = convertView!!.findViewById<LinearLayout>(R.id.ll_stats)
         val tvVoie = convertView!!.findViewById<TextView>(R.id.tv_voie)
-        tvDescription.text = race.description
-        tvDV.text = context.getString(R.string.health_dice) + " " + race.healthDice
-        tvDM.text = context.getString(R.string.mana_dice) + " "+ race.manaDice
-        tvVoie.text = race.voieRacial.name
+        tvDescription.text = race._info?.description?:""
+        tvDV.text = context.getString(R.string.dice_health) + " " + race.healthDice
+        tvDM.text = context.getString(R.string.dice_mana) + " "+ race.manaDice
+        tvVoie.text = race._path?.name
 
-        val listStats = ArrayList<String>()
-        for((key, value) in race.statsChange){
-            listStats.add(key.shortName + " " + value)
+        race._statChange?.let {
+            for((key, value) in it.statChange){
+                var view = layoutInflater.inflate(R.layout.custom_stat_item, null)
+                var tvStat = view.findViewById<TextView>(R.id.tv_label)
+                tvStat.text = "$key : $value"
+                llStats.addView(view)
+            }
         }
-        val statAdapter = ArrayAdapter(context, R.layout.custom_stat_item, listStats)
-        lvStats.adapter = statAdapter
-        lvStats.divider = null
-
 
         return convertView
     }

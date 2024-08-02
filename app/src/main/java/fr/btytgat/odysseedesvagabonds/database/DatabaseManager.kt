@@ -10,67 +10,84 @@ import androidx.viewbinding.BuildConfig
 import fr.btytgat.odysseedesvagabonds.database.dao.*
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 
-//@Database(entities = [Creature::class, Info::class, Classe::class, Voie::class, Rang::class, Stat::class, Race::class], version = 1, exportSchema = false)
-//@TypeConverters(Converters::class)
+@Database(entities = [Info::class, Classe::class, Race::class, Path::class, Talent::class, TalentGroup::class, Stat::class, StatChangeGroup::class], version = 1, exportSchema = false)
+@TypeConverters(DBConverters::class)
 abstract class DatabaseManager : RoomDatabase() {
 
-    abstract fun creatureDao(): CreatureDao
     abstract fun infoDao(): InfoDao
     abstract fun classeDao(): ClasseDao
-    abstract fun voieDao(): VoieDao
-    abstract fun rangDao(): RangDao
-    abstract fun statDao(): StatDao
     abstract fun raceDao(): RaceDao
+    abstract fun pathDao(): PathDao
+    abstract fun talentDao(): TalentDao
+    abstract fun talentGroupDao(): TalentGroupDao
+    abstract fun statDao(): StatDao
+    abstract fun statChangeGroupDao(): StatChangeGroupDao
 
-companion object{
-    private const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
+    companion object {
+        const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
 
-    private var sInstance: DatabaseManager? = null
+        private var sInstance: DatabaseManager? = null
 
 
 //    private val MIGRATION_1_2 = object : Migration(1, 2) {
 //        override fun migrate(database: SupportSQLiteDatabase) {
-//            database.execSQL("ALTER TABLE ${ProjectEntity.TABLE_NAME} ADD COLUMN userId INTEGER NOT NULL DEFAULT 0")
+//            add table Voie
+//            add table Rang
+//            add table classeVoie
+//            add table raceVoie
+//            add table voieRang
 //        }
 //    }
-//
+
 //    private val MIGRATION_2_3 = object : Migration(2, 3) {
 //        override fun migrate(database: SupportSQLiteDatabase) {
-//            database.execSQL("ALTER TABLE ${ScriptStoryEntity.TABLE_NAME} ADD COLUMN nextTransitionDurationInMs INTEGER NOT NULL DEFAULT 0")
-//            database.execSQL("ALTER TABLE ${ScriptStoryEntity.TABLE_NAME} ADD COLUMN nextTransition VARCHAR(30) NOT NULL DEFAULT 'NONE'")
+//            add table Stat
+
 //        }
 //    }
 
 
-//    @Synchronized
-//    fun getInstance(context: Context): DatabaseManager {
-//        if (sInstance == null) {
-//            var databaseBuilder = Room
-//                .databaseBuilder(context.applicationContext, DatabaseManager::class.java, DATABASE_NAME)
-//                .allowMainThreadQueries()
-//                .openHelperFactory(sInstance as Nothing?)
-//                .addCallback(object : RoomDatabase.Callback() {
-//                    override fun onCreate(db: SupportSQLiteDatabase) {
-//                        super.onCreate(db)
-//
-//                    }
-//                })
-//
-//            if (BuildConfig.DEBUG) {
-//                databaseBuilder = databaseBuilder
-//                    .setJournalMode(JournalMode.TRUNCATE)
-//            }
-//
-////            databaseBuilder.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-//
-//
-//            sInstance = databaseBuilder
-//                .build()
+//    private val MIGRATION_3_4 = object : Migration(3, 4) {
+//        override fun migrate(database: SupportSQLiteDatabase) {
+//            add table Topic
+//            add table TopicInfo
 //        }
-//        return sInstance!!
+//    }
+
+
+        @Synchronized
+        fun getInstance(context: Context): DatabaseManager {
+            if (sInstance == null) {
+                var databaseBuilder = Room
+                    .databaseBuilder(
+                        context.applicationContext,
+                        DatabaseManager::class.java,
+                        DATABASE_NAME
+                    )
+                    .allowMainThreadQueries()
+                    .openHelperFactory(sInstance as Nothing?)
+                    .addCallback(object : RoomDatabase.Callback() {
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            super.onCreate(db)
+
+                        }
+                    })
+
+                if (BuildConfig.DEBUG) {
+                    databaseBuilder = databaseBuilder
+                        .setJournalMode(JournalMode.TRUNCATE)
+                }
+
+//            databaseBuilder.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+
+
+                sInstance = databaseBuilder
+                    .build()
+            }
+            return sInstance!!
+        }
+
+
     }
-
-
-//}
 
 }

@@ -1,21 +1,26 @@
 package fr.btytgat.odysseedesvagabonds.database.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import fr.btytgat.odysseedesvagabonds.database.entities.Classe
-import fr.btytgat.odysseedesvagabonds.database.entities.Voie
 
 @Dao
 interface ClasseDao {
 
-//    @Query("SELECT * FROM classe")
-//    fun getAllClasses(): List<Classe>
-//
-//
+    @Query("SELECT * FROM Classe")
+    fun getAllClasses(): List<Classe>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertClasse(classe: Classe)
+
+    @Delete
+    fun deleteClasse(classe: Classe)
+
+    @Query("SELECT COUNT(*) FROM ${Classe.TABLE_NAME}")
+    fun getRowCount(): Int
+
 //   @Transaction
-//   @Query("SELECT * FROM  classe WHERE id = :idClasse")
-//   suspend fun getAllVoiesByClasse(idClasse: Long): List<ClasseVoie>
+//   @Query("SELECT * FROM  classe WHERE uuid = :idClasse")
+//   suspend fun getAllVoiesByClasse(idClasse: UUID): List<ClasseVoie>
 //
 //
 //   @Query("SELECT * FROM classe " +

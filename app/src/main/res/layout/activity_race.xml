@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/white">
+        android:background="@color/colorPrimary">
 
         <include
             android:id="@+id/toolbar"
@@ -28,5 +29,8 @@
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        app:itemTextColor="@color/white"
+        app:itemIconTint="@color/white"
         android:layout_gravity="start" />
 </androidx.drawerlayout.widget.DrawerLayout>

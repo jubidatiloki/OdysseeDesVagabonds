@@ -2,11 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
+    android:background="@color/colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     
     <TextView
         android:id="@+id/tv_description"
+        style="@style/Theme.OdysseeDesVagabonds.text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -15,7 +17,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="15dp"
         android:weightSum="1">
@@ -28,6 +30,7 @@
 
             <TextView
                 android:id="@+id/tv_dv"
+                style="@style/Theme.OdysseeDesVagabonds.text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
@@ -36,6 +39,7 @@
                 tools:text="Dé de vie" />
             <TextView
                 android:id="@+id/tv_dm"
+                style="@style/Theme.OdysseeDesVagabonds.text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
@@ -45,17 +49,20 @@
 
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/lv_stats"
+        <LinearLayout
+            android:id="@+id/ll_stats"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.6" />
+            android:layout_height="100dp"
+            android:layout_weight="0.6"
+            android:orientation="vertical" />
+
 
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/tv_voie"
+        style="@style/Theme.OdysseeDesVagabonds.text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/normal_text"

@@ -25,6 +25,13 @@
     <string name="login_sign_up">Inscription</string>
     <string name="login_no_account_yet">Nouveau sur l\'appli ?</string>
 
+    <string name="title_stepper_one">Introduction</string>
+    <string name="title_stepper_second">Potentiel</string>
+    <string name="title_stepper_third">Destinée</string>
+    <string name="title_stepper_fourth">Capacités</string>
+    <string name="title_stepper_fifth">Récap</string>
+
+
     <string name="entity_name_creature">Créature</string>
     <string name="entity_description_creature">créatures vivantes ou non, regroupe les personnages (joueurs ou non), les familiers et les monstres</string>
     <string name="entity_name_building">Structure</string>
@@ -39,14 +46,14 @@
     <string name="entity_description_object">desc objets</string>
 
 
+    <string name="dialog_title_logout">Etes-vous sûr de vouloir vous déconnecter ?</string>
+
     <string name="error_auth_failed">La connexion a échoué. Vérifiez vos identifiants</string>
     <string name="error_auth_login_empty">Identifiant non renseigné</string>
     <string name="error_auth_password_empty">Mot de passe non renseigné</string>
 
+    <string name="dice_health">Dé de vie</string>
+    <string name="dice_mana">Dé de mana</string>
 
-    <string name="dialog_title_logout">Etes-vous sûr de vouloir vous déconnecter ?</string>
-
-    <string name="health_dice">Dé de vie</string>
-    <string name="mana_dice">Dé de mana</string>
 
 </resources>

@@ -9,6 +9,8 @@
         android:id="@+id/tv_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
+        android:background="@drawable/card_gradient"
         android:padding="15dp"
         android:textSize="@dimen/title_h1"
         tools:text="mon titre" />

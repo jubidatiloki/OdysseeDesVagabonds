@@ -15,7 +15,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:src="@drawable/ic_dragon" />
+            android:src="@drawable/logo" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -28,7 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionNext"
-                app:hintTextColor="@color/orange"
+                app:hintTextColor="@color/colorAccent"
                 android:hint="@string/login_hint_login"
                 android:inputType="textEmailAddress"
                 tools:text="montest@test.fr" />
@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/colorAccent"
             android:hint="@string/login_hint_password"
             app:hintAnimationEnabled="true">
 
@@ -63,7 +63,7 @@
                 android:id="@+id/bt_sign_in"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/orange"
+                android:backgroundTint="@color/colorAccent"
                 android:text="@string/login_sign_in"
                 android:textColor="@color/white" />
 
@@ -95,7 +95,7 @@
             android:gravity="center_horizontal"
             android:padding="8dp"
             android:text="@string/login_sign_up"
-            android:textColor="@color/orange"
+            android:textColor="@color/colorAccent"
             android:textSize="16sp"
             android:textStyle="normal" />
     </LinearLayout>

@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/normal_text"
         android:padding="15dp"
-        android:background="@color/header_bg"
+        android:background="@drawable/card_rounded_gradient"
         tools:text="voie Raciale" />
 
 </LinearLayout>

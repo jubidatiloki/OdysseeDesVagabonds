@@ -1,25 +1,15 @@
 package fr.btytgat.odysseedesvagabonds.ui.race.view
 
-import android.app.ActionBar
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ExpandableListView
-import android.widget.Toast
-import com.google.firebase.database.DataSnapshot
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.adapter.RaceExpandableListAdapter
+import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
-import fr.btytgat.odysseedesvagabonds.database.entities.Stat
-import fr.btytgat.odysseedesvagabonds.database.entities.Voie
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.race.IRaceView
 import fr.btytgat.odysseedesvagabonds.ui.race.presenter.RacePresenter
-import fr.btytgat.odysseedesvagabonds.utils.DatabaseUtils
-import fr.btytgat.odysseedesvagabonds.utils.wrapper.RaceWrapper
-import fr.btytgat.odysseedesvagabonds.utils.wrapper.StatWrapper
-import fr.btytgat.odysseedesvagabonds.utils.wrapper.VoieWrapper
 
 
 class RaceActivity : BaseActivity(), IRaceView.IActivity {
@@ -85,59 +75,26 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
     override fun getAllRaces() {
         Log.i("getAllRaces", "starting ...");
+        var localDB = DatabaseManager.getInstance(this)
 
-        val races = ArrayList<Race>()
-        DatabaseUtils.database.child(DatabaseUtils.KEY_ROOT).child(DatabaseUtils.KEY_RACES).get()
-            .addOnSuccessListener {
-                for (datasnapshot: DataSnapshot in it.children) {
-                    val raceWrapper = DatabaseUtils.retrieveRace(datasnapshot)
-                    val race = RaceWrapper.toEntity(raceWrapper)
-                    var voieRacial = Voie()
-                    val statsChange = HashMap<Stat, Long>()
+        val races = localDB.raceDao().getAllRaces()
 
-                    raceWrapper.statsChange.keys.forEach { uuidStat ->
-                        DatabaseUtils.database.child(DatabaseUtils.KEY_ROOT)
-                            .child(DatabaseUtils.KEY_STATS).child(uuidStat).get()
-                            .addOnSuccessListener {
-                                    statsChange[StatWrapper.toEntity(
-                                        DatabaseUtils.retrieveStat(
-                                            it
-                                        )
-                                    )] = raceWrapper.statsChange[uuidStat] ?: 0L
-
-                                DatabaseUtils.database.child(DatabaseUtils.KEY_ROOT)
-                                    .child(DatabaseUtils.KEY_VOIES).child(raceWrapper.uuidVoie)
-                                    .get()
-                                    .addOnSuccessListener {
-                                        voieRacial =
-                                            VoieWrapper.toEntity(
-                                                DatabaseUtils.retrieveVoie(
-                                                    it
-                                                )
-                                            )
-                                    }
-
-                            }
-                    }
-
-                    races.add(
-                        race.copy(
-                            statsChange = statsChange,
-                            voieRacial = voieRacial
-                        )
-                    )
-                }
-                races.forEach {
-                    racesDataList[it.name] = listOf(it)
-                }
-                initRaceList()
+        races.forEach { race ->
+            race.info?.let {
+                race._info = localDB.infoDao().getInfoById(it)
             }
-            .addOnCanceledListener {
-                emptyList<Race>()
+            race._path = localDB.pathDao().getPathById(race.path)
+            race.statsChange?.let {
+                race._statChange = localDB.statChangeGroupDao().getStatChangeGroupById(it)
             }
-            .addOnFailureListener {
-                emptyList<Race>()
+            race.specialStatChange?.let {
+                race._specialStatChange = it.map { it?.let { localDB.statChangeGroupDao().getStatChangeGroupById(it)} }
             }
+
+            racesDataList[race.name] = listOf(race)
+        }
+
+        initRaceList()
 
         Log.i("getAllRaces", "finished raceList size=" + races.size);
 
