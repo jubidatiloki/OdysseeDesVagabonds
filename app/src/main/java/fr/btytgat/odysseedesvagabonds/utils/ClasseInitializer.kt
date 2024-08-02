@@ -2,8 +2,10 @@ package fr.btytgat.odysseedesvagabonds.utils
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
-import fr.btytgat.odysseedesvagabonds.database.entities.Classe
-import fr.btytgat.odysseedesvagabonds.database.entities.Info
+import fr.btytgat.odysseedesvagabonds.database.wrapper.*
+import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils.Companion.KEY_CLASSES
+import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils.Companion.KEY_INFOS
+import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils.Companion.KEY_SYSTEM
 import java.util.*
 
 class ClasseInitializer {
@@ -17,7 +19,7 @@ class ClasseInitializer {
         }
 
         fun druide(database: DatabaseReference){
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Druide",
                 "fait des chose aux arbres et aux animaux pour ... la communion avec la nature",
@@ -26,15 +28,15 @@ class ClasseInitializer {
             )
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(KEY_SYSTEM).child(KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val classe = Classe(
+            val classe = ClasseWrapper(
                 UUID.randomUUID().toString(),
                 "Druide",
                 0,
                 1,
-                info.uuid,
+                info,
                 listOf(
                     VoieInitializer.voieBestiale(database),
                     VoieInitializer.voieProtecteur(database),
@@ -44,13 +46,13 @@ class ClasseInitializer {
             )
             classe.let {
                 Log.i("DATABASE", "create classe - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(KEY_SYSTEM).child(KEY_CLASSES)
                     .child(it.uuid.toString()).setValue(it)
             }
         }
 
         fun ingenieur(database: DatabaseReference){
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Ingénieur",
                 "sait lire, écrire, compter, faire des calcul et utiliser une baliste d'une demi-tonne",
@@ -59,15 +61,15 @@ class ClasseInitializer {
             )
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(KEY_SYSTEM).child(KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val classe = Classe(
+            val classe = ClasseWrapper(
                 UUID.randomUUID().toString(),
                 "Ingénieur",
                 1,
                 -1,
-                info.uuid,
+                info,
                 listOf(
                     VoieInitializer.voieArtillerie(database),
                     VoieInitializer.voieChimiste(database),
@@ -77,13 +79,13 @@ class ClasseInitializer {
             )
             classe.let {
                 Log.i("DATABASE", "create classe - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(KEY_SYSTEM).child(KEY_CLASSES)
                     .child(it.uuid.toString()).setValue(it)
             }
         }
 
         fun magicien(database: DatabaseReference) {
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Magicien",
                 "est capable d'épater la gallerie avec la magie",
@@ -92,15 +94,15 @@ class ClasseInitializer {
             )
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(KEY_SYSTEM).child(KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val classe = Classe(
+            val classe = ClasseWrapper(
                 UUID.randomUUID().toString(),
                 "Magicien",
                 -1,
                 1,
-                info.uuid,
+                info,
                 listOf(
                     VoieInitializer.voieFeu(database),
                     VoieInitializer.voieTerre(database),
@@ -113,7 +115,7 @@ class ClasseInitializer {
             )
             classe.let {
                 Log.i("DATABASE", "create classe - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_CLASSES)
+                database.child(KEY_SYSTEM).child(KEY_CLASSES)
                     .child(it.uuid.toString()).setValue(it)
             }
         }

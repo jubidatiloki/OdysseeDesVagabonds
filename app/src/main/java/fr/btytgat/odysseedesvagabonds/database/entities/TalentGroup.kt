@@ -1,17 +1,43 @@
 package fr.btytgat.odysseedesvagabonds.database.entities
 
+import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
+import fr.btytgat.odysseedesvagabonds.database.wrapper.TalentGroupWrapper
 import java.util.*
 
+
+@Entity(
+    tableName = TalentGroup.TABLE_NAME,
+    foreignKeys = [
+        (ForeignKey(
+            entity = Path::class,
+            childColumns = [("pathUuid")],
+            parentColumns = [("uuid")],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+                )]
+)
 data class TalentGroup(
-    @PrimaryKey(autoGenerate = true) var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey(autoGenerate = false) var uuid: String = UUID.randomUUID().toString(),
     var name: String,
-    var talentIndex: Int,
-    var uuidTalents: List<String> = emptyList(),
+    var talentIndex: Long,
+    var pathUuid: String,
     var description: String? = null,
     ): BaseEntity(){
     companion object {
-        const val TABLE_NAME = "TALENT"
+        const val TABLE_NAME = "TalentGroup"
+
+        fun getEntityFromWrapper(wrapper: TalentGroupWrapper, pathUuid: String): TalentGroup {
+            return TalentGroup(
+                uuid = wrapper.uuid,
+                name = wrapper.name,
+                talentIndex = wrapper.talentIndex,
+                pathUuid = pathUuid,
+                description = wrapper.description
+            )
+        }
     }
 }

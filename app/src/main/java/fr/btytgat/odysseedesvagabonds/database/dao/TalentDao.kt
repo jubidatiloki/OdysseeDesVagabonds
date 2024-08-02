@@ -5,17 +5,17 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import fr.btytgat.odysseedesvagabonds.database.entities.Stat
+import fr.btytgat.odysseedesvagabonds.database.entities.Talent
 
 @Dao
-interface StatDao {
+interface TalentDao {
 
-    @Query("SELECT * FROM ${Stat.TABLE_NAME}")
-    fun getAllStats(): LiveData<List<Stat>>
+    @Query("SELECT * FROM " + Talent.TABLE_NAME)
+    fun getAllTalents(): LiveData<List<Talent>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStat(stat: Stat): Long
+    fun insertTalent(talent: Talent): Long
 
-    @Query("SELECT COUNT(*) FROM ${Stat.TABLE_NAME}")
+    @Query("SELECT COUNT(*) FROM ${Talent.TABLE_NAME}")
     fun getRowCount(): Int
 }

@@ -4,10 +4,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
+import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
 import java.util.*
 
 @Entity(
-    tableName = Classe.TABLE_NAME,
+    tableName = Stat.TABLE_NAME,
     foreignKeys = [(ForeignKey(
         entity = Info::class,
         childColumns = [("info")],
@@ -27,6 +28,18 @@ data class Stat(
 
     companion object {
         const val TABLE_NAME = "Stat"
+
+        fun getEntityFromWrapper(wrapper: StatWrapper): Stat {
+            val stat = Stat(
+                uuid = wrapper.uuid,
+                name = wrapper.name,
+                shortName = wrapper.shortName,
+                isInnate = wrapper.isInnate,
+                haveMod = wrapper.haveMod,
+                info = wrapper.info?.uuid
+            )
+            return stat
+        }
     }
 
 }

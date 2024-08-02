@@ -10,13 +10,18 @@ import androidx.viewbinding.BuildConfig
 import fr.btytgat.odysseedesvagabonds.database.dao.*
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 
-@Database(entities = [Info::class, Classe::class, Race::class], version = 1, exportSchema = false)
+@Database(entities = [Info::class, Classe::class, Race::class, Path::class, Talent::class, TalentGroup::class, Stat::class, StatChangeGroup::class], version = 1, exportSchema = false)
 @TypeConverters(DBConverters::class)
 abstract class DatabaseManager : RoomDatabase() {
 
     abstract fun infoDao(): InfoDao
     abstract fun classeDao(): ClasseDao
     abstract fun raceDao(): RaceDao
+    abstract fun pathDao(): PathDao
+    abstract fun talentDao(): TalentDao
+    abstract fun talentGroupDao(): TalentGroupDao
+    abstract fun statDao(): StatDao
+    abstract fun statChangeGroupDao(): StatChangeGroupDao
 
     companion object {
         const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"

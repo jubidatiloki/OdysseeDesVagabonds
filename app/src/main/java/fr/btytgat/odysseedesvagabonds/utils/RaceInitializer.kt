@@ -2,7 +2,8 @@ package fr.btytgat.odysseedesvagabonds.utils
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
-import fr.btytgat.odysseedesvagabonds.database.entities.*
+import fr.btytgat.odysseedesvagabonds.database.entities.TalentTypeEnum
+import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import java.util.*
 
 class RaceInitializer {
@@ -16,7 +17,7 @@ class RaceInitializer {
         }
 
         fun nain(database: DatabaseReference) {
-            val infoTalent1 = Info(
+            val infoTalent1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Outils de nain",
                 "Maitrise de la hache et du marteau, si c'était déjà le cas, donne +1 AdC et +1 DMG avec ces armes à la place",
@@ -25,35 +26,36 @@ class RaceInitializer {
             )
             infoTalent1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent1 = Talent(
+            val talent1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent1.uuid,
+                infoTalent1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val talentGroup1 = TalentGroup(
+            val talentGroup1 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#1 - Outils de nain",
                 1,
-                listOf(talent1.uuid)
+                listOf(talent1)
             )
             talentGroup1.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent2 = Info(
+
+            val infoTalent2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Ivresse naine",
                 "bonus de +5 au tests de CON et peut refaire un jet en cas d'échec (hors échec critique) à un test de CON liés aux breuvages (poison compris)",
@@ -62,34 +64,35 @@ class RaceInitializer {
             )
             infoTalent2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent2 = Talent(
+            val talent2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent2.uuid,
+                infoTalent2,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup2 = TalentGroup(
+            val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#2 - Ivresse naine",
                 2,
-                listOf(talent2.uuid)
+                listOf(talent2)
             )
             talentGroup2.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent3 = Info(
+
+            val infoTalent3 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Tête de fer",
                 "donne une attaque gratuite de coup de tête une fois par tour, 1D6 + CON DMG",
@@ -98,34 +101,35 @@ class RaceInitializer {
             )
             infoTalent3.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent3 = Talent(
+            val talent3 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent3.uuid,
+                infoTalent3,
                 TalentTypeEnum.ACTIF.name,
                 false,
                 0
             )
             talent3.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup3 = TalentGroup(
+            val talentGroup3 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#3 - Tête de fer",
                 3,
-                listOf(talent3.uuid)
+                listOf(talent3)
             )
             talentGroup3.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent4 = Info(
+
+            val infoTalent4 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Acolyte des montagnes",
                 "dompte un bouquetin pouvant lui servir de monture (pas de compétence particulier pour le combat et panique si n'a pas la voie du cavalier de chevalier), mais a un bonus de +10 d'escalade avec celui-ci et galope à la même vitesse qu'un cheval",
@@ -134,35 +138,35 @@ class RaceInitializer {
             )
             infoTalent4.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent4 = Talent(
+            val talent4 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent4.uuid,
+                infoTalent4,
                 TalentTypeEnum.SUPPORT.name,
                 false,
                 null
             )
             talent4.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup4 = TalentGroup(
+            val talentGroup4 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#4 - Acolyte des montagnes",
                 4,
-                listOf(talent4.uuid)
+                listOf(talent4),
             )
             talentGroup4.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent5 = Info(
+            val infoTalent5 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Ténacité",
                 "+2 CON, +2 RD physique, +2 RD magique, +2 RD dans un élément (élément au choix)",
@@ -171,34 +175,35 @@ class RaceInitializer {
             )
             infoTalent5.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5 = Talent(
+            val talent5 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5.uuid,
+                infoTalent5,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent5.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup5 = TalentGroup(
+            val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#5 - Ténacité",
                 5,
-                listOf(talent5.uuid)
+                listOf(talent5)
             )
             talentGroup5.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoPath = Info(
+
+            val infoPath = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Voie du nain",
                 "",
@@ -207,45 +212,44 @@ class RaceInitializer {
             )
             infoPath.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val path = Path(
+            val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie du nain",
+                infoPath,
                 listOf(
-                    talentGroup1.uuid,
-                    talentGroup2.uuid,
-                    talentGroup3.uuid,
-                    talentGroup4.uuid,
-                    talentGroup5.uuid
-                ),
-                infoPath.uuid,
+                    talentGroup1,
+                    talentGroup2,
+                    talentGroup3,
+                    talentGroup4,
+                    talentGroup5,
+                )
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_PATHS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_PATHS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            var hashMapNain = java.util.HashMap<String, Int>()
+            var hashMapNain = java.util.HashMap<String, Long>()
             hashMapNain["STAT_CON"] = 2
             hashMapNain["STAT_DEX"] = -2
-            val statChange = StatChangeGroup(
+            val statChange = StatChangeWrapper(
                 "STAT_CHANGE_NAIN",
                 "Stat raciale - nain",
-                null,
                 hashMapNain
             )
             statChange.let {
                 Log.i("DATABASE", "create statChange - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STAT_CHANGES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - nain",
                 "se reconnait à  leurs petites tailles, leurs barbes, leur pioches, leurs air raleurs et désagréable, leur addiction pour l'alcool, .... ah et ils aiment pas les elfes aussi",
@@ -255,30 +259,30 @@ class RaceInitializer {
 
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val race = Race(
+            val race = RaceWrapper(
                 UUID.randomUUID().toString(),
                 "Nain",
                 8,
                 4,
-                info.uuid,
-                path.uuid,
-                statChange.uuid,
+                info,
+                path,
+                statChange,
                 null
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_RACES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RACES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
         }
 
         fun gnome(database: DatabaseReference) {
-            val infoTalent1_1 = Info(
+            val infoTalent1_1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Accessoire vraisemblablement indispensable",
                 "Maitrise d'une arme ou d'un instrument de musique au choix, si choix d'une arme/instrument déjà maitrisé, donne +1 AdC/+1AdT et +1 DMG avec cette arme à la place (si instrument déja maitrisé, +2 pour un instrument)",
@@ -287,23 +291,23 @@ class RaceInitializer {
             )
             infoTalent1_1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent1_1 = Talent(
+            val talent1_1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent1_1.uuid,
+                infoTalent1_1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent1_1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent1_2 = Info(
+            val infoTalent1_2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Accessoire vraisemblablement indispensable",
                 "possède un porte bonheur (petit objet) qui lui donne +1 CHAN tant qu'il l'a sur lui",
@@ -312,36 +316,36 @@ class RaceInitializer {
             )
             infoTalent1_2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent1_2 = Talent(
+            val talent1_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent1_1.uuid,
+                infoTalent1_2,
                 TalentTypeEnum.SUPPORT.name,
                 false,
                 null
             )
             talent1_2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val talentGroup1 = TalentGroup(
+            val talentGroup1 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#1 - Accessoire vraisemblablement indispensable",
                 1,
-                listOf(talent1_1.uuid, talent1_2.uuid)
+                listOf(talent1_1, talent1_2)
             )
             talentGroup1.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent2 = Info(
+            val infoTalent2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Discussion insensée mais soit disant pertinente",
                 "une fois par combat, si la cible du gnome est humanoïde et comprend sa langue, le gnome peut raconter sa vie au milieu du combat afin de perturber sa cible, test de SOC du gnome en opposition à un test de CHA de la cible. Si réussite, -3 dans toutes les DEF de la cible jusqu'au prochain tour + perte de son action d'attaque pour ce tour si elle joue après le gnome",
@@ -350,12 +354,12 @@ class RaceInitializer {
             )
             infoTalent2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent2 = Talent(
+            val talent2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent2.uuid,
+                infoTalent2,
                 TalentTypeEnum.ACTIF.name,
                 false,
                 2,
@@ -365,23 +369,23 @@ class RaceInitializer {
             )
             talent2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup2 = TalentGroup(
+            val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#2 - Discussion insensée mais soit disant pertinente",
                 2,
-                listOf(talent2.uuid)
+                listOf(talent2)
             )
             talentGroup2.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent3 = Info(
+            val infoTalent3 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Dans ma sacoche j'ai ...",
                 "retrouve, trouve, achète (à avoir avec le MJ) une petite sacoche qui peut contenir jusqu'à 50kg d'objets en tout genre (non vivant uniquement, la nourriture ne se conserve pas mieux qu'en dehors) (le sac ne pèse rien pour le gnome)",
@@ -390,35 +394,35 @@ class RaceInitializer {
             )
             infoTalent3.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent3 = Talent(
+            val talent3 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent3.uuid,
+                infoTalent3,
                 TalentTypeEnum.SUPPORT.name,
                 false,
                 null
             )
             talent3.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup3 = TalentGroup(
+            val talentGroup3 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#3 - Dans ma sacoche j'ai ...",
                 3,
-                listOf(talent3.uuid)
+                listOf(talent3)
             )
             talentGroup3.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent4 = Info(
+            val infoTalent4 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - P'tit bonhomme",
                 "+3 DEF contre les ennemis de grandes tailles, +6 DEF contre les ennemis plus grands encore",
@@ -427,35 +431,35 @@ class RaceInitializer {
             )
             infoTalent4.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent4 = Talent(
+            val talent4 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent4.uuid,
+                infoTalent4,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent4.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup4 = TalentGroup(
+            val talentGroup4 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#4 - P'tit bonhomme",
                 4,
-                listOf(talent4.uuid)
+                listOf(talent4)
             )
             talentGroup4.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent5_1 = Info(
+            val infoTalent5_1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Chanceux",
                 "+2 CHAN",
@@ -464,22 +468,22 @@ class RaceInitializer {
             )
             infoTalent5_1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5_1 = Talent(
+            val talent5_1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5_1.uuid,
+                infoTalent5_1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent5_1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val infoTalent5_2 = Info(
+            val infoTalent5_2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Chanceux",
                 "une fois par aventure, si doit subir des dégâts mortels d'une attaque, ne meurt pas et regagne 2d6 PV et son porte bonheur est détruit (perd donc son +1 CHAN)",
@@ -488,35 +492,35 @@ class RaceInitializer {
             )
             infoTalent5_2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5_2 = Talent(
+            val talent5_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5_1.uuid,
+                infoTalent5_2,
                 TalentTypeEnum.PASSIF.name,
                 true,
                 null
             )
             talent5_2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup5 = TalentGroup(
+            val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#5 - Chanceux",
                 5,
-                listOf(talent5_1.uuid, talent5_2.uuid)
+                listOf(talent5_1, talent5_2)
             )
             talentGroup5.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoPath = Info(
+            val infoPath = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Voie du gnome",
                 "",
@@ -525,47 +529,46 @@ class RaceInitializer {
             )
             infoPath.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val path = Path(
+            val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie du gnome",
+                infoPath,
                 listOf(
-                    talentGroup1.uuid,
-                    talentGroup2.uuid,
-                    talentGroup3.uuid,
-                    talentGroup4.uuid,
-                    talentGroup5.uuid
+                    talentGroup1,
+                    talentGroup2,
+                    talentGroup3,
+                    talentGroup4,
+                    talentGroup5
                 ),
-                infoPath.uuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_PATHS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_PATHS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            var hashMap = java.util.HashMap<String, Int>()
+            var hashMap = java.util.HashMap<String, Long>()
             hashMap["STAT_SOC"] = 2
             hashMap["STAT_CHAN"] = 2
             hashMap["STAT_FOR"] = -2
             hashMap["STAT_CHA"] = -2
-            val statChange = StatChangeGroup(
+            val statChange = StatChangeWrapper(
                 "STAT_CHANGE_GNOME",
                 "Stat raciale - gnome",
-                null,
                 hashMap
             )
             statChange.let {
                 Log.i("DATABASE", "create statChange - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STAT_CHANGES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - gnome",
                 "petit, bavard, curieux et pas toujours mignon",
@@ -575,30 +578,30 @@ class RaceInitializer {
 
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val race = Race(
+            val race = RaceWrapper(
                 UUID.randomUUID().toString(),
                 "Gnome",
                 6,
                 6,
-                info.uuid,
-                path.uuid,
-                statChange.uuid,
+                info,
+                path,
+                statChange,
                 null
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_RACES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RACES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
         }
 
         fun hautElfe(database: DatabaseReference) {
-            val infoTalent1 = Info(
+            val infoTalent1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Sagesse ancestrale",
                 " +5 tests liés aux tests sur les différentes races du continents et sur des évènements historiques passés",
@@ -607,35 +610,35 @@ class RaceInitializer {
             )
             infoTalent1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent1 = Talent(
+            val talent1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent1.uuid,
+                infoTalent1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val talentGroup1 = TalentGroup(
+            val talentGroup1 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#1 - Sagesse ancestrale",
                 1,
-                listOf(talent1.uuid)
+                listOf(talent1)
             )
             talentGroup1.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent2 = Info(
+            val infoTalent2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Affinité magique",
                 " +5 SOC pour parler une créature magique et +5 INT pour comprendre une créature magiqu",
@@ -644,34 +647,34 @@ class RaceInitializer {
             )
             infoTalent2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent2 = Talent(
+            val talent2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent2.uuid,
+                infoTalent2,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup2 = TalentGroup(
+            val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#2 - Affinité magique",
                 2,
-                listOf(talent2.uuid)
+                listOf(talent2)
             )
             talentGroup2.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent3 = Info(
+            val infoTalent3 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Puit d'arcane",
                 "une fois par jour, puise dans son être intérieur l'énergie dont il aurait besoin pour lancer des sorts, perd 1d10 PV, pour regagner RANG d6 mana  ",
@@ -680,12 +683,12 @@ class RaceInitializer {
             )
             infoTalent3.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent3 = Talent(
+            val talent3 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent3.uuid,
+                infoTalent3,
                 TalentTypeEnum.ACTIF.name,
                 false,
                 1,
@@ -695,22 +698,22 @@ class RaceInitializer {
             )
             talent3.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup3 = TalentGroup(
+            val talentGroup3 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#3 - Puit d'arcane",
                 3,
-                listOf(talent3.uuid)
+                listOf(talent3)
             )
             talentGroup3.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent4 = Info(
+            val infoTalent4 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Visage impensable",
                 "une fois par jour, l'elfe peut prendre les traits d'un être monstrueux et dangereux qui a disparus des millénaires plus tôt (cf gandalf chez bilbo), lui donne +10 SOC, +10 CHA pour faire fuir ou convaincre les gens autour de lui",
@@ -719,12 +722,12 @@ class RaceInitializer {
             )
             infoTalent4.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent4 = Talent(
+            val talent4 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent4.uuid,
+                infoTalent4,
                 TalentTypeEnum.ACTIF.name,
                 false,
                 null,
@@ -734,23 +737,23 @@ class RaceInitializer {
             )
             talent4.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup4 = TalentGroup(
+            val talentGroup4 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#4 - Visage impensable",
                 4,
-                listOf(talent4.uuid)
+                listOf(talent4)
             )
             talentGroup4.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent5_1 = Info(
+            val infoTalent5_1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Vitalité elfique",
                 "augmente son dé de vie au dé 6 ",
@@ -759,22 +762,22 @@ class RaceInitializer {
             )
             infoTalent5_1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5_1 = Talent(
+            val talent5_1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5_1.uuid,
+                infoTalent5_1,
                 TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null
             )
             talent5_1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val infoTalent5_2 = Info(
+            val infoTalent5_2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Vitalité elfique",
                 "peut lancer 2 dé aux tests de CON (et prendre le meilleur résultat) ",
@@ -783,37 +786,37 @@ class RaceInitializer {
             )
             infoTalent5_2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5_2 = Talent(
+            val talent5_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5_1.uuid,
+                infoTalent5_2,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent5_2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val talentGroup5 = TalentGroup(
+            val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#5 - Vitalité elfique",
                 5,
-                listOf(talent5_1.uuid, talent5_2.uuid)
+                listOf(talent5_1, talent5_2)
             )
 
             talentGroup5.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoPath = Info(
+            val infoPath = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Voie du haut-elfe",
                 "",
@@ -822,47 +825,46 @@ class RaceInitializer {
             )
             infoPath.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val path = Path(
+            val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie du haut-elfe",
+                infoPath,
                 listOf(
-                    talentGroup1.uuid,
-                    talentGroup2.uuid,
-                    talentGroup3.uuid,
-                    talentGroup4.uuid,
-                    talentGroup5.uuid
+                    talentGroup1,
+                    talentGroup2,
+                    talentGroup3,
+                    talentGroup4,
+                    talentGroup5
                 ),
-                infoPath.uuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_PATHS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_PATHS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            var hashMapNain = java.util.HashMap<String, Int>()
+            var hashMapNain = java.util.HashMap<String, Long>()
             hashMapNain["STAT_DEX"] = 2
             hashMapNain["STAT_INT"] = 2
             hashMapNain["STAT_FOR"] = -2
             hashMapNain["STAT_SOC"] = -2
-            val statChange = StatChangeGroup(
+            val statChange = StatChangeWrapper(
                 "STAT_CHANGE_HAUT_ELFE",
                 "Stat raciale - haut-elfe",
-                null,
                 hashMapNain
             )
             statChange.let {
                 Log.i("DATABASE", "create statChange - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STAT_CHANGES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - haut-elfe",
                 "aime la magie, être hautain et desteste les nains",
@@ -872,30 +874,30 @@ class RaceInitializer {
 
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val race = Race(
+            val race = RaceWrapper(
                 UUID.randomUUID().toString(),
                 "Haut-elfe",
                 4,
                 8,
-                info.uuid,
-                path.uuid,
-                statChange.uuid,
+                info,
+                path,
+                statChange,
                 null
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_RACES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RACES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
         }
 
         fun elfeSylvain(database: DatabaseReference) {
-            val infoTalent1 = Info(
+            val infoTalent1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Nature primordiale",
                 "+5 INT aux tests liés à la connaissance d'une plante, d'un arbre ou d'un animal",
@@ -904,35 +906,35 @@ class RaceInitializer {
             )
             infoTalent1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent1 = Talent(
+            val talent1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent1.uuid,
+                infoTalent1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val talentGroup1 = TalentGroup(
+            val talentGroup1 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#1 - Nature primordiale",
                 1,
-                listOf(talent1.uuid)
+                listOf(talent1)
             )
             talentGroup1.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent2 = Info(
+            val infoTalent2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Cri sauvage",
                 "test difficulté 10 pour imiter le cri / bruit, d'un animal qu'il connait",
@@ -941,34 +943,34 @@ class RaceInitializer {
             )
             infoTalent2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent2 = Talent(
+            val talent2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent2.uuid,
+                infoTalent2,
                 TalentTypeEnum.ACTIF.name,
                 false,
                 1
             )
             talent2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup2 = TalentGroup(
+            val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#2 - Cri sauvage",
                 2,
-                listOf(talent2.uuid)
+                listOf(talent2)
             )
             talentGroup2.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent3 = Info(
+            val infoTalent3 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Amis de la forêt",
                 "une fois par jour, en pleine nature (ou il y a de la vie), l'elfe sylvain pousse un puissant cri, qui appelle des animaux proches qui attaquent des ennemis au hasard",
@@ -982,12 +984,12 @@ class RaceInitializer {
             )
             infoTalent3.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent3 = Talent(
+            val talent3 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent3.uuid,
+                infoTalent3,
                 TalentTypeEnum.ACTIF.name,
                 false,
                 2,
@@ -997,22 +999,22 @@ class RaceInitializer {
             )
             talent3.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talentGroup3 = TalentGroup(
+            val talentGroup3 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#3 - Amis de la forêt",
                 3,
-                listOf(talent3.uuid)
+                listOf(talent3)
             )
             talentGroup3.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoTalent4_1 = Info(
+            val infoTalent4_1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Équipement naturel",
                 "ajoute 1d6 à ses armes et +2 DEF à ses armures qui ne contiennent pas de métal",
@@ -1021,60 +1023,60 @@ class RaceInitializer {
             )
             infoTalent4_1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent4_1 = Talent(
+            val talent4_1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent4_1.uuid,
+                infoTalent4_1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent4_1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val infoTalent4_2 = Info(
-                    UUID.randomUUID().toString(),
-            "Info - Équipement naturel",
-            "n'a plus de malus de DEX lié) à la DEF  si celle-ci n'est pas métallique",
-            "",
-            ""
+            val infoTalent4_2 = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Info - Équipement naturel",
+                "n'a plus de malus de DEX lié) à la DEF  si celle-ci n'est pas métallique",
+                "",
+                ""
             )
             infoTalent4_2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent4_2 = Talent(
+            val talent4_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent4_1.uuid,
+                infoTalent4_2,
                 TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null
             )
             talent4_2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val talentGroup4 = TalentGroup(
+            val talentGroup4 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#4 - Équipement naturel",
                 4,
-                listOf(talent4_1.uuid, talent4_2.uuid)
+                listOf(talent4_1, talent4_2)
             )
             talentGroup4.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoTalent5_1 = Info(
+            val infoTalent5_1 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Harmonie avec la nature",
                 "+1 DEX et +1 CON",
@@ -1083,22 +1085,22 @@ class RaceInitializer {
             )
             infoTalent5_1.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5_1 = Talent(
+            val talent5_1 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5_1.uuid,
+                infoTalent5_1,
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null
             )
             talent5_1.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val infoTalent5_2 = Info(
+            val infoTalent5_2 = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Harmonie avec la nature",
                 "avantage sur le jet de CON de la compétence de niveau 3 amis de la forêt",
@@ -1107,37 +1109,37 @@ class RaceInitializer {
             )
             infoTalent5_2.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val talent5_2 = Talent(
+            val talent5_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
-                infoTalent5_1.uuid,
+                infoTalent5_1,
                 TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null
             )
             talent5_2.let {
                 Log.i("DATABASE", "create talent - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENTS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENTS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val talentGroup5 = TalentGroup(
+            val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
                 "#5 - Harmonie avec la forêt",
                 5,
-                listOf(talent5_1.uuid, talent5_2.uuid)
+                listOf(talent5_1, talent5_2)
             )
 
             talentGroup5.let {
                 Log.i("DATABASE", "create talentGroup - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_TALENT_GROUPS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoPath = Info(
+            val infoPath = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Voie de l'elfe sylvain",
                 "",
@@ -1146,45 +1148,44 @@ class RaceInitializer {
             )
             infoPath.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val path = Path(
+            val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie de l'elfe-sylvain",
+                infoPath,
                 listOf(
-                    talentGroup1.uuid,
-                    talentGroup2.uuid,
-                    talentGroup3.uuid,
-                    talentGroup4.uuid,
-                    talentGroup5.uuid
+                    talentGroup1,
+                    talentGroup2,
+                    talentGroup3,
+                    talentGroup4,
+                    talentGroup5
                 ),
-                infoPath.uuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_PATHS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_PATHS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            var hashMapNain = java.util.HashMap<String, Int>()
+            var hashMapNain = java.util.HashMap<String, Long>()
             hashMapNain["STAT_DEX"] = 2
             hashMapNain["STAT_FOR"] = -1
-            val statChange = StatChangeGroup(
+            val statChange = StatChangeWrapper(
                 "STAT_CHANGE_ELFE_SYLVAIN",
                 "Stat raciale - elfe-sylvain",
-                null,
                 hashMapNain
             )
             statChange.let {
                 Log.i("DATABASE", "create statChange - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STAT_CHANGES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val info = Info(
+            val info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - elfe-sylvain",
                 "probablement né dans la foret",
@@ -1194,26 +1195,29 @@ class RaceInitializer {
 
             info.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val race = Race(
+            val race = RaceWrapper(
                 UUID.randomUUID().toString(),
                 "Elfe-sylvain",
                 8,
                 6,
-                info.uuid,
-                path.uuid,
-                statChange.uuid,
+                info,
+                path,
+                statChange,
                 null
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_RACES)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RACES)
                     .child(it.uuid.toString()).setValue(it)
             }
 
         }
+
+
     }
+
 }

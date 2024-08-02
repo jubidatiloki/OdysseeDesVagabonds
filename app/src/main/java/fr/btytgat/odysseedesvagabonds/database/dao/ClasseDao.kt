@@ -1,8 +1,8 @@
 package fr.btytgat.odysseedesvagabonds.database.dao
 
-import androidx.room.Dao
-import androidx.room.Query
+import androidx.room.*
 import fr.btytgat.odysseedesvagabonds.database.entities.Classe
+import fr.btytgat.odysseedesvagabonds.database.entities.Info
 
 @Dao
 interface ClasseDao {
@@ -10,6 +10,14 @@ interface ClasseDao {
     @Query("SELECT * FROM Classe")
     fun getAllClasses(): List<Classe>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertClasse(classe: Classe)
+
+    @Delete
+    fun deleteClasse(classe: Classe)
+
+    @Query("SELECT COUNT(*) FROM ${Classe.TABLE_NAME}")
+    fun getRowCount(): Int
 
 //   @Transaction
 //   @Query("SELECT * FROM  classe WHERE uuid = :idClasse")

@@ -5,17 +5,17 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import fr.btytgat.odysseedesvagabonds.database.entities.Stat
+import fr.btytgat.odysseedesvagabonds.database.entities.Path
 
 @Dao
-interface StatDao {
+interface PathDao {
 
-    @Query("SELECT * FROM ${Stat.TABLE_NAME}")
-    fun getAllStats(): LiveData<List<Stat>>
+    @Query("SELECT * FROM " + Path.TABLE_NAME)
+    fun getAllPaths(): LiveData<List<Path>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStat(stat: Stat): Long
+    fun insertPath(path: Path): Long
 
-    @Query("SELECT COUNT(*) FROM ${Stat.TABLE_NAME}")
+    @Query("SELECT COUNT(*) FROM ${Path.TABLE_NAME}")
     fun getRowCount(): Int
 }

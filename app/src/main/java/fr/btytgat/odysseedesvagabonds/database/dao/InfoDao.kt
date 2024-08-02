@@ -1,9 +1,6 @@
 package fr.btytgat.odysseedesvagabonds.database.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import fr.btytgat.odysseedesvagabonds.database.entities.Info
 
 @Dao
@@ -12,7 +9,7 @@ interface InfoDao {
     @Query("SELECT * FROM info")
     fun getAllInfos(): List<Info>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertInfo(info: Info)
 
     @Insert
@@ -20,6 +17,9 @@ interface InfoDao {
 
     @Delete
     fun deleteInfo(info: Info)
+
+    @Query("SELECT COUNT(*) FROM ${Info.TABLE_NAME}")
+    fun getRowCount(): Int
 
 //    @Query("SELECT * FROM info WHERE id = :id")
 //    fun getInfoById(id: Long?): Info

@@ -5,6 +5,8 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
+import fr.btytgat.odysseedesvagabonds.database.wrapper.ClasseWrapper
+import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
 
 
 @Entity(
@@ -19,15 +21,27 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 data class Classe(
     @PrimaryKey(autoGenerate = false) var uuid: String,
     var name: String,
-    var healthDiceModifier: Int,      // -1: decreased, 0: no change, 1: increased
-    var manaDiceModifier: Int,        // -1: decreased, 0: no change, 1: increased
+    var healthDiceModifier: Long,      // -1: decreased, 0: no change, 1: increased
+    var manaDiceModifier: Long,        // -1: decreased, 0: no change, 1: increased
     var info: String?,
     var paths: List<String> = emptyList(),
-    var maxPathsTaken: Int = 3
+    var maxPathsTaken: Long = 3
 ): BaseEntity(){
 
     companion object {
         const val TABLE_NAME = "Classe"
+
+        fun getEntityFromWrapper(wrapper: ClasseWrapper): Classe {
+            return Classe(
+                uuid = wrapper.uuid,
+                name = wrapper.name,
+                healthDiceModifier = wrapper.healthDiceModifier,
+                manaDiceModifier = wrapper.manaDiceModifier,
+                info = wrapper.info?.uuid,
+                paths = wrapper.paths.map { it.uuid },
+                maxPathsTaken = wrapper.maxPathsTaken
+            )
+        }
     }
 
 }

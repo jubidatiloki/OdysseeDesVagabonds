@@ -28,15 +28,15 @@ class DBConverters {
     }
 
     @TypeConverter
-    fun fromHashMap(value: HashMap<UUID, Int>?): String? {
+    fun fromHashMap(value: HashMap<String, Long>?): String? {
         val gson = Gson()
         return gson.toJson(value)
     }
 
     @TypeConverter
-    fun toHashMap(value: String?): HashMap<UUID, Int>? {
+    fun toHashMap(value: String?): HashMap<String, Long>? {
         val gson = Gson()
-        val type = object : TypeToken<HashMap<UUID, Int>>() {}.type
+        val type = object : TypeToken<HashMap<String, Long>>() {}.type
         return gson.fromJson(value, type)
     }
 

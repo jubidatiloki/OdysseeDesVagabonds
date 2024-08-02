@@ -38,6 +38,17 @@
                 android:textColor="@color/white"
                 app:layout_constraintTop_toBottomOf="@id/bt_reset" />
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/bt_retrieve_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/background_orange_button"
+                android:text="retrieve data"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/bt_update_data" />
+
 
             <TextView
                 android:id="@+id/tv_description"
@@ -50,7 +61,7 @@
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/bt_update_data" />
+                app:layout_constraintTop_toBottomOf="@id/bt_retrieve_data" />
 
             <LinearLayout
                 android:id="@+id/ll_1"

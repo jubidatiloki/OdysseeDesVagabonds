@@ -2,15 +2,15 @@ package fr.btytgat.odysseedesvagabonds.utils
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
-import fr.btytgat.odysseedesvagabonds.database.entities.Info
-import fr.btytgat.odysseedesvagabonds.database.entities.Stat
+import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
+import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
 import java.util.*
 
 class StatInitializer {
 
     companion object {
         fun populateStats(database: DatabaseReference) {
-            val infoAdc = Info(
+            val infoAdc = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Aptitude de combat",
                 "Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers",
@@ -19,26 +19,26 @@ class StatInitializer {
             )
             infoAdc.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString().toString()).setValue(it)
             }
 
-            val statAdc = Stat(
+            val statAdc = StatWrapper(
                 "STAT_ADC",
                 "Aptitude de combat",
                 "AdC",
                 true,
                 true,
-                infoAdc.uuid
+                infoAdc
             )
             statAdc.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoAdt = Info(
+            val infoAdt = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Aptitude de tir",
                 "Maîtrise des armes à distance, importante pour les canonniers et les rôdeurs",
@@ -47,24 +47,24 @@ class StatInitializer {
             )
             infoAdt.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statAdt = Stat(
+            val statAdt = StatWrapper(
                 "STAT_ADT",
                 "Aptitude de tir",
                 "AdT",
                 true,
                 true,
-                infoAdt.uuid
+                infoAdt
             )
             statAdt.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoCha = Info(
+            val infoCha = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Charisme",
                 "Représente le courage, la prestance auprès, l'image que l'on donne auprès des autres, important pour les chevaliers et les bardes",
@@ -73,24 +73,24 @@ class StatInitializer {
             )
             infoCha.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statCha = Stat(
+            val statCha = StatWrapper(
                 "STAT_CHA",
                 "Charisme",
                 "CHA",
                 true,
                 true,
-                infoCha.uuid
+                infoCha
             )
             statCha.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoChan = Info(
+            val infoChan = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Chance",
                 "Représente la chance naturelle et parfois honteuse que RNG jésus porte pour vous",
@@ -99,24 +99,24 @@ class StatInitializer {
             )
             infoChan.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statChan = Stat(
+            val statChan = StatWrapper(
                 "STAT_CHAN",
                 "Chance",
                 "CHAN",
                 true,
                 true,
-                infoChan.uuid
+                infoChan
             )
             statChan.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoCon = Info(
+            val infoCon = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Constitution",
                 "Représente l’endurance et la résistance, importante pour les barbares et moines",
@@ -125,24 +125,24 @@ class StatInitializer {
             )
             infoCon.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statCon = Stat(
+            val statCon = StatWrapper(
                 "STAT_CON",
                 "Constitution",
                 "CON",
                 true,
                 true,
-                infoCon.uuid
+                infoCon
             )
             statCon.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDefCac = Info(
+            val infoDefCac = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Défense au corps à corps",
                 "Représente la difficulté à être toucher au corps à corps, notamment à cause d'une armure",
@@ -151,24 +151,24 @@ class StatInitializer {
             )
             infoDefCac.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDefCac = Stat(
+            val statDefCac = StatWrapper(
                 "STAT_DEF_CAC",
                 "Défense au corps à corps",
                 "DEF CaC",
                 false,
                 false,
-                infoDefCac.uuid
+                infoDefCac
             )
             statDefCac.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDefDist = Info(
+            val infoDefDist = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Défense à distance",
                 "Représente la difficulté à être touché par des projectiles non magique",
@@ -177,24 +177,24 @@ class StatInitializer {
             )
             infoDefDist.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDefDist = Stat(
+            val statDefDist = StatWrapper(
                 "STAT_DEF_DIST",
                 "Défense à distance",
                 "DEF DIST",
                 false,
                 false,
-                infoDefDist.uuid
+                infoDefDist
             )
             statDefDist.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDefElem = Info(
+            val infoDefElem = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Défense élémentaire",
                 "Représente la difficulté à être touché par des attaques élémentaire (de souffle par exemple, comme, au hasard de dragon)",
@@ -203,24 +203,24 @@ class StatInitializer {
             )
             infoDefElem.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDefElem = Stat(
+            val statDefElem = StatWrapper(
                 "STAT_DEF_ELEM",
                 "Défense élémentaire",
                 "DEF ELEM",
                 false,
                 false,
-                infoDefElem.uuid
+                infoDefElem
             )
             statDefElem.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDefMag = Info(
+            val infoDefMag = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Défense magique",
                 "Représente la difficulté à être touché par des attaques magiques",
@@ -229,24 +229,24 @@ class StatInitializer {
             )
             infoDefMag.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDefMag = Stat(
+            val statDefMag = StatWrapper(
                 "STAT_DEF_MAG",
                 "Défense magique",
                 "DEF MAG",
                 false,
                 false,
-                infoDefMag.uuid
+                infoDefMag
             )
             statDefMag.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDex = Info(
+            val infoDex = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Dextérité",
                 "Représente l’agilité, ainsi que la précision et la vitesse dans certaines situation, importante pour les voleurs",
@@ -255,24 +255,24 @@ class StatInitializer {
             )
             infoDex.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDex = Stat(
+            val statDex = StatWrapper(
                 "STAT_DEX",
                 "Dextérité",
                 "DEX",
                 true,
                 true,
-                infoDex.uuid
+                infoDex
             )
             statDex.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDm = Info(
+            val infoDm = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Dé de mana",
                 "Représente le gain de point de mana par montée de niveau",
@@ -281,24 +281,24 @@ class StatInitializer {
             )
             infoDm.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDm = Stat(
+            val statDm = StatWrapper(
                 "STAT_DM",
                 "Dé de mana",
                 "DM",
                 true,
                 false,
-                infoDm.uuid
+                infoDm
             )
             statDm.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoDv = Info(
+            val infoDv = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Dé de vie",
                 "Représente le gain de point de vie par montée de niveau",
@@ -307,24 +307,24 @@ class StatInitializer {
             )
             infoDv.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statDv = Stat(
+            val statDv = StatWrapper(
                 "STAT_DV",
                 "Dé de vie",
                 "DV",
                 true,
                 false,
-                infoDv.uuid
+                infoDv
             )
             statDv.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoEsq = Info(
+            val infoEsq = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Esquive",
                 "Représente la capacité à pouvoir esquiver une attaque, plutôt que l’encaisser",
@@ -333,24 +333,24 @@ class StatInitializer {
             )
             infoEsq.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statEsq = Stat(
+            val statEsq = StatWrapper(
                 "STAT_ESQ",
                 "Esquive",
                 "ESQ",
                 false,
                 false,
-                infoEsq.uuid
+                infoEsq
             )
             statEsq.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoFor = Info(
+            val infoFor = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Force",
                 "Représente la puissance brute / musculaire, importante pour les barbares",
@@ -359,24 +359,24 @@ class StatInitializer {
             )
             infoFor.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statFor = Stat(
+            val statFor = StatWrapper(
                 "STAT_FOR",
                 "Force",
                 "FOR",
                 true,
                 true,
-                infoFor.uuid
+                infoFor
             )
             statFor.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoInit = Info(
+            val infoInit = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Initiative",
                 "Représente la vitesse de réaction et permet de définir l'ordre d'agissement dans un combat, par rapport aux autre",
@@ -385,24 +385,24 @@ class StatInitializer {
             )
             infoInit.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statInit = Stat(
+            val statInit = StatWrapper(
                 "STAT_INIT",
                 "Initiative",
                 "INIT",
                 false,
                 false,
-                infoInit.uuid
+                infoInit
             )
             statInit.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoInt = Info(
+            val infoInt = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Intelligence",
                 "Représente les connaissances, et la maîtrise de la magie chez les druides, les magiciens, les nécromanciens et les prêtres",
@@ -411,24 +411,24 @@ class StatInitializer {
             )
             infoInt.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statInt = Stat(
+            val statInt = StatWrapper(
                 "STAT_INT",
                 "Intelligence",
                 "INT",
                 true,
                 true,
-                infoInt.uuid
+                infoInt
             )
             statInt.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoPer = Info(
+            val infoPer = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Perception",
                 "Représente le développement de ses sens (vue et ouie notamment), importante pour les bardes, les rôdeurs et  les moines",
@@ -437,24 +437,24 @@ class StatInitializer {
             )
             infoPer.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statPer = Stat(
+            val statPer = StatWrapper(
                 "STAT_PER",
                 "Perception",
                 "PER",
                 true,
                 true,
-                infoPer.uuid
+                infoPer
             )
             statPer.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoPm = Info(
+            val infoPm = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Point de mana",
                 "Représente la quantité de magie possible d’utiliser afin d'utiliser des sorts",
@@ -463,24 +463,24 @@ class StatInitializer {
             )
             infoPm.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statPm = Stat(
+            val statPm = StatWrapper(
                 "STAT_PM",
                 "Point de mana",
                 "PM",
                 false,
                 false,
-                infoPm.uuid
+                infoPm
             )
             statPm.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoPv = Info(
+            val infoPv = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Point de vie",
                 "Représente la quantité de coup et de blessure qu’il est possible d’encaisser avant de s’évanouir ou de mourir",
@@ -489,24 +489,24 @@ class StatInitializer {
             )
             infoPv.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statPv = Stat(
+            val statPv = StatWrapper(
                 "STAT_PV",
                 "Point de vie",
                 "PV",
                 false,
                 false,
-                infoPv.uuid
+                infoPv
             )
             statPv.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoRdFeu = Info(
+            val infoRdFeu = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Réduction de dégât de feu",
                 "Réduit les dégâts élémentaire de feu subis",
@@ -515,25 +515,25 @@ class StatInitializer {
             )
             infoRdFeu.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statRdFeu = Stat(
+            val statRdFeu = StatWrapper(
                 "STAT_RD_FEU",
                 "Réduction de dégât de feu",
                 "RD FEU",
                 false,
                 false,
-                infoRdFeu.uuid
+                infoRdFeu
             )
             statRdFeu.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoRdFoudre = Info(
+            val infoRdFoudre = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Réduction de dégât de foudre",
                 "Réduit les dégâts élémentaire de foudre subis",
@@ -542,24 +542,24 @@ class StatInitializer {
             )
             infoRdFoudre.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statRdFoudre = Stat(
+            val statRdFoudre = StatWrapper(
                 "STAT_RD_FOUDRE",
                 "Réduction de dégât de foudre",
                 "RD FOUDRE",
                 false,
                 false,
-                infoRdFoudre.uuid
+                infoRdFoudre
             )
             statRdFoudre.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoRdGlace = Info(
+            val infoRdGlace = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Réduction de dégât de glace",
                 "Réduit les dégâts élémentaire de glace subis",
@@ -568,24 +568,24 @@ class StatInitializer {
             )
             infoRdGlace.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statRdGlace = Stat(
+            val statRdGlace = StatWrapper(
                 "STAT_RD_GLACE",
                 "Réduction de dégât de glace",
                 "RD GLACE",
                 false,
                 false,
-                infoRdGlace.uuid
+                infoRdGlace
             )
             statRdGlace.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoRdMag = Info(
+            val infoRdMag = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Réduction de dégât magique",
                 "Réduit les dégâts magique subis",
@@ -594,25 +594,25 @@ class StatInitializer {
             )
             infoRdMag.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statRdMag = Stat(
+            val statRdMag = StatWrapper(
                 "STAT_RD_MAG",
                 "Réduction de dégât magique",
                 "RD MAG",
                 false,
                 false,
-                infoRdMag.uuid
+                infoRdMag
             )
             statRdMag.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
 
-            val infoRdPhy = Info(
+            val infoRdPhy = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Réduction de dégât physique",
                 "Réduit les dégâts physique subis (corps à corps ou distant)",
@@ -621,24 +621,24 @@ class StatInitializer {
             )
             infoRdPhy.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statRdPhy = Stat(
+            val statRdPhy = StatWrapper(
                 "STAT_RD_PHY",
                 "Réduction de dégât physique",
                 "RD PHY",
                 false,
                 false,
-                infoRdPhy.uuid
+                infoRdPhy
             )
             statRdPhy.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
 
-            val infoSoc = Info(
+            val infoSoc = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Info - Social",
                 "Représente l’aisance à communiquer, importante pour les bardes et les voleurs",
@@ -647,20 +647,20 @@ class StatInitializer {
             )
             infoSoc.let {
                 Log.i("DATABASE", "create info - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_INFOS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            val statSoc = Stat(
+            val statSoc = StatWrapper(
                 "STAT_SOC",
                 "Social",
                 "SOC",
                 false,
                 false,
-                infoSoc.uuid
+                infoSoc
             )
             statSoc.let {
                 Log.i("DATABASE", "create stat - ${it.uuid.toString()}")
-                database.child(DatabaseUtils.KEY_SYSTEM).child(DatabaseUtils.KEY_STATS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
         }

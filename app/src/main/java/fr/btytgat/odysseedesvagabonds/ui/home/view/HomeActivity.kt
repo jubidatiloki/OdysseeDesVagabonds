@@ -3,16 +3,21 @@ package fr.btytgat.odysseedesvagabonds.ui.home.view
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import fr.btytgat.odysseedesvagabonds.R
+import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
 import fr.btytgat.odysseedesvagabonds.ui.home.presenter.HomePresenter
-import fr.btytgat.odysseedesvagabonds.utils.DatabaseUtils
+import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils
 
-class HomeActivity: BaseActivity(), IHomeView.IActivity {
+class HomeActivity : BaseActivity(), IHomeView.IActivity {
 
     lateinit var btReset: Button
     lateinit var btRefreshData: Button
+    lateinit var btRetrieveData: Button
 
     lateinit var tvClasse: TextView
     lateinit var tvRace: TextView
@@ -27,6 +32,7 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
 
         btReset = findViewById(R.id.bt_reset)
         btRefreshData = findViewById(R.id.bt_update_data)
+        btRetrieveData = findViewById(R.id.bt_retrieve_data)
 
         tvClasse = findViewById(R.id.tv_classe)
         tvRace = findViewById(R.id.tv_race)
@@ -36,10 +42,13 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
         tvInfos = findViewById(R.id.tv_infos)
 
         btReset.setOnClickListener {
-            DatabaseUtils.initDatabase()
+            FirebaseUtils.initDatabase()
         }
-        btRefreshData.setOnClickListener{
+        btRefreshData.setOnClickListener {
             updateDataFields()
+        }
+        btRetrieveData.setOnClickListener {
+            retrieveDatas()
         }
 
         presenter = HomePresenter(this, this)
@@ -54,7 +63,7 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
         val nb_max_stat = 25
 
 
-        with(DatabaseUtils) {
+        with(FirebaseUtils) {
             database.child(KEY_SYSTEM).child(KEY_CLASSES).get().addOnSuccessListener {
                 tvClasse.text = "nb classes: \n${it.childrenCount} / $nb_max_classe"
             }
@@ -73,6 +82,41 @@ class HomeActivity: BaseActivity(), IHomeView.IActivity {
             database.child(KEY_SYSTEM).child(KEY_INFOS).get().addOnSuccessListener {
                 tvInfos.text = "nb infos: \n${it.childrenCount}"
             }
+        }
+    }
+
+    fun retrieveDatas() {
+        val db = DatabaseManager.getInstance(application)
+
+//        var raceDao = db.raceDao()
+        with(FirebaseUtils) {
+            database.child(KEY_SYSTEM).child(KEY_STATS)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retriveStat(this@HomeActivity, datasnapshot)
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+
+            database.child(KEY_SYSTEM).child(KEY_RACES)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveRace(this@HomeActivity, datasnapshot)
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
         }
     }
 
