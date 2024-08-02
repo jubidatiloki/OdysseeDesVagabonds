@@ -11,7 +11,7 @@ import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
 import fr.btytgat.odysseedesvagabonds.ui.home.presenter.HomePresenter
-import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils
+import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
 
 class HomeActivity : BaseActivity(), IHomeView.IActivity {
 

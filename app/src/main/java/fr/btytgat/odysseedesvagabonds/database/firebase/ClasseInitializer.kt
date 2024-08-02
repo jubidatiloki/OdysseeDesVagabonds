@@ -1,11 +1,11 @@
-package fr.btytgat.odysseedesvagabonds.utils
+package fr.btytgat.odysseedesvagabonds.database.firebase
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
-import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils.Companion.KEY_CLASSES
-import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils.Companion.KEY_INFOS
-import fr.btytgat.odysseedesvagabonds.utils.FirebaseUtils.Companion.KEY_SYSTEM
+import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils.Companion.KEY_CLASSES
+import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils.Companion.KEY_INFOS
+import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils.Companion.KEY_SYSTEM
 import java.util.*
 
 class ClasseInitializer {

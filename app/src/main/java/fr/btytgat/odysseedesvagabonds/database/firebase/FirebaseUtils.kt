@@ -1,4 +1,4 @@
-package fr.btytgat.odysseedesvagabonds.utils
+package fr.btytgat.odysseedesvagabonds.database.firebase
 
 import android.content.Context
 import android.util.Log
