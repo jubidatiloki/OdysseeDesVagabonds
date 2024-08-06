@@ -11,6 +11,7 @@ data class ClasseWrapper(
     var manaDiceModifier: Long,        // -1: decreased, 0: no change, 1: increased
     var info: InfoWrapper?,
     var paths: List<PathWrapper> = emptyList(),
+     var tags: List<String>,
     var maxPathsTaken: Long = 3
 ): BaseEntity(){
 
@@ -24,6 +25,7 @@ data class ClasseWrapper(
                 manaDiceModifier = ds.child("manaDiceModifier").value as Long,
                 info = InfoWrapper.getWrapperFromDS(ds.child("info")),
                 paths = ds.child("paths").children.map { PathWrapper.getWrapperFromDS(it) },
+                tags = ds.child("tags").children.map { it.value as String },
                 maxPathsTaken = ds.child("maxPathsTaken").value as Long
             )
         }

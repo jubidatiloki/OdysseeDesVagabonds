@@ -10,7 +10,8 @@ data class RaceWrapper(
     var info: InfoWrapper?,
     var path: PathWrapper,
     var statsChangeGroup: StatChangeWrapper?,
-    var specialStatChangeGroups: List<StatChangeWrapper?>?
+    var tags: List<String>,
+    var specialStatChangeGroups: List<StatChangeWrapper?>? = null
 ) {
     companion object{
 
@@ -23,6 +24,7 @@ data class RaceWrapper(
                 info = InfoWrapper.getWrapperFromDS(ds.child("info")),
                 path = PathWrapper.getWrapperFromDS(ds.child("path")),
                 statsChangeGroup = StatChangeWrapper.getWrapperFromDS(ds.child("statsChangeGroup")),
+                tags = ds.child("tags").children.map { it.value as String },
                 specialStatChangeGroups = ds.child("specialStatChangeGroups").children.map { StatChangeWrapper.getWrapperFromDS(it)}
             )
         }

@@ -24,6 +24,7 @@ data class Classe(
     var manaDiceModifier: Long,        // -1: decreased, 0: no change, 1: increased
     var info: String?,
     var paths: List<String> = emptyList(),
+    var tags: List<String> = emptyList(),
     var maxPathsTaken: Long = 3
 ): BaseEntity(){
 
@@ -38,6 +39,7 @@ data class Classe(
                 manaDiceModifier = wrapper.manaDiceModifier,
                 info = wrapper.info?.uuid,
                 paths = wrapper.paths.map { it.uuid },
+                tags = wrapper.tags,
                 maxPathsTaken = wrapper.maxPathsTaken
             )
         }

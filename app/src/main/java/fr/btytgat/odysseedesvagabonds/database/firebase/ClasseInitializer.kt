@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.firebase
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
+import fr.btytgat.odysseedesvagabonds.database.enums.ClasseTagEnum
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils.Companion.KEY_CLASSES
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils.Companion.KEY_INFOS
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils.Companion.KEY_SYSTEM
@@ -32,17 +33,23 @@ class ClasseInitializer {
                 database.child(KEY_SYSTEM).child(KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+            val classeUuid = UUID.randomUUID().toString()
             val classe = ClasseWrapper(
-                UUID.randomUUID().toString(),
+                classeUuid,
                 "Druide",
                 0,
                 1,
                 info,
                 listOf(
-                    PathInitializer.voieBestiale(database),
-                    PathInitializer.voieProtecteur(database),
-                    PathInitializer.voieNature(database),
-                    PathInitializer.voieVegetaux(database)
+                    PathInitializer.voieBestiale(database, classeUuid),
+                    PathInitializer.voieProtecteur(database, classeUuid),
+                    PathInitializer.voieNature(database, classeUuid),
+                    PathInitializer.voieVegetaux(database, classeUuid)
+                ),
+                listOf(
+                    ClasseTagEnum.MAGIC.name,
+                    ClasseTagEnum.SPELL.name,
+                    ClasseTagEnum.UTILITY.name
                 )
             )
             classe.let {
@@ -65,17 +72,23 @@ class ClasseInitializer {
                 database.child(KEY_SYSTEM).child(KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+            val classeUuid = UUID.randomUUID().toString()
             val classe = ClasseWrapper(
-                UUID.randomUUID().toString(),
+                classeUuid,
                 "Ingénieur",
                 1,
                 -1,
                 info,
                 listOf(
-                    PathInitializer.voieArtillerie(database),
-                    PathInitializer.voieChimiste(database),
-                    PathInitializer.voieTireur(database),
-                    PathInitializer.voieMecanismes(database)
+                    PathInitializer.voieArtillerie(database, classeUuid),
+                    PathInitializer.voieChimiste(database, classeUuid),
+                    PathInitializer.voieTireur(database, classeUuid),
+                    PathInitializer.voieMecanismes(database, classeUuid)
+                ),
+                listOf(
+                    ClasseTagEnum.PHYSICAL.name,
+                    ClasseTagEnum.SKILL.name,
+                    ClasseTagEnum.UTILITY.name
                 )
             )
             classe.let {
@@ -98,20 +111,25 @@ class ClasseInitializer {
                 database.child(KEY_SYSTEM).child(KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+            val classeUuid = UUID.randomUUID().toString()
             val classe = ClasseWrapper(
-                UUID.randomUUID().toString(),
+                classeUuid,
                 "Magicien",
                 -1,
                 1,
                 info,
                 listOf(
-                    PathInitializer.voieFeu(database),
-                    PathInitializer.voieTerre(database),
-                    PathInitializer.voieEau(database),
-                    PathInitializer.voieAir(database),
-                    PathInitializer.voieArcane(database),
-                    PathInitializer.voieMagieUniverselle(database),
-                    PathInitializer.voieLumiere(database),
+                    PathInitializer.voieFeu(database, classeUuid),
+                    PathInitializer.voieTerre(database, classeUuid),
+                    PathInitializer.voieEau(database, classeUuid),
+                    PathInitializer.voieAir(database, classeUuid),
+                    PathInitializer.voieArcane(database, classeUuid),
+                    PathInitializer.voieMagieUniverselle(database, classeUuid),
+                    PathInitializer.voieLumiere(database, classeUuid),
+                ),
+                listOf(
+                    ClasseTagEnum.MAGIC.name,
+                    ClasseTagEnum.SKILL.name
                 )
             )
             classe.let {

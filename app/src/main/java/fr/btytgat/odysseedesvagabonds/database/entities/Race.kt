@@ -26,6 +26,7 @@ data class Race(
     var info: String?,
     var path: String,
     var statsChange: String?,
+    var tags: List<String> = emptyList(),
     var specialStatChange: List<String?>? = null,     // à utiliser si statChangeUuid est null, pour gérer le cas du démi-elfe et de l'humain
     @Ignore
     var _info: Info? = null,
@@ -36,7 +37,7 @@ data class Race(
     @Ignore
     var _specialStatChange: List<StatChangeGroup?>? = null
 ): BaseEntity() {
-    constructor():this(name = "", healthDice = 0, manaDice = 0, info = null, path = "", statsChange = null)
+    constructor():this(name = "", healthDice = 0, manaDice = 0, info = null, path = "", statsChange = null, tags = emptyList())
 
     companion object {
         const val TABLE_NAME = "Race"
@@ -50,6 +51,7 @@ data class Race(
                 info = wrapper.info?.uuid,
                 path = wrapper.path.uuid,
                 statsChange = wrapper.statsChangeGroup?.uuid,
+                tags = wrapper.tags,
                 specialStatChange = wrapper.specialStatChangeGroups?.map { it?.uuid }
             )
         }

@@ -23,6 +23,8 @@ data class Path(
     var name: String,
     var info: String?,
     var category: String? = null,
+    var originType: String,
+    var originUuid: String,
     var maxTaken: Long = 1         // nb max de voies pouvant être prises pour la catégorie choisie
 ) : BaseEntity() {
     companion object {
@@ -35,6 +37,8 @@ data class Path(
                 name = wrapper.name,
                 info = wrapper.info?.uuid,
                 category = wrapper.category,
+                originType = wrapper.originType,
+                originUuid = wrapper.originUuid,
                 maxTaken = wrapper.maxTaken
             )
         }

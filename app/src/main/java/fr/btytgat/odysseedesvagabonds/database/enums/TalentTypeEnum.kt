@@ -1,4 +1,4 @@
-package fr.btytgat.odysseedesvagabonds.database.entities
+package fr.btytgat.odysseedesvagabonds.database.enums
 
 enum class TalentTypeEnum(title: String, description: String, subDescription: String) {
     PASSIF("Passif", "actif en permanence", "sauf mention contraire"),

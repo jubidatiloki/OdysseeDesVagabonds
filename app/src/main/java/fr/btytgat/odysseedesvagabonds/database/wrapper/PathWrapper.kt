@@ -7,6 +7,8 @@ data class PathWrapper(
     var name: String,
     var info: InfoWrapper?,
     var talentGroups: List<TalentGroupWrapper> = emptyList(),
+    var originType: String,
+    var originUuid: String,
     var category: String? = null,
     var maxTaken: Long = 1,
 ){
@@ -19,6 +21,8 @@ data class PathWrapper(
                 info = InfoWrapper.getWrapperFromDS(ds.child("info")),
                 talentGroups = ds.child("talentGroups").children.map { TalentGroupWrapper.getWrapperFromDS(it) },
                 category = ds.child("category").value as String?,
+                originType = ds.child("originType").value as String,
+                originUuid = ds.child("originUuid").value as String,
                 maxTaken = ds.child("maxTaken").value as Long
             )
         }

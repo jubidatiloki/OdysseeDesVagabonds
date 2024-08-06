@@ -2,7 +2,9 @@ package fr.btytgat.odysseedesvagabonds.database.firebase
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
-import fr.btytgat.odysseedesvagabonds.database.entities.TalentTypeEnum
+import fr.btytgat.odysseedesvagabonds.database.enums.PathOriginEnum
+import fr.btytgat.odysseedesvagabonds.database.enums.RaceTagEnum
+import fr.btytgat.odysseedesvagabonds.database.enums.TalentTypeEnum
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import java.util.*
 
@@ -215,6 +217,7 @@ class RaceInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+            val raceUuid = UUID.randomUUID().toString();
             val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie du nain",
@@ -225,7 +228,9 @@ class RaceInitializer {
                     talentGroup3,
                     talentGroup4,
                     talentGroup5,
-                )
+                ),
+                PathOriginEnum.RACE.name,
+                raceUuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
@@ -250,7 +255,7 @@ class RaceInitializer {
 
 
             val info = InfoWrapper(
-                UUID.randomUUID().toString(),
+                raceUuid,
                 "Info - nain",
                 "se reconnait à  leurs petites tailles, leurs barbes, leur pioches, leurs air raleurs et désagréable, leur addiction pour l'alcool, .... ah et ils aiment pas les elfes aussi",
                 "",
@@ -271,7 +276,7 @@ class RaceInitializer {
                 info,
                 path,
                 statChange,
-                null
+                listOf(RaceTagEnum.PHYSICAL.name),
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
@@ -532,6 +537,8 @@ class RaceInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+
+            val raceUuid = UUID.randomUUID().toString();
             val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie du gnome",
@@ -543,6 +550,8 @@ class RaceInitializer {
                     talentGroup4,
                     talentGroup5
                 ),
+                PathOriginEnum.RACE.name,
+                raceUuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
@@ -583,14 +592,16 @@ class RaceInitializer {
             }
 
             val race = RaceWrapper(
-                UUID.randomUUID().toString(),
+                raceUuid,
                 "Gnome",
                 6,
                 6,
                 info,
                 path,
                 statChange,
-                null
+                listOf(
+                    RaceTagEnum.BALANCED.name
+                )
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
@@ -828,6 +839,8 @@ class RaceInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+
+            val raceUuid = UUID.randomUUID().toString();
             val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie du haut-elfe",
@@ -839,6 +852,8 @@ class RaceInitializer {
                     talentGroup4,
                     talentGroup5
                 ),
+                PathOriginEnum.RACE.name,
+                raceUuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
@@ -879,14 +894,16 @@ class RaceInitializer {
             }
 
             val race = RaceWrapper(
-                UUID.randomUUID().toString(),
+                raceUuid,
                 "Haut-elfe",
                 4,
                 8,
                 info,
                 path,
                 statChange,
-                null
+                listOf(
+                    RaceTagEnum.MAGIC.name
+                )
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
@@ -1151,6 +1168,8 @@ class RaceInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_INFOS)
                     .child(it.uuid.toString()).setValue(it)
             }
+
+            val raceUuid = UUID.randomUUID().toString()
             val path = PathWrapper(
                 UUID.randomUUID().toString(),
                 "Voie de l'elfe-sylvain",
@@ -1162,6 +1181,8 @@ class RaceInitializer {
                     talentGroup4,
                     talentGroup5
                 ),
+                PathOriginEnum.RACE.name,
+                raceUuid
             )
             path.let {
                 Log.i("DATABASE", "create path - ${it.uuid.toString()}")
@@ -1186,7 +1207,7 @@ class RaceInitializer {
 
 
             val info = InfoWrapper(
-                UUID.randomUUID().toString(),
+                raceUuid,
                 "Info - elfe-sylvain",
                 "probablement né dans la foret",
                 "aime faire des choses avec les abres, ou comme ils aiment l'appeller 'entrer en communion avec la nature'",
@@ -1207,7 +1228,9 @@ class RaceInitializer {
                 info,
                 path,
                 statChange,
-                null
+                listOf(
+                    RaceTagEnum.BALANCED.name
+                )
             )
             race.let {
                 Log.i("DATABASE", "create race - ${it.uuid.toString()}")
