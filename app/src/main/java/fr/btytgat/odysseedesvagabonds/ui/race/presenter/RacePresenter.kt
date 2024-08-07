@@ -14,7 +14,7 @@ class RacePresenter(activity: Activity, iview: IRaceView.IActivity) :
 
         iview.initToolbar(R.string.menu_title_race)
 
-        (iview as RaceActivity).getAllRaces()
+//        (iview as RaceActivity).getAllRaces()
     }
 
 

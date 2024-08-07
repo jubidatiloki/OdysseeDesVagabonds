@@ -1,150 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tool="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="15dp"
-    android:orientation="vertical"
-    android:background="@color/card_background">
-    
-    
+    xmlns:tool="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_rounded_gradient_reverse"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:layout_margin="20dp"
+    android:padding="15dp">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
+
+    <ImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_nain" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="center">
-        <LinearLayout
-            android:id="@+id/ll_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/ll_dv"
-            android:gravity="center_vertical">
+        android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_title"
-                style="@style/Theme.OdysseeDesVagabonds.title"
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center">
+
+            <LinearLayout
+                android:id="@+id/ll_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/ll_dv"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    style="@style/Theme.OdysseeDesVagabonds.title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tool:text="Nain" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ll_dv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tool:text="Nain" />
-        </LinearLayout>
-     
+                android:visibility="gone"
+                android:gravity="center"
+                android:padding="5dp"
+                android:layout_toLeftOf="@id/ll_dm"
+                android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/ll_dv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:layout_toLeftOf="@id/ll_dm"
-            android:orientation="horizontal">
+                <TextView
+                    style="@style/Theme.OdysseeDesVagabonds.text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    tool:text="DV : " />
 
-            <TextView
-                style="@style/Theme.OdysseeDesVagabonds.text"
+                <TextView
+                    android:id="@+id/tv_dv"
+                    style="@style/Theme.OdysseeDesVagabonds.text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    tool:text="8" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_dm"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                tool:text="DV : " />
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:gravity="center"
+                android:padding="5dp"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_dv"
-                style="@style/Theme.OdysseeDesVagabonds.text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                tool:text="8" />
+                <TextView
+                    style="@style/Theme.OdysseeDesVagabonds.text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    tool:text="DM : " />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_dm"
+                    style="@style/Theme.OdysseeDesVagabonds.text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    tool:text="4" />
 
-        <LinearLayout
-            android:id="@+id/ll_dm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:layout_alignParentEnd="true"
-            android:orientation="horizontal">
+            </LinearLayout>
 
-            <TextView
-                style="@style/Theme.OdysseeDesVagabonds.text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                tool:text="DM : " />
-
-            <TextView
-                android:id="@+id/tv_dm"
-                style="@style/Theme.OdysseeDesVagabonds.text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                tool:text="4" />
-
-        </LinearLayout>
-    </RelativeLayout>
-
-
-    <TextView
-        android:id="@+id/tv_description"
-        style="@style/Theme.OdysseeDesVagabonds.text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="false"
-        android:maxLines="3"
-        android:ellipsize="end"
-        tool:text="description incroyable de la qualité des barbes naines ainsi que de leur session d'alcool non anonymes" />
-
-    <com.google.android.flexbox.FlexboxLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:flexWrap="wrap"
-        app:alignItems="stretch"
-        app:alignContent="stretch" >
+        </RelativeLayout>
 
         <TextView
-            android:id="@+id/textview1"
+            android:id="@+id/tv_description"
             style="@style/Theme.OdysseeDesVagabonds.text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_alignSelf="baseline"
-            android:background="@drawable/card_rounded"
-            android:backgroundTint="@color/lightRed"
-            android:padding="5dp"
-            android:layout_margin="5dp"
-            tool:text="physique"
-            />
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:singleLine="false"
+            tool:text="description incroyable de la qualité des barbes naines ainsi que de leur session d'alcool non anonymes" />
 
-        <TextView
-            android:id="@+id/textview2"
-            style="@style/Theme.OdysseeDesVagabonds.text"
-            android:layout_width="wrap_content"
+        <com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/fbl_tags"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_alignSelf="baseline"
-            android:background="@drawable/card_rounded"
-            android:backgroundTint="@color/lightBlue"
-            android:padding="5dp"
-            android:layout_margin="5dp"
-            tool:text="magique"
-            />
+            app:alignContent="stretch"
+            app:alignItems="stretch"
+            android:layout_marginTop="5dp"
+            app:flexWrap="wrap">
 
-        <TextView
-            android:id="@+id/textview3"
-            style="@style/Theme.OdysseeDesVagabonds.text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_alignSelf="baseline"
-            android:background="@drawable/card_rounded"
-            android:backgroundTint="@color/lightGreen"
-            android:padding="5dp"
-            android:layout_margin="5dp"
-            tool:text="compétence"
-            />
+            <TextView
+                android:id="@+id/textview1"
+                style="@style/Theme.OdysseeDesVagabonds.text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:visibility="gone"
+                android:background="@drawable/card_rounded"
+                android:backgroundTint="@color/lightRed"
+                android:padding="5dp"
+                app:layout_alignSelf="baseline"
+                tool:text="physique" />
 
-    </com.google.android.flexbox.FlexboxLayout>
+            <TextView
+                android:id="@+id/textview2"
+                style="@style/Theme.OdysseeDesVagabonds.text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_rounded"
+                android:backgroundTint="@color/lightBlue"
+                android:padding="5dp"
+                android:visibility="gone"
+                app:layout_alignSelf="baseline"
+                tool:text="magique" />
 
+            <TextView
+                android:id="@+id/textview3"
+                style="@style/Theme.OdysseeDesVagabonds.text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/card_rounded"
+                android:backgroundTint="@color/lightGreen"
+                android:padding="5dp"
+                android:visibility="gone"
+                app:layout_alignSelf="baseline"
+                tool:text="compétence" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+    </LinearLayout>
 </LinearLayout>

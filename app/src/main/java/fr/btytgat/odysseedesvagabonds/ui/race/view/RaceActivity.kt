@@ -3,8 +3,11 @@ package fr.btytgat.odysseedesvagabonds.ui.race.view
 import android.os.Bundle
 import android.util.Log
 import android.widget.ExpandableListView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.adapter.RaceExpandableListAdapter
+import fr.btytgat.odysseedesvagabonds.adapter.RecyclerViewAdapter
 import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
@@ -21,6 +24,7 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
     private var listRace: List<Race> = emptyList()
     private lateinit var expandableListView: ExpandableListView
+    private lateinit var rvRaces: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,9 +81,9 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
         Log.i("getAllRaces", "starting ...");
         var localDB = DatabaseManager.getInstance(this)
 
-        val races = localDB.raceDao().getAllRaces()
+        listRace = localDB.raceDao().getAllRaces()
 
-        races.forEach { race ->
+        listRace.forEach { race ->
             race.info?.let {
                 race._info = localDB.infoDao().getInfoById(it)
             }
@@ -91,13 +95,20 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
                 race._specialStatChange = it.map { it?.let { localDB.statChangeGroupDao().getStatChangeGroupById(it)} }
             }
 
-            racesDataList[race.name] = listOf(race)
+//            racesDataList[race.name] = listOf(race)
         }
 
-        initRaceList()
+        initAdapter()
 
-        Log.i("getAllRaces", "finished raceList size=" + races.size);
+//        initRaceList()
 
+        Log.i("getAllRaces", "finished raceList size=" + listRace.size);
+    }
+
+    fun initAdapter(){
+        rvRaces = findViewById(R.id.rv_race)
+        rvRaces.layoutManager = LinearLayoutManager(this)
+        rvRaces.adapter = RecyclerViewAdapter(this, listRace, R.layout.custom_card_race)
 
     }
 
