@@ -20,10 +20,9 @@ import java.util.*
     ))])
 data class Race(
     @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
-    var name: String = "",
+    var info: String,
     var healthDice: Long,
     var manaDice: Long,
-    var info: String?,
     var path: String,
     var statsChange: String?,
     var tags: List<String> = emptyList(),
@@ -36,8 +35,9 @@ data class Race(
     var _statChange: StatChangeGroup? = null,
     @Ignore
     var _specialStatChange: List<StatChangeGroup?>? = null
+
 ): BaseEntity() {
-    constructor():this(name = "", healthDice = 0, manaDice = 0, info = null, path = "", statsChange = null, tags = emptyList())
+    constructor():this(info = "", healthDice = 0, manaDice = 0, path = "", statsChange = null, tags = emptyList())
 
     companion object {
         const val TABLE_NAME = "Race"
@@ -45,10 +45,9 @@ data class Race(
         fun getEntityFromWrapper(wrapper: RaceWrapper): Race {
             return Race(
                 uuid = wrapper.uuid,
-                name = wrapper.name,
+                info = wrapper.info.uuid,
                 healthDice = wrapper.healthDice,
                 manaDice = wrapper.manaDice,
-                info = wrapper.info?.uuid,
                 path = wrapper.path.uuid,
                 statsChange = wrapper.statsChangeGroup?.uuid,
                 tags = wrapper.tags,

@@ -19,10 +19,9 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.ClasseWrapper
     ))])
 data class Classe(
     @PrimaryKey(autoGenerate = false) var uuid: String,
-    var name: String,
+    var info: String,
     var healthDiceModifier: Long,      // -1: decreased, 0: no change, 1: increased
     var manaDiceModifier: Long,        // -1: decreased, 0: no change, 1: increased
-    var info: String?,
     var paths: List<String> = emptyList(),
     var tags: List<String> = emptyList(),
     var maxPathsTaken: Long = 3
@@ -34,10 +33,9 @@ data class Classe(
         fun getEntityFromWrapper(wrapper: ClasseWrapper): Classe {
             return Classe(
                 uuid = wrapper.uuid,
-                name = wrapper.name,
+                info = wrapper.info.uuid,
                 healthDiceModifier = wrapper.healthDiceModifier,
                 manaDiceModifier = wrapper.manaDiceModifier,
-                info = wrapper.info?.uuid,
                 paths = wrapper.paths.map { it.uuid },
                 tags = wrapper.tags,
                 maxPathsTaken = wrapper.maxPathsTaken

@@ -62,7 +62,7 @@ class RaceExpandableListAdapter internal constructor(
         tvDescription.text = race._info?.description?:""
         tvDV.text = context.getString(R.string.dice_health) + " " + race.healthDice
         tvDM.text = context.getString(R.string.dice_mana) + " "+ race.manaDice
-        tvVoie.text = race._path?.name
+        tvVoie.text = race._path?.info
 
         race._statChange?.let {
             for((key, value) in it.statChange){

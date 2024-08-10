@@ -31,6 +31,9 @@ data class Talent(
     var isTimeLimited: String? = null,           // (1f/jour, 3f/combat, ...)
     var isChoice: Boolean = false,               // true = choix parmi les talents du talentGroup avec la meme category
     var category: String? = null,                // permet de regrouper les choix
+    var buffs: List<String>? = emptyList(),
+    var attack: String? = null,
+    var effects: List<String>? = emptyList(),
     var maxTaken: Long = 1
 ) : BaseEntity() {
     companion object {
@@ -49,6 +52,9 @@ data class Talent(
                 isTimeLimited = wrapper.isTimeLimited,
                 isChoice = wrapper.isChoice,
                 category = wrapper.category,
+                buffs = wrapper.buffs?.map { it.uuid },
+                attack = wrapper.attack?.uuid,
+                effects = wrapper.effects?.map { it.uuid },
                 maxTaken = wrapper.maxTaken
             )
         }

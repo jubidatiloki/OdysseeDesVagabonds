@@ -10,7 +10,32 @@ import androidx.viewbinding.BuildConfig
 import fr.btytgat.odysseedesvagabonds.database.dao.*
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 
-@Database(entities = [Info::class, Classe::class, Race::class, Path::class, Talent::class, TalentGroup::class, Stat::class, StatChangeGroup::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        Info::class,
+        Classe::class,
+        Race::class,
+        Path::class,
+        Talent::class,
+        TalentGroup::class,
+        Stat::class,
+        StatChangeGroup::class,
+        Attack::class,
+        Buff::class,
+        Damage::class,
+        DamageType::class,
+        Dice::class,
+        Duration::class,
+        DurationUnit::class,
+        Effect::class,
+        EffectType::class,
+        Faculty::class,
+        ResistanceType::class,
+        TargetGroup::class
+    ],
+    version = 1,
+    exportSchema = false
+)
 @TypeConverters(DBConverters::class)
 abstract class DatabaseManager : RoomDatabase() {
 
@@ -22,6 +47,18 @@ abstract class DatabaseManager : RoomDatabase() {
     abstract fun talentGroupDao(): TalentGroupDao
     abstract fun statDao(): StatDao
     abstract fun statChangeGroupDao(): StatChangeGroupDao
+    abstract fun attackDao(): AttackDao
+    abstract fun buffDao(): BuffDao
+    abstract fun damgeDao(): DamageDao
+    abstract fun damageTypeDao(): DamageTypeDao
+    abstract fun diceDao(): DiceDao
+    abstract fun durationDao(): DurationDao
+    abstract fun durationUnitDao(): DurationUnitDao
+    abstract fun effectDao(): EffectDao
+    abstract fun effectTypeDao(): EffectTypeDao
+    abstract fun facultyDao(): FacultyDao
+    abstract fun resistanceTypeDao(): ResistanceTypeDao
+    abstract fun targetGroupDao(): TargetGroupDao
 
     companion object {
         const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"

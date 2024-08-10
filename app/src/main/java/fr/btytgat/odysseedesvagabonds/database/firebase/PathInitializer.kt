@@ -1,21 +1,11 @@
 package fr.btytgat.odysseedesvagabonds.database.firebase
 
-import android.util.Log
-import com.google.firebase.database.DatabaseReference
-import fr.btytgat.odysseedesvagabonds.database.enums.PathOriginEnum
-import fr.btytgat.odysseedesvagabonds.database.enums.TalentTypeEnum
-import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
-import fr.btytgat.odysseedesvagabonds.database.wrapper.PathWrapper
-import fr.btytgat.odysseedesvagabonds.database.wrapper.TalentGroupWrapper
-import fr.btytgat.odysseedesvagabonds.database.wrapper.TalentWrapper
-import java.util.*
-
 class PathInitializer {
 
     companion object{
         val categoryVoieElement = "Voie des éléments"
         val nbVoieElement: Long = 2
-
+/*
         fun voieBestiale(database: DatabaseReference, classeUuid: String): PathWrapper{
             val categoryAnimalCompagnie = "ANIMAL_DE_COMPAGNIE"
 
@@ -4010,5 +4000,7 @@ class PathInitializer {
             }
             return path
         }
+        */
+
     }
 }

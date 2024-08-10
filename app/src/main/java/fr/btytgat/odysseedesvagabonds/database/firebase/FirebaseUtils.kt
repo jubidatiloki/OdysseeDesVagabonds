@@ -7,6 +7,8 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.database.entities.*
+import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.*
+import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.races.RaceNain
 import fr.btytgat.odysseedesvagabonds.database.wrapper.RaceWrapper
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
 
@@ -17,7 +19,7 @@ class FirebaseUtils {
         val database = Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
         var localDB: DatabaseManager? = null
 
-        val KEY_SYSTEM = "SYSTEM"
+        val KEY_SYSTEM = "SYSTEM_2"
         val KEY_USERS = "USERS"
 
         val KEY_CLASSES = "CLASSES"
@@ -28,11 +30,23 @@ class FirebaseUtils {
         val KEY_TALENTS = "TALENTS"
         val KEY_TALENT_GROUPS = "TALENT_GROUPS"
         val KEY_STAT_CHANGES = "STAT_CHANGES"
+        val KEY_BUFFS = "BUFFS"
+        val KEY_FACULTIES = "FACULTIES"
+        val KEY_RES_TYPE = "RESISTANCE_TYPE"
+        val KEY_DAMAGE_TYPE = "DAMAGE_TYPE"
+        val KEY_DICES = "DICES"
 
         fun initDatabase() {
             Log.i("DATABASE", "starting creating datas ....")
             database.child(KEY_SYSTEM).removeValue()
             StatInitializer.populateStats(database)
+            BuffInitializer.populateBuffs(database)
+            FacultyInitializer.populateFaculties(database)
+            DamageTypeInitializer.populateDamageTypes(database)
+            ResistanceTypeInitializer.populateResistanceType(database)
+            DiceInitializer.populateDices(database)
+            RaceNain.nain(database)
+
             RaceInitializer.populateRaces(database)
             ClasseInitializer.populateClasses(database)
 

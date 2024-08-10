@@ -39,7 +39,7 @@ class RecyclerViewAdapter(private val activity: Activity, private val itemList: 
         if(item is Race){
             item.let {
                 holder.ivIcon.setImageResource(R.drawable.ic_nain)
-                holder.tvTitle.text = it.name
+                holder.tvTitle.text = it._info?.name
                 holder.tvDescription.text = it._info?.description
                 holder.fblTags.removeAllViews()
                 it.tags.forEach {

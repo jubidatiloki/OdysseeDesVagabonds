@@ -5,25 +5,23 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 
 
 data class ClasseWrapper(
-     var uuid: String,
-    var name: String,
+    var uuid: String,
+    var info: InfoWrapper,
     var healthDiceModifier: Long,      // -1: decreased, 0: no change, 1: increased
     var manaDiceModifier: Long,        // -1: decreased, 0: no change, 1: increased
-    var info: InfoWrapper?,
     var paths: List<PathWrapper> = emptyList(),
-     var tags: List<String>,
+    var tags: List<String>,
     var maxPathsTaken: Long = 3
-): BaseEntity(){
+) : BaseEntity() {
 
     companion object {
 
         fun getWrapperFromDS(ds: DataSnapshot): ClasseWrapper {
             return ClasseWrapper(
                 uuid = ds.child("uuid").value as String,
-                name = ds.child("name").value as String,
+                info = InfoWrapper.getWrapperFromDS(ds.child("info")),
                 healthDiceModifier = ds.child("healthDiceModifier").value as Long,
                 manaDiceModifier = ds.child("manaDiceModifier").value as Long,
-                info = InfoWrapper.getWrapperFromDS(ds.child("info")),
                 paths = ds.child("paths").children.map { PathWrapper.getWrapperFromDS(it) },
                 tags = ds.child("tags").children.map { it.value as String },
                 maxPathsTaken = ds.child("maxPathsTaken").value as Long

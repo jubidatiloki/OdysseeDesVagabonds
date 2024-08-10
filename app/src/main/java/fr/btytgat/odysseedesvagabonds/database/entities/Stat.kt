@@ -18,11 +18,9 @@ import java.util.*
     ))])
 data class Stat(
     @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
-    var name: String,
-    var shortName: String,
+    var info: String,
     var isInnate: Boolean,  // true si stat d'une creature, false si c'est un buff externe (equipement, potion, temporaire)
     var haveMod: Boolean,    // pour pouvoir ensuite faire un getter du mod (pour les stats qui en ont un uniquement)
-    var info: String?,
 
     ): BaseEntity(){
 
@@ -32,11 +30,9 @@ data class Stat(
         fun getEntityFromWrapper(wrapper: StatWrapper): Stat {
             val stat = Stat(
                 uuid = wrapper.uuid,
-                name = wrapper.name,
-                shortName = wrapper.shortName,
+                info = wrapper.info.uuid,
                 isInnate = wrapper.isInnate,
                 haveMod = wrapper.haveMod,
-                info = wrapper.info?.uuid
             )
             return stat
         }
