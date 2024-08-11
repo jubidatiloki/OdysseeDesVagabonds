@@ -10,14 +10,8 @@ class BuffInitializer {
 
 
         fun populateBuffs(database: DatabaseReference) {
-//            buffNain1().forEach {
-//                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_BUFFS)
-//                    .child(it.uuid).setValue(it)
-//            }
-//            buffNain2().forEach {
-//                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_BUFFS)
-//                    .child(it.uuid).setValue(it)
-//            }
+
+//           populate buffs from effects
         }
 
         fun buffNain1(): List<BuffWrapper> {
@@ -110,7 +104,6 @@ class BuffInitializer {
             )
             return listOf(buff)
         }
-
 
     }
 }

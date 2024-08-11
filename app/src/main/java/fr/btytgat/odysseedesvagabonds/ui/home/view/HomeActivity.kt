@@ -9,6 +9,7 @@ import com.google.firebase.database.ValueEventListener
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
+import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
 import fr.btytgat.odysseedesvagabonds.ui.home.presenter.HomePresenter
@@ -94,21 +95,64 @@ class HomeActivity : BaseActivity(), IHomeView.IActivity {
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (datasnapshot: DataSnapshot in snapshot.children) {
-                            retriveStat(this@HomeActivity, datasnapshot)
+                            retriveStat(this@HomeActivity, StatWrapper.getWrapperFromDS(datasnapshot))
                         }
                     }
-
                     override fun onCancelled(error: DatabaseError) {
                         TODO("Not yet implemented")
                     }
+                })
 
+            database.child(KEY_SYSTEM).child(KEY_FACULTIES)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveFaculties(this@HomeActivity, FacultyWrapper.getWrapperFromDS(datasnapshot))
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+            database.child(KEY_SYSTEM).child(KEY_DICES)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveDice(this@HomeActivity, DiceWrapper.getWrapperFromDS(datasnapshot))
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+            database.child(KEY_SYSTEM).child(KEY_RES_TYPE)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveResistanceType(this@HomeActivity, ResistanceTypeWrapper.getWrapperFromDS(datasnapshot))
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+            database.child(KEY_SYSTEM).child(KEY_DAMAGE_TYPE)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveDamageType(this@HomeActivity, DamageTypeWrapper.getWrapperFromDS(datasnapshot))
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
                 })
 
             database.child(KEY_SYSTEM).child(KEY_RACES)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (datasnapshot: DataSnapshot in snapshot.children) {
-                            retrieveRace(this@HomeActivity, datasnapshot)
+                            retrieveRace(this@HomeActivity, RaceWrapper.getWrapperFromDS(datasnapshot))
                         }
                     }
 
