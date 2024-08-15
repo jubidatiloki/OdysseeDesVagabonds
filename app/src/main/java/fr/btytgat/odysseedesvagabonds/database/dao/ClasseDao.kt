@@ -18,4 +18,6 @@ interface ClasseDao {
     @Query("SELECT COUNT(*) FROM ${Classe.TABLE_NAME}")
     fun getRowCount(): Int
 
+    @Query("SELECT * FROM ${Classe.TABLE_NAME} WHERE uuid = :id")
+    fun getClasseById(id: String): Classe
 }

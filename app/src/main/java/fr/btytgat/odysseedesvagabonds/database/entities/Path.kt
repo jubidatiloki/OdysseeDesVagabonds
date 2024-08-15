@@ -28,6 +28,8 @@ data class Path(
     var maxTaken: Long = 1,         // nb max de voies pouvant être prises pour la catégorie choisie
     @Ignore
     var _info: Info? = null,
+    @Ignore
+    var _talentGroups: List<TalentGroup>? = null
 ) : BaseEntity() {
     constructor():this(info = "", originType = "", originUuid = "")
 

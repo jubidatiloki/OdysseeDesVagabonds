@@ -1,6 +1,7 @@
 package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.TargetGroupWrapper
@@ -13,7 +14,9 @@ data class TargetGroup(
     var enemyTargetable: Boolean?,          // si true = enemis peuvent etre visé (si ally = false, les attributs global et ally sont null)
     var allyTargetable: Boolean?,           // si true = alliés peuvent etre visé (si enemy = false, les attributs global et enemy sont null)
     var nbDice: Int?,
-    var dice: String?
+    var dice: String?,
+    @Ignore
+    var _dice: Dice? = null
 ) : BaseEntity() {
     companion object {
 

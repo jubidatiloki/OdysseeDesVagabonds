@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.AttackWrapper
@@ -22,6 +23,12 @@ data class Attack(
     var info: String? = null,
     var damageOverTime: Boolean = false,
     var duration: String? = null,
+    @Ignore
+    var _damage: Damage? = null,
+    @Ignore
+    var _info: Info? = null,
+    @Ignore
+    var _duration: Duration? = null
 ) : BaseEntity() {
 
     companion object {

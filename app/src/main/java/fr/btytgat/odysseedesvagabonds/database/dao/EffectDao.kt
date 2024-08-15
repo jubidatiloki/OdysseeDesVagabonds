@@ -17,5 +17,7 @@ interface EffectDao {
 
     @Query("SELECT COUNT(*) FROM Effect")
     fun getRowCount(): Int
-    
+
+    @Query("SELECT * FROM ${Effect.TABLE_NAME} WHERE uuid = :id")
+    fun getEffectById(id: String): Effect
 }

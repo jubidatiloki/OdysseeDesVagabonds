@@ -17,5 +17,8 @@ interface TargetGroupDao {
 
     @Query("SELECT COUNT(*) FROM TargetGroup")
     fun getRowCount(): Int
-    
+
+    @Query("SELECT * FROM ${TargetGroup.TABLE_NAME} WHERE uuid = :id")
+    fun getTargetGroupById(id: String): TargetGroup
+
 }

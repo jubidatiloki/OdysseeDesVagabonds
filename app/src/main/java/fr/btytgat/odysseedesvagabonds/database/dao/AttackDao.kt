@@ -17,5 +17,8 @@ interface AttackDao {
 
     @Query("SELECT COUNT(*) FROM Attack")
     fun getRowCount(): Int
+
+    @Query("SELECT * FROM ${Attack.TABLE_NAME} WHERE uuid = :id")
+    fun getAttackById(id: String): Attack
     
 }

@@ -17,5 +17,7 @@ interface ResistanceTypeDao {
 
     @Query("SELECT COUNT(*) FROM ResistanceType")
     fun getRowCount(): Int
-    
+
+    @Query("SELECT * FROM ${ResistanceType.TABLE_NAME} WHERE uuid = :id")
+    fun getResistanceTypeById(id: String): ResistanceType
 }

@@ -17,5 +17,8 @@ interface DurationDao {
 
     @Query("SELECT COUNT(*) FROM Duration")
     fun getRowCount(): Int
+
+    @Query("SELECT * FROM ${Duration.TABLE_NAME} WHERE uuid = :id")
+    fun getDurationById(id: String): Duration
     
 }

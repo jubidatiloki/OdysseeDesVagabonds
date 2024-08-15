@@ -7,8 +7,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import fr.btytgat.odysseedesvagabonds.R
-import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
+import fr.btytgat.odysseedesvagabonds.database.mDatabase
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
@@ -87,7 +87,7 @@ class HomeActivity : BaseActivity(), IHomeView.IActivity {
     }
 
     fun retrieveDatas() {
-        val db = DatabaseManager.getInstance(application)
+        val db = mDatabase.getInstance(application)
 
 //        var raceDao = db.raceDao()
         with(FirebaseUtils) {

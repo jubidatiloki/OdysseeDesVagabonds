@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
@@ -21,7 +22,8 @@ data class Stat(
     var info: String,
     var isInnate: Boolean,  // true si stat d'une creature, false si c'est un buff externe (equipement, potion, temporaire)
     var haveMod: Boolean,    // pour pouvoir ensuite faire un getter du mod (pour les stats qui en ont un uniquement)
-
+    @Ignore
+    var _info: Info? = null
     ): BaseEntity(){
 
     companion object {

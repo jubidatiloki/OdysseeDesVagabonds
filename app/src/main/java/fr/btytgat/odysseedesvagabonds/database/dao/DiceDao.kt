@@ -17,5 +17,7 @@ interface DiceDao {
 
     @Query("SELECT COUNT(*) FROM Dice")
     fun getRowCount(): Int
-    
+
+    @Query("SELECT * FROM ${Dice.TABLE_NAME} WHERE uuid = :id")
+    fun getDiceById(id: String): Dice
 }

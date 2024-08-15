@@ -18,4 +18,7 @@ interface DamageDao {
     @Query("SELECT COUNT(*) FROM Damage")
     fun getRowCount(): Int
 
+    @Query("SELECT * FROM ${Damage.TABLE_NAME} WHERE uuid = :id")
+    fun getDamageById(id: String): Damage
+
 }

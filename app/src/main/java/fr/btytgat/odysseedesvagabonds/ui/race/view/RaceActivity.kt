@@ -6,10 +6,10 @@ import android.widget.ExpandableListView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.btytgat.odysseedesvagabonds.R
-import fr.btytgat.odysseedesvagabonds.adapter.RaceExpandableListAdapter
+import fr.btytgat.odysseedesvagabonds.adapter.PathExpandableListAdapter
 import fr.btytgat.odysseedesvagabonds.adapter.RecyclerViewAdapter
-import fr.btytgat.odysseedesvagabonds.database.DatabaseManager
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
+import fr.btytgat.odysseedesvagabonds.database.mDatabase
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.race.IRaceView
 import fr.btytgat.odysseedesvagabonds.ui.race.presenter.RacePresenter
@@ -20,7 +20,7 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
     private var racesTitleList: List<String> = emptyList()
     private var racesDataList: HashMap<String, List<Race>> = HashMap()
-    private var adapter: RaceExpandableListAdapter? = null
+    private var adapter: PathExpandableListAdapter? = null
 
     private var listRace: List<Race> = emptyList()
     private lateinit var expandableListView: ExpandableListView
@@ -43,7 +43,7 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
         racesTitleList = ArrayList(racesDataList.keys)
 
-        adapter = RaceExpandableListAdapter(this, racesTitleList, racesDataList)
+        adapter = PathExpandableListAdapter(this, racesTitleList, racesDataList)
         expandableListView.setAdapter(adapter)
         adapter?.notifyDataSetChanged()
 
@@ -79,7 +79,7 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
     override fun getAllRaces() {
         Log.i("getAllRaces", "starting ...");
-        var localDB = DatabaseManager.getInstance(this)
+        var localDB = mDatabase.getInstance(this)
 
         listRace = localDB.raceDao().getAllRaces()
 

@@ -17,4 +17,7 @@ interface RaceDao {
 
     @Query("SELECT COUNT(*) FROM ${Race.TABLE_NAME}")
     fun getRowCount(): Int
+
+    @Query("SELECT * FROM ${Race.TABLE_NAME} WHERE uuid = :id")
+    fun getRaceById(id: String): Race
 }

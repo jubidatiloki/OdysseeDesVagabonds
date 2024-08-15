@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.EffectTypeWrapper
@@ -19,7 +20,11 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.EffectTypeWrapper
 data class EffectType(
     @PrimaryKey var uuid: String,
     var info: String,                   // ex: aveuglement
-    var buff: String               // "buff" de PER -5, AdT -5
+    var buff: String,               // "buff" de PER -5, AdT -5
+    @Ignore
+    var _info: Info? = null,
+    @Ignore
+    var _buff: Buff? = null
 ) : BaseEntity() {
 
     companion object {

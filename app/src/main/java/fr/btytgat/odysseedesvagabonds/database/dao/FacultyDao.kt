@@ -17,5 +17,7 @@ interface FacultyDao {
 
     @Query("SELECT COUNT(*) FROM Faculty")
     fun getRowCount(): Int
-    
+
+    @Query("SELECT * FROM ${Faculty.TABLE_NAME} WHERE uuid = :id")
+    fun getFacultyById(id: String): Faculty
 }

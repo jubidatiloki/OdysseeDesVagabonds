@@ -18,4 +18,6 @@ interface DamageTypeDao {
     @Query("SELECT COUNT(*) FROM DamageType")
     fun getRowCount(): Int
 
+    @Query("SELECT * FROM ${DamageType.TABLE_NAME} WHERE uuid = :id")
+    fun getDamageTypeById(id: String): DamageType
 }

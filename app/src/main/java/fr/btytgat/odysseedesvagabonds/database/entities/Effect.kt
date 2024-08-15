@@ -1,6 +1,7 @@
 package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.EffectWrapper
@@ -12,6 +13,12 @@ data class Effect(
     var targets: String,
     var isPermanent: Boolean,
     var duration: String?,
+    @Ignore
+    var _effectType: EffectType? = null,
+    @Ignore
+    var _targets: TargetGroup? = null,
+    @Ignore
+    var _duration: Duration? = null
 ) : BaseEntity() {
 
     companion object {

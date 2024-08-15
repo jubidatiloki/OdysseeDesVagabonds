@@ -21,4 +21,7 @@ interface TalentGroupDao {
 
     @Query("SELECT * FROM ${TalentGroup.TABLE_NAME} WHERE uuid = :id")
     fun getTalentGroupById(id: String): TalentGroup
+
+    @Query("SELECT * FROM ${TalentGroup.TABLE_NAME} WHERE pathUuid = :id")
+    fun getTalentGroupsByPath(id: String): List<TalentGroup>
 }

@@ -1,6 +1,7 @@
 package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.DamageWrapper
@@ -11,7 +12,11 @@ data class Damage(
     var flatValue: Long,
     var nbDice: Long,
     var dice: String,
-    var damageType: String
+    var damageType: String,
+    @Ignore
+    var _dice: Dice? = null,
+    @Ignore
+    var _damageType: DamageType? = null
 ) : BaseEntity() {
 
     companion object {

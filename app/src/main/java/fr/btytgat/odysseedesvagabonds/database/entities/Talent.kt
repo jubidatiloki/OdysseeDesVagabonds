@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.TalentWrapper
@@ -34,7 +35,13 @@ data class Talent(
     var buffs: List<String>? = emptyList(),
     var attack: String? = null,
     var effects: List<String>? = emptyList(),
-    var maxTaken: Long = 1
+    var maxTaken: Long = 1,
+    @Ignore
+    var _buffs: List<Buff>? = emptyList(),
+    @Ignore
+    var _attack: Attack? = null,
+    @Ignore
+    var _effects: List<Effect>? = null,
 ) : BaseEntity() {
     companion object {
         const val TABLE_NAME = "Talent"

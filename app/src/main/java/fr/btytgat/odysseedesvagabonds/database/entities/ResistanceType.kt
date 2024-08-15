@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.ResistanceTypeWrapper
@@ -29,10 +30,14 @@ data class ResistanceType(
      * 10 - (0 + 2 + 1) = 7 DMG subits
      *
      */
-    var subResistanceTypeWrappers: List<String>? = null
+    var subResistanceTypes: List<String>? = null,
+    @Ignore
+    var _statBound: Stat? = null,
+    @Ignore
+    var _subResistanceTypes: List<ResistanceType>? = null
 
 
-) : BaseEntity() {
+    ) : BaseEntity() {
 
     companion object {
 
@@ -43,7 +48,7 @@ data class ResistanceType(
                 uuid = wrapper.uuid,
                 info = wrapper.info.uuid,
                 statBound = wrapper.statBound?.uuid,
-                subResistanceTypeWrappers = wrapper.subResistanceTypeWrappers?.map { it.uuid }
+                subResistanceTypes = wrapper.subResistanceTypeWrappers?.map { it.uuid }
 
             )
         }

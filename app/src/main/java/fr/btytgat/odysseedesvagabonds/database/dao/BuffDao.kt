@@ -17,5 +17,7 @@ interface BuffDao {
 
     @Query("SELECT COUNT(*) FROM Buff")
     fun getRowCount(): Int
-    
+
+    @Query("SELECT * FROM ${Buff.TABLE_NAME} WHERE uuid = :id")
+    fun getBuffById(id: String): Buff
 }

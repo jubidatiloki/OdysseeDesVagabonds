@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.TalentGroupWrapper
@@ -26,6 +27,8 @@ data class TalentGroup(
     var talentIndex: Long,
     var pathUuid: String,
     var description: String? = null,
+    @Ignore
+    var _talents: List<Talent>? = emptyList(),
     ): BaseEntity(){
     companion object {
         const val TABLE_NAME = "TalentGroup"

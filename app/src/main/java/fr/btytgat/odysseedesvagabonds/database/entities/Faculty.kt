@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.FacultyWrapper
@@ -23,7 +24,13 @@ data class Faculty(
     var canBeUsedWithoutMastery: Boolean,
     var malusWithoutMastery: Long,
     var statBound: String? = null,
-    var subFaculties: List<String>? = null
+    var subFaculties: List<String>? = null,
+    @Ignore
+    var _info: Info? = null,
+    @Ignore
+    var _statBound: Stat? = null,
+    @Ignore
+    var _subFaculties: List<Faculty>? = null
 ): BaseEntity() {
 
     companion object {

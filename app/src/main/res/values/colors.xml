@@ -32,4 +32,7 @@
     <color name="card_background">@color/colorPrimaryDark</color>
     <color name="header_background">#887D6B</color>
 
+    <color name="buff_positive">@color/lightBlue</color>
+    <color name="buff_negative">@color/lightRed</color>
+
 </resources>

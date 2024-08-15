@@ -1,130 +1,170 @@
 package fr.btytgat.odysseedesvagabonds.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.viewbinding.BuildConfig
-import fr.btytgat.odysseedesvagabonds.database.dao.*
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 
-@Database(
-    entities = [
-        Info::class,
-        Classe::class,
-        Race::class,
-        Path::class,
-        Talent::class,
-        TalentGroup::class,
-        Stat::class,
-        StatChangeGroup::class,
-        Attack::class,
-        Buff::class,
-        Damage::class,
-        DamageType::class,
-        Dice::class,
-        Duration::class,
-        DurationUnit::class,
-        Effect::class,
-        EffectType::class,
-        Faculty::class,
-        ResistanceType::class,
-        TargetGroup::class
-    ],
-    version = 1,
-    exportSchema = false
-)
-@TypeConverters(DBConverters::class)
-abstract class DatabaseManager : RoomDatabase() {
-
-    abstract fun infoDao(): InfoDao
-    abstract fun classeDao(): ClasseDao
-    abstract fun raceDao(): RaceDao
-    abstract fun pathDao(): PathDao
-    abstract fun talentDao(): TalentDao
-    abstract fun talentGroupDao(): TalentGroupDao
-    abstract fun statDao(): StatDao
-    abstract fun statChangeGroupDao(): StatChangeGroupDao
-    abstract fun attackDao(): AttackDao
-    abstract fun buffDao(): BuffDao
-    abstract fun damgeDao(): DamageDao
-    abstract fun damageTypeDao(): DamageTypeDao
-    abstract fun diceDao(): DiceDao
-    abstract fun durationDao(): DurationDao
-    abstract fun durationUnitDao(): DurationUnitDao
-    abstract fun effectDao(): EffectDao
-    abstract fun effectTypeDao(): EffectTypeDao
-    abstract fun facultyDao(): FacultyDao
-    abstract fun resistanceTypeDao(): ResistanceTypeDao
-    abstract fun targetGroupDao(): TargetGroupDao
-
-    companion object {
-        const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
-
-        private var sInstance: DatabaseManager? = null
+class DatabaseManager(private val context: Context, private val db: mDatabase) {
 
 
-//    private val MIGRATION_1_2 = object : Migration(1, 2) {
-//        override fun migrate(database: SupportSQLiteDatabase) {
-//            add table Voie
-//            add table Rang
-//            add table classeVoie
-//            add table raceVoie
-//            add table voieRang
-//        }
-//    }
+    fun getRaceWitHDetails(uuid: String): Race {
 
-//    private val MIGRATION_2_3 = object : Migration(2, 3) {
-//        override fun migrate(database: SupportSQLiteDatabase) {
-//            add table Stat
+        val race = db.raceDao().getRaceById(uuid)
 
-//        }
-//    }
-
-
-//    private val MIGRATION_3_4 = object : Migration(3, 4) {
-//        override fun migrate(database: SupportSQLiteDatabase) {
-//            add table Topic
-//            add table TopicInfo
-//        }
-//    }
-
-
-        @Synchronized
-        fun getInstance(context: Context): DatabaseManager {
-            if (sInstance == null) {
-                var databaseBuilder = Room
-                    .databaseBuilder(
-                        context.applicationContext,
-                        DatabaseManager::class.java,
-                        DATABASE_NAME
-                    )
-                    .allowMainThreadQueries()
-                    .openHelperFactory(sInstance as Nothing?)
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-
-                        }
-                    })
-
-                if (BuildConfig.DEBUG) {
-                    databaseBuilder = databaseBuilder
-                        .setJournalMode(JournalMode.TRUNCATE)
-                }
-
-//            databaseBuilder.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-
-
-                sInstance = databaseBuilder
-                    .build()
-            }
-            return sInstance!!
+        race.apply {
+            _info = db.infoDao().getInfoById(info)
+            _path = getPathWithDetails(path)
+            _statChange = statsChange?.let { db.statChangeGroupDao().getStatChangeGroupById(it) }
+            _specialStatChange = specialStatChange?.map { it?.let { it1 -> db.statChangeGroupDao().getStatChangeGroupById(it1) }}
         }
+        return race
+    }
+
+    fun getPathWithDetails(uuid: String): Path {
+
+        val path = db.pathDao().getPathById(uuid)
+        val talentGroups = db.talentGroupDao().getTalentGroupsByPath(uuid)
+        path.apply {
+            _info = db.infoDao().getInfoById(info)
+            _talentGroups = talentGroups.map { getTalentGroupWithDetails(it.uuid) }
+
+        }
+        return path
+    }
 
 
+
+    fun getTalentGroupWithDetails(uuid: String): TalentGroup {
+
+        val talentGroup = db.talentGroupDao().getTalentGroupById(uuid)
+        val talents = db.talentDao().getTalentsByGroup(uuid)
+        talentGroup.apply {
+            _talents = talents.map { getTalentWithDetails(it.uuid) }
+        }
+        return talentGroup
+    }
+
+    fun getTalentWithDetails(uuid: String): Talent {
+
+        val talent = db.talentDao().getTalentById(uuid)
+        talent.apply {
+            _buffs = buffs?.map { getBuffWithDetails(it) }
+            _attack = attack?.let { getAttackWithDetails(it) }
+            _effects = effects?.map { getEffectWithDetails(it) }
+        }
+        return talent
+    }
+
+
+    fun getBuffWithDetails(uuid: String): Buff {
+
+        val buff = db.buffDao().getBuffById(uuid)
+
+        buff.apply {
+            _statBound = statBound?.let { getStatWithDetails(it) }
+            _facultyBound = facultyBound?.let { getFacultyWithDetails(it) }
+        }
+        return buff
+    }
+
+    fun getAttackWithDetails(uuid: String): Attack {
+
+        val attack = db.attackDao().getAttackById(uuid)
+        attack.apply {
+            _info = info?.let { db.infoDao().getInfoById(it) }
+            _damage = getDamageWithDetails(damage)
+            _duration = duration?.let { db.durationDao().getDurationById(it) }
+
+        }
+        return attack
+    }
+
+    fun getStatWithDetails(uuid: String): Stat {
+
+        val stat = db.statDao().getStatById(uuid)
+        stat.apply {
+            _info = db.infoDao().getInfoById(info)
+        }
+        return stat
+    }
+
+    fun getFacultyWithDetails(uuid: String): Faculty {
+
+        val faculty = db.facultyDao().getFacultyById(uuid)
+        faculty.apply {
+            _info = db.infoDao().getInfoById(info)
+            _statBound = statBound?.let { getStatWithDetails(it) }
+            _subFaculties = subFaculties?.map { getFacultyWithDetails(it)}
+        }
+        return faculty
+    }
+
+
+    fun getResistanceTypeWithDetails(uuid: String): ResistanceType {
+
+        val resistanceType = db.resistanceTypeDao().getResistanceTypeById(uuid)
+        resistanceType.apply {
+            _statBound = statBound?.let { getStatWithDetails(it) }
+            _subResistanceTypes = subResistanceTypes?.map { getResistanceTypeWithDetails(it) }
+        }
+        return resistanceType
+    }
+
+    fun getDamageTypeWithDetails(uuid: String): DamageType {
+
+        val damageType = db.damageTypeDao().getDamageTypeById(uuid)
+        damageType.apply {
+            _resistanceType = resistanceType?.let { getResistanceTypeWithDetails(it) }
+            _subResistanceTypes = subDamageTypes?.map { getResistanceTypeWithDetails(it) }
+
+        }
+        return damageType
+    }
+
+
+
+
+
+    fun getDamageWithDetails(uuid: String): Damage {
+
+        val damage = db.damageDao().getDamageById(uuid)
+        damage.apply {
+            _damageType = getDamageTypeWithDetails(damageType)
+            _dice = db.diceDao().getDiceById(dice)
+        }
+        return damage
+
+    }
+
+
+    fun getEffectWithDetails (uuid: String): Effect{
+
+        val effect = db.effectDao().getEffectById(uuid)
+        effect.apply {
+            _effectType = getEffectTypeWithDetails(effectType)
+            _targets = getTargetGroupWithDetails(targets)
+            _duration = duration?.let { db.durationDao().getDurationById(it) }
+        }
+        return effect
+
+    }
+
+
+    fun getEffectTypeWithDetails(uuid: String): EffectType {
+        val effectType = db.effectTypeDao().getEffectTypeById(uuid)
+        effectType.apply {
+            _info = db.infoDao().getInfoById(info)
+            _buff = getBuffWithDetails(buff)
+        }
+        return effectType
+    }
+
+    fun getTargetGroupWithDetails (uuid: String): TargetGroup {
+
+        val targetGroup = db.targetGroupDao().getTargetGroupById(uuid)
+        targetGroup.apply {
+            _dice = dice?.let { db.diceDao().getDiceById(it) }
+        }
+        return targetGroup
     }
 
 }
