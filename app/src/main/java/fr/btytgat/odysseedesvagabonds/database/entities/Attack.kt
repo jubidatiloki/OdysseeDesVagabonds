@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.AttackWrapper
+import java.util.UUID
 
 @Entity(tableName = Attack.TABLE_NAME,
     foreignKeys = [
@@ -18,7 +19,7 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.AttackWrapper
         ))]
 )
 data class Attack(
-    @PrimaryKey var uuid: String,
+    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
     var damage: String,
     var info: String? = null,
     var damageOverTime: Boolean = false,
@@ -30,6 +31,8 @@ data class Attack(
     @Ignore
     var _duration: Duration? = null
 ) : BaseEntity() {
+
+    constructor(): this(damage = "", info = null, damageOverTime = false, duration = null)
 
     companion object {
 

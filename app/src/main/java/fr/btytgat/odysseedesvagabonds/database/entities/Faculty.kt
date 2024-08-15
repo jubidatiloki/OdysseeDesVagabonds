@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.FacultyWrapper
+import java.util.UUID
 
 @Entity(tableName = Faculty.TABLE_NAME,
     foreignKeys = [
@@ -18,9 +19,9 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.FacultyWrapper
         ))]
 )
 data class Faculty(
-    @PrimaryKey var uuid: String,
+    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
     var info: String,
-    var isInnate: Boolean,      // si inné, +0  sinon regarder canBeUsedWithoutMastery et si oui utiliser le malusWithoutMastery
+    var innate: Boolean,      // si inné, +0  sinon regarder canBeUsedWithoutMastery et si oui utiliser le malusWithoutMastery
     var canBeUsedWithoutMastery: Boolean,
     var malusWithoutMastery: Long,
     var statBound: String? = null,
@@ -33,6 +34,8 @@ data class Faculty(
     var _subFaculties: List<Faculty>? = null
 ): BaseEntity() {
 
+    constructor():this (info = "", innate = false, canBeUsedWithoutMastery = false, malusWithoutMastery = 0L, statBound = null, subFaculties = null)
+
     companion object {
 
         const val TABLE_NAME = "Faculty"
@@ -41,7 +44,7 @@ data class Faculty(
             return Faculty(
                 uuid = wrapper.uuid,
                 info = wrapper.info.uuid,
-                isInnate = wrapper.isInnate,
+                innate = wrapper.isInnate,
                 canBeUsedWithoutMastery = wrapper.canBeUsedWithoutMastery,
                 malusWithoutMastery = wrapper.malusWithoutMastery,
                 statBound = wrapper.statBound?.uuid,

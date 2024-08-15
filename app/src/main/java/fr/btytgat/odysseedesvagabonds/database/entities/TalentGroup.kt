@@ -29,8 +29,12 @@ data class TalentGroup(
     var description: String? = null,
     @Ignore
     var _talents: List<Talent>? = emptyList(),
-    ): BaseEntity(){
+): BaseEntity(){
+
+    constructor():this (name = "", talentIndex = 0, pathUuid = "", description = "")
+
     companion object {
+
         const val TABLE_NAME = "TalentGroup"
 
         fun getEntityFromWrapper(wrapper: TalentGroupWrapper, pathUuid: String): TalentGroup {

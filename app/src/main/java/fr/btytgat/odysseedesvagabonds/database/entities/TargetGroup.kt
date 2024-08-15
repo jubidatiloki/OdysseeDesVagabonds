@@ -5,11 +5,12 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.TargetGroupWrapper
+import java.util.UUID
 
 @Entity(tableName = TargetGroup.TABLE_NAME)
 data class TargetGroup(
-    @PrimaryKey var uuid: String,
-    var selftOnly: Boolean,                 // true = soi uniquement, tout le reste est null, sinon a voir ally et enemy
+    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    var selfOnly: Boolean,                 // true = soi uniquement, tout le reste est null, sinon a voir ally et enemy
     var flatValue: Int = 1,
     var enemyTargetable: Boolean?,          // si true = enemis peuvent etre visé (si ally = false, les attributs global et ally sont null)
     var allyTargetable: Boolean?,           // si true = alliés peuvent etre visé (si enemy = false, les attributs global et enemy sont null)
@@ -18,6 +19,9 @@ data class TargetGroup(
     @Ignore
     var _dice: Dice? = null
 ) : BaseEntity() {
+
+    constructor(): this(selfOnly = false, flatValue = 0, enemyTargetable = null, allyTargetable = null, nbDice = null, dice = null)
+
     companion object {
 
         const val TABLE_NAME = "TargetGroup"
@@ -25,7 +29,7 @@ data class TargetGroup(
         fun getEntityFromWrapper(wrapper: TargetGroupWrapper): TargetGroup {
             return TargetGroup(
                 uuid = wrapper.uuid,
-                selftOnly = wrapper.selftOnly,
+                selfOnly = wrapper.selftOnly,
                 flatValue = wrapper.flatValue,
                 enemyTargetable = wrapper.enemyTargetable,
                 allyTargetable = wrapper.allyTargetable,

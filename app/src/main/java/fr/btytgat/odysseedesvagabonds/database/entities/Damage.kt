@@ -5,10 +5,11 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.DamageWrapper
+import java.util.UUID
 
 @Entity(tableName = Damage.TABLE_NAME)
 data class Damage(
-    @PrimaryKey var uuid: String,
+    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
     var flatValue: Long,
     var nbDice: Long,
     var dice: String,
@@ -18,6 +19,8 @@ data class Damage(
     @Ignore
     var _damageType: DamageType? = null
 ) : BaseEntity() {
+
+    constructor(): this(flatValue = 0L, nbDice = 0L, dice = "", damageType = "")
 
     companion object {
 

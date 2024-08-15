@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.ResistanceTypeWrapper
+import java.util.UUID
 
 @Entity(tableName = ResistanceType.TABLE_NAME,
     foreignKeys = [
@@ -18,7 +19,7 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.ResistanceTypeWrapper
         ))]
 )
 data class ResistanceType(
-    @PrimaryKey var uuid: String,
+    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
     var info: String,          // name: resistance absolu (réduit tout type de degats), resistance au feu, resistance au dégats percant,  shortName: RES ABSOLU, SHRES FEU, RES PERC
     var statBound: String?,           //  // null pour les dégats de chaos, sinon   l'uuid de la stat correspondante (RD_FEU, RD_PHY, ...)
     /**
@@ -36,8 +37,9 @@ data class ResistanceType(
     @Ignore
     var _subResistanceTypes: List<ResistanceType>? = null
 
+) : BaseEntity() {
 
-    ) : BaseEntity() {
+    constructor():this (info = "", statBound = null, subResistanceTypes = null)
 
     companion object {
 

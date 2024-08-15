@@ -5,10 +5,11 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.BuffWrapper
+import java.util.UUID
 
 @Entity(tableName = Buff.TABLE_NAME)
 data class Buff(
-    @PrimaryKey var uuid: String,
+    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
     var isPositive: Boolean,        // pour pouvoir filtrer plus facilement si besoin
     var modifier: Long,
     var statBound: String? = null,
@@ -20,6 +21,8 @@ data class Buff(
     @Ignore
     var _facultyBound: Faculty? = null
 ) : BaseEntity() {
+
+    constructor(): this(isPositive = false, modifier = 0, statBound = null, facultyBound = null, gainAdvantage = null, gainDisadvantage = null)
 
     companion object {
 

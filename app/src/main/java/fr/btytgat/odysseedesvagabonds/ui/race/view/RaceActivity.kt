@@ -43,7 +43,7 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
         racesTitleList = ArrayList(racesDataList.keys)
 
-        adapter = PathExpandableListAdapter(this, racesTitleList, racesDataList)
+//        adapter = PathExpandableListAdapter(this, racesTitleList, racesDataList)
         expandableListView.setAdapter(adapter)
         adapter?.notifyDataSetChanged()
 

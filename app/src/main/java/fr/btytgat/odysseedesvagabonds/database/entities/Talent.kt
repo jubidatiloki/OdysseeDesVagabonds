@@ -25,12 +25,12 @@ data class Talent(
     var info: String?,
     var talentGroupUuid: String,
     var type: String,                           // talentType
-    var isMagic: Boolean,                       // true = dépense du mana, false = aucun cout
+    var magic: Boolean,                       // true = dépense du mana, false = aucun cout
     var complexity: Long?,                       // 0 = gratuit, 1 = simple, 2 = complexe, 3 = action de mouvement, null = osef
     var manaCost: Boolean? = false,             // true = coute du mana à lancer (cf rang), false = ne coute pas de mana,  null = cf cout mana variable / pas lié au rang
     var manaCostOverTime: Boolean = false,       // true = coute du mana, false = ne coute pas de mana
-    var isTimeLimited: String? = null,           // (1f/jour, 3f/combat, ...)
-    var isChoice: Boolean = false,               // true = choix parmi les talents du talentGroup avec la meme category
+    var timeLimited: String? = null,           // (1f/jour, 3f/combat, ...)
+    var choice: Boolean = false,               // true = choix parmi les talents du talentGroup avec la meme category
     var category: String? = null,                // permet de regrouper les choix
     var buffs: List<String>? = emptyList(),
     var attack: String? = null,
@@ -43,6 +43,9 @@ data class Talent(
     @Ignore
     var _effects: List<Effect>? = null,
 ) : BaseEntity() {
+
+    constructor():this(info = "", talentGroupUuid = "", type = "", magic = false, complexity = null, manaCost = null, manaCostOverTime = false, timeLimited = null, choice = false)
+
     companion object {
         const val TABLE_NAME = "Talent"
 
@@ -52,12 +55,12 @@ data class Talent(
                 info = wrapper.info?.uuid,
                 talentGroupUuid = talentGroupUuid,
                 type = wrapper.type,
-                isMagic = wrapper.isMagic,
+                magic = wrapper.isMagic,
                 complexity = wrapper.complexity,
                 manaCost = wrapper.manaCost,
                 manaCostOverTime = wrapper.manaCostOverTime,
-                isTimeLimited = wrapper.isTimeLimited,
-                isChoice = wrapper.isChoice,
+                timeLimited = wrapper.isTimeLimited,
+                choice = wrapper.isChoice,
                 category = wrapper.category,
                 buffs = wrapper.buffs?.map { it.uuid },
                 attack = wrapper.attack?.uuid,
