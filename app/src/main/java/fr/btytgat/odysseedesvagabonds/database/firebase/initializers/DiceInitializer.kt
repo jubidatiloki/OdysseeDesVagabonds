@@ -11,32 +11,32 @@ class DiceInitializer {
     companion object {
 
         fun populateDices(database: DatabaseReference) {
-            getDice4().let {
+            dice4.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DICES)
                     .child(it.uuid).setValue(it)
             }
-            getDice6().let {
+            dice6.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DICES)
                     .child(it.uuid).setValue(it)
             }
-            getDice8().let {
+            dice8.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DICES)
                     .child(it.uuid).setValue(it)
             }
-            getDice10().let {
+            dice10.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DICES)
                     .child(it.uuid).setValue(it)
             }
-            getDice12().let {
+            dice12.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DICES)
                     .child(it.uuid).setValue(it)
             }
-            getDice20().let {
+            dice20.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DICES)
                     .child(it.uuid).setValue(it)
@@ -44,58 +44,52 @@ class DiceInitializer {
         }
 
 
-        fun getDice4(): DiceWrapper {
-            return DiceWrapper(
-                UUID.randomUUID().toString(),
-                "D4",
-                "dé 4",
-                4
-            )
-        }
+        val dice4 = DiceWrapper(
+            UUID.randomUUID().toString(),
+            "D4",
+            "dé 4",
+            4
+        )
 
-        fun getDice6(): DiceWrapper {
-            return DiceWrapper(
-                UUID.randomUUID().toString(),
-                "D6",
-                "dé 6",
-                6
-            )
-        }
 
-        fun getDice8(): DiceWrapper {
-            return DiceWrapper(
-                UUID.randomUUID().toString(),
-                "D8",
-                "dé 8",
-                8
-            )
-        }
+        val dice6 = DiceWrapper(
+            UUID.randomUUID().toString(),
+            "D6",
+            "dé 6",
+            6
+        )
 
-        fun getDice10(): DiceWrapper {
-            return DiceWrapper(
-                UUID.randomUUID().toString(),
-                "D10",
-                "dé 10",
-                10
-            )
-        }
 
-        fun getDice12(): DiceWrapper {
-            return DiceWrapper(
-                UUID.randomUUID().toString(),
-                "D12",
-                "dé 12",
-                12
-            )
-        }
+        val dice8 = DiceWrapper(
+            UUID.randomUUID().toString(),
+            "D8",
+            "dé 8",
+            8
+        )
 
-        fun getDice20(): DiceWrapper {
-            return DiceWrapper(
-                UUID.randomUUID().toString(),
-                "D20",
-                "dé 20",
-                20
-            )
-        }
+
+        val dice10 = DiceWrapper(
+            UUID.randomUUID().toString(),
+            "D10",
+            "dé 10",
+            10
+        )
+
+
+        val dice12 = DiceWrapper(
+            UUID.randomUUID().toString(),
+            "D12",
+            "dé 12",
+            12
+        )
+
+
+        val dice20 = DiceWrapper(
+            UUID.randomUUID().toString(),
+            "D20",
+            "dé 20",
+            20
+        )
+
     }
 }

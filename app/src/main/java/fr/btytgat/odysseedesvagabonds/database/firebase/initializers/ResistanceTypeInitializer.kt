@@ -12,131 +12,154 @@ class ResistanceTypeInitializer {
     companion object {
 
         fun populateResistanceType(database: DatabaseReference) {
-            getResPhy().let {
+            resPhy.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
                     .child(it.uuid).setValue(it)
             }
-            getResMag().let {
+            resPhyTranchant.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
                     .child(it.uuid).setValue(it)
             }
-            getResElem().let {
+            resPhyContondant.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            resPhyPercant.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            resMag.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            resElem.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            resElemFeu.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            resElemGlace.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            resElemFoudre.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RES_TYPE)
                     .child(it.uuid).setValue(it)
             }
         }
 
-        fun getResPhy(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
+        val resPhyTranchant = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
                 UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts physique"
-                ),
-                null,
-                listOf(
-                    getResTranchant(),
-                    getResContondant(),
-                    getResPercant()
-                )
-            )
-        }
+                "Résistance aux dégâts tranchants"
+            ),
+            null,
+        )
 
-        fun getResTranchant(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
-                UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts tranchants"
-                ),
-                null,
-            )
-        }
 
-        fun getResContondant(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
+        val resPhyContondant = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
                 UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts contondants"
-                ),
-                null,
-            )
-        }
+                "Résistance aux dégâts contondants"
+            ),
+            null,
+        )
 
-        fun getResPercant(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
-                UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts perçants"
-                ),
-                null,
-            )
-        }
 
-        fun getResMag(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
+        val resPhyPercant = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
                 UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts magiques"
-                ),
-                null,
-            )
-        }
+                "Résistance aux dégâts perçants"
+            ),
+            null,
+        )
 
-        fun getResElem(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
+        val resPhy = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
                 UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts élémentaires"
-                ),
-                null,
-                listOf(
-                    getResElemFeu(),
-                    getResElemGlace(),
-                    getResElemFoudre(),
-                )
+                "Résistance aux dégâts physique"
+            ),
+            null,
+            listOf(
+                resPhyTranchant,
+                resPhyContondant,
+                resPhyPercant
             )
-        }
+        )
 
-        fun getResElemFeu(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
-                UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts de feu"
-                ),
-                null,
-            )
-        }
 
-        fun getResElemGlace(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
-                UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts de glace"
-                ),
-                null,
-            )
-        }
 
-        fun getResElemFoudre(): ResistanceTypeWrapper {
-            return ResistanceTypeWrapper(
+
+
+        val resMag = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
                 UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Résistance aux dégâts de foudre"
-                ),
-                null,
+                "Résistance aux dégâts magiques"
+            ),
+            null,
+        )
+
+        val resElemFeu = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Résistance aux dégâts de feu"
+            ),
+            null,
+        )
+
+
+        val resElemGlace = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Résistance aux dégâts de glace"
+            ),
+            null,
+        )
+
+
+        val resElemFoudre = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Résistance aux dégâts de foudre"
+            ),
+            null,
+        )
+
+        val resElem = ResistanceTypeWrapper(
+            UUID.randomUUID().toString(),
+            InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Résistance aux dégâts élémentaires"
+            ),
+            null,
+            listOf(
+                resElemFeu,
+                resElemGlace,
+                resElemFoudre,
             )
-        }
+        )
+
+
+
 
 
     }

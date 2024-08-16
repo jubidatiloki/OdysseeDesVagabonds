@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.EffectTypeWrapper
-import java.util.UUID
 
 @Entity(tableName = EffectType.TABLE_NAME,
     foreignKeys = [
@@ -19,7 +18,7 @@ import java.util.UUID
         ))]
 )
 data class EffectType(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var info: String,                   // ex: aveuglement
     var buff: String,               // "buff" de PER -5, AdT -5
     @Ignore
@@ -28,7 +27,7 @@ data class EffectType(
     var _buff: Buff? = null
 ) : BaseEntity() {
 
-    constructor(): this(info = "", buff = "")
+    constructor(): this(uuid = "", info = "", buff = "")
 
     companion object {
 

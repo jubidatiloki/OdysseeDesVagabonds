@@ -13,6 +13,8 @@ data class Dice(
     var value: Long      // 6
 ) : BaseEntity() {
 
+    constructor(): this(uuid = "", code = "", label = "", value = 0L)
+
     companion object {
 
         const val TABLE_NAME = "Dice"

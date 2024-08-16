@@ -13,15 +13,16 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.database.entities.TalentGroup
+import fr.btytgat.odysseedesvagabonds.database.enums.TalentTypeEnum
 
 
-class PathExpandableListAdapter internal constructor(
+class PathExpandableListAdapter(
     private val context: Context,
-    private val titleList: List<String>,
-    private val dataList: HashMap<String, List<TalentGroup>>
-): BaseExpandableListAdapter() {
+    private val titleList: List<TalentGroup>,
+    private val dataList: HashMap<TalentGroup, List<TalentGroup>>
+) : BaseExpandableListAdapter() {
 
-    override fun getChild(listPosition: Int, expandedListPosition: Int): Any {
+    override fun getChild(listPosition: Int, expandedListPosition: Int): TalentGroup {
         return this.dataList[this.titleList[listPosition]]!![expandedListPosition]
     }
 
@@ -36,26 +37,33 @@ class PathExpandableListAdapter internal constructor(
         parent: ViewGroup
     ): View {
         var convertView = convertView
-        val listTitle = getGroup(listPosition) as String
+        val talentGroup = getGroup(listPosition)
         if (convertView == null) {
             val layoutInflater =
                 this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertView = layoutInflater.inflate(R.layout.custom_group_path, null)
         }
         val tvTitle = convertView!!.findViewById<TextView>(R.id.tv_title)
-//        val tvTalentType = convertView!!.findViewById<TextView>(R.id.tv_type)
+        val tvTalentType = convertView!!.findViewById<TextView>(R.id.tv_type)
 
         tvTitle.setTypeface(null, Typeface.BOLD)
-        tvTitle.text = listTitle
-
+        tvTitle.text = talentGroup.name
+        tvTalentType.text = TalentTypeEnum.valueOf(talentGroup.type).title
 
         return convertView
     }
 
-    override fun getChildView(listPosition: Int, expandedListPosition: Int, isLastChidl: Boolean, convertView: View?, parent: ViewGroup?): View {
+    override fun getChildView(
+        listPosition: Int,
+        expandedListPosition: Int,
+        isLastChidl: Boolean,
+        convertView: View?,
+        parent: ViewGroup?
+    ): View {
         var convertView = convertView
-        val talentGroup = getChild(listPosition, expandedListPosition) as TalentGroup
-        val layoutInflater = this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val talentGroup = getChild(listPosition, expandedListPosition)
+        val layoutInflater =
+            this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.custom_child_path, null)
@@ -63,36 +71,64 @@ class PathExpandableListAdapter internal constructor(
 
         val tvDescription = convertView!!.findViewById<TextView>(R.id.tv_description)
         val llTalents = convertView!!.findViewById<LinearLayout>(R.id.ll_talent)
+        llTalents.removeAllViews()
 
+        if(talentGroup._talents?.isNotEmpty() == true) {
+            tvDescription.text = talentGroup._talents?.get(0)?._info?.description
+        }
+        talentGroup._talents?.filter { !it.choice }?.forEach { talent ->
+            talent._attack?.let { attack ->
+                var color1: Int
+                var label1 = ""
+                var label2 = ""
+                if (talent.magic) {
+                    color1 = R.color.lightBlue
+                } else {
+                    color1 = R.color.lightRed
+                }
+                attack._damage?.let {
+                    label1 += "${it.nbDice}${it._dice?.code}"
+                    it._statBound?.let {
+                        label1 += " + ${it._info?.shortName}"
+                    }
+                    it._damageType?.let {
+                        label2 += " ${it._info?.name}"
+                    }
+                }
+                llTalents.addView(
+                    generateTextView(
+                        label1,
+                        color1,
+                        "$label1 $label2",
+                        R.color.white
+                    )
+                )
 
-        tvDescription.text = talentGroup.description
-        talentGroup._talents?.forEach { talent ->
-            talent._attack?.let {
-//            TODO
             }
-            talent._buffs?.forEach{
-                val sign: String
+            talent._buffs.forEach {
                 val color1: Int
-                if(it.modifier > 0) {
-                    sign = "+"
+                var label1 = ""
+                if (it.modifier > 0) {
                     color1 = R.color.buff_positive
-                } else{
-                    sign = "-"
+                    label1 = "+ ${it.modifier} "
+                } else {
                     color1 = R.color.buff_negative
+                    label1 = "${it.modifier} "
                 }
                 var buffedElement = ""
                 it._statBound?.let {
-                    buffedElement = it._info?.name.toString()
+                    label1 += it._info?.shortName
                 }
                 it._facultyBound?.let {
+                    label1 += it._info?.shortName
                     buffedElement = it._info?.name.toString()
                 }
                 llTalents.addView(
                     generateTextView(
-                        "$sign${it.modifier}",
+                        label1,
                         color1,
-                        buffedElement,
-                        R.color.colorAccent
+                        "$label1 $buffedElement",
+                        R.color.white
                     )
                 )
             }
@@ -100,21 +136,84 @@ class PathExpandableListAdapter internal constructor(
 //                TODO
             }
         }
+        talentGroup._talents?.filter { it.choice }?.groupBy { it.category }?.forEach { map ->
+            if(map.value.isNotEmpty()) {
+                var label = "et ${map.value.get(0).maxTaken} au choix : "
+                llTalents.addView(
+                    generateTextView(
+                        null,
+                        null,
+                        label,
+                        R.color.lightBlue
+                    )
+                )
+            }
+            map.value.forEach { talent ->
+                talent._buffs.forEach {
+                    val color1: Int
+                    var label1 = "\t\t"
+                    if (it.modifier > 0) {
+                        color1 = R.color.buff_positive
+                        label1 += "+ ${it.modifier} "
+                    } else {
+                        color1 = R.color.buff_negative
+                        label1 += "${it.modifier} "
+                    }
+                    var buffedElement = ""
+                    it._statBound?.let {
+                        label1 += it._info?.shortName
+
+                    }
+                    it._facultyBound?.let {
+                        label1 += it._info?.shortName
+                        buffedElement = it._info?.name.toString()
+                    }
+                    llTalents.addView(
+                        generateTextView(
+                            label1,
+                            color1,
+                            "$label1 $buffedElement",
+                            R.color.white
+                        )
+                    )
+                }
+            }
+
+
+
+        }
+
+
 
         return convertView
     }
 
-    fun generateTextView(label1: String, color1: Int, label2: String, color2: Int): TextView{
+    fun generateTextView(label1: String?, color1: Int?, wholeLabel: String, color2: Int): TextView {
         var textView = TextView(context)
-        var text1: Spannable = SpannableString(label1)
-        text1.setSpan(ForegroundColorSpan(context.getColor(color1)), 0, text1.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        var spanString: Spannable = SpannableString(wholeLabel)
+        if(label1 != null && color1 != null) {
+            spanString.setSpan(
+                ForegroundColorSpan(context.resources.getColor(color1, null)),
+                0,
+                label1.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spanString.setSpan(
+                ForegroundColorSpan(context.resources.getColor(color2, null)),
+                label1.length + 1,
+                wholeLabel.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }else{
+            spanString.setSpan(
+                ForegroundColorSpan(context.resources.getColor(color2, null)),
+                0,
+                wholeLabel.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        textView.text = spanString
 
-        var text2: Spannable = SpannableString(label2)
-        text2.setSpan(ForegroundColorSpan(context.getColor(color2)), 0, text1.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        textView.setText("$text1 $text2")
-
-        textView.setTextColor(context.getColor(R.color.white))
         return textView
     }
 
@@ -122,12 +221,15 @@ class PathExpandableListAdapter internal constructor(
     override fun getChildrenCount(listPosition: Int): Int {
         return this.dataList[this.titleList[listPosition]]!!.size
     }
-    override fun getGroup(listPosition: Int): String {
+
+    override fun getGroup(listPosition: Int): TalentGroup {
         return this.titleList[listPosition]
     }
+
     override fun getGroupCount(): Int {
         return this.titleList.size
     }
+
     override fun getGroupId(listPosition: Int): Long {
         return listPosition.toLong()
     }
@@ -135,6 +237,7 @@ class PathExpandableListAdapter internal constructor(
     override fun hasStableIds(): Boolean {
         return false
     }
+
     override fun isChildSelectable(listPosition: Int, expandedListPosition: Int): Boolean {
         return true
     }

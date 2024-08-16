@@ -7,8 +7,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import fr.btytgat.odysseedesvagabonds.R
+import fr.btytgat.odysseedesvagabonds.database.MyDatabase
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
-import fr.btytgat.odysseedesvagabonds.database.mDatabase
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.home.IHomeView
@@ -87,10 +87,22 @@ class HomeActivity : BaseActivity(), IHomeView.IActivity {
     }
 
     fun retrieveDatas() {
-        val db = mDatabase.getInstance(application)
+        val db = MyDatabase.getInstance(application)
 
-//        var raceDao = db.raceDao()
         with(FirebaseUtils) {
+            database.child(KEY_SYSTEM).child(KEY_RACES)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveRace(this@HomeActivity, RaceWrapper.getWrapperFromDS(datasnapshot))
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
             database.child(KEY_SYSTEM).child(KEY_STATS)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -148,19 +160,7 @@ class HomeActivity : BaseActivity(), IHomeView.IActivity {
                     }
                 })
 
-            database.child(KEY_SYSTEM).child(KEY_RACES)
-                .addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        for (datasnapshot: DataSnapshot in snapshot.children) {
-                            retrieveRace(this@HomeActivity, RaceWrapper.getWrapperFromDS(datasnapshot))
-                        }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
-                    }
-
-                })
         }
     }
 

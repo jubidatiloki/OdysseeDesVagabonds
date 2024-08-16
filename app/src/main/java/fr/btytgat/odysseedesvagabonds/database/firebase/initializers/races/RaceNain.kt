@@ -22,6 +22,7 @@ class RaceNain {
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
                     "Outils de nain",
+                    "",
                     "Maitrise de la hache et du marteau, si c'était déjà le cas, donne +1 AdC et +1 DMG avec ces armes à la place",
                     "",
                     ""
@@ -36,7 +37,8 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 "#1 - Outils de nain",
                 1,
-                listOf(talent1)
+                listOf(talent1),
+                type = TalentTypeEnum.PASSIF.name
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -48,6 +50,7 @@ class RaceNain {
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
                     "Ivresse naine",
+                    "",
                     "bonus de +5 au tests de CON et peut refaire un jet en cas d'échec (hors échec critique) à un test de CON liés aux breuvages (poison compris)",
                     "\"ca tient chaud dans les profondeurs de la terre\"",
                     ""
@@ -61,7 +64,8 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 "#2 - Ivresse naine",
                 2,
-                listOf(talent2)
+                listOf(talent2),
+                type = TalentTypeEnum.PASSIF.name
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -75,6 +79,7 @@ class RaceNain {
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
                     "Tête de fer",
+                    "",
                     "donne une attaque gratuite de coup de tête une fois par tour, 1D6 + CON DMG",
                     "",
                     ""
@@ -88,8 +93,8 @@ class RaceNain {
                         UUID.randomUUID().toString(),
                         0,
                         1,
-                        DiceInitializer.getDice6(),
-                        DamageTypeInitializer.getDmgContondant(),
+                        DiceInitializer.dice6,
+                        DamageTypeInitializer.dmgPhyContondant,
                         StatInitializer.getStatCon()
                     )
                 )
@@ -98,7 +103,8 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 "#3 - Tête de fer",
                 3,
-                listOf(talent3)
+                listOf(talent3),
+                type = TalentTypeEnum.ATTACK_FREE.name
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -111,6 +117,7 @@ class RaceNain {
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
                     "Acolyte des montagnes",
+                    "",
                     "dompte un bouquetin pouvant lui servir de monture (pas de compétence particulier pour le combat et panique si n'a pas la voie du cavalier de chevalier), mais a un bonus de +10 d'escalade avec celui-ci et galope à la même vitesse qu'un cheval",
                     "",
                     ""
@@ -124,6 +131,7 @@ class RaceNain {
                 "#4 - Acolyte des montagnes",
                 4,
                 listOf(talent4),
+                type = TalentTypeEnum.SUPPORT.name
             ).apply{
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -189,7 +197,8 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 "#5 - Ténacité",
                 5,
-                listOf(talent5_1, talent5_2, talent5_3, talent5_4)
+                listOf(talent5_1, talent5_2, talent5_3, talent5_4),
+                type = TalentTypeEnum.PASSIF.name
             ).apply{
                 Log.i("DATABASE", "create talentGroup - ${uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -221,8 +230,8 @@ class RaceNain {
 
 
             var hashMapNain = java.util.HashMap<String, Long>()
-            hashMapNain["STAT_CON"] = 2
-            hashMapNain["STAT_DEX"] = -2
+            hashMapNain["CON"] = 2
+            hashMapNain["DEX"] = -2
 
 
             val race = RaceWrapper(

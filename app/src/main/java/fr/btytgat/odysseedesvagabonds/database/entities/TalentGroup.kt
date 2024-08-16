@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.TalentGroupWrapper
-import java.util.*
 
 
 @Entity(
@@ -22,16 +21,17 @@ import java.util.*
                 )]
 )
 data class TalentGroup(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var name: String,
     var talentIndex: Long,
     var pathUuid: String,
     var description: String? = null,
+    var type: String,                           // talentType
     @Ignore
     var _talents: List<Talent>? = emptyList(),
 ): BaseEntity(){
 
-    constructor():this (name = "", talentIndex = 0, pathUuid = "", description = "")
+    constructor():this (uuid = "", name = "", talentIndex = 0, pathUuid = "", description = "", type = "")
 
     companion object {
 
@@ -43,7 +43,8 @@ data class TalentGroup(
                 name = wrapper.name,
                 talentIndex = wrapper.talentIndex,
                 pathUuid = pathUuid,
-                description = wrapper.description
+                description = wrapper.description,
+                type = wrapper.type
             )
         }
     }

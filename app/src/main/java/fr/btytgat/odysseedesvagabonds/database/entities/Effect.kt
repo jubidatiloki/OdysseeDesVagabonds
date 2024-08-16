@@ -5,11 +5,10 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.EffectWrapper
-import java.util.UUID
 
 @Entity(tableName = Effect.TABLE_NAME)
 data class Effect(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var effectType: String,
     var targets: String,
     var permanent: Boolean,
@@ -22,7 +21,7 @@ data class Effect(
     var _duration: Duration? = null
 ) : BaseEntity() {
 
-    constructor(): this(effectType = "", targets = "", permanent = false, duration = null)
+    constructor(): this(uuid = "", effectType = "", targets = "", permanent = false, duration = null)
 
     companion object {
 

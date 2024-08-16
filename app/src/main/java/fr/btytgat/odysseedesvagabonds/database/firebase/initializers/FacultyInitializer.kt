@@ -9,315 +9,297 @@ import java.util.*
 
 class FacultyInitializer {
 
-    companion object{
+    companion object {
 
         fun populateFaculties(database: DatabaseReference) {
-            getTestAdC().let {
+            testAdC.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestAdT().let {
+            testAdT.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestFor().let {
+            testFor.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestDex().let {
+           testDex.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestCon().let {
+            testCon.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestInt().let {
+            testInt.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestPer().let {
+            testPer.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestSoc().let {
+            testSoc.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestCha().let {
+            testCha.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestChan().let {
+            testChan.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
 
-            getHacheAttack().let {
+            axeAttack.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getHacheDamage().let {
+            axeDamage.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getMarteauAttack().let {
+            hammerAttack.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getMarteauDamage().let {
+            hammerDamage.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            getTestConBreuvage().let {
+            testConBreuvage.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
         }
 
-
-        fun getTestAdC(): FacultyWrapper{
-            return FacultyWrapper(
+        val testAdC = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Aptitude de combat",
-                    "tests AdC",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatAdC()
-            )
-        }
+                "Test - Aptitude de combat",
+                "tests AdC",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatAdC()
+        )
 
-        fun getTestAdT(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testAdT = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Aptitude de tir",
-                    "tests AdT",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatAdT()
-            )
-        }
+                "Test - Aptitude de tir",
+                "tests AdT",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatAdT()
+        )
 
-        fun getTestFor(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testFor = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Force",
-                    "tests FORCE",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatFor()
-            )
-        }
+                "Test - Force",
+                "tests FORCE",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatFor()
+        )
 
-        fun getTestDex(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testDex = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Dextérité",
-                    "tests DEX",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatDex()
-            )
-        }
-
-        fun getTestCon(): FacultyWrapper{
-            return FacultyWrapper(
+                "Test - Dextérité",
+                "tests DEX",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatDex()
+        )
+        val testConBreuvage = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Constitution",
-                    "tests CON",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatCon(),
-                listOf(
-                    getTestConBreuvage()
-                )
-            )
-        }
+                "aux tests de constitution liés aux breuvages",
+            ),
+            false,
+            false,
+            0,
+            StatInitializer.getStatCon()
+        )
 
-        fun getTestInt(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testCon = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Intelligence",
-                    "tests INT",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatInt()
+                "test de constitution",
+                "tests CON",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatCon(),
+            listOf(
+                testConBreuvage
             )
-        }
+        )
 
-        fun getTestPer(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testInt = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Perception",
-                    "tests PER",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatPer()
-            )
-        }
+                "Test - Intelligence",
+                "tests INT",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatInt()
+        )
 
-        fun getTestSoc(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testPer = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Social",
-                    "tests SOC",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatSoc()
-            )
-        }
+                "Test - Perception",
+                "tests PER",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatPer()
+        )
 
-        fun getTestCha(): FacultyWrapper{
-            return FacultyWrapper(
+        val testSoc = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Charisme",
-                    "tests CHA",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatCha()
-            )
-        }
+                "Test - Social",
+                "tests SOC",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatSoc()
+        )
 
-        fun getTestChan(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val testCha = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Test - Chance",
-                    "tests CHAN",
-                ),
-                true,
-                true,
-                0,
-                StatInitializer.getStatChan()
-            )
-        }
+                "Test - Charisme",
+                "tests CHA",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatCha()
+        )
 
-        fun getHacheAttack(): FacultyWrapper {
-            return FacultyWrapper(
+
+        val testChan = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Hache - attaque",
-                    null,
-                ),
-                true,
-                true,
-                -3,
-                StatInitializer.getStatAdC()
-            )
-        }
+                "Test - Chance",
+                "tests CHAN",
+            ),
+            true,
+            true,
+            0,
+            StatInitializer.getStatChan()
+        )
 
-        fun getHacheDamage(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val axeAttack = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Hache - dégât",
-                    null,
-                ),
-                true,
-                true,
-                -3,
-                StatInitializer.getStatFor()
-            )
-        }
+                "avec une hache",
+                "AdC",
+            ),
+            true,
+            true,
+            -3,
+            StatInitializer.getStatAdC()
+        )
 
-        fun getMarteauAttack(): FacultyWrapper {
-            return FacultyWrapper(
+
+        val axeDamage = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Marteau - attaque",
-                    null,
-                ),
-                true,
-                true,
-                -3,
-                StatInitializer.getStatAdC()
-            )
-        }
+                "avec une hache",
+                "DMG PHY",
+            ),
+            true,
+            true,
+            -3,
+            StatInitializer.getStatFor()
+        )
 
-        fun getMarteauDamage(): FacultyWrapper{
-            return FacultyWrapper(
+
+        val hammerAttack = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Marteau - dégât",
-                    null,
-                ),
-                true,
-                true,
-                -3,
-                StatInitializer.getStatFor()
-            )
-        }
+                "avec un marteau",
+                "AdC",
+            ),
+            true,
+            true,
+            -3,
+            StatInitializer.getStatAdC()
+        )
 
 
-        fun getTestConBreuvage(): FacultyWrapper {
-            return FacultyWrapper(
+        val hammerDamage = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Breuvages",
-                    "tests CON liés aux breuvages",
-                ),
-                false,
-                false,
-                0,
-                StatInitializer.getStatCon()
-            )
-        }
+                "avec un marteau",
+                "DMG PHY",
+            ),
+            true,
+            true,
+            -3,
+            StatInitializer.getStatFor()
+        )
+
+
+
+
     }
 }

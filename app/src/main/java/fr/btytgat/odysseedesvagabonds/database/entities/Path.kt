@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.PathWrapper
-import java.util.*
 
 @Entity(
     tableName = Path.TABLE_NAME,
@@ -20,7 +19,7 @@ import java.util.*
         ))]
 )
 data class Path(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var info: String,
     var category: String? = null,
     var originType: String,
@@ -31,7 +30,7 @@ data class Path(
     @Ignore
     var _talentGroups: List<TalentGroup>? = null
 ) : BaseEntity() {
-    constructor():this(info = "", originType = "", originUuid = "")
+    constructor():this(uuid = "", info = "", originType = "", originUuid = "")
 
 
     companion object {

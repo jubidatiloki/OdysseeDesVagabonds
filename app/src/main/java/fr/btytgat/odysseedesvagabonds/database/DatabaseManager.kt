@@ -3,7 +3,7 @@ package fr.btytgat.odysseedesvagabonds.database
 import android.content.Context
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 
-class DatabaseManager(private val context: Context, private val db: mDatabase) {
+class DatabaseManager(private val context: Context, private val db: MyDatabase) {
 
 
     fun getRaceWitHDetails(uuid: String): Race {
@@ -46,10 +46,24 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
     fun getTalentWithDetails(uuid: String): Talent {
 
         val talent = db.talentDao().getTalentById(uuid)
+        var effectList = emptyList<Effect>()
+        talent.effects?.forEach {
+            if(it.isNotEmpty()){
+                effectList = effectList.plus(getEffectWithDetails(it))
+            }
+        }
+        var buffList = emptyList<Buff>()
+        talent.buffs.forEach {
+            if(it.isNotEmpty()){
+                buffList = buffList.plus(getBuffWithDetails(it))
+            }
+        }
+
         talent.apply {
-            _buffs = buffs?.map { getBuffWithDetails(it) }
+            _info = info?.let { db.infoDao().getInfoById(it) }
+            _buffs = buffList
             _attack = attack?.let { getAttackWithDetails(it) }
-            _effects = effects?.map { getEffectWithDetails(it) }
+            _effects = effectList
         }
         return talent
     }
@@ -60,8 +74,8 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
         val buff = db.buffDao().getBuffById(uuid)
 
         buff.apply {
-            _statBound = statBound?.let { getStatWithDetails(it) }
-            _facultyBound = facultyBound?.let { getFacultyWithDetails(it) }
+            _statBound = statBound?.let { it?.let{getStatWithDetails(it) }}
+            _facultyBound = facultyBound?.let { it?.let { getFacultyWithDetails(it)} }
         }
         return buff
     }
@@ -87,13 +101,19 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
         return stat
     }
 
-    fun getFacultyWithDetails(uuid: String): Faculty {
+    fun getFacultyWithDetails(uuid: String): Faculty? {
 
         val faculty = db.facultyDao().getFacultyById(uuid)
-        faculty.apply {
+        var list = emptyList<Faculty>()
+        faculty?.subFaculties?.forEach {
+            getFacultyWithDetails(it)?.let {
+                list = list.plus(it)
+            }
+        }
+        faculty?.apply {
             _info = db.infoDao().getInfoById(info)
             _statBound = statBound?.let { getStatWithDetails(it) }
-            _subFaculties = subFaculties?.map { getFacultyWithDetails(it)}
+            _subFaculties = list
         }
         return faculty
     }
@@ -102,9 +122,15 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
     fun getResistanceTypeWithDetails(uuid: String): ResistanceType {
 
         val resistanceType = db.resistanceTypeDao().getResistanceTypeById(uuid)
+        var subResList: List<ResistanceType> = emptyList()
+        resistanceType.subResistanceTypes?.forEach {
+            if(it.isNotEmpty()){
+                subResList = subResList.plus(getResistanceTypeWithDetails(it))
+            }
+        }
         resistanceType.apply {
             _statBound = statBound?.let { getStatWithDetails(it) }
-            _subResistanceTypes = subResistanceTypes?.map { getResistanceTypeWithDetails(it) }
+            _subResistanceTypes = subResList
         }
         return resistanceType
     }
@@ -112,9 +138,22 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
     fun getDamageTypeWithDetails(uuid: String): DamageType {
 
         val damageType = db.damageTypeDao().getDamageTypeById(uuid)
+        var subDmgList = emptyList<DamageType>()
+        damageType.subDamageTypes?.map {
+            if(it.isNotEmpty()) {
+                subDmgList = subDmgList.plus(getDamageTypeWithDetails(it))
+            }
+        }
+        var resType: ResistanceType? = null
+        damageType.resistanceType?.let {
+            if(it.isNotEmpty()){
+                resType = getResistanceTypeWithDetails(it)
+            }
+        }
         damageType.apply {
-            _resistanceType = resistanceType?.let { getResistanceTypeWithDetails(it) }
-            _subResistanceTypes = subDamageTypes?.map { getResistanceTypeWithDetails(it) }
+            _info = db.infoDao().getInfoById(info)
+            _resistanceType = resType
+            _subDamageTypes = subDmgList
 
         }
         return damageType
@@ -130,6 +169,7 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
         damage.apply {
             _damageType = getDamageTypeWithDetails(damageType)
             _dice = db.diceDao().getDiceById(dice)
+            _statBound = statBound?.let { getStatWithDetails(it) }
         }
         return damage
 
@@ -139,6 +179,7 @@ class DatabaseManager(private val context: Context, private val db: mDatabase) {
     fun getEffectWithDetails (uuid: String): Effect{
 
         val effect = db.effectDao().getEffectById(uuid)
+
         effect.apply {
             _effectType = getEffectTypeWithDetails(effectType)
             _targets = getTargetGroupWithDetails(targets)

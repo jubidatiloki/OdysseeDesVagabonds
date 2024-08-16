@@ -19,20 +19,26 @@
 
     <color name="white">@android:color/white</color>
     <color name="red">#D0312A</color>
-    <color name="lightRed">#C67A76</color>
-    <color name="green">#39BD32</color>
+<!--    <color name="lightRed">#C67A76</color>-->
+    <color name="lightRed">#E46962</color>
+<!--    <color name="green">#39BD32</color>-->
+    <color name="green">#5EAC24</color>
     <color name="lightGreen">#83CA7F</color>
     <color name="blue">#397CDC</color>
-    <color name="lightBlue">#7FA6DE</color>
+<!--    <color name="lightBlue">#7FA6DE</color>-->
+    <color name="lightBlue">#95BDFD</color>
     <color name="grey">#5D5D5D</color>
     <color name="lightGrey">#8F8F8F</color>
+
+    <color name="purple">#393044</color>
+    <color name="lightPurple">#716680</color>
 
 
     <color name="background">@color/colorPrimary</color>
     <color name="card_background">@color/colorPrimaryDark</color>
     <color name="header_background">#887D6B</color>
 
-    <color name="buff_positive">@color/lightBlue</color>
+    <color name="buff_positive">@color/green</color>
     <color name="buff_negative">@color/lightRed</color>
 
 </resources>

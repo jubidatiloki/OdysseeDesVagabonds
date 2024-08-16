@@ -19,25 +19,25 @@ class BuffInitializer {
                 UUID.randomUUID().toString(),
                 true,
                 1,
-                facultyBound = FacultyInitializer.getHacheAttack()
+                facultyBound = FacultyInitializer.axeAttack
             )
             val buff2 = BuffWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
-                facultyBound = FacultyInitializer.getHacheDamage()
+                facultyBound = FacultyInitializer.axeDamage
             )
             val buff3 = BuffWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
-                facultyBound = FacultyInitializer.getMarteauAttack()
+                facultyBound = FacultyInitializer.hammerAttack
             )
             val buff4 = BuffWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
-                facultyBound = FacultyInitializer.getMarteauDamage()
+                facultyBound = FacultyInitializer.hammerDamage
             )
             return listOf(buff1, buff2, buff3, buff4)
         }
@@ -47,7 +47,7 @@ class BuffInitializer {
                 UUID.randomUUID().toString(),
                 true,
                 5,
-                facultyBound = FacultyInitializer.getTestConBreuvage(),
+                facultyBound = FacultyInitializer.testConBreuvage,
                 gainAdvantage = true
             )
             return listOf(buff)

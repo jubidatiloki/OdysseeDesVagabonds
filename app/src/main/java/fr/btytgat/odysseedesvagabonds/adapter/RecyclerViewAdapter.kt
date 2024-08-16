@@ -17,7 +17,11 @@ import fr.btytgat.odysseedesvagabonds.database.enums.RaceTagEnum
 
 class RecyclerViewAdapter(private val activity: Activity, private val itemList: List<Any>, private val layout: Int) : RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder>() {
 
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+    var onItemClick: ((Any) -> Unit)? = null
+
+
+    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
         val tvTitle: TextView = itemView.findViewById(R.id.tv_title)
         val tvDescription: TextView = itemView.findViewById(R.id.tv_description)
@@ -26,6 +30,12 @@ class RecyclerViewAdapter(private val activity: Activity, private val itemList: 
         val tvDv: TextView = itemView.findViewById(R.id.tv_dv)
         val tvDm: TextView = itemView.findViewById(R.id.tv_dm)
         val fblTags: FlexboxLayout = itemView.findViewById(R.id.fbl_tags)
+
+        init {
+            itemView.setOnClickListener{
+                onItemClick?.invoke(itemList[adapterPosition])
+            }
+        }
 
     }
 

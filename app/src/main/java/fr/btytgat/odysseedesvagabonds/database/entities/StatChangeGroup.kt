@@ -4,13 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatChangeWrapper
-import java.util.*
 
 @Entity(
     tableName = StatChangeGroup.TABLE_NAME
 )
 data class StatChangeGroup(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var name: String,
     var statChange: HashMap<String, Long>
 

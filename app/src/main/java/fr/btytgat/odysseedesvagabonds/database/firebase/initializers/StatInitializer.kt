@@ -5,7 +5,6 @@ import com.google.firebase.database.DatabaseReference
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
 import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
-import java.util.*
 
 class StatInitializer {
 
@@ -145,7 +144,7 @@ class StatInitializer {
             val statAdc = StatWrapper(
                 "STAT_ADC",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_ADC",
                     "Aptitude de combat",
                     "AdC",
                     "Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers",
@@ -163,7 +162,7 @@ class StatInitializer {
             val statAdt = StatWrapper(
                 "STAT_ADT",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_ADT",
                     "Aptitude de tir",
                     "AdT",
                     "Maîtrise des armes à distance, importante pour les canonniers et les rôdeurs",
@@ -181,7 +180,7 @@ class StatInitializer {
             val statCha = StatWrapper(
                 "STAT_CHA",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_CHA",
                     "Charisme",
                     "CHA",
                     "Représente le courage, la prestance auprès, l'image que l'on donne auprès des autres, important pour les chevaliers et les bardes",
@@ -201,7 +200,7 @@ class StatInitializer {
             val statChan = StatWrapper(
                 "STAT_CHAN",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_CHAN",
                     "Chance",
                     "CHAN",
                     "Représente la chance naturelle et parfois honteuse que RNG jésus porte pour vous",
@@ -219,7 +218,7 @@ class StatInitializer {
             val statCon = StatWrapper(
                 "STAT_CON",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_CON",
                     "Constitution",
                     "CON",
                     "Représente l’endurance et la résistance, importante pour les barbares et moines",
@@ -237,7 +236,7 @@ class StatInitializer {
             val statDefCac = StatWrapper(
                 "STAT_DEF_CAC",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DEF_CAC",
                     "Défense au corps à corps",
                     "DEF CaC",
                     "Représente la difficulté à être toucher au corps à corps, notamment à cause d'une armure",
@@ -254,7 +253,7 @@ class StatInitializer {
             val statDefDist = StatWrapper(
                 "STAT_DEF_DIST",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DEF_DIST",
                     "Défense à distance",
                     "DEF DIST",
                     "Représente la difficulté à être touché par des projectiles non magique",
@@ -273,7 +272,7 @@ class StatInitializer {
             val statDefElem = StatWrapper(
                 "STAT_DEF_ELEM",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DEF_ELEM",
                     "Défense élémentaire",
                     "DEF ELEM",
                     "Représente la difficulté à être touché par des attaques élémentaire (de souffle par exemple, comme, au hasard de dragon)",
@@ -290,7 +289,7 @@ class StatInitializer {
             val statDefMag = StatWrapper(
                 "STAT_DEF_MAG",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DEF_MAG",
                     "Défense magique",
                     "DEF MAG",
                     "Représente la difficulté à être touché par des attaques magiques",
@@ -307,7 +306,7 @@ class StatInitializer {
             val statDex = StatWrapper(
                 "STAT_DEX",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DEX",
                     "Dextérité",
                     "DEX",
                     "Représente l’agilité, ainsi que la précision et la vitesse dans certaines situation, importante pour les voleurs",
@@ -324,7 +323,7 @@ class StatInitializer {
             val statDm = StatWrapper(
                 "STAT_DM",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DM",
                     "Dé de mana",
                     "DM",
                     "Représente le gain de point de mana par montée de niveau",
@@ -341,7 +340,7 @@ class StatInitializer {
             val statDv = StatWrapper(
                 "STAT_DV",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_DV",
                     "Dé de vie",
                     "DV",
                     "Représente le gain de point de vie par montée de niveau",
@@ -358,7 +357,7 @@ class StatInitializer {
             val statEsq = StatWrapper(
                 "STAT_ESQ",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_ESQ",
                     "Esquive",
                     "ESQ",
                     "Représente la capacité à pouvoir esquiver une attaque, plutôt que l’encaisser",
@@ -376,7 +375,7 @@ class StatInitializer {
             val statFor = StatWrapper(
                 "STAT_FOR",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_FOR",
                     "Force",
                     "FOR",
                     "Représente la puissance brute / musculaire, importante pour les barbares",
@@ -394,7 +393,7 @@ class StatInitializer {
             val statInit = StatWrapper(
                 "STAT_INIT",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_INIT",
                     "Initiative",
                     "INIT",
                     "Représente la vitesse de réaction et permet de définir l'ordre d'agissement dans un combat, par rapport aux autre",
@@ -412,7 +411,7 @@ class StatInitializer {
             val statInt = StatWrapper(
                 "STAT_INT",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_INT",
                     "Intelligence",
                     "INT",
                     "Représente les connaissances, et la maîtrise de la magie chez les druides, les magiciens, les nécromanciens et les prêtres",
@@ -429,7 +428,7 @@ class StatInitializer {
             val statPer = StatWrapper(
                 "STAT_PER",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_PER",
                     "Perception",
                     "PER",
                     "Représente le développement de ses sens (vue et ouie notamment), importante pour les bardes, les rôdeurs et  les moines",
@@ -447,7 +446,7 @@ class StatInitializer {
             val statPm = StatWrapper(
                 "STAT_PM",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_PM",
                     "Info - Point de mana",
                     "Représente la quantité de magie possible d’utiliser afin d'utiliser des sorts",
                     "régénération: dé de mana PM par nuit de sommeil (divisé par 2 si demi-nuit de sommeil), point de mana initiale = dé de mana max",
@@ -463,7 +462,7 @@ class StatInitializer {
             val statPv = StatWrapper(
                 "STAT_PV",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_PV",
                     "Point de vie",
                     "PV",
                     "Représente la quantité de coup et de blessure qu’il est possible d’encaisser avant de s’évanouir ou de mourir",
@@ -480,7 +479,7 @@ class StatInitializer {
             val statRdFeu = StatWrapper(
                 "STAT_RD_FEU",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_RD_FEU",
                     "Réduction de dégât de feu",
                     "RD FEU",
                     "Réduit les dégâts élémentaire de feu subis",
@@ -497,7 +496,7 @@ class StatInitializer {
             val statRdFoudre = StatWrapper(
                 "STAT_RD_FOUDRE",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_RD_FOUDRE",
                     "Réduction de dégât de foudre",
                     "RD FOUDRE",
                     "Réduit les dégâts élémentaire de foudre subis",
@@ -515,7 +514,7 @@ class StatInitializer {
             val statRdGlace = StatWrapper(
                 "STAT_RD_GLACE",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_RD_GLACE",
                     "Réduction de dégât de glace",
                     "RD GLACE",
                     "Réduit les dégâts élémentaire de glace subis",
@@ -533,7 +532,7 @@ class StatInitializer {
             val statRdMag = StatWrapper(
                 "STAT_RD_MAG",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_RD_MAG",
                     "Réduction de dégât magique",
                     "RD MAG",
                     "Réduit les dégâts magique subis",
@@ -550,7 +549,7 @@ class StatInitializer {
             val statRdPhy = StatWrapper(
                 "STAT_RD_PHY",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_RD_PHY",
                     "Réduction de dégât physique",
                     "RD PHY",
                     "Réduit les dégâts physique subis (corps à corps ou distant)",
@@ -568,7 +567,7 @@ class StatInitializer {
             val statSoc = StatWrapper(
                 "STAT_SOC",
                 InfoWrapper(
-                    UUID.randomUUID().toString(),
+                    "INFO-STAT_SOC",
                     "Social",
                     "SOC",
                     "Représente l’aisance à communiquer, importante pour les bardes et les voleurs",

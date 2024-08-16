@@ -5,11 +5,10 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.TargetGroupWrapper
-import java.util.UUID
 
 @Entity(tableName = TargetGroup.TABLE_NAME)
 data class TargetGroup(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var selfOnly: Boolean,                 // true = soi uniquement, tout le reste est null, sinon a voir ally et enemy
     var flatValue: Int = 1,
     var enemyTargetable: Boolean?,          // si true = enemis peuvent etre visé (si ally = false, les attributs global et ally sont null)
@@ -20,7 +19,7 @@ data class TargetGroup(
     var _dice: Dice? = null
 ) : BaseEntity() {
 
-    constructor(): this(selfOnly = false, flatValue = 0, enemyTargetable = null, allyTargetable = null, nbDice = null, dice = null)
+    constructor(): this(uuid = "", selfOnly = false, flatValue = 0, enemyTargetable = null, allyTargetable = null, nbDice = null, dice = null)
 
     companion object {
 

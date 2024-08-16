@@ -12,131 +12,151 @@ class DamageTypeInitializer {
     companion object {
 
         fun populateDamageTypes(database: DatabaseReference) {
-            getDmgPhy().let {
+            dmgPhy.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
                     .child(it.uuid).setValue(it)
             }
-            getDmgMag().let {
+            dmgPhyTranchant.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
                     .child(it.uuid).setValue(it)
             }
-            getDmgElem().let {
+            dmgPhyContondant.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            dmgPhyPercant.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            dmgMag.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            dmgElem.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            dmgElemFeu.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            dmgElemGlace.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
+                    .child(it.uuid).setValue(it)
+            }
+            dmgElemFoudre.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_DAMAGE_TYPE)
                     .child(it.uuid).setValue(it)
             }
         }
 
-        fun getDmgPhy(): DamageTypeWrapper {
-            return DamageTypeWrapper(
+        val dmgPhyTranchant = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât physique",
-                ),
-                ResistanceTypeInitializer.getResPhy(),
-                listOf(
-                    getDmgTranchant(),
-                    getDmgContondant(),
-                    getDmgPercant()
-                )
-            )
-        }
-
-        fun getDmgTranchant(): DamageTypeWrapper {
-            return DamageTypeWrapper(
-                UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât tranchant"
-                ),
-                ResistanceTypeInitializer.getResTranchant(),
-            )
-        }
-
-        fun getDmgContondant(): DamageTypeWrapper {
-            return DamageTypeWrapper(
-                UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât contondant"
-                ),
-                ResistanceTypeInitializer.getResContondant(),
-            )
-        }
-
-        fun getDmgPercant(): DamageTypeWrapper {
-            return DamageTypeWrapper(
-                UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât perçant"
-                ),
-                ResistanceTypeInitializer.getResPercant(),
-            )
-        }
+                "Dégât physique tranchant"
+            ),
+            ResistanceTypeInitializer.resPhyTranchant,
+        )
 
 
-        fun getDmgMag(): DamageTypeWrapper {
-            return DamageTypeWrapper(
+        val dmgPhyContondant = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât magique",
-                ),
-                ResistanceTypeInitializer.getResMag(),
-            )
-        }
+                "Dégât physique contondant"
+            ),
+            ResistanceTypeInitializer.resPhyContondant,
+        )
 
-        fun getDmgElem(): DamageTypeWrapper {
-            return DamageTypeWrapper(
-                UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât élémentaire",
-                ),
-                ResistanceTypeInitializer.getResElem(),
-                listOf(
-                    getDmgElemFeu(),
-                    getDmgElemGlace(),
-                    getDmgElemFoudre()
-                )
-            )
-        }
 
-        fun getDmgElemFeu(): DamageTypeWrapper {
-            return DamageTypeWrapper(
+        val dmgPhyPercant = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât élémentaire de feu"
-                ),
-                ResistanceTypeInitializer.getResElemFeu(),
-            )
-        }
+                "Dégât physique perçant"
+            ),
+            ResistanceTypeInitializer.resPhyPercant,
+        )
 
-        fun getDmgElemGlace(): DamageTypeWrapper {
-            return DamageTypeWrapper(
+        val dmgPhy = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât élémentaire de glace"
-                ),
-                ResistanceTypeInitializer.getResElemGlace(),
+                "Dégât physique",
+            ),
+            ResistanceTypeInitializer.resPhy,
+            listOf(
+                dmgPhyTranchant,
+                dmgPhyContondant,
+                dmgPhyPercant
             )
-        }
+        )
 
-        fun getDmgElemFoudre(): DamageTypeWrapper {
-            return DamageTypeWrapper(
+
+        val dmgMag = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Dégât élémentaire de foudre"
-                ),
-                ResistanceTypeInitializer.getResElemFoudre(),
+                "Dégât magique",
+            ),
+            ResistanceTypeInitializer.resMag,
+        )
+
+        val dmgElemFeu = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Dégât élémentaire de feu"
+            ),
+            ResistanceTypeInitializer.resElemFeu,
+        )
+
+
+        val dmgElemGlace = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Dégât élémentaire de glace"
+            ),
+            ResistanceTypeInitializer.resElemGlace,
+        )
+
+
+        val dmgElemFoudre = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Dégât élémentaire de foudre"
+            ),
+            ResistanceTypeInitializer.resElemFoudre,
+        )
+
+        val dmgElem = DamageTypeWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Dégât élémentaire",
+            ),
+            ResistanceTypeInitializer.resElem,
+            listOf(
+                dmgElemFeu,
+                dmgElemGlace,
+                dmgElemFoudre
             )
-        }
+        )
+
+
+
+
     }
 }

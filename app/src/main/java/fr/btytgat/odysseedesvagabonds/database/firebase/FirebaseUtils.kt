@@ -4,10 +4,10 @@ import android.content.Context
 import android.util.Log
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import fr.btytgat.odysseedesvagabonds.database.MyDatabase
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.*
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.races.RaceNain
-import fr.btytgat.odysseedesvagabonds.database.mDatabase
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 
 class FirebaseUtils {
@@ -16,7 +16,7 @@ class FirebaseUtils {
     companion object {
         val database =
             Firebase.database("https://odysseedesvagabonds-default-rtdb.europe-west1.firebasedatabase.app").reference
-        var localDB: mDatabase? = null
+        var localDB: MyDatabase? = null
 
         val KEY_SYSTEM = "SYSTEM_2"
         val KEY_USERS = "USERS"
@@ -55,21 +55,18 @@ class FirebaseUtils {
 
 
         fun retriveStat(context: Context, statWrapper: StatWrapper) {
-            localDB = mDatabase.getInstance(context)
+            localDB = MyDatabase.getInstance(context)
 
             statWrapper.info.let {
                 localDB?.infoDao()?.insertInfo(Info.getEntityFromWrapper(it))
             }
             localDB?.statDao()?.insertStat(Stat.getEntityFromWrapper(statWrapper))
 
-            Log.i("retriveStat", "infoCount=" + localDB?.infoDao()?.getRowCount())
             Log.i("retriveStat", "statCount=" + localDB?.statDao()?.getRowCount())
-
-
         }
 
         fun retrieveFaculties(context: Context, facultyWrapper: FacultyWrapper) {
-            localDB = mDatabase.getInstance(context)
+            localDB = MyDatabase.getInstance(context)
 
 
             facultyWrapper.info.let {
@@ -83,17 +80,18 @@ class FirebaseUtils {
             }
 
             localDB?.facultyDao()?.insert(Faculty.getEntityFromWrapper(facultyWrapper))
+            Log.i("retrieveFaculties", "count = " + localDB?.facultyDao()?.getRowCount())
         }
 
         fun retrieveDice(context: Context, diceWrapper: DiceWrapper) {
 
-            localDB = mDatabase.getInstance(context)
+            localDB = MyDatabase.getInstance(context)
 
             localDB?.diceDao()?.insert(Dice.getEntityFromWrapper(diceWrapper))
         }
 
         fun retrieveResistanceType(context: Context, resistanceTypeWrapper: ResistanceTypeWrapper) {
-            localDB = mDatabase.getInstance(context)
+            localDB = MyDatabase.getInstance(context)
 
             resistanceTypeWrapper.info.let {
                 localDB?.infoDao()?.insertInfo(Info.getEntityFromWrapper(it))
@@ -104,7 +102,7 @@ class FirebaseUtils {
         }
 
         fun retrieveDamageType(context: Context, damageTypeWrapper: DamageTypeWrapper) {
-            localDB = mDatabase.getInstance(context)
+            localDB = MyDatabase.getInstance(context)
 
 
             damageTypeWrapper.info.let {
@@ -123,7 +121,7 @@ class FirebaseUtils {
 
 
         fun retrieveRace(context: Context, raceWrapper: RaceWrapper) {
-            localDB = mDatabase.getInstance(context)
+            localDB = MyDatabase.getInstance(context)
 
             localDB?.let { localDB ->
                 raceWrapper.info.let {
@@ -147,8 +145,33 @@ class FirebaseUtils {
                             it.info?.let {
                                 localDB.infoDao().insertInfo(Info.getEntityFromWrapper(it))
                             }
-                            localDB.talentDao()
-                                .insertTalent(Talent.getEntityFromWrapper(it, talentGroup.uuid))
+                            it.buffs.forEach {
+                                it.statBound?.let {
+                                    localDB.infoDao().insertInfo(Info.getEntityFromWrapper(it.info))
+                                    localDB.statDao().insertStat(Stat.getEntityFromWrapper(it))
+                                }
+                                it.facultyBound?.let {
+                                    localDB.infoDao().insertInfo(Info.getEntityFromWrapper(it.info))
+                                }
+
+                                localDB.buffDao().insert(Buff.getEntityFromWrapper(it))
+                            }
+                            it.attack?.let {
+                                localDB.damageDao().insert(Damage.getEntityFromWrapper(it.damage))
+                                it.duration?.let {
+                                    localDB.durationDao().insert(Duration.getEntityFromWrapper(it))
+                                }
+                                localDB.attackDao().insert(Attack.getEntityFromWrapper(it))
+                            }
+                            it.effects.forEach {
+                                localDB.targetGroupDao().insert(TargetGroup.getEntityFromWrapper(it.targets))
+                                localDB.effectTypeDao().insert(EffectType.getEntityFromWrapper(it.effectType))
+                                it.duration?.let {
+                                    localDB.durationDao().insert(Duration.getEntityFromWrapper(it))
+                                }
+                                localDB.effectDao().insert(Effect.getEntityFromWrapper(it))
+                            }
+                            localDB.talentDao().insertTalent(Talent.getEntityFromWrapper(it, talentGroup.uuid))
                         }
                     }
                 }
@@ -172,6 +195,8 @@ class FirebaseUtils {
             Log.i("retrieveRace", "statChange=" + localDB?.statChangeGroupDao()?.getRowCount())
             Log.i("retrieveRace", "race=" + localDB?.raceDao()?.getRowCount())
             Log.i("retrieveRace", "infoCount=" + localDB?.infoDao()?.getRowCount())
+            Log.i("retrieveRace", "facultyCount=" + localDB?.facultyDao()?.getRowCount())
+            Log.i("retrieveRace", "buffCount=" + localDB?.buffDao()?.getRowCount())
 
         }
     }

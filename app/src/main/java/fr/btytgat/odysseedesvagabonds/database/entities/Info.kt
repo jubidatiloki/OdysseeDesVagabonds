@@ -4,12 +4,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
-import java.util.*
 
 
 @Entity(tableName = Info.TABLE_NAME)
 data class Info(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var name: String,
     var shortName: String? = "",
     var description: String? = "",
@@ -18,7 +17,7 @@ data class Info(
 
     ): BaseEntity() {
 
-    constructor(): this(name = "", shortName = "", description = "", subDescription = null, history = null)
+    constructor(): this(uuid = "", name = "", shortName = "", description = "", subDescription = null, history = null)
 
     companion object{
 

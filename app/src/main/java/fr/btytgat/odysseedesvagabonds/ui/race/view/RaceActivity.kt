@@ -1,15 +1,15 @@
 package fr.btytgat.odysseedesvagabonds.ui.race.view
 
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.ExpandableListView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.btytgat.odysseedesvagabonds.R
 import fr.btytgat.odysseedesvagabonds.adapter.PathExpandableListAdapter
 import fr.btytgat.odysseedesvagabonds.adapter.RecyclerViewAdapter
+import fr.btytgat.odysseedesvagabonds.database.MyDatabase
 import fr.btytgat.odysseedesvagabonds.database.entities.Race
-import fr.btytgat.odysseedesvagabonds.database.mDatabase
 import fr.btytgat.odysseedesvagabonds.ui.base.view.BaseActivity
 import fr.btytgat.odysseedesvagabonds.ui.race.IRaceView
 import fr.btytgat.odysseedesvagabonds.ui.race.presenter.RacePresenter
@@ -26,6 +26,9 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
     private lateinit var expandableListView: ExpandableListView
     private lateinit var rvRaces: RecyclerView
 
+    private var fragment = RaceFragment()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_race)
@@ -34,7 +37,6 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
 
         presenter = RacePresenter(this, this)
         presenter.onViewCreated()
-
 
     }
 
@@ -78,38 +80,44 @@ class RaceActivity : BaseActivity(), IRaceView.IActivity {
     }
 
     override fun getAllRaces() {
-        Log.i("getAllRaces", "starting ...");
-        var localDB = mDatabase.getInstance(this)
+        val localDB = MyDatabase.getInstance(this)
 
         listRace = localDB.raceDao().getAllRaces()
 
         listRace.forEach { race ->
-            race.info?.let {
+            race.info.let {
                 race._info = localDB.infoDao().getInfoById(it)
             }
-            race._path = localDB.pathDao().getPathById(race.path)
-            race.statsChange?.let {
-                race._statChange = localDB.statChangeGroupDao().getStatChangeGroupById(it)
-            }
-            race.specialStatChange?.let {
-                race._specialStatChange = it.map { it?.let { localDB.statChangeGroupDao().getStatChangeGroupById(it)} }
-            }
-
-//            racesDataList[race.name] = listOf(race)
         }
 
         initAdapter()
 
-//        initRaceList()
-
-        Log.i("getAllRaces", "finished raceList size=" + listRace.size);
     }
 
     fun initAdapter(){
         rvRaces = findViewById(R.id.rv_race)
         rvRaces.layoutManager = LinearLayoutManager(this)
-        rvRaces.adapter = RecyclerViewAdapter(this, listRace, R.layout.custom_card_race)
+        var adapter = RecyclerViewAdapter(this, listRace, R.layout.custom_card_race)
+        adapter.onItemClick = { race ->
+            fragment = RaceFragment.newInstance((race as Race).uuid)
+            supportFragmentManager.beginTransaction()
+                .add(R.id.framelayout, fragment)
+                .show(fragment)
+                .commit()
+            rvRaces.visibility = View.GONE
+        }
 
+        rvRaces.adapter = adapter
     }
 
+    override fun onBackPressed() {
+        if(fragment.isAdded && fragment.isVisible){
+            supportFragmentManager.beginTransaction()
+                .hide(fragment)
+                .commit()
+            rvRaces.visibility = View.VISIBLE
+        }else {
+            super.onBackPressed()
+        }
+    }
 }

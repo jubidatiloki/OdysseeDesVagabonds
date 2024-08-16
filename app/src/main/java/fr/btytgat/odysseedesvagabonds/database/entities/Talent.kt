@@ -32,16 +32,18 @@ data class Talent(
     var timeLimited: String? = null,           // (1f/jour, 3f/combat, ...)
     var choice: Boolean = false,               // true = choix parmi les talents du talentGroup avec la meme category
     var category: String? = null,                // permet de regrouper les choix
-    var buffs: List<String>? = emptyList(),
+    var buffs: List<String> = emptyList(),
     var attack: String? = null,
-    var effects: List<String>? = emptyList(),
+    var effects: List<String>? = null,
     var maxTaken: Long = 1,
     @Ignore
-    var _buffs: List<Buff>? = emptyList(),
+    var _info: Info? = null,
+    @Ignore
+    var _buffs: List<Buff> = emptyList(),
     @Ignore
     var _attack: Attack? = null,
     @Ignore
-    var _effects: List<Effect>? = null,
+    var _effects: List<Effect> = emptyList(),
 ) : BaseEntity() {
 
     constructor():this(info = "", talentGroupUuid = "", type = "", magic = false, complexity = null, manaCost = null, manaCostOverTime = false, timeLimited = null, choice = false)
@@ -50,6 +52,12 @@ data class Talent(
         const val TABLE_NAME = "Talent"
 
         fun getEntityFromWrapper(wrapper: TalentWrapper, talentGroupUuid: String): Talent {
+            var buffList = emptyList<String>()
+            wrapper.buffs.map {
+                if(it.uuid.isNotEmpty()) {
+                    buffList = buffList.plus(it.uuid)
+                }
+            }
             return Talent(
                 uuid = wrapper.uuid,
                 info = wrapper.info?.uuid,
@@ -62,9 +70,9 @@ data class Talent(
                 timeLimited = wrapper.isTimeLimited,
                 choice = wrapper.isChoice,
                 category = wrapper.category,
-                buffs = wrapper.buffs?.map { it.uuid },
+                buffs = buffList,
                 attack = wrapper.attack?.uuid,
-                effects = wrapper.effects?.map { it.uuid },
+                effects = wrapper.effects.map { it.uuid },
                 maxTaken = wrapper.maxTaken
             )
         }

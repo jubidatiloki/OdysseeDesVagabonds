@@ -10,7 +10,7 @@ data class FacultyWrapper(
     var canBeUsedWithoutMastery: Boolean,
     var malusWithoutMastery: Long,
     var statBound: StatWrapper? = null,
-    var subFaculties: List<FacultyWrapper>? = null
+    var subFaculties: List<FacultyWrapper> = emptyList()
 ) : BaseEntity() {
 
     companion object {

@@ -37,7 +37,7 @@ import fr.btytgat.odysseedesvagabonds.database.entities.*
     exportSchema = false
 )
 @TypeConverters(DBConverters::class)
-abstract class mDatabase : RoomDatabase() {
+abstract class MyDatabase : RoomDatabase() {
 
     abstract fun infoDao(): InfoDao
     abstract fun classeDao(): ClasseDao
@@ -63,7 +63,7 @@ abstract class mDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_NAME = "ODYSSEE_PROJECT_DB"
 
-        private var sInstance: mDatabase? = null
+        private var sInstance: MyDatabase? = null
 
 
 //    private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -93,12 +93,12 @@ abstract class mDatabase : RoomDatabase() {
 
 
         @Synchronized
-        fun getInstance(context: Context): mDatabase {
+        fun getInstance(context: Context): MyDatabase {
             if (sInstance == null) {
                 var databaseBuilder = Room
                     .databaseBuilder(
                         context.applicationContext,
-                        mDatabase::class.java,
+                        MyDatabase::class.java,
                         DATABASE_NAME
                     )
                     .allowMainThreadQueries()

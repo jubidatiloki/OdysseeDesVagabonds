@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.DamageTypeWrapper
-import java.util.UUID
 
 @Entity(tableName = DamageType.TABLE_NAME,
     foreignKeys = [
@@ -19,17 +18,19 @@ import java.util.UUID
         ))]
 )
 data class DamageType(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),                                   // défini comme les stats  (ex: PHYSICAL, MAGICAL, ELEM)
+    @PrimaryKey var uuid: String,                                   // défini comme les stats  (ex: PHYSICAL, MAGICAL, ELEM)
     var info: String,                              // name:  dégats de chaos(parent de tout le reste), dégat physique, dégats de feu, ...   shortName: DMG CHAOS, DMG PHY, DMG FEU, ...
     var resistanceType: String?,         // null pour les degats de chaos
     var subDamageTypes: List<String>? = null,        // pour définir les sous types (PHY_PIERCING, PHY_BLUNT, PHY_SLASH,   ELEM_FIRE, ELEM_ICE, ...)
     @Ignore
+    var _info: Info? = null,
+    @Ignore
     var _resistanceType: ResistanceType? = null,
     @Ignore
-    var _subResistanceTypes: List<ResistanceType>? = null
+    var _subDamageTypes: List<DamageType>? = null
 ) : BaseEntity() {
 
-    constructor():this(info = "", resistanceType = null, subDamageTypes = null)
+    constructor():this(uuid = "", info = "", resistanceType = null, subDamageTypes = null)
 
     companion object {
 

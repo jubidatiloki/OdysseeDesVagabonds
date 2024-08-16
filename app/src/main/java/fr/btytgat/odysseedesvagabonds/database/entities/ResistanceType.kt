@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.ResistanceTypeWrapper
-import java.util.UUID
 
 @Entity(tableName = ResistanceType.TABLE_NAME,
     foreignKeys = [
@@ -19,7 +18,7 @@ import java.util.UUID
         ))]
 )
 data class ResistanceType(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var info: String,          // name: resistance absolu (réduit tout type de degats), resistance au feu, resistance au dégats percant,  shortName: RES ABSOLU, SHRES FEU, RES PERC
     var statBound: String?,           //  // null pour les dégats de chaos, sinon   l'uuid de la stat correspondante (RD_FEU, RD_PHY, ...)
     /**
@@ -31,7 +30,7 @@ data class ResistanceType(
      * 10 - (0 + 2 + 1) = 7 DMG subits
      *
      */
-    var subResistanceTypes: List<String>? = null,
+    var subResistanceTypes: List<String>? = emptyList(),
     @Ignore
     var _statBound: Stat? = null,
     @Ignore
@@ -39,18 +38,25 @@ data class ResistanceType(
 
 ) : BaseEntity() {
 
-    constructor():this (info = "", statBound = null, subResistanceTypes = null)
+    constructor():this (uuid = "", info = "", statBound = null, subResistanceTypes = null)
 
     companion object {
 
         const val TABLE_NAME = "ResistanceType"
 
         fun getEntityFromWrapper(wrapper: ResistanceTypeWrapper): ResistanceType {
+
+            var subResList = emptyList<String>()
+            wrapper.subResistanceTypeWrappers?.map {
+                if(it.uuid.isNotEmpty()) {
+                    subResList = subResList.plus(it.uuid)
+                }
+            }
             return ResistanceType(
                 uuid = wrapper.uuid,
                 info = wrapper.info.uuid,
                 statBound = wrapper.statBound?.uuid,
-                subResistanceTypes = wrapper.subResistanceTypeWrappers?.map { it.uuid }
+                subResistanceTypes = subResList
 
             )
         }

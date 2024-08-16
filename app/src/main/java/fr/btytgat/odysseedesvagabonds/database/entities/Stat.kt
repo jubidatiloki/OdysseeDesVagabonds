@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
-import java.util.*
 
 @Entity(
     tableName = Stat.TABLE_NAME,
@@ -18,7 +17,7 @@ import java.util.*
         onUpdate = ForeignKey.CASCADE
     ))])
 data class Stat(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var info: String,
     var innate: Boolean,  // true si stat d'une creature, false si c'est un buff externe (equipement, potion, temporaire)
     var haveMod: Boolean,    // pour pouvoir ensuite faire un getter du mod (pour les stats qui en ont un uniquement)
@@ -26,7 +25,7 @@ data class Stat(
     var _info: Info? = null
 ): BaseEntity(){
 
-    constructor(): this(info = "", innate = false, haveMod = false)
+    constructor(): this(uuid = "", info = "", innate = false, haveMod = false)
 
     companion object {
         const val TABLE_NAME = "Stat"

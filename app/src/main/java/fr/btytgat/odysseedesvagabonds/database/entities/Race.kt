@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 import fr.btytgat.odysseedesvagabonds.database.wrapper.RaceWrapper
-import java.util.*
 
 
 @Entity(
@@ -19,7 +18,7 @@ import java.util.*
         onUpdate = ForeignKey.CASCADE
     ))])
 data class Race(
-    @PrimaryKey var uuid: String = UUID.randomUUID().toString(),
+    @PrimaryKey var uuid: String,
     var info: String,
     var healthDice: Long,
     var manaDice: Long,
@@ -37,7 +36,7 @@ data class Race(
     var _specialStatChange: List<StatChangeGroup?>? = null
 
 ): BaseEntity() {
-    constructor():this(info = "", healthDice = 0, manaDice = 0, path = "", statsChange = null, tags = emptyList())
+    constructor():this(uuid = "", info = "", healthDice = 0, manaDice = 0, path = "", statsChange = null, tags = emptyList())
 
     companion object {
         const val TABLE_NAME = "Race"
