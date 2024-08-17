@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import fr.btytgat.odysseedesvagabonds.R
@@ -44,13 +45,39 @@ class PathExpandableListAdapter(
             convertView = layoutInflater.inflate(R.layout.custom_group_path, null)
         }
         val tvTitle = convertView!!.findViewById<TextView>(R.id.tv_title)
-        val tvTalentType = convertView!!.findViewById<TextView>(R.id.tv_type)
+        val llTalentType = convertView!!.findViewById<LinearLayout>(R.id.ll_type)
+        val ivArrow = convertView!!.findViewById<ImageView>(R.id.iv_arrow)
 
         tvTitle.setTypeface(null, Typeface.BOLD)
         tvTitle.text = talentGroup.name
-        tvTalentType.text = TalentTypeEnum.valueOf(talentGroup.type).title
+        llTalentType.removeAllViews()
+        talentGroup.types.forEach { generateIconType(llTalentType, TalentTypeEnum.valueOf(it).icon) }
+
+        if(isExpanded){
+            ivArrow.setImageResource(R.drawable.ic_arrow_right)
+        }else{
+            ivArrow.setImageResource(R.drawable.ic_arrow_bottom)
+        }
 
         return convertView
+    }
+
+    fun generateIconType(layout: LinearLayout, icon: Int) {
+        val imageView = ImageView(context)
+        imageView.setImageResource(icon) // Replace with your drawable resource
+
+        val scale: Float = context.resources.displayMetrics.density
+        val dpAsPixels = (20 * scale + 0.5f)
+        val layoutParams = LinearLayout.LayoutParams(
+            dpAsPixels.toInt(),
+            dpAsPixels.toInt()
+        )
+        imageView.layoutParams = layoutParams
+
+        val params = imageView.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.setMargins(5, 0,0,0)
+        imageView.layoutParams = params
+        layout.addView(imageView)
     }
 
     override fun getChildView(
@@ -182,8 +209,6 @@ class PathExpandableListAdapter(
 
 
         }
-
-
 
         return convertView
     }

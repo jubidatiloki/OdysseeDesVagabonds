@@ -5,28 +5,39 @@
     android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    
+
+    <ImageView
+        android:id="@+id/iv_arrow"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_arrow_right" />
+
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:textColor="@color/white"
-        android:layout_toLeftOf="@id/tv_type"
+        android:layout_toRightOf="@id/iv_arrow"
+        android:layout_toLeftOf="@id/ll_type"
         android:padding="10dp"
         android:textSize="@dimen/title_h1"
         tools:text="mon titre" />
 
-
-    <TextView
-        android:id="@+id/tv_type"
+    <LinearLayout
+        android:id="@+id/ll_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/normal_text"
-        android:textColor="@color/white"
+        android:orientation="horizontal"
         android:layout_centerInParent="true"
         android:layout_alignParentEnd="true"
-        android:paddingEnd="20dp"
-        android:text="passif"/>
+        android:paddingEnd="20dp" >
+
+
+
+    </LinearLayout>
 
 
 </RelativeLayout>

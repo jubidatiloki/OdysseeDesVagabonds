@@ -134,16 +134,22 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_path"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:textSize="@dimen/title_h3"
-            android:text="voie du nain"
-            android:textColor="@color/white" />
-
     </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tv_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/header_background"
+        android:textSize="@dimen/title_h3"
+        android:paddingStart="40dp"
+        android:paddingEnd="10dp"
+        android:layout_marginTop="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="voie du nain"
+        android:textColor="@color/white" />
 
     <ExpandableListView
         android:id="@+id/elv_path"

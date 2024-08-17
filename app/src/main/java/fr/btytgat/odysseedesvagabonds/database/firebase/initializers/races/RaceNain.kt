@@ -35,10 +35,10 @@ class RaceNain {
 
             val talentGroup1 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "#1 - Outils de nain",
+                "1 - Outils de nain",
                 1,
                 listOf(talent1),
-                type = TalentTypeEnum.PASSIF.name
+                types = listOf(TalentTypeEnum.PASSIF.name)
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -62,10 +62,10 @@ class RaceNain {
             )
             val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "#2 - Ivresse naine",
+                "2 - Ivresse naine",
                 2,
                 listOf(talent2),
-                type = TalentTypeEnum.PASSIF.name
+                types = listOf(TalentTypeEnum.PASSIF.name)
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -84,7 +84,7 @@ class RaceNain {
                     "",
                     ""
                 ),
-                TalentTypeEnum.ACTIF.name,
+                TalentTypeEnum.ATTACK.name,
                 false,
                 0,
                 attack = AttackWrapper(
@@ -101,10 +101,10 @@ class RaceNain {
             )
             val talentGroup3 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "#3 - Tête de fer",
+                "3 - Tête de fer",
                 3,
                 listOf(talent3),
-                type = TalentTypeEnum.ATTACK_FREE.name
+                types = listOf(TalentTypeEnum.ATTACK.name)
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -122,16 +122,19 @@ class RaceNain {
                     "",
                     ""
                 ),
-                TalentTypeEnum.SUPPORT.name,
+                TalentTypeEnum.COMPANION.name,
                 false,
                 null
             )
             val talentGroup4 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "#4 - Acolyte des montagnes",
+                "4 - Acolyte des montagnes",
                 4,
                 listOf(talent4),
-                type = TalentTypeEnum.SUPPORT.name
+                types = listOf(
+                    TalentTypeEnum.COMPANION.name,
+                    TalentTypeEnum.UTILITY.name
+                )
             ).apply{
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -195,10 +198,10 @@ class RaceNain {
             )
             val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "#5 - Ténacité",
+                "5 - Ténacité",
                 5,
                 listOf(talent5_1, talent5_2, talent5_3, talent5_4),
-                type = TalentTypeEnum.PASSIF.name
+                types = listOf(TalentTypeEnum.PASSIF.name)
             ).apply{
                 Log.i("DATABASE", "create talentGroup - ${uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)

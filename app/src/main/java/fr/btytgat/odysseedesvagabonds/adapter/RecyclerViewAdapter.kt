@@ -61,7 +61,7 @@ class RecyclerViewAdapter(private val activity: Activity, private val itemList: 
                     }
                     tagView.setTextColor(activity.getColor(R.color.white))
                     val scale: Float = activity.resources.displayMetrics.density
-                    val dpAsPixels = (5 * scale + 0.5f) as Float
+                    val dpAsPixels = (5 * scale + 0.5f)
                     tagView.setPadding(dpAsPixels.toInt())
                     val params = FlexboxLayout.LayoutParams(
                         FlexboxLayout.LayoutParams.WRAP_CONTENT,

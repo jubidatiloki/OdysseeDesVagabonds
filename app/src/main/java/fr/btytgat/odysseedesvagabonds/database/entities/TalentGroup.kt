@@ -26,12 +26,12 @@ data class TalentGroup(
     var talentIndex: Long,
     var pathUuid: String,
     var description: String? = null,
-    var type: String,                           // talentType
+    var types: List<String> = emptyList(),                           // talentType
     @Ignore
     var _talents: List<Talent>? = emptyList(),
 ): BaseEntity(){
 
-    constructor():this (uuid = "", name = "", talentIndex = 0, pathUuid = "", description = "", type = "")
+    constructor():this (uuid = "", name = "", talentIndex = 0, pathUuid = "", description = "")
 
     companion object {
 
@@ -44,7 +44,7 @@ data class TalentGroup(
                 talentIndex = wrapper.talentIndex,
                 pathUuid = pathUuid,
                 description = wrapper.description,
-                type = wrapper.type
+                types = wrapper.types
             )
         }
     }

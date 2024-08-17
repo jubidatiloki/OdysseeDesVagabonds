@@ -9,7 +9,7 @@ data class TalentGroupWrapper(
     var talentIndex: Long,
     var talents: List<TalentWrapper> = emptyList(),
     var description: String? = null,
-    var type: String
+    var types: List<String> = emptyList()
 ) {
     companion object {
         fun getWrapperFromDS(ds: DataSnapshot): TalentGroupWrapper {
@@ -19,7 +19,7 @@ data class TalentGroupWrapper(
                 talentIndex = ds.child("talentIndex").value as Long,
                 talents = ds.child("talents").children.map { TalentWrapper.getWrapperFromDS(it) },
                 description = ds.child("description").value as String?,
-                type = ds.child("type").value as String
+                types = ds.child("types").children.map { it.value as String },
             )
         }
     }

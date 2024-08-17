@@ -113,6 +113,8 @@ class RaceFragment : Fragment(R.layout.fragment_race) {
         adapter.notifyDataSetChanged()
 
         elvPath.setOnGroupExpandListener { groupPosition ->
+
+
 //            Toast.makeText(
 //                activity,
 //                (wholeList as ArrayList<String>)[groupPosition] + " List Expanded.",
