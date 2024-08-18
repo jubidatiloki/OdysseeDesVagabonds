@@ -23,7 +23,7 @@
         android:layout_toRightOf="@id/iv_arrow"
         android:layout_toLeftOf="@id/ll_type"
         android:padding="10dp"
-        android:textSize="@dimen/title_h1"
+        android:textSize="@dimen/sub_title"
         tools:text="mon titre" />
 
     <LinearLayout

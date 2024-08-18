@@ -141,7 +141,6 @@
         android:id="@+id/tv_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/header_background"
         android:textSize="@dimen/title_h3"
         android:paddingStart="40dp"
         android:paddingEnd="10dp"
