@@ -101,7 +101,13 @@
             </LinearLayout>
 
         </LinearLayout>
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/white"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -136,6 +142,14 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp" />
+
 
     <TextView
         android:id="@+id/tv_path"
@@ -144,7 +158,6 @@
         android:textSize="@dimen/title_h3"
         android:paddingStart="40dp"
         android:paddingEnd="10dp"
-        android:layout_marginTop="20dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:text="voie du nain"

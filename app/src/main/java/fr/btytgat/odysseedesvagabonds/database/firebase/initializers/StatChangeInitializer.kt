@@ -50,6 +50,26 @@ class StatChangeInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
                     .child(it.uuid).setValue(it)
             }
+            statChangeGroupHautElfe.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupHautElfe1.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupHautElfe2.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupHautElfe5.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
         }
 
         val statChangeGroupNain = StatChangeGroupWrapper(
@@ -121,7 +141,7 @@ class StatChangeInitializer {
                     UUID.randomUUID().toString(),
                     true,
                     5,
-                    facultyBound = FacultyInitializer.testConBreuvage,
+                    facultyBound = FacultyInitializer.testConBrewery,
                     gainAdvantage = true
                 )
             )
@@ -205,7 +225,100 @@ class StatChangeInitializer {
             )
         )
 
+        val statChangeGroupHautElfe = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Attribut de race - Haut-elfe"
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    modifier = 2,
+                    statBound = StatInitializer.getStatDex()
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    modifier = 2,
+                    statBound = StatInitializer.getStatInt()
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    false,
+                    modifier = -2,
+                    statBound = StatInitializer.getStatFor()
+                ), StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    false,
+                    modifier = -2,
+                    statBound = StatInitializer.getStatSoc()
+                )
+            )
+        )
 
+        val statChangeGroupHautElfe1 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Haut-elfe - talent 1",
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    5,
+                    facultyBound = FacultyInitializer.testIntRaces
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    5,
+                    facultyBound = FacultyInitializer.testIntHistoricalEvents
+                ),
+            )
+        )
 
+        val statChangeGroupHautElfe2 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Haut-elfe - talent 2",
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    5,
+                    facultyBound = FacultyInitializer.testIntMagicalCreature
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    5,
+                    facultyBound = FacultyInitializer.testSocMagicalCreature
+                ),
+            )
+        )
+
+        val statChangeGroupHautElfe5 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Haut-elfe - talent 2",
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    0,
+                    facultyBound = FacultyInitializer.testCon,
+                    gainAdvantage = true
+                ),
+
+                )
+        )
     }
+
 }

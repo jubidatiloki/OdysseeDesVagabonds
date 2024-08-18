@@ -6,14 +6,11 @@ import fr.btytgat.odysseedesvagabonds.database.enums.PathOriginEnum
 import fr.btytgat.odysseedesvagabonds.database.enums.RaceTagEnum
 import fr.btytgat.odysseedesvagabonds.database.enums.TalentTypeEnum
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
-import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.DamageTypeInitializer
-import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.DiceInitializer
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.StatChangeInitializer
-import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.StatInitializer
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import java.util.*
 
-class RaceNain {
+class RaceHautElfe {
 
     companion object{
         fun init(database: DatabaseReference) {
@@ -21,21 +18,18 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Outils de nain",
-                    "",
-                    "Maitrise de la hache et du marteau depuis des générations",
-                    "",
-                    ""
+                    "Sagesse ancestrale",
+                    description = "La longévité des haut-elfes fait qu'ils ont acquis des connaissances dans de nombreux domaines liés à l'histoire des races et du continents",
                 ),
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                statChangeGroup = StatChangeInitializer.statChangeGroupNain1
+                statChangeGroup = StatChangeInitializer.statChangeGroupHautElfe1
             )
 
             val talentGroup1 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "1 - Outils de nain",
+                "1 - Sagesse ancestrale",
                 1,
                 listOf(talent1),
                 types = listOf(TalentTypeEnum.PASSIF.name)
@@ -49,20 +43,18 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Ivresse naine",
+                    "Affinité magique",
                     "",
-                    "bonus de +5 au tests de CON et peut refaire un jet en cas d'échec (hors échec critique) à un test de CON liés aux breuvages (poison compris)",
-                    "\"ca tient chaud dans les profondeurs de la terre\"",
-                    ""
+                    "Possède une certaine sensibilité à la magie et aux créatures magiques",
                 ),
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                statChangeGroup = StatChangeInitializer.statChangeGroupNain2
+                statChangeGroup = StatChangeInitializer.statChangeGroupHautElfe2
             )
             val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "2 - Ivresse naine",
+                "2 - Affinité magique",
                 2,
                 listOf(talent2),
                 types = listOf(TalentTypeEnum.PASSIF.name)
@@ -78,33 +70,19 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Tête de fer",
-                    "",
-                    "donne une attaque gratuite de coup de tête une fois par tour, 1D6 + CON DMG",
-                    "",
-                    ""
+                    "Puit d'arcane",
+                    description = "une fois par jour, puise dans son être intérieur l'énergie dont il aurait besoin pour lancer des sorts, perd 1d10 PV, pour regagner RANG d6 mana (ne peut pas dépasser son montant de mana max à moins d'avoir le dépassement de mana  (magicien, voie magie universelle, rang 3)",
                 ),
-                TalentTypeEnum.ATTACK.name,
-                false,
-                0,
-                attack = AttackWrapper(
-                    UUID.randomUUID().toString(),
-                    DamageWrapper(
-                        UUID.randomUUID().toString(),
-                        0,
-                        1,
-                        DiceInitializer.dice6,
-                        DamageTypeInitializer.dmgPhyContondant,
-                        StatInitializer.getStatCon()
-                    )
-                )
+                TalentTypeEnum.SPELL.name,
+                true,
+                1,
             )
             val talentGroup3 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "3 - Tête de fer",
+                "3 - Puit d'arcane",
                 3,
                 listOf(talent3),
-                types = listOf(TalentTypeEnum.ATTACK.name)
+                types = listOf(TalentTypeEnum.SPELL.name, TalentTypeEnum.UTILITY.name)
             ).apply {
                 Log.i("DATABASE", "create talentGroup - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -116,24 +94,20 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Acolyte des montagnes",
-                    "",
-                    "dompte un bouquetin pouvant lui servir de monture (pas de compétence particulier pour le combat et panique si n'a pas la voie du cavalier de chevalier), mais a un bonus de +10 d'escalade avec celui-ci et galope à la même vitesse qu'un cheval",
-                    "",
-                    ""
+                    "Visage impensable",
+                    description = "une fois par jour, l'elfe peut prendre les traits d'un être monstrueux et dangereux qui a disparus des millénaires plus tôt (cf gandalf chez bilbo), lui donne +10 SOC, +10 CHA pour faire fuir ou convaincre les gens autour de lui",
                 ),
-                TalentTypeEnum.COMPANION.name,
-                false,
-                null
+                TalentTypeEnum.SPELL.name,
+                true,
+                1
             )
             val talentGroup4 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "4 - Acolyte des montagnes",
+                "4 - Visage impensable",
                 4,
                 listOf(talent4),
                 types = listOf(
-                    TalentTypeEnum.COMPANION.name,
-                    TalentTypeEnum.UTILITY.name
+                    TalentTypeEnum.SPELL.name,
                 )
             ).apply{
                 Log.i("DATABASE", "create talentGroup - $uuid")
@@ -141,67 +115,39 @@ class RaceNain {
                     .child(uuid).setValue(this)
             }
 
-            val categoryTalent5 = "categoryTalent5"
             val talent5_1 = TalentWrapper(
                 UUID.randomUUID().toString(),
                 InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Ténacité",
-                    description = "Le nain est devenu au fil du temps aussi résistant que la roche"
+                    "Vitalité elfique",
+                    description = "Le haut-elfe est devenu suffisamment ancien pour prendre pleine conscience de ses capacités et de se que sa longévité lui permet.\naugmente son dé de vie au dé 6 (retro actif)"
                 ),
-                TalentTypeEnum.PASSIF.name,
+                TalentTypeEnum.REINFORCEMENT.name,
                 false,
                 null,
-                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_1
             )
             val talent5_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
                 InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Ténacité",
-                    description = "Le nain est devenu au fil du temps aussi résistant que la roche"
+                    "Vitalité elfique",
+                    description = ""
                 ),
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                isChoice = true,
-                category = categoryTalent5,
-                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_2
+                statChangeGroup = StatChangeInitializer.statChangeGroupHautElfe5
             )
-            val talent5_3 = TalentWrapper(
-                UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Ténacité",
-                    description = "Le nain est devenu au fil du temps aussi résistant que la roche"
-                ),
-                TalentTypeEnum.PASSIF.name,
-                false,
-                null,
-                isChoice = true,
-                category = categoryTalent5,
-                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_3
-            )
-            val talent5_4 = TalentWrapper(
-                UUID.randomUUID().toString(),
-                InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Ténacité",
-                    description = "Le nain est devenu au fil du temps aussi résistant que la roche"
-                ),
-                TalentTypeEnum.PASSIF.name,
-                false,
-                null,
-                isChoice = true,
-                category = categoryTalent5,
-                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_4
-            )
+
             val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
-                "5 - Ténacité",
+                "5 - Vitalité elfique",
                 5,
-                listOf(talent5_1, talent5_2, talent5_3, talent5_4),
-                types = listOf(TalentTypeEnum.PASSIF.name)
+                listOf(talent5_1, talent5_2),
+                types = listOf(
+                    TalentTypeEnum.REINFORCEMENT.name,
+                    TalentTypeEnum.PASSIF.name
+                )
             ).apply{
                 Log.i("DATABASE", "create talentGroup - ${uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_TALENT_GROUPS)
@@ -214,7 +160,7 @@ class RaceNain {
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Voie du nain",
+                    "Voie du haut-elfe",
                 ),
                 listOf(
                     talentGroup1,
@@ -232,19 +178,18 @@ class RaceNain {
             }
 
 
-
             RaceWrapper(
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
                     UUID.randomUUID().toString(),
-                    "Nain",
-                    description = "se reconnait à  leurs petites tailles, leurs barbes, leur pioches, leurs air raleurs et désagréable, leur addiction pour l'alcool, .... ah et ils aiment pas les elfes aussi"
+                    "Haut-elfe",
+                    description = "aime la magie, être hautain et desteste les nains"
                 ),
-                8,
                 4,
+                8,
                 path,
-                StatChangeInitializer.statChangeGroupNain,
-                listOf(RaceTagEnum.PHYSICAL.name),
+                StatChangeInitializer.statChangeGroupHautElfe,
+                listOf(RaceTagEnum.MAGIC.name),
             ).apply {
                 Log.i("DATABASE", "create race - $uuid")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_RACES)

@@ -1,4 +1,4 @@
-package fr.btytgat.odysseedesvagabonds.database.firebase
+package fr.btytgat.odysseedesvagabonds.database.firebase.initializers
 
 class PathInitializer {
 

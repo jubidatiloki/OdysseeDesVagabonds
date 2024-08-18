@@ -83,7 +83,27 @@ class FacultyInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
             }
-            testConBreuvage.let {
+            testConBrewery.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
+                    .child(it.uuid).setValue(it)
+            }
+            testIntRaces.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
+                    .child(it.uuid).setValue(it)
+            }
+            testIntHistoricalEvents.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
+                    .child(it.uuid).setValue(it)
+            }
+            testIntMagicalCreature.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
+                    .child(it.uuid).setValue(it)
+            }
+            testSocMagicalCreature.let {
                 Log.i("DATABASE", "create info - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_FACULTIES)
                     .child(it.uuid).setValue(it)
@@ -95,7 +115,7 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Aptitude de combat",
-                "tests AdC",
+                subDescription = "aux tests d'attaques au corp à corps"
             ),
             true,
             true,
@@ -109,7 +129,7 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Aptitude de tir",
-                "tests AdT",
+                subDescription = "aux tests d'attaques à distance (arcs, frondes, ...)"
             ),
             true,
             true,
@@ -123,7 +143,7 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Force",
-                "tests FORCE",
+                subDescription = "aux tests de force"
             ),
             true,
             true,
@@ -137,18 +157,19 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Dextérité",
-                "tests DEX",
+                subDescription = "aux tests de dextérité"
             ),
             true,
             true,
             0,
             StatInitializer.getStatDex()
         )
-        val testConBreuvage = FacultyWrapper(
+        val testConBrewery = FacultyWrapper(
             UUID.randomUUID().toString(),
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                "aux tests de constitution liés aux breuvages",
+                "Test - breuvages",
+                subDescription = "aux tests de constitution liés aux breuvages",
             ),
             false,
             false,
@@ -162,15 +183,54 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "test de constitution",
-                "tests CON",
+                subDescription = "aux tests de consitution"
             ),
             true,
             true,
             0,
             StatInitializer.getStatCon(),
             listOf(
-                testConBreuvage
+                testConBrewery
             )
+        )
+
+        val testIntRaces = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Test - connaissances des races",
+                subDescription = "aux tests d'intelligence sur la connaissance des races",
+            ),
+            false,
+            false,
+            0,
+            StatInitializer.getStatInt()
+        )
+
+        val testIntHistoricalEvents = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Test - connaissances des évenments historiques",
+                subDescription = "aux tests d'intelligence sur les évenements historiques passés",
+            ),
+            false,
+            false,
+            0,
+            StatInitializer.getStatInt()
+        )
+
+        val testIntMagicalCreature = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Test - connaissances des créatures magiques",
+                subDescription = "aux tests d'intelligence liés aux connaissances sur les créatures magiques ",
+            ),
+            false,
+            false,
+            0,
+            StatInitializer.getStatInt()
         )
 
 
@@ -179,12 +239,17 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Intelligence",
-                "tests INT",
+                subDescription = "aux tests d'intelligence"
             ),
             true,
             true,
             0,
-            StatInitializer.getStatInt()
+            StatInitializer.getStatInt(),
+            listOf(
+                testIntRaces,
+                testIntHistoricalEvents,
+                testIntMagicalCreature
+            )
         )
 
 
@@ -193,7 +258,7 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Perception",
-                "tests PER",
+                subDescription = "aux tests de perception"
             ),
             true,
             true,
@@ -201,17 +266,34 @@ class FacultyInitializer {
             StatInitializer.getStatPer()
         )
 
+        val testSocMagicalCreature = FacultyWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Test - communication avec les créatures magiques",
+                subDescription = "aux tests de social afin de communiquer avec les créatures magiques ",
+            ),
+            false,
+            false,
+            0,
+            StatInitializer.getStatSoc()
+        )
+
+
         val testSoc = FacultyWrapper(
             UUID.randomUUID().toString(),
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Social",
-                "tests SOC",
+                subDescription = "aux tests de social"
             ),
             true,
             true,
             0,
-            StatInitializer.getStatSoc()
+            StatInitializer.getStatSoc(),
+            listOf(
+                testSocMagicalCreature
+            )
         )
 
 
@@ -220,7 +302,7 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Charisme",
-                "tests CHA",
+                subDescription = "aux tests de charisme"
             ),
             true,
             true,
@@ -234,7 +316,7 @@ class FacultyInitializer {
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
                 "Test - Chance",
-                "tests CHAN",
+                subDescription = "aux tests de chance"
             ),
             true,
             true,
@@ -247,8 +329,8 @@ class FacultyInitializer {
             UUID.randomUUID().toString(),
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                "avec une hache",
-                "AdC",
+                "Attaque - hache",
+                subDescription = "avec une hache"
             ),
             true,
             true,
@@ -261,8 +343,8 @@ class FacultyInitializer {
             UUID.randomUUID().toString(),
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                "avec une hache",
-                "DMG PHY",
+                "Dégât - hache",
+                subDescription = "avec une hache"
             ),
             true,
             true,
@@ -275,8 +357,8 @@ class FacultyInitializer {
             UUID.randomUUID().toString(),
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                "avec un marteau",
-                "AdC",
+                "Attaque - marteau",
+                subDescription = "avec un marteau"
             ),
             true,
             true,
@@ -289,8 +371,8 @@ class FacultyInitializer {
             UUID.randomUUID().toString(),
             info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                "avec un marteau",
-                "DMG PHY",
+                "Dégât - marteau",
+                subDescription = "avec un marteau"
             ),
             true,
             true,

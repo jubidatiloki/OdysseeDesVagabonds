@@ -7,6 +7,8 @@ import com.google.firebase.ktx.Firebase
 import fr.btytgat.odysseedesvagabonds.database.MyDatabase
 import fr.btytgat.odysseedesvagabonds.database.entities.*
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.*
+import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.classes.ClasseInitializer
+import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.races.RaceInitializer
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 
 class FirebaseUtils {

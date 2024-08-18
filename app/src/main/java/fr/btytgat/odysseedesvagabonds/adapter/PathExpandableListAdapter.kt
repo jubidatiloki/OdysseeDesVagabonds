@@ -135,7 +135,9 @@ class PathExpandableListAdapter(
             talent._statChangeGroup?._statChanges?.forEach {
                 val color1: Int
                 var label1 = ""
-                if (it.modifier > 0) {
+                if(it.modifier == 0L){
+                    color1 = R.color.buff_positive
+                } else if (it.modifier > 0) {
                     color1 = R.color.buff_positive
                     label1 = "+ ${it.modifier} "
                 } else {
@@ -155,7 +157,7 @@ class PathExpandableListAdapter(
                 }
                 it._facultyBound?.let {
                     label1 += it._info?.shortName
-                    text = it._info?.name.toString()
+                    text = it._info?.subDescription.toString()
                 }
                 llTalents.addView(
                     generateTextView(
@@ -199,7 +201,7 @@ class PathExpandableListAdapter(
 
                     }
                     it._facultyBound?.let {
-                        label1 += it._info?.shortName
+                        label1 += it._info?.subDescription
                         text = it._info?.name.toString()
                     }
                     llTalents.addView(
