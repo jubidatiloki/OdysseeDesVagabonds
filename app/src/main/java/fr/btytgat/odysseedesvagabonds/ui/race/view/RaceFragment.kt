@@ -78,7 +78,7 @@ class RaceFragment : Fragment(R.layout.fragment_race) {
     }
 
     fun setStatChangeView(race: Race) {
-        race._statChange?._buffs?.forEach {
+        race._statChange?._statChanges?.forEach {
             var label = ""
             if (it.isPositive) {
                 label = "+${it.modifier} ${it._statBound?._info?.shortName}"

@@ -24,7 +24,7 @@ data class EffectType(
     @Ignore
     var _info: Info? = null,
     @Ignore
-    var _buff: Buff? = null
+    var _statChange: StatChange? = null
 ) : BaseEntity() {
 
     constructor(): this(uuid = "", info = "", buff = "")

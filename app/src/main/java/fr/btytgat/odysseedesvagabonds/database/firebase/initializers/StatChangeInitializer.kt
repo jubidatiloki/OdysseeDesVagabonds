@@ -1,10 +1,10 @@
 package fr.btytgat.odysseedesvagabonds.database.firebase.initializers
 
 import com.google.firebase.database.DatabaseReference
-import fr.btytgat.odysseedesvagabonds.database.wrapper.BuffWrapper
+import fr.btytgat.odysseedesvagabonds.database.wrapper.StatChangeWrapper
 import java.util.*
 
-class BuffInitializer {
+class StatChangeInitializer {
 
     companion object {
 
@@ -14,26 +14,26 @@ class BuffInitializer {
 //           populate buffs from effects
         }
 
-        fun buffNain1(): List<BuffWrapper> {
-            val buff1 = BuffWrapper(
+        fun buffNain1(): List<StatChangeWrapper> {
+            val buff1 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
                 facultyBound = FacultyInitializer.axeAttack
             )
-            val buff2 = BuffWrapper(
+            val buff2 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
                 facultyBound = FacultyInitializer.axeDamage
             )
-            val buff3 = BuffWrapper(
+            val buff3 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
                 facultyBound = FacultyInitializer.hammerAttack
             )
-            val buff4 = BuffWrapper(
+            val buff4 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 1,
@@ -42,8 +42,9 @@ class BuffInitializer {
             return listOf(buff1, buff2, buff3, buff4)
         }
 
-        fun buffNain2(): List<BuffWrapper> {
-            val buff = BuffWrapper(
+
+        fun buffNain2(): List<StatChangeWrapper> {
+            val buff = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 5,
@@ -53,20 +54,20 @@ class BuffInitializer {
             return listOf(buff)
         }
 
-        fun buffNain5_1(): List<BuffWrapper> {
-            val buff1 = BuffWrapper(
+        fun buffNain5_1(): List<StatChangeWrapper> {
+            val buff1 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 2,
                 statBound = StatInitializer.getStatCon(),
             )
-            val buff2 = BuffWrapper(
+            val buff2 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 2,
                 statBound = StatInitializer.getStatRdPhy(),
             )
-            val buff3 = BuffWrapper(
+            val buff3 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 2,
@@ -75,8 +76,8 @@ class BuffInitializer {
             return listOf(buff1, buff2, buff3)
         }
 
-        fun buffNain5_2(): List<BuffWrapper> {
-            val buff = BuffWrapper(
+        fun buffNain5_2(): List<StatChangeWrapper> {
+            val buff = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 2,
@@ -85,8 +86,8 @@ class BuffInitializer {
             return listOf(buff)
         }
 
-        fun buffNain5_3(): List<BuffWrapper> {
-            val buff = BuffWrapper(
+        fun buffNain5_3(): List<StatChangeWrapper> {
+            val buff = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 2,
@@ -95,8 +96,8 @@ class BuffInitializer {
             return listOf(buff)
         }
 
-        fun buffNain5_4(): List<BuffWrapper> {
-            val buff = BuffWrapper(
+        fun buffNain5_4(): List<StatChangeWrapper> {
+            val buff = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 2,

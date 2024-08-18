@@ -39,7 +39,7 @@ data class Talent(
     @Ignore
     var _info: Info? = null,
     @Ignore
-    var _buffs: List<Buff> = emptyList(),
+    var _buffs: List<StatChange> = emptyList(),
     @Ignore
     var _attack: Attack? = null,
     @Ignore

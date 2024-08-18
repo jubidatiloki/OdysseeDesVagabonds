@@ -4,10 +4,10 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
-import fr.btytgat.odysseedesvagabonds.database.wrapper.BuffWrapper
+import fr.btytgat.odysseedesvagabonds.database.wrapper.StatChangeWrapper
 
-@Entity(tableName = Buff.TABLE_NAME)
-data class Buff(
+@Entity(tableName = StatChange.TABLE_NAME)
+data class StatChange(
     @PrimaryKey var uuid: String,
     var isPositive: Boolean,        // pour pouvoir filtrer plus facilement si besoin
     var modifier: Long,
@@ -25,10 +25,10 @@ data class Buff(
 
     companion object {
 
-        const val TABLE_NAME = "Buff"
+        const val TABLE_NAME = "StatChange"
 
-        fun getEntityFromWrapper(wrapper: BuffWrapper): Buff {
-            return Buff(
+        fun getEntityFromWrapper(wrapper: StatChangeWrapper): StatChange {
+            return StatChange(
                 uuid = wrapper.uuid,
                 isPositive = wrapper.isPositive,
                 modifier = wrapper.modifier,

@@ -149,19 +149,19 @@ class PathExpandableListAdapter(
                     label1 += "avantage "
                 }
 
-                var buffedElement = ""
+                var text = ""
                 it._statBound?.let {
                     label1 += it._info?.shortName
                 }
                 it._facultyBound?.let {
                     label1 += it._info?.shortName
-                    buffedElement = it._info?.name.toString()
+                    text = it._info?.name.toString()
                 }
                 llTalents.addView(
                     generateTextView(
                         label1,
                         color1,
-                        "$label1 $buffedElement",
+                        "$label1 $text",
                         R.color.white
                     )
                 )

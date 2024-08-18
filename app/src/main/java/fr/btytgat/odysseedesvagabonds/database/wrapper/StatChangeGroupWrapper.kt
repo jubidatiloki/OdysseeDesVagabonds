@@ -6,7 +6,7 @@ import java.util.*
 data class StatChangeGroupWrapper(
     val uuid: String = UUID.randomUUID().toString(),
     var info: InfoWrapper,
-    var buffs: List<BuffWrapper>
+    var statChanges: List<StatChangeWrapper>
 ) {
     companion object {
 
@@ -14,7 +14,7 @@ data class StatChangeGroupWrapper(
             return StatChangeGroupWrapper(
                 uuid = ds.child("uuid").value as String,
                 info = InfoWrapper.getWrapperFromDS(ds.child("info")),
-                buffs = ds.child("buffs").children.map { BuffWrapper.getWrapperFromDS(it) },
+                statChanges = ds.child("statChanges").children.map { StatChangeWrapper.getWrapperFromDS(it) },
             )
         }
     }

@@ -3,7 +3,7 @@ package fr.btytgat.odysseedesvagabonds.database.wrapper
 import com.google.firebase.database.DataSnapshot
 import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 
-data class BuffWrapper(
+data class StatChangeWrapper(
     var uuid: String,
     var isPositive: Boolean,        // pour pouvoir filtrer plus facilement si besoin
     var modifier: Long,
@@ -15,8 +15,8 @@ data class BuffWrapper(
 
     companion object {
 
-        fun getWrapperFromDS(ds: DataSnapshot): BuffWrapper {
-            return BuffWrapper(
+        fun getWrapperFromDS(ds: DataSnapshot): StatChangeWrapper {
+            return StatChangeWrapper(
                 uuid = ds.child("uuid").value as String,
                 isPositive = ds.child("positive").value as Boolean,
                 modifier = ds.child("modifier").value as Long,

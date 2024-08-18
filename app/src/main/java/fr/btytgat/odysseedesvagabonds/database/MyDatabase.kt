@@ -21,7 +21,7 @@ import fr.btytgat.odysseedesvagabonds.database.entities.*
         Stat::class,
         StatChangeGroup::class,
         Attack::class,
-        Buff::class,
+        StatChange::class,
         Damage::class,
         DamageType::class,
         Dice::class,
@@ -48,7 +48,7 @@ abstract class MyDatabase : RoomDatabase() {
     abstract fun statDao(): StatDao
     abstract fun statChangeGroupDao(): StatChangeGroupDao
     abstract fun attackDao(): AttackDao
-    abstract fun buffDao(): BuffDao
+    abstract fun statChangeDao(): StatChangeDao
     abstract fun damageDao(): DamageDao
     abstract fun damageTypeDao(): DamageTypeDao
     abstract fun diceDao(): DiceDao

@@ -12,11 +12,11 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.StatChangeGroupWrapper
 data class StatChangeGroup(
     @PrimaryKey var uuid: String,
     var info: String,
-    var buffs: List<String> = emptyList(),
+    var statChanges: List<String> = emptyList(),
     @Ignore
     var _info: Info? = null,
     @Ignore
-    var _buffs: List<Buff>? = emptyList()
+    var _statChanges: List<StatChange>? = emptyList()
 
     ): BaseEntity(){
 
@@ -29,7 +29,7 @@ data class StatChangeGroup(
             return StatChangeGroup(
                 uuid = wrapper.uuid,
                 info = wrapper.info.uuid,
-                buffs = wrapper.buffs.map { it.uuid }
+                statChanges = wrapper.statChanges.map { it.uuid }
             )
         }
     }

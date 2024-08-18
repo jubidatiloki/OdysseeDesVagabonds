@@ -58,7 +58,7 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
                 effectList = effectList.plus(getEffectWithDetails(it))
             }
         }
-        var buffList = emptyList<Buff>()
+        var buffList = emptyList<StatChange>()
         talent.buffs.forEach {
             if(it.isNotEmpty()){
                 buffList = buffList.plus(getBuffWithDetails(it))
@@ -75,9 +75,9 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
     }
 
 
-    fun getBuffWithDetails(uuid: String): Buff {
+    fun getBuffWithDetails(uuid: String): StatChange {
 
-        val buff = db.buffDao().getBuffById(uuid)
+        val buff = db.statChangeDao().getStatChangeById(uuid)
 
         buff.apply {
             _statBound = statBound?.let { it?.let{getStatWithDetails(it) }}
@@ -200,7 +200,7 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
         val effectType = db.effectTypeDao().getEffectTypeById(uuid)
         effectType.apply {
             _info = db.infoDao().getInfoById(info)
-            _buff = getBuffWithDetails(buff)
+            _statChange = getBuffWithDetails(buff)
         }
         return effectType
     }
@@ -217,15 +217,15 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
     fun getStatChangeGroupWithDetails (uuid: String): StatChangeGroup {
 
         val statChangeGroup = db.statChangeGroupDao().getStatChangeGroupById(uuid)
-        var buffList = emptyList<Buff>()
-        statChangeGroup.buffs.forEach {
+        var statChangeList = emptyList<StatChange>()
+        statChangeGroup.statChanges.forEach {
             if(it.isNotEmpty()){
-                buffList = buffList.plus(getBuffWithDetails(it))
+                statChangeList = statChangeList.plus(getBuffWithDetails(it))
             }
         }
         statChangeGroup.apply {
             _info = db.infoDao().getInfoById(info)
-            _buffs = buffList
+            _statChanges = statChangeList
         }
         return statChangeGroup
     }

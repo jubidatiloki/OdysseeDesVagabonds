@@ -26,8 +26,8 @@ class FirebaseUtils {
         val KEY_PATHS = "PATHS"
         val KEY_INFOS = "INFOS"
         val KEY_TALENT_GROUPS = "TALENT_GROUPS"
+        val KEY_STAT_CHANGES = "STAT_CHANGES"
         val KEY_STAT_CHANGE_GROUPS = "STAT_CHANGE_GROUPS"
-        val KEY_BUFFS = "BUFFS"
         val KEY_FACULTIES = "FACULTIES"
         val KEY_RES_TYPE = "RESISTANCE_TYPE"
         val KEY_DAMAGE_TYPE = "DAMAGE_TYPE"
@@ -37,7 +37,7 @@ class FirebaseUtils {
             Log.i("DATABASE", "starting creating datas ....")
             database.child(KEY_SYSTEM).removeValue()
             StatInitializer.populateStats(database)
-            BuffInitializer.populateBuffs(database)
+            StatChangeInitializer.populateBuffs(database)
             FacultyInitializer.populateFaculties(database)
             DamageTypeInitializer.populateDamageTypes(database)
             ResistanceTypeInitializer.populateResistanceType(database)
@@ -130,20 +130,20 @@ class FirebaseUtils {
                 info.let {
                     localDB?.infoDao()?.insertInfo(Info.getEntityFromWrapper(it))
                 }
-                buffs.forEach {
-                    retrieveBuff(context, it)
+                statChanges.forEach {
+                    retrieveStatChange(context, it)
                 }
                 localDB?.statChangeGroupDao()?.insert(StatChangeGroup.getEntityFromWrapper(statChangeGroupWrapper))
 
             }
         }
 
-        fun retrieveBuff(context: Context, buffWrapper: BuffWrapper){
+        fun retrieveStatChange(context: Context, statChangeWrapper: StatChangeWrapper){
             if(localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
-            localDB?.buffDao()?.insert(Buff.getEntityFromWrapper(buffWrapper))
+            localDB?.statChangeDao()?.insert(StatChange.getEntityFromWrapper(statChangeWrapper))
         }
 
 
@@ -183,7 +183,7 @@ class FirebaseUtils {
                                     localDB.infoDao().insertInfo(Info.getEntityFromWrapper(it.info))
                                 }
 
-                                localDB.buffDao().insert(Buff.getEntityFromWrapper(it))
+                                localDB.statChangeDao().insert(StatChange.getEntityFromWrapper(it))
                             }
                             it.attack?.let {
                                 localDB.damageDao().insert(Damage.getEntityFromWrapper(it.damage))
@@ -225,7 +225,7 @@ class FirebaseUtils {
             Log.i("retrieveRace", "race=" + localDB?.raceDao()?.getRowCount())
             Log.i("retrieveRace", "infoCount=" + localDB?.infoDao()?.getRowCount())
             Log.i("retrieveRace", "facultyCount=" + localDB?.facultyDao()?.getRowCount())
-            Log.i("retrieveRace", "buffCount=" + localDB?.buffDao()?.getRowCount())
+            Log.i("retrieveRace", "buffCount=" + localDB?.statChangeDao()?.getRowCount())
 
         }
     }

@@ -6,9 +6,9 @@ import fr.btytgat.odysseedesvagabonds.database.enums.PathOriginEnum
 import fr.btytgat.odysseedesvagabonds.database.enums.RaceTagEnum
 import fr.btytgat.odysseedesvagabonds.database.enums.TalentTypeEnum
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
-import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.BuffInitializer
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.DamageTypeInitializer
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.DiceInitializer
+import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.StatChangeInitializer
 import fr.btytgat.odysseedesvagabonds.database.firebase.initializers.StatInitializer
 import fr.btytgat.odysseedesvagabonds.database.wrapper.*
 import java.util.*
@@ -30,7 +30,7 @@ class RaceNain {
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                buffs = BuffInitializer.buffNain1()
+                buffs = StatChangeInitializer.buffNain1()
             )
 
             val talentGroup1 = TalentGroupWrapper(
@@ -58,7 +58,7 @@ class RaceNain {
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                buffs = BuffInitializer.buffNain2()
+                buffs = StatChangeInitializer.buffNain2()
             )
             val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
@@ -152,7 +152,7 @@ class RaceNain {
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                buffs = BuffInitializer.buffNain5_1()
+                buffs = StatChangeInitializer.buffNain5_1()
             )
             val talent5_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
@@ -166,7 +166,7 @@ class RaceNain {
                 null,
                 isChoice = true,
                 category = categoryTalent5,
-                buffs = BuffInitializer.buffNain5_2()
+                buffs = StatChangeInitializer.buffNain5_2()
             )
             val talent5_3 = TalentWrapper(
                 UUID.randomUUID().toString(),
@@ -180,7 +180,7 @@ class RaceNain {
                 null,
                 isChoice = true,
                 category = categoryTalent5,
-                buffs = BuffInitializer.buffNain5_3()
+                buffs = StatChangeInitializer.buffNain5_3()
             )
             val talent5_4 = TalentWrapper(
                 UUID.randomUUID().toString(),
@@ -194,7 +194,7 @@ class RaceNain {
                 null,
                 isChoice = true,
                 category = categoryTalent5,
-                buffs = BuffInitializer.buffNain5_4()
+                buffs = StatChangeInitializer.buffNain5_4()
             )
             val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
@@ -231,24 +231,24 @@ class RaceNain {
                     .child(uuid).setValue(this)
             }
 
-            val buff1 = BuffWrapper(
+            val buff1 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 true,
                 modifier = 2,
                 statBound = StatInitializer.getStatCon()
             ).apply {
                 Log.i("DATABASE", "create path - $uuid")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_BUFFS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
                     .child(uuid).setValue(this)
             }
-            val buff2 = BuffWrapper(
+            val buff2 = StatChangeWrapper(
                 UUID.randomUUID().toString(),
                 false,
                 modifier = -2,
                 statBound = StatInitializer.getStatDex()
             ).apply {
                 Log.i("DATABASE", "create path - $uuid")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_BUFFS)
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
                     .child(uuid).setValue(this)
             }
 
