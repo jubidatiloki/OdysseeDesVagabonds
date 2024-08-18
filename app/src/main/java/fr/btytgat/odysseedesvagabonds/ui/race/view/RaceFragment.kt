@@ -78,18 +78,18 @@ class RaceFragment : Fragment(R.layout.fragment_race) {
     }
 
     fun setStatChangeView(race: Race) {
-        race._statChange?.statChange?.mapKeys {
+        race._statChange?._buffs?.forEach {
             var label = ""
-            if (it.value > 0) {
-                label = "+${it.value} ${it.key}"
+            if (it.isPositive) {
+                label = "+${it.modifier} ${it._statBound?._info?.shortName}"
             } else {
-                label = "${it.value} ${it.key}"
+                label = "${it.modifier} ${it._statBound?._info?.shortName}"
             }
             val statView = TextView(activity).apply {
                 text = label
 
             }
-            if (it.value > 0) {
+            if (it.isPositive) {
                 statView.setTextColor(activity!!.getColor(R.color.buff_positive))
                 llPositive.addView(statView)
             } else {

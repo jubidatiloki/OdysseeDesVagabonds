@@ -142,6 +142,13 @@ class PathExpandableListAdapter(
                     color1 = R.color.buff_negative
                     label1 = "${it.modifier} "
                 }
+                if(it.gainAdvantage == true){
+                    if(label1.isNotEmpty()) {
+                        label1 += " et "
+                    }
+                    label1 += "avantage "
+                }
+
                 var buffedElement = ""
                 it._statBound?.let {
                     label1 += it._info?.shortName

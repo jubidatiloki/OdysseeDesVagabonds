@@ -16,7 +16,7 @@ import java.util.*
 class RaceNain {
 
     companion object{
-        fun nain(database: DatabaseReference) {
+        fun init(database: DatabaseReference) {
             val talent1 = TalentWrapper(
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
@@ -231,27 +231,54 @@ class RaceNain {
                     .child(uuid).setValue(this)
             }
 
+            val buff1 = BuffWrapper(
+                UUID.randomUUID().toString(),
+                true,
+                modifier = 2,
+                statBound = StatInitializer.getStatCon()
+            ).apply {
+                Log.i("DATABASE", "create path - $uuid")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_BUFFS)
+                    .child(uuid).setValue(this)
+            }
+            val buff2 = BuffWrapper(
+                UUID.randomUUID().toString(),
+                false,
+                modifier = -2,
+                statBound = StatInitializer.getStatDex()
+            ).apply {
+                Log.i("DATABASE", "create path - $uuid")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_BUFFS)
+                    .child(uuid).setValue(this)
+            }
 
-            var hashMapNain = java.util.HashMap<String, Long>()
-            hashMapNain["CON"] = 2
-            hashMapNain["DEX"] = -2
-
-
-            val race = RaceWrapper(
+            val statChangeGroup = StatChangeGroupWrapper(
                 UUID.randomUUID().toString(),
                 info = InfoWrapper(
-                    raceUuid,
+                    UUID.randomUUID().toString(),
+                    "Attribut de race - Nain"
+                ),
+                listOf(
+                    buff1,
+                    buff2
+                )
+            ).apply {
+                Log.i("DATABASE", "create path - $uuid")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(uuid).setValue(this)
+            }
+
+            RaceWrapper(
+                UUID.randomUUID().toString(),
+                info = InfoWrapper(
+                    UUID.randomUUID().toString(),
                     "Nain",
                     description = "se reconnait à  leurs petites tailles, leurs barbes, leur pioches, leurs air raleurs et désagréable, leur addiction pour l'alcool, .... ah et ils aiment pas les elfes aussi"
                 ),
                 8,
                 4,
                 path,
-                StatChangeWrapper(
-                    "STAT_CHANGE_NAIN",
-                    "Stat raciale - nain",
-                    hashMapNain
-                ),
+                statChangeGroup,
                 listOf(RaceTagEnum.PHYSICAL.name),
             ).apply {
                 Log.i("DATABASE", "create race - $uuid")

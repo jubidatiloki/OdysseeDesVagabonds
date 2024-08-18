@@ -148,6 +148,18 @@ class HomeActivity : BaseActivity(), IHomeView.IActivity {
                         TODO("Not yet implemented")
                     }
                 })
+            database.child(KEY_SYSTEM).child(KEY_STAT_CHANGE_GROUPS)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in snapshot.children) {
+                            retrieveStatChangeGroups(this@HomeActivity, StatChangeGroupWrapper.getWrapperFromDS(datasnapshot))
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+
             database.child(KEY_SYSTEM).child(KEY_DAMAGE_TYPE)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {

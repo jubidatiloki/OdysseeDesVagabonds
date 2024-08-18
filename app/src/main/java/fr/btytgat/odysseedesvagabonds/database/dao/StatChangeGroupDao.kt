@@ -14,7 +14,7 @@ interface StatChangeGroupDao {
     fun getAllStatChangeGroups(): LiveData<List<StatChangeGroup>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStatChangeGroup(talent: StatChangeGroup): Long
+    fun insert(talent: StatChangeGroup): Long
 
     @Query("SELECT COUNT(*) FROM ${StatChangeGroup.TABLE_NAME}")
     fun getRowCount(): Int

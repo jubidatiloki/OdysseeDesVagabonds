@@ -9,12 +9,18 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
     fun getRaceWitHDetails(uuid: String): Race {
 
         val race = db.raceDao().getRaceById(uuid)
+        var specialStatChangeGroup = emptyList<StatChangeGroup>()
+        race.specialStatChange?.forEach {
+            if(it?.isNotEmpty() == true){
+                specialStatChangeGroup = specialStatChangeGroup.plus(getStatChangeGroupWithDetails(it))
+            }
+        }
 
         race.apply {
             _info = db.infoDao().getInfoById(info)
             _path = getPathWithDetails(path)
-            _statChange = statsChange?.let { db.statChangeGroupDao().getStatChangeGroupById(it) }
-            _specialStatChange = specialStatChange?.map { it?.let { it1 -> db.statChangeGroupDao().getStatChangeGroupById(it1) }}
+            _statChange = statsChange?.let { getStatChangeGroupWithDetails(it) }
+            _specialStatChange = specialStatChangeGroup
         }
         return race
     }
@@ -206,6 +212,22 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
             _dice = dice?.let { db.diceDao().getDiceById(it) }
         }
         return targetGroup
+    }
+
+    fun getStatChangeGroupWithDetails (uuid: String): StatChangeGroup {
+
+        val statChangeGroup = db.statChangeGroupDao().getStatChangeGroupById(uuid)
+        var buffList = emptyList<Buff>()
+        statChangeGroup.buffs.forEach {
+            if(it.isNotEmpty()){
+                buffList = buffList.plus(getBuffWithDetails(it))
+            }
+        }
+        statChangeGroup.apply {
+            _info = db.infoDao().getInfoById(info)
+            _buffs = buffList
+        }
+        return statChangeGroup
     }
 
 }
