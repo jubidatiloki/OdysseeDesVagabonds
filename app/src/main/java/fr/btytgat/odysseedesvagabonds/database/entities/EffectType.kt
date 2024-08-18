@@ -20,14 +20,14 @@ import fr.btytgat.odysseedesvagabonds.database.wrapper.EffectTypeWrapper
 data class EffectType(
     @PrimaryKey var uuid: String,
     var info: String,                   // ex: aveuglement
-    var buff: String,               // "buff" de PER -5, AdT -5
+    var statChangeGroup: String,               // "buff" de PER -5, AdT -5
     @Ignore
     var _info: Info? = null,
     @Ignore
-    var _statChange: StatChange? = null
+    var _statChangeGroup: StatChangeGroup? = null
 ) : BaseEntity() {
 
-    constructor(): this(uuid = "", info = "", buff = "")
+    constructor(): this(uuid = "", info = "", statChangeGroup = "")
 
     companion object {
 
@@ -37,7 +37,7 @@ data class EffectType(
             return EffectType(
                 uuid = wrapper.uuid,
                 info = wrapper.info.uuid,
-                buff = wrapper.buff.uuid
+                statChangeGroup = wrapper.statChangeGroup.uuid
             )
         }
 

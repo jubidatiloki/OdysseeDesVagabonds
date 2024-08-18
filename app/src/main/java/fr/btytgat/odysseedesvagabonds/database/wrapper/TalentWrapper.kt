@@ -14,7 +14,7 @@ data class TalentWrapper(
     var isTimeLimited: String? = null,           // (1f/jour, 3f/combat, ...)
     var isChoice: Boolean = false,               // true = choix parmi les talents du talentGroup avec la meme category
     var category: String? = null,                // permet de regrouper les choix
-    var buffs: List<StatChangeWrapper> = emptyList(),
+    var statChangeGroup: StatChangeGroupWrapper? = null,
     var attack: AttackWrapper? = null,
     var effects: List<EffectWrapper> = emptyList(),
     var maxTaken: Long = 1,
@@ -33,7 +33,7 @@ data class TalentWrapper(
                 isTimeLimited = ds.child("timeLimited").value as String?,
                 isChoice = ds.child("choice").value as Boolean,
                 category = ds.child("category").value as String?,
-                buffs = ds.child("buffs").children.map { StatChangeWrapper.getWrapperFromDS(it) },
+                statChangeGroup = ds.child("statChangeGroup").value?.let { StatChangeGroupWrapper.getWrapperFromDS(ds.child("statChangeGroup")) },
                 attack = ds.child("attack").value?.let { AttackWrapper.getWrapperFromDS(ds.child("attack")) },
                 effects = ds.child("effects").children.map { EffectWrapper.getWrapperFromDS(it) },
                 maxTaken = ds.child("maxTaken").value as Long,

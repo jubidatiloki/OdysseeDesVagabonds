@@ -132,7 +132,7 @@ class PathExpandableListAdapter(
                 )
 
             }
-            talent._buffs.forEach {
+            talent._statChangeGroup?._statChanges?.forEach {
                 val color1: Int
                 var label1 = ""
                 if (it.modifier > 0) {
@@ -183,7 +183,7 @@ class PathExpandableListAdapter(
                 )
             }
             map.value.forEach { talent ->
-                talent._buffs.forEach {
+                talent._statChangeGroup?._statChanges?.forEach {
                     val color1: Int
                     var label1 = "\t\t"
                     if (it.modifier > 0) {
@@ -193,20 +193,20 @@ class PathExpandableListAdapter(
                         color1 = R.color.buff_negative
                         label1 += "${it.modifier} "
                     }
-                    var buffedElement = ""
+                    var text = ""
                     it._statBound?.let {
                         label1 += it._info?.shortName
 
                     }
                     it._facultyBound?.let {
                         label1 += it._info?.shortName
-                        buffedElement = it._info?.name.toString()
+                        text = it._info?.name.toString()
                     }
                     llTalents.addView(
                         generateTextView(
                             label1,
                             color1,
-                            "$label1 $buffedElement",
+                            "$label1 $text",
                             R.color.white
                         )
                     )

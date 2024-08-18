@@ -37,7 +37,7 @@ class FirebaseUtils {
             Log.i("DATABASE", "starting creating datas ....")
             database.child(KEY_SYSTEM).removeValue()
             StatInitializer.populateStats(database)
-            StatChangeInitializer.populateBuffs(database)
+            StatChangeInitializer.populateStatChangeGroups(database)
             FacultyInitializer.populateFaculties(database)
             DamageTypeInitializer.populateDamageTypes(database)
             ResistanceTypeInitializer.populateResistanceType(database)
@@ -52,7 +52,7 @@ class FirebaseUtils {
 
 
         fun retriveStat(context: Context, statWrapper: StatWrapper) {
-            if(localDB == null) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
@@ -65,7 +65,7 @@ class FirebaseUtils {
         }
 
         fun retrieveFaculties(context: Context, facultyWrapper: FacultyWrapper) {
-            if(localDB == null) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
@@ -84,14 +84,14 @@ class FirebaseUtils {
         }
 
         fun retrieveDice(context: Context, diceWrapper: DiceWrapper) {
-            if(localDB == null) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
             localDB?.diceDao()?.insert(Dice.getEntityFromWrapper(diceWrapper))
         }
 
         fun retrieveResistanceType(context: Context, resistanceTypeWrapper: ResistanceTypeWrapper) {
-            if(localDB == null) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
@@ -104,7 +104,7 @@ class FirebaseUtils {
         }
 
         fun retrieveDamageType(context: Context, damageTypeWrapper: DamageTypeWrapper) {
-            if(localDB == null) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
@@ -122,24 +122,28 @@ class FirebaseUtils {
 
         }
 
-        fun retrieveStatChangeGroups(context: Context, statChangeGroupWrapper: StatChangeGroupWrapper){
-            if(localDB == null) {
+        fun retrieveStatChangeGroups(
+            context: Context,
+            statChangeGroupWrapper: StatChangeGroupWrapper
+        ) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
-            with(statChangeGroupWrapper){
+            with(statChangeGroupWrapper) {
                 info.let {
                     localDB?.infoDao()?.insertInfo(Info.getEntityFromWrapper(it))
                 }
                 statChanges.forEach {
                     retrieveStatChange(context, it)
                 }
-                localDB?.statChangeGroupDao()?.insert(StatChangeGroup.getEntityFromWrapper(statChangeGroupWrapper))
+                localDB?.statChangeGroupDao()
+                    ?.insert(StatChangeGroup.getEntityFromWrapper(statChangeGroupWrapper))
 
             }
         }
 
-        fun retrieveStatChange(context: Context, statChangeWrapper: StatChangeWrapper){
-            if(localDB == null) {
+        fun retrieveStatChange(context: Context, statChangeWrapper: StatChangeWrapper) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
@@ -148,7 +152,7 @@ class FirebaseUtils {
 
 
         fun retrieveRace(context: Context, raceWrapper: RaceWrapper) {
-            if(localDB == null) {
+            if (localDB == null) {
                 localDB = MyDatabase.getInstance(context)
             }
 
@@ -174,7 +178,7 @@ class FirebaseUtils {
                             it.info?.let {
                                 localDB.infoDao().insertInfo(Info.getEntityFromWrapper(it))
                             }
-                            it.buffs.forEach {
+                            it.statChangeGroup?.statChanges?.forEach {
                                 it.statBound?.let {
                                     localDB.infoDao().insertInfo(Info.getEntityFromWrapper(it.info))
                                     localDB.statDao().insertStat(Stat.getEntityFromWrapper(it))
@@ -184,7 +188,9 @@ class FirebaseUtils {
                                 }
 
                                 localDB.statChangeDao().insert(StatChange.getEntityFromWrapper(it))
+
                             }
+
                             it.attack?.let {
                                 localDB.damageDao().insert(Damage.getEntityFromWrapper(it.damage))
                                 it.duration?.let {
@@ -193,20 +199,22 @@ class FirebaseUtils {
                                 localDB.attackDao().insert(Attack.getEntityFromWrapper(it))
                             }
                             it.effects.forEach {
-                                localDB.targetGroupDao().insert(TargetGroup.getEntityFromWrapper(it.targets))
-                                localDB.effectTypeDao().insert(EffectType.getEntityFromWrapper(it.effectType))
+                                localDB.targetGroupDao()
+                                    .insert(TargetGroup.getEntityFromWrapper(it.targets))
+                                localDB.effectTypeDao()
+                                    .insert(EffectType.getEntityFromWrapper(it.effectType))
                                 it.duration?.let {
                                     localDB.durationDao().insert(Duration.getEntityFromWrapper(it))
                                 }
                                 localDB.effectDao().insert(Effect.getEntityFromWrapper(it))
                             }
-                            localDB.talentDao().insertTalent(Talent.getEntityFromWrapper(it, talentGroup.uuid))
+                            localDB.talentDao()
+                                .insertTalent(Talent.getEntityFromWrapper(it, talentGroup.uuid))
                         }
                     }
                 }
                 raceWrapper.statsChangeGroup?.let {
-                    localDB.statChangeGroupDao()
-                        .insert(StatChangeGroup.getEntityFromWrapper(it))
+                    localDB.statChangeGroupDao().insert(StatChangeGroup.getEntityFromWrapper(it))
                 }
                 raceWrapper.specialStatChangeGroups?.forEach {
                     it?.let {
@@ -225,7 +233,8 @@ class FirebaseUtils {
             Log.i("retrieveRace", "race=" + localDB?.raceDao()?.getRowCount())
             Log.i("retrieveRace", "infoCount=" + localDB?.infoDao()?.getRowCount())
             Log.i("retrieveRace", "facultyCount=" + localDB?.facultyDao()?.getRowCount())
-            Log.i("retrieveRace", "buffCount=" + localDB?.statChangeDao()?.getRowCount())
+            Log.i("retrieveRace", "statChangeCount=" + localDB?.statChangeDao()?.getRowCount())
+            Log.i("retrieveRace", "statChangeGroupCount=" + localDB?.statChangeGroupDao()?.getRowCount())
 
         }
     }

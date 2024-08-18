@@ -1,6 +1,10 @@
 package fr.btytgat.odysseedesvagabonds.database.firebase.initializers
 
+import android.util.Log
 import com.google.firebase.database.DatabaseReference
+import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
+import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
+import fr.btytgat.odysseedesvagabonds.database.wrapper.StatChangeGroupWrapper
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatChangeWrapper
 import java.util.*
 
@@ -9,102 +13,199 @@ class StatChangeInitializer {
     companion object {
 
 
-        fun populateBuffs(database: DatabaseReference) {
+        fun populateStatChangeGroups(database: DatabaseReference) {
 
-//           populate buffs from effects
+            statChangeGroupNain.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupNain1.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupNain2.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupNain5_1.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupNain5_2.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupNain5_3.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
+            statChangeGroupNain5_4.let {
+                Log.i("DATABASE", "create info - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
+                    .child(it.uuid).setValue(it)
+            }
         }
 
-        fun buffNain1(): List<StatChangeWrapper> {
-            val buff1 = StatChangeWrapper(
+        val statChangeGroupNain = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                true,
-                1,
-                facultyBound = FacultyInitializer.axeAttack
+                "Attribut de race - Nain"
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    modifier = 2,
+                    statBound = StatInitializer.getStatCon()
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    false,
+                    modifier = -2,
+                    statBound = StatInitializer.getStatDex()
+                )
             )
-            val buff2 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                1,
-                facultyBound = FacultyInitializer.axeDamage
-            )
-            val buff3 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                1,
-                facultyBound = FacultyInitializer.hammerAttack
-            )
-            val buff4 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                1,
-                facultyBound = FacultyInitializer.hammerDamage
-            )
-            return listOf(buff1, buff2, buff3, buff4)
-        }
+        )
 
 
-        fun buffNain2(): List<StatChangeWrapper> {
-            val buff = StatChangeWrapper(
+        val statChangeGroupNain1 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                true,
-                5,
-                facultyBound = FacultyInitializer.testConBreuvage,
-                gainAdvantage = true
-            )
-            return listOf(buff)
-        }
+                "Nain - talent 1",
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    1,
+                    facultyBound = FacultyInitializer.axeAttack
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    1,
+                    facultyBound = FacultyInitializer.axeDamage
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    1,
+                    facultyBound = FacultyInitializer.hammerAttack
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    1,
+                    facultyBound = FacultyInitializer.hammerDamage
+                )
+            ),
+        )
 
-        fun buffNain5_1(): List<StatChangeWrapper> {
-            val buff1 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                2,
-                statBound = StatInitializer.getStatCon(),
-            )
-            val buff2 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                2,
-                statBound = StatInitializer.getStatRdPhy(),
-            )
-            val buff3 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                2,
-                statBound = StatInitializer.getStatRdMag(),
-            )
-            return listOf(buff1, buff2, buff3)
-        }
 
-        fun buffNain5_2(): List<StatChangeWrapper> {
-            val buff = StatChangeWrapper(
+        val statChangeGroupNain2 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                true,
-                2,
-                statBound = StatInitializer.getStatRdFeu(),
+                "Nain - talent 2",
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    5,
+                    facultyBound = FacultyInitializer.testConBreuvage,
+                    gainAdvantage = true
+                )
             )
-            return listOf(buff)
-        }
+        )
 
-        fun buffNain5_3(): List<StatChangeWrapper> {
-            val buff = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                2,
-                statBound = StatInitializer.getStatRdGlace(),
-            )
-            return listOf(buff)
-        }
 
-        fun buffNain5_4(): List<StatChangeWrapper> {
-            val buff = StatChangeWrapper(
+        val statChangeGroupNain5_1 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
                 UUID.randomUUID().toString(),
-                true,
-                2,
-                statBound = StatInitializer.getStatRdFoudre(),
+                "Nain - talent 5"
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    2,
+                    statBound = StatInitializer.getStatCon(),
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    2,
+                    statBound = StatInitializer.getStatRdPhy(),
+                ),
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    2,
+                    statBound = StatInitializer.getStatRdMag(),
+                )
             )
-            return listOf(buff)
-        }
+        )
+
+        val statChangeGroupNain5_2 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Nain - talent 5"
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    2,
+                    statBound = StatInitializer.getStatRdFeu(),
+                )
+            )
+        )
+
+        val statChangeGroupNain5_3 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Nain - talent 5"
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    2,
+                    statBound = StatInitializer.getStatRdGlace(),
+                )
+            )
+        )
+
+
+        val statChangeGroupNain5_4 = StatChangeGroupWrapper(
+            UUID.randomUUID().toString(),
+            info = InfoWrapper(
+                UUID.randomUUID().toString(),
+                "Nain - talent 5"
+            ),
+            listOf(
+                StatChangeWrapper(
+                    UUID.randomUUID().toString(),
+                    true,
+                    2,
+                    statBound = StatInitializer.getStatRdFoudre(),
+                )
+            )
+        )
+
+
 
     }
 }

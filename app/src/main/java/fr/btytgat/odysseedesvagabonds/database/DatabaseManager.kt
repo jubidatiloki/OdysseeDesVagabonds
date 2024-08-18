@@ -58,16 +58,10 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
                 effectList = effectList.plus(getEffectWithDetails(it))
             }
         }
-        var buffList = emptyList<StatChange>()
-        talent.buffs.forEach {
-            if(it.isNotEmpty()){
-                buffList = buffList.plus(getBuffWithDetails(it))
-            }
-        }
 
         talent.apply {
             _info = info?.let { db.infoDao().getInfoById(it) }
-            _buffs = buffList
+            _statChangeGroup = statChangeGroup?.let { getStatChangeGroupWithDetails(it) }
             _attack = attack?.let { getAttackWithDetails(it) }
             _effects = effectList
         }
@@ -75,15 +69,15 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
     }
 
 
-    fun getBuffWithDetails(uuid: String): StatChange {
+    fun getStatChangeWithDetails(uuid: String): StatChange {
 
-        val buff = db.statChangeDao().getStatChangeById(uuid)
+        val statChange = db.statChangeDao().getStatChangeById(uuid)
 
-        buff.apply {
+        statChange.apply {
             _statBound = statBound?.let { it?.let{getStatWithDetails(it) }}
             _facultyBound = facultyBound?.let { it?.let { getFacultyWithDetails(it)} }
         }
-        return buff
+        return statChange
     }
 
     fun getAttackWithDetails(uuid: String): Attack {
@@ -200,7 +194,7 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
         val effectType = db.effectTypeDao().getEffectTypeById(uuid)
         effectType.apply {
             _info = db.infoDao().getInfoById(info)
-            _statChange = getBuffWithDetails(buff)
+            _statChangeGroup = getStatChangeGroupWithDetails(statChangeGroup)
         }
         return effectType
     }
@@ -220,7 +214,7 @@ class DatabaseManager(private val context: Context, private val db: MyDatabase) 
         var statChangeList = emptyList<StatChange>()
         statChangeGroup.statChanges.forEach {
             if(it.isNotEmpty()){
-                statChangeList = statChangeList.plus(getBuffWithDetails(it))
+                statChangeList = statChangeList.plus(getStatChangeWithDetails(it))
             }
         }
         statChangeGroup.apply {

@@ -6,7 +6,7 @@ import fr.btytgat.odysseedesvagabonds.database.BaseEntity
 data class EffectTypeWrapper(
     var uuid: String,
     var info: InfoWrapper,                   // ex: aveuglement
-    var buff: StatChangeWrapper               // "buff" de PER -5, AdT -5
+    var statChangeGroup: StatChangeGroupWrapper               // "buff" de PER -5, AdT -5
 ) : BaseEntity() {
     companion object {
 
@@ -14,7 +14,7 @@ data class EffectTypeWrapper(
             return EffectTypeWrapper(
                 uuid = ds.child("uuid").value as String,
                 info = InfoWrapper.getWrapperFromDS(ds.child("info")),
-                buff = StatChangeWrapper.getWrapperFromDS(ds.child("buff"))
+                statChangeGroup = StatChangeGroupWrapper.getWrapperFromDS(ds.child("statChangeGroup"))
             )
         }
     }

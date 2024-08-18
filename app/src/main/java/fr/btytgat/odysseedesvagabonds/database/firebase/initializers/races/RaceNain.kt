@@ -30,7 +30,7 @@ class RaceNain {
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                buffs = StatChangeInitializer.buffNain1()
+                statChangeGroup = StatChangeInitializer.statChangeGroupNain1
             )
 
             val talentGroup1 = TalentGroupWrapper(
@@ -58,7 +58,7 @@ class RaceNain {
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                buffs = StatChangeInitializer.buffNain2()
+                statChangeGroup = StatChangeInitializer.statChangeGroupNain2
             )
             val talentGroup2 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
@@ -152,7 +152,7 @@ class RaceNain {
                 TalentTypeEnum.PASSIF.name,
                 false,
                 null,
-                buffs = StatChangeInitializer.buffNain5_1()
+                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_1
             )
             val talent5_2 = TalentWrapper(
                 UUID.randomUUID().toString(),
@@ -166,7 +166,7 @@ class RaceNain {
                 null,
                 isChoice = true,
                 category = categoryTalent5,
-                buffs = StatChangeInitializer.buffNain5_2()
+                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_2
             )
             val talent5_3 = TalentWrapper(
                 UUID.randomUUID().toString(),
@@ -180,7 +180,7 @@ class RaceNain {
                 null,
                 isChoice = true,
                 category = categoryTalent5,
-                buffs = StatChangeInitializer.buffNain5_3()
+                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_3
             )
             val talent5_4 = TalentWrapper(
                 UUID.randomUUID().toString(),
@@ -194,7 +194,7 @@ class RaceNain {
                 null,
                 isChoice = true,
                 category = categoryTalent5,
-                buffs = StatChangeInitializer.buffNain5_4()
+                statChangeGroup = StatChangeInitializer.statChangeGroupNain5_4
             )
             val talentGroup5 = TalentGroupWrapper(
                 UUID.randomUUID().toString(),
@@ -231,42 +231,7 @@ class RaceNain {
                     .child(uuid).setValue(this)
             }
 
-            val buff1 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                true,
-                modifier = 2,
-                statBound = StatInitializer.getStatCon()
-            ).apply {
-                Log.i("DATABASE", "create path - $uuid")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
-                    .child(uuid).setValue(this)
-            }
-            val buff2 = StatChangeWrapper(
-                UUID.randomUUID().toString(),
-                false,
-                modifier = -2,
-                statBound = StatInitializer.getStatDex()
-            ).apply {
-                Log.i("DATABASE", "create path - $uuid")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGES)
-                    .child(uuid).setValue(this)
-            }
 
-            val statChangeGroup = StatChangeGroupWrapper(
-                UUID.randomUUID().toString(),
-                info = InfoWrapper(
-                    UUID.randomUUID().toString(),
-                    "Attribut de race - Nain"
-                ),
-                listOf(
-                    buff1,
-                    buff2
-                )
-            ).apply {
-                Log.i("DATABASE", "create path - $uuid")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STAT_CHANGE_GROUPS)
-                    .child(uuid).setValue(this)
-            }
 
             RaceWrapper(
                 UUID.randomUUID().toString(),
@@ -278,7 +243,7 @@ class RaceNain {
                 8,
                 4,
                 path,
-                statChangeGroup,
+                StatChangeInitializer.statChangeGroupNain,
                 listOf(RaceTagEnum.PHYSICAL.name),
             ).apply {
                 Log.i("DATABASE", "create race - $uuid")
