@@ -2,6 +2,7 @@ package fr.btytgat.odysseedesvagabonds.database.firebase.initializers
 
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
+import fr.btytgat.odysseedesvagabonds.database.enums.StatTypeEnum
 import fr.btytgat.odysseedesvagabonds.database.firebase.FirebaseUtils
 import fr.btytgat.odysseedesvagabonds.database.wrapper.InfoWrapper
 import fr.btytgat.odysseedesvagabonds.database.wrapper.StatWrapper
@@ -97,16 +98,7 @@ class StatInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
-            getStatPm().let {
-                Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
-                    .child(it.uuid.toString()).setValue(it)
-            }
-            getStatPv().let {
-                Log.i("DATABASE", "create stat - ${it.uuid}")
-                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
-                    .child(it.uuid.toString()).setValue(it)
-            }
+
             getStatRdFeu().let {
                 Log.i("DATABASE", "create stat - ${it.uuid}")
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
@@ -137,6 +129,26 @@ class StatInitializer {
                 database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
                     .child(it.uuid.toString()).setValue(it)
             }
+            getStatCurrentPV().let {
+                Log.i("DATABASE", "create stat - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
+                    .child(it.uuid.toString()).setValue(it)
+            }
+            getStatMaxPV().let {
+                Log.i("DATABASE", "create stat - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
+                    .child(it.uuid.toString()).setValue(it)
+            }
+            getStatCurrentPM().let {
+                Log.i("DATABASE", "create stat - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
+                    .child(it.uuid.toString()).setValue(it)
+            }
+            getStatMaxPM().let {
+                Log.i("DATABASE", "create stat - ${it.uuid}")
+                database.child(FirebaseUtils.KEY_SYSTEM).child(FirebaseUtils.KEY_STATS)
+                    .child(it.uuid.toString()).setValue(it)
+            }
         }
 
 
@@ -153,6 +165,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
 
             return statAdc
@@ -171,6 +184,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
             return statAdt
         }
@@ -189,6 +203,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
 
             return statCha
@@ -209,6 +224,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
             return statChan
         }
@@ -227,6 +243,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
 
             return statCon
@@ -245,6 +262,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
             )
             return statDefCac
         }
@@ -262,8 +280,8 @@ class StatInitializer {
                 ),
                 false,
                 false,
-
-                )
+                StatTypeEnum.SECONDARY.name
+            )
 
             return statDefDist
         }
@@ -281,6 +299,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
             )
             return statDefElem
         }
@@ -298,6 +317,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
             )
             return statDefMag
         }
@@ -315,6 +335,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
             return statDex
         }
@@ -332,6 +353,7 @@ class StatInitializer {
                 ),
                 true,
                 false,
+                StatTypeEnum.MANA.name
             )
             return statDm
         }
@@ -349,6 +371,7 @@ class StatInitializer {
                 ),
                 true,
                 false,
+                StatTypeEnum.LIFE.name
             )
             return statDv
         }
@@ -366,6 +389,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
 
                 )
             return statEsq
@@ -384,6 +408,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
 
                 )
             return statFor
@@ -402,6 +427,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.MAIN.name
 
                 )
             return statInit
@@ -420,6 +446,7 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
             )
             return statInt
         }
@@ -437,43 +464,12 @@ class StatInitializer {
                 ),
                 true,
                 true,
+                StatTypeEnum.MAIN.name
 
                 )
             return statPer
         }
 
-        fun getStatPm(): StatWrapper {
-            val statPm = StatWrapper(
-                "STAT_PM",
-                InfoWrapper(
-                    "INFO-STAT_PM",
-                    "Info - Point de mana",
-                    "Représente la quantité de magie possible d’utiliser afin d'utiliser des sorts",
-                    "régénération: dé de mana PM par nuit de sommeil (divisé par 2 si demi-nuit de sommeil), point de mana initiale = dé de mana max",
-                    ""
-                ),
-                false,
-                false,
-            )
-            return statPm
-        }
-
-        fun getStatPv(): StatWrapper {
-            val statPv = StatWrapper(
-                "STAT_PV",
-                InfoWrapper(
-                    "INFO-STAT_PV",
-                    "Point de vie",
-                    "PV",
-                    "Représente la quantité de coup et de blessure qu’il est possible d’encaisser avant de s’évanouir ou de mourir",
-                    "régénération: dé de vie PV par nuit de sommeil (divisé par 2 si demi-nuit de sommeil),point de vie = 0 → évanouissement pendant 1d6 heures, point de vie < dé de vie (en négatif)  → mort, point de vie initiale = dé de vie max + dé de vie(lancée)",
-                    ""
-                ),
-                false,
-                false,
-            )
-            return statPv
-        }
 
         fun getStatRdFeu(): StatWrapper {
             val statRdFeu = StatWrapper(
@@ -488,6 +484,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
             )
             return statRdFeu
         }
@@ -505,6 +502,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
 
                 )
             return statRdFoudre
@@ -523,6 +521,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
 
                 )
             return statRdGlace
@@ -541,6 +540,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
             )
             return statRdMag
         }
@@ -558,6 +558,7 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.SECONDARY.name
 
                 )
             return statRdPhy
@@ -576,9 +577,88 @@ class StatInitializer {
                 ),
                 false,
                 false,
+                StatTypeEnum.MAIN.name
 
                 )
             return statSoc
         }
+
+        fun getStatCurrentPV(): StatWrapper {
+            val statSoc = StatWrapper(
+                "STAT_CURR_PV",
+                InfoWrapper(
+                    "INFO-STAT_CURR_PV",
+                    "Points de vie actuels",
+                    "PV",
+                    "Représente la quantité de vitalité restante",
+                    "",
+                    ""
+                ),
+                false,
+                false,
+                StatTypeEnum.LIFE.name
+
+                )
+            return statSoc
+        }
+
+        fun getStatMaxPV(): StatWrapper {
+            val statSoc = StatWrapper(
+                "STAT_MAX_PV",
+                InfoWrapper(
+                    "INFO-STAT_MAX_PV",
+                    "Total points de vie",
+                    "PV max",
+                    "Représente la quantité de coup et de blessure qu’il est possible d’encaisser avant de s’évanouir ou de mourir",
+                    "point de vie = 0 → évanouissement pendant 1d6 heures\npoint de vie < dé de vie (en négatif)  → mort\nrégénération: dé de vie PV par nuit de sommeil (divisé par 2 si demi-nuit de sommeil)\npoint de vie initiale = dé de vie max + dé de vie(lancée)",
+                    ""
+                ),
+                false,
+                false,
+                StatTypeEnum.LIFE.name
+
+            )
+            return statSoc
+        }
+
+        fun getStatCurrentPM(): StatWrapper {
+            val statSoc = StatWrapper(
+                "STAT_CURR_PM",
+                InfoWrapper(
+                    "INFO-STAT_CURR_PM",
+                    "Points de mana actuels",
+                    "PM",
+                    "Représente la quantité de mana restante",
+                    "",
+                    ""
+                ),
+                false,
+                false,
+                StatTypeEnum.MANA.name
+
+            )
+            return statSoc
+        }
+
+        fun getStatMaxPM(): StatWrapper {
+            val statSoc = StatWrapper(
+                "STAT_MAX_PM",
+                InfoWrapper(
+                    "INFO-STAT_MAX_PM",
+                    "Total points de mana",
+                    "PM max",
+                    "Représente la quantité de magie possible d’utiliser afin de lancer des sorts",
+                    "régénération: dé de mana PM par nuit de sommeil (divisé par 2 si demi-nuit de sommeil)\npoint de mana initiale = dé de mana max",
+                    ""
+                ),
+                false,
+                false,
+                StatTypeEnum.LIFE.name
+
+            )
+            return statSoc
+        }
+
+
     }
 }

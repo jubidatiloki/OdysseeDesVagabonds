@@ -21,11 +21,12 @@ data class Stat(
     var info: String,
     var innate: Boolean,  // true si stat d'une creature, false si c'est un buff externe (equipement, potion, temporaire)
     var haveMod: Boolean,    // pour pouvoir ensuite faire un getter du mod (pour les stats qui en ont un uniquement)
+    var type: String,
     @Ignore
     var _info: Info? = null
 ): BaseEntity(){
 
-    constructor(): this(uuid = "", info = "", innate = false, haveMod = false)
+    constructor(): this(uuid = "", info = "", innate = false, haveMod = false, type = "")
 
     companion object {
         const val TABLE_NAME = "Stat"
@@ -36,6 +37,7 @@ data class Stat(
                 info = wrapper.info.uuid,
                 innate = wrapper.isInnate,
                 haveMod = wrapper.haveMod,
+                type = wrapper.type
             )
             return stat
         }
