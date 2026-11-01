@@ -16,7 +16,11 @@ Application Flutter (mobile Android + web + Windows) de création et de gestion 
 - Ajouter ou adapter un test pour chaque fonctionnalité.
 - **Version** (`V1/lib/version.dart` et `version:` de `V1/pubspec.yaml`, toujours en phase) : MINEUR +1 pour un lot de nouveautés, CORRECTIF +1 pour des corrections seules (MAJEUR 0 en phase 1) ; mettre à jour `kDateVersion` et noter la version dans la ligne de journal d'`AVANCEMENT.md`. Elle est affichée en bas du menu latéral.
 - **Nouveautés** (`V1/lib/data/changelog.dart`, écran « Nouveautés ») : à chaque modification, ajouter une ligne courte (type Ajout / Amélioration / Correction) dans la version en cours ; une nouvelle version = un nouveau bloc en tête (un test vérifie que le 1ᵉʳ bloc = `kVersionApp`).
-- **Git** : dépôt https://github.com/jubidatiloki/OdysseeDesVagabonds, branche de travail `odv-2026`. Commiter seulement à la demande de l'utilisateur (message court en français) ; à chaque nouvelle version, proposer un commit + une étiquette `vX.Y.Z` (= `kVersionApp`). Ne jamais committer `flutter/`, `livraison/`, journaux ni secrets (voir `.gitignore` racine) ; APK et zips web → Releases GitHub.
+- **Git** : dépôt https://github.com/jubidatiloki/OdysseeDesVagabonds, branche de travail `odv-2026`.
+  - **Committer et envoyer (`git push`) après chaque modification** (une fois `flutter analyze` / `flutter test` verts), sans redemander. Message en français, une ligne : `Type · Écran ou fonction : brève description`, Type ∈ **Ajout / Modification / Correction / Retrait** (ex. `Ajout · Fiche personnage : trèfle en filigrane de la CHAN`). Détails éventuels dans le corps du message.
+  - **Nouvelle version** (`kVersionApp` change) : étiquette `vX.Y.Z` sur le commit, envoyée avec `git push origin vX.Y.Z`.
+  - **Livraison** (APK / zip web construits dans `livraison/`) : release GitHub `vX.Y.Z` avec l'APK (`odyssee_vagabonds_X.Y.Z.apk`) et le zip web, notes = bloc de la version dans `changelog.dart`.
+  - Ne jamais committer `flutter/`, `livraison/`, journaux ni secrets (voir `.gitignore` racine).
 
 ## Architecture (`V1/lib/`)
 - `main.dart` → `app.dart` (`OdvApp` : thème, préférences) → `screens/racine_screen.dart` (menu latéral, section affichée).
