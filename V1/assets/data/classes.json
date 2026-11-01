@@ -1,0 +1,3607 @@
+[
+  {
+    "id": "barbare",
+    "nom": "Barbare",
+    "modifDeVie": "+",
+    "modifDeMana": "-",
+    "lanceurDeSorts": false,
+    "profil": "physique",
+    "maitrises": "Armes civiles ; mêlée communes (hors poudre).",
+    "restrictionArmure": "Pas de plaques.",
+    "voies": [
+      {
+        "id": "barbare-brute",
+        "nom": "Voie de la brute",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Force de la nature",
+            "type": "passif",
+            "effet": "Peut utiliser CON ou FOR pour le gain de PV à chaque niveau. À la prise : ajoute sa FOR à ses PV max."
+          },
+          {
+            "rang": 2,
+            "nom": "Brutalité",
+            "type": "actif complexe, compétence",
+            "effet": "Nécessite une arme à 2 mains équipée. Remplace une attaque simple par une action complexe (tout le tour) : coup puissant, +RANG×2 aux dégâts.",
+            "jets": [
+              {"libelle": "Brutalité", "des": "1d20", "carac": "ADC", "attaque": {"deuxMains": true, "degatsEnPlus": "2×RANG"}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Style barbaresque",
+            "type": "renforcement, passif",
+            "effet": "Ajoute CON et FOR à ses PV gagnés par niveau ; ajoute son mod de FOR à ses tests de MEN.",
+            "effets": [
+              {"type": "test", "categorie": "MEN", "valeur": "FOR"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Armement barbare (niveau 1)",
+            "type": "passif",
+            "effet": "Peut manier deux armes, même à 2 mains (2 armes à 1 main, 1 arme à 2 mains ou 2 armes à 2 mains) : l'arme principale attaque au d20, la secondaire au d12. S'il fait 2 attaques dans le tour, il perd son action de mouvement.",
+            "effets": [
+              {"type": "maitrise", "categorie": "armement", "valeur": "deux armes, même à deux mains"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Légende brutale",
+            "type": "passif, renforcement",
+            "effets": [
+              {"type": "bonus", "categorie": "FOR", "valeur": "2"},
+              {
+                "type": "renforcement",
+                "nom": "armement barbare (niveau 2)",
+                "typeCompetence": "passif",
+                "effet": "Le barbare ne perd plus son action de mouvement s'il fait 2 attaques dans le même tour (d12 pour l'attaque avec l'arme secondaire inchangé)."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "barbare-athlete",
+        "nom": "Voie de l'athlète",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Exercices journaliers (niveau 1)",
+            "type": "passif",
+            "description": "Le barbare a pris l'habitude d'entretenir son corps pour être prêt à n'importe quelle éventualité, à laquelle des gros bras et des jambes puissantes peuvent faire face.",
+            "effets": [
+              {"type": "test", "categorie": "FOR", "valeur": "1"},
+              {"type": "test", "categorie": "DEX", "valeur": "1"},
+              {"type": "test", "categorie": "CON", "valeur": "1"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Moulinet (niveau 1)",
+            "type": "actif complexe, compétence",
+            "effet": "Avec une arme à 2 mains, fend l'air devant lui : jet d'attaque et dégâts au CaC, répétable sur la cible suivante avec −1 DM à chaque fois (jusqu'à ce qu'il arrête) ; −2 CA (une seule fois) jusqu'au prochain tour.",
+            "etat": {
+              "nom": "Moulinet (défense réduite)",
+              "effets": [{"type": "ca", "valeur": "-2"}]
+            },
+            "jets": [
+              {"libelle": "Moulinet", "des": "1d20", "carac": "ADC", "attaque": {"deuxMains": true, "repetable": -1, "etat": "Moulinet (défense réduite)"}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Athlétique",
+            "type": "renforcement, passif",
+            "effets": [
+              {
+                "type": "renforcement",
+                "nom": "Exercices journaliers (niveau 2)",
+                "typeCompetence": "passif",
+                "effets": [
+                  {"type": "test", "categorie": "FOR", "valeur": "2"},
+                  {"type": "test", "categorie": "DEX", "valeur": "2"},
+                  {"type": "test", "categorie": "CON", "valeur": "2"}
+                ]
+              },
+              {"type": "test", "categorie": "DEX", "valeur": "5", "condition": "Déplacement course"},
+              {"type": "test", "categorie": "DEX", "valeur": "5", "condition": "Déplacement saut"},
+              {"type": "test", "categorie": "AdT", "valeur": "5", "condition": "Attaque distance de lancer"},
+              {"type": "maitrise", "categorie": "Aptitude", "valeur": "Escalade"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Moulinet (niveau 2)",
+            "type": "renforcement",
+            "effet": "Le moulinet n'a plus de dégâts réduits par cible touchée ; malus de défense réduit à −1.",
+            "effets": [
+              {"type": "renforcement", "nom": "Moulinet (niveau 2)", "typeCompetence": "actif complexe, compétence", "effet": "Plus de dégâts réduits par cible ; −1 CA au lieu de −2."}
+            ],
+            "etat": {
+              "nom": "Moulinet (défense réduite)",
+              "effets": [{"type": "ca", "valeur": "-1"}]
+            },
+            "jets": [
+              {"libelle": "Moulinet", "attaque": {"repetable": 0}}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Colosse infatigable",
+            "type": "passif, renforcement",
+            "effets": [
+              {"type": "bonus", "categorie": "FOR", "valeur": "1"},
+              {"type": "bonus", "categorie": "DEX", "valeur": "1"},
+              {"type": "bonus", "categorie": "CON", "valeur": "1"},
+              {
+                "type": "renforcement",
+                "nom": "Exercices journaliers (niveau 3)",
+                "typeCompetence": "passif",
+                "effets": [
+                  {"type": "test", "categorie": "FOR", "valeur": "3"},
+                  {"type": "test", "categorie": "DEX", "valeur": "3"},
+                  {"type": "test", "categorie": "CON", "valeur": "3"}
+                ]
+              },
+              {"type": "deplacement", "valeur": "5"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "barbare-sauvage",
+        "nom": "Voie du sauvage",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Légèreté animale",
+            "type": "passif",
+            "effet": "Gagne de la CA égale au rang atteint dans cette voie, s'il porte une armure légère ou pas d'armure.",
+            "effets": [
+              {"type": "ca", "valeur": "RANG", "si": "armure-legere", "condition": "armure légère ou sans armure"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Charge bestiale",
+            "type": "actif, compétence",
+            "effet": "Une arme dans chaque main ou une à 2 mains ; charge de 20 m en criant : 1ʳᵉ attaque +3 AdC et +1d6 DMG."
+          },
+          {
+            "rang": 3,
+            "nom": "Assaut",
+            "type": "passif, fabrication",
+            "effet": "Peut fabriquer des armes de siège rudimentaires (bélier en tronc, échelle basique), ajoutées à l'inventaire. +5 aux tests d'AdC, +5 aux tests d'AdT et +5 DM contre bâtiments et structures.",
+            "fabrication": [
+              {"nom": "Bélier en tronc", "categorie": "divers", "description": "Arme de siège rudimentaire fabriquée (Assaut) : tronc pour enfoncer portes et palissades."},
+              {"nom": "Échelle basique", "categorie": "divers", "description": "Échelle de siège rudimentaire fabriquée (Assaut)."}
+            ],
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "5", "condition": "contre bâtiments et structures"},
+              {"type": "test", "categorie": "ADT", "valeur": "5", "condition": "contre bâtiments et structures"},
+              {"type": "degats", "valeur": "5", "si": "situation", "condition": "contre bâtiments et structures"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Survivant",
+            "type": "actif, 1×/jour",
+            "effet": "Quand il tombe à 0 PV, le barbare peut effectuer une dernière attaque CaC avant d'être inconscient."
+          },
+          {
+            "rang": 5,
+            "nom": "Prédateur",
+            "type": "passif",
+            "effets": [
+              {"type": "bonus", "categorie": "FOR", "valeur": "2"},
+              {"type": "bonus", "categorie": "CON", "valeur": "1"},
+              {"type": "renforcement", "typeCompetence": "AdC", "valeur": "3", "condition": "mains nues"},
+              {"type": "renforcement", "typeCompetence": "DM", "valeur": "1D4 + FOR + CON", "condition": "mains nues"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "barbare-berzerker",
+        "nom": "Voie du berzerker",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Rage berzerker (niveau 1)",
+            "type": "gratuit, compétence, 1×/jour",
+            "effet": "Durée 1D4 + CON tours. + : +1d6 à tous ses jets de dégâts ; insensible aux entraves non magiques (désarmement, assommement, mise au sol…). − : −3 CA ; −2 à tous ses jets d'attaque ; ne distingue pas amis et ennemis (attaque le plus proche) ; sortir de la rage avant la fin : test de CON diff. 15.",
+            "etat": {
+              "nom": "Rage berzerker",
+              "effets": [
+                {"type": "degats", "valeur": "1d6"},
+                {"type": "toucher", "valeur": "-2"},
+                {"type": "ca", "valeur": "-3"},
+                {"type": "texte", "texte": "Insensible aux entraves non magiques ; attaque le plus proche, ami ou ennemi."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Durée de la rage (tours)", "des": "1d4", "carac": "CON"},
+              {"libelle": "Sortir de la rage", "des": "1d20", "carac": "CON", "difficulte": 15, "finEtat": "Rage berzerker"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Frénésie (niveau 1)",
+            "type": "actif complexe, compétence",
+            "effet": "Attaque frénétique au CaC : dégâts de l'arme + 1D6 ; si ce D6 fait 6, rajoute un autre 1D6.",
+            "jets": [
+              {"libelle": "Frénésie", "des": "1d20", "carac": "ADC", "attaque": {"degatsEnPlus": "1d6", "explosion": 1}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Rage contrôlée",
+            "type": "renforcement",
+            "effets": [
+              {"type": "renforcement", "nom": "Rage berzerker (niveau 2)", "typeCompetence": "gratuit, compétence, 2×/jour", "effet": "Durée 1d6 + CON ; +1d8 DM au lieu de +1d6 ; distingue amis et ennemis ; sortir de la rage : test de CON diff. 12."}
+            ],
+            "etat": {
+              "nom": "Rage berzerker",
+              "effets": [
+                {"type": "degats", "valeur": "1d8"},
+                {"type": "toucher", "valeur": "-2"},
+                {"type": "ca", "valeur": "-3"},
+                {"type": "texte", "texte": "Insensible aux entraves non magiques ; distingue amis et ennemis."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Durée de la rage (tours)", "des": "1d6", "carac": "CON"},
+              {"libelle": "Sortir de la rage", "difficulte": 12}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Déchaînement",
+            "type": "renforcement",
+            "effets": [
+              {"type": "renforcement", "nom": "Frénésie (niveau 2)", "typeCompetence": "actif complexe, compétence", "effet": "La frénésie inflige 2D6 + FOR DM à la place des dégâts de l'arme ; tant que le D6 ajouté fait 6, rajoute un autre 1D6."}
+            ],
+            "jets": [
+              {"libelle": "Frénésie", "attaque": {"degatsArme": "1d6", "explosion": 99}}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Rage maîtrisée",
+            "type": "passif, renforcement",
+            "effets": [
+              {"type": "bonus", "categorie": "FOR", "valeur": "2"},
+              {"type": "bonus", "categorie": "CON", "valeur": "2"},
+              {"type": "renforcement", "nom": "Rage berzerker (niveau 3)", "typeCompetence": "gratuit, compétence, 3×/jour", "effet": "Durée 1d6 + FOR + CON ; +1d10 DM ; plus de malus d'attaque ; sortir de la rage : test de CON diff. 10."}
+            ],
+            "etat": {
+              "nom": "Rage berzerker",
+              "effets": [
+                {"type": "degats", "valeur": "1d10"},
+                {"type": "ca", "valeur": "-3"},
+                {"type": "texte", "texte": "Insensible aux entraves non magiques ; distingue amis et ennemis."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Durée de la rage (tours)", "des": "1d6", "carac": "FOR+CON"},
+              {"libelle": "Sortir de la rage", "difficulte": 10}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Né loin des murailles et des lois, le barbare tire sa force de la colère et de l'instinct. Il frappe fort avec des armes à deux mains, court, saute et survit là où d'autres renoncent. Quand la rage le prend, plus rien ne l'arrête, pas même la douleur."
+  },
+  {
+    "id": "barde",
+    "nom": "Barde",
+    "modifDeVie": "=",
+    "modifDeMana": "=",
+    "lanceurDeSorts": false,
+    "profil": "hybride",
+    "maitrises": "Armes civiles ; 1 main communes.",
+    "restrictionArmure": "Pas de plaques.",
+    "voies": [
+      {
+        "id": "barde-vagabond",
+        "nom": "Voie du vagabond",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Grand pas",
+            "type": "passif",
+            "effets": [
+              {"type": "test", "categorie": "CON", "valeur": "5", "condition": "Déplacement marche"},
+              {"type": "test", "categorie": "CON", "valeur": "5", "condition": "Déplacement course"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Légendes et rumeurs",
+            "description": "À force de voyager, le vagabond a appris à acquérir plus facilement des informations sur ce qui se passe dans une région, ou sur les légendes locales : +2 par rang aux tests d'INT de rumeurs et de légendes anciennes.",
+            "type": "passif",
+            "effets": [
+              {"type": "test", "categorie": "INT", "valeur": "RANG x2", "condition": "Connaissance rumeurs"},
+              {"type": "test", "categorie": "INT", "valeur": "RANG x2", "condition": "Connaissance légendes anciennes"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Grandes poches",
+            "type": "soutien",
+            "effet": "Sac adapté aux voyages : +10 FOR virtuelle pour le calcul du poids (géré plus tard avec le système de poids)."
+          },
+          {
+            "rang": 4,
+            "nom": "Diversité culturelle",
+            "type": "passif",
+            "effet": "Peut prendre une compétence de rang 3 d'une autre classe, sans en avoir les rangs 1 et 2 (pas de renforcement). Pour cette compétence, RANG vaut 2.",
+            "emprunt": {"cle": "diversite-culturelle", "rang": 3, "exclure": "renforcement", "rangCalcul": 2}
+          },
+          {
+            "rang": 5,
+            "nom": "Vagabond",
+            "type": "passif",
+            "effet": "+1 dans 6 stats différentes au choix, hors CHAN (« voyager, ça fait grandir »).",
+            "choix": {
+              "cle": "vagabond-stats",
+              "titre": "6 stats à +1",
+              "nombre": 6,
+              "options": [
+                {"id": "ADC", "nom": "+1 AdC", "effets": [{"type": "bonus", "categorie": "ADC", "valeur": "1"}]},
+                {"id": "ADT", "nom": "+1 AdT", "effets": [{"type": "bonus", "categorie": "ADT", "valeur": "1"}]},
+                {"id": "ADM", "nom": "+1 AdM", "effets": [{"type": "bonus", "categorie": "ADM", "valeur": "1"}]},
+                {"id": "FOR", "nom": "+1 FOR", "effets": [{"type": "bonus", "categorie": "FOR", "valeur": "1"}]},
+                {"id": "DEX", "nom": "+1 DEX", "effets": [{"type": "bonus", "categorie": "DEX", "valeur": "1"}]},
+                {"id": "CON", "nom": "+1 CON", "effets": [{"type": "bonus", "categorie": "CON", "valeur": "1"}]},
+                {"id": "INT", "nom": "+1 INT", "effets": [{"type": "bonus", "categorie": "INT", "valeur": "1"}]},
+                {"id": "PER", "nom": "+1 PER", "effets": [{"type": "bonus", "categorie": "PER", "valeur": "1"}]},
+                {"id": "SOC", "nom": "+1 SOC", "effets": [{"type": "bonus", "categorie": "SOC", "valeur": "1"}]},
+                {"id": "CHA", "nom": "+1 MEN", "effets": [{"type": "bonus", "categorie": "MEN", "valeur": "1"}]}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "barde-musicien",
+        "nom": "Voie du musicien",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Début artistique",
+            "type": "soutien, passif",
+            "effet": "Dispose d'un instrument au choix (lyre, flûte, oud, banjo…), maîtrisé ; +2 par rang aux tests de prestation musicale (DEX), avec tous ses instruments.",
+            "effets": [
+              {"type": "instrument", "valeur": "RANG x2"}
+            ],
+            "choix": {
+              "cle": "instrument-barde",
+              "titre": "Instrument",
+              "options": [
+                {
+                  "id": "instrument",
+                  "nom": "Instrument",
+                  "question": "Quel instrument ?",
+                  "liste": "instruments",
+                  "objets": [{"nom": "{precision}", "categorie": "instrument", "description": "Instrument de musique (Début artistique)."}],
+                  "effets": [{"type": "maitrise", "categorie": "instrument", "valeur": "{precision}"}]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Musique vivifiante",
+            "type": "actif complexe",
+            "effet": "En combat : test de DEX de prestation musicale, diff. 10 ; si réussite : +2 aux jets d'attaque des alliés à portée d'écoute jusqu'à la fin du combat.",
+            "jets": [
+              {"libelle": "Musique vivifiante", "des": "1d20", "carac": "DEX", "difficulte": 10, "instrument": true}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Musicien en herbe (niveau 1)",
+            "type": "soutien, actif complexe, 1×/jour",
+            "effet": "En jouant (marché, place, auberge) : test de prestation musicale diff. 10 ; si réussite, gagne 1d20 + CHAN pièces de cuivre (ou repas et chambre à l'auberge).",
+            "jets": [
+              {"libelle": "Musicien en herbe", "des": "1d20", "carac": "DEX", "difficulte": 10, "instrument": true, "gain": {"des": "1d20", "carac": "CHAN", "piece": "cuivre"}}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Artiste",
+            "effetApplique": "Illusions mineures, flammèches (hors combat)",
+            "type": "sort, coût rang 1",
+            "typesSort": ["illusion"],
+            "effet": "Petits sorts d'illusion, flammèches… (inefficaces en combat) ; test d'INT diff. 14 pour ne pas être impressionné / distrait."
+          },
+          {
+            "rang": 5,
+            "nom": "Musicien renommé",
+            "type": "passif, renforcement",
+            "effet": "Titre « Musicien de renom », peut être engagé par un noble. Avantage aux tests de prestation musicale.",
+            "effets": [
+              {"type": "titre", "valeur": "Musicien de renom"},
+              {"type": "instrument", "valeur": "avantage"},
+              {"type": "renforcement", "nom": "Musicien en herbe (niveau 2)", "typeCompetence": "soutien, actif complexe, 1×/jour", "effet": "Gains = 1d20 + CHAN pièces d'argent."}
+            ],
+            "jets": [
+              {"libelle": "Musicien en herbe", "gain": {"piece": "argent"}}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "barde-acrobate",
+        "nom": "Voie de l'acrobate",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Début acrobatique",
+            "type": "passif",
+            "effet": "+2 par rang aux tests de DEX d'acrobatie, de saut et de pirouettes.",
+            "effets": [
+              {"type": "test", "categorie": "DEX", "valeur": "RANG x2", "condition": "Déplacement acrobatie"},
+              {"type": "test", "categorie": "DEX", "valeur": "RANG x2", "condition": "Déplacement saut"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Attaque sautée",
+            "type": "actif, compétence",
+            "effet": "+3 AdC et +1d6 DMG, mais ne peut pas se déplacer au tour suivant ; si l'attaque échoue, test de DEX diff. 10 pour ne pas tomber.",
+            "jets": [
+              {"libelle": "Attaque sautée", "des": "1d20", "carac": "ADC", "attaque": {"toucher": 3, "degatsEnPlus": "1d6"}},
+              {"libelle": "Attaque sautée ratée : ne pas tomber", "des": "1d20", "carac": "DEX", "difficulte": 10}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Voltige",
+            "type": "action mouvement, passif",
+            "effet": "1×/tour, peut traverser ou sauter par-dessus un ennemi ou un obstacle pendant son déplacement sans test. S'il s'est déplacé ce tour : +2 CA jusqu'à son prochain tour.",
+            "etat": {
+              "nom": "Voltige (déplacé ce tour)",
+              "effets": [{"type": "ca", "valeur": "2"}]
+            }
+          },
+          {
+            "rang": 4,
+            "nom": "Bond du chat",
+            "type": "renforcement, passif",
+            "effet": "Attaque sautée : plus de malus de déplacement au tour suivant. Aucun dégât de chute jusqu'à RANG × 3 m.",
+            "effets": [
+              {"type": "renforcement", "nom": "Attaque sautée (niveau 2)", "typeCompetence": "actif, compétence", "effet": "Plus de malus de déplacement au tour suivant."},
+              {"type": "chute", "valeur": "RANG x3"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Insaisissable",
+            "type": "passif + renforcement",
+            "effets": [
+              {"type": "bonus", "categorie": "DEX", "valeur": "2"},
+              {"type": "bonus", "categorie": "AdC", "valeur": "2"},
+              {"type": "mouvement", "valeur": "1"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "barde-courtisan",
+        "nom": "Voie du courtisan",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Bonnes manières",
+            "type": "passif",
+            "effet": "+2 par rang aux tests de SOC pour s'adresser à un noble et +2 par rang aux tests d'INT pour connaître l'étiquette de la noblesse.",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "RANG x2", "condition": "s'adresser à un noble"},
+              {"type": "test", "categorie": "INT", "valeur": "RANG x2", "condition": "connaître l'étiquette de la noblesse"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Mot d'esprit",
+            "type": "actif, compétence",
+            "effet": "Raillerie sur une cible humanoïde qui comprend sa langue : la cible fait un test d'INT diff. 10 + RANG ; en cas d'échec, −2 à ses tests d'attaque jusqu'à la fin de son prochain tour.",
+            "jets": [
+              {"libelle": "Mot d'esprit", "des": "1d20", "carac": "SOC"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Mécène",
+            "type": "soutien",
+            "effet": "Un noble le protège : logement en ville, lettres de recommandation, 1d6 pièces d'argent par semaine passée en ville."
+          },
+          {
+            "rang": 4,
+            "nom": "Charme mineur (niveau 1)",
+            "effetApplique": "Ami pendant INT × 10 min (test INT diff. 12 + RANG)",
+            "type": "sort, coût rang 2",
+            "typesSort": ["controle-mental"],
+            "effet": "Hors combat. Une cible humanoïde fait un test d'INT diff. 12 + RANG ; en cas d'échec, elle considère le barde comme un ami pendant INT × 10 min. Elle se souvient de tout ensuite.",
+            "reussite": {"libelle": "Charme", "carac": "SOC", "contre": "la cible fait un test d'INT diff. 12 + RANG"}
+          },
+          {
+            "rang": 5,
+            "nom": "Éminence grise",
+            "type": "passif + renforcement",
+            "effets": [
+              {"type": "bonus", "categorie": "SOC", "valeur": "4"},
+              {"type": "renforcement", "nom": "mot d'esprit (niveau 2)", "typeCompetence": "actif, compétence", "effet": "Le mot d'esprit touche 2 cibles."},
+              {"type": "renforcement", "nom": "charme mineur (niveau 2)", "typeCompetence": "sort, coût rang 2", "effet": "Le charme mineur dure INT heures."}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Musicien, conteur et vagabond, le barde vit de son talent et de son bagout. Sa musique galvanise ses alliés, ses mots désarment les puissants et ses acrobaties amusent les foules. Il sait toujours où trouver une auberge, une rumeur… ou une bourse bien garnie.",
+    "originePouvoir": "Origine du pouvoir : appât du gain / spectacles ou assistant d'un mage."
+  },
+  {
+    "id": "chevalier",
+    "nom": "Chevalier",
+    "modifDeVie": "+",
+    "modifDeMana": "-",
+    "lanceurDeSorts": false,
+    "profil": "physique",
+    "maitrises": "Armes civiles ; mêlée communes (hors poudre).",
+    "restrictionArmure": "Aucune.",
+    "voies": [
+      {
+        "id": "chevalier-noblesse",
+        "nom": "Voie de la noblesse",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Éducation",
+            "type": "passif",
+            "effet": "Une connaissance au choix : +1 par rang aux tests liés à cette connaissance.",
+            "choix": {
+              "cle": "education",
+              "titre": "Connaissance",
+              "options": [
+                {
+                  "id": "savoir",
+                  "nom": "Connaissance étudiée",
+                  "question": "Quelle connaissance ?",
+                  "liste": "savoirs",
+                  "effets": [
+                    {"type": "savoir", "valeur": "RANG", "condition": "{precision}"}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Arme familiale",
+            "type": "soutien",
+            "effet": "Arme de corps à corps maîtrisée, frappée au blason de la maison : arme de maître (+1 AdC), incassable, +5 pour résister à un désarmement, +2 SOC face aux nobles qui connaissent la maison. Un trait de lignée au choix, qui grandit aux rangs 3 (niveau II) et 5 (niveau III).",
+            "effets": [
+              {"type": "toucher", "valeur": "1", "si": "arme-choisie", "condition": "{precision:arme-familiale}"},
+              {"type": "test", "categorie": "SOC", "valeur": "2", "condition": "face aux nobles qui connaissent sa maison"},
+              {"type": "texte", "effet": "Arme familiale incassable ; +5 pour résister à un désarmement."}
+            ],
+            "choix": {
+              "cle": "arme-familiale",
+              "titre": "Trait de lignée",
+              "options": [
+                {
+                  "id": "guerriere",
+                  "nom": "Lignée guerrière",
+                  "effet": "I : +1 DMG · II : 1×/combat, relancer un jet de dégâts · III : +1d6 DMG sur un critique.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "degats", "valeur": "1", "si": "arme-choisie", "condition": "{precision}"},
+                    {"type": "texte", "effet": "1×/combat, relancer un jet de dégâts de l'arme familiale.", "rangMin": 3},
+                    {"type": "texte", "effet": "+1d6 DMG sur un critique avec l'arme familiale.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "garde",
+                  "nom": "Garde du roi",
+                  "effet": "I : +1 CA CaC arme en main · II : 1×/tour, parade : −1d6 aux dégâts reçus au CaC · III : +2 CA à un allié au contact.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "ca", "categorie": "CaC", "valeur": "1", "si": "arme-choisie", "condition": "{precision}"},
+                    {"type": "texte", "effet": "1×/tour, parade : −1d6 aux dégâts reçus au corps à corps.", "rangMin": 3},
+                    {"type": "texte", "effet": "+2 CA à un allié au contact.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "consacree",
+                  "nom": "Lame consacrée",
+                  "effet": "I : luit sur commande (éclaire 10 m) · II : +1d4 DMG contre morts-vivants et démons · III : ces dégâts passent à +2d6.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "texte", "effet": "L'arme familiale luit sur commande (éclaire 10 m)."},
+                    {"type": "texte", "effet": "+1d4 DMG contre les morts-vivants et les démons.", "rangMin": 3, "rangMax": 4},
+                    {"type": "texte", "effet": "+2d6 DMG contre les morts-vivants et les démons.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "diplomate",
+                  "nom": "Maison diplomate",
+                  "effet": "I : +2 SOC quand l'arme est visible · II : +2 MEN pour intimider · III : 1×/aventure, sert de sauf-conduit ou de sceau officiel.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "test", "categorie": "SOC", "valeur": "2", "condition": "quand l'arme familiale est visible"},
+                    {"type": "test", "categorie": "MEN", "valeur": "2", "condition": "pour intimider", "rangMin": 3},
+                    {"type": "texte", "effet": "1×/aventure, l'arme familiale sert de sauf-conduit ou de sceau officiel.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "feu",
+                  "nom": "Héritage élémentaire (feu)",
+                  "effet": "I : insensible à la chaleur · II : +1d4 DMG de feu · III : 1×/combat, déchaînement : 2d6 DMG de feu aux ennemis au contact.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "texte", "effet": "Insensible à la chaleur (arme familiale en main)."},
+                    {"type": "degats", "valeur": "1d4", "si": "arme-choisie", "condition": "{precision}", "rangMin": 3},
+                    {"type": "texte", "effet": "1×/combat, déchaînement : 2d6 DMG de feu aux ennemis au contact.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "glace",
+                  "nom": "Héritage élémentaire (glace)",
+                  "effet": "I : insensible au froid · II : +1d4 DMG de glace · III : 1×/combat, déchaînement : 2d6 DMG de glace aux ennemis au contact.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "texte", "effet": "Insensible au froid (arme familiale en main)."},
+                    {"type": "degats", "valeur": "1d4", "si": "arme-choisie", "condition": "{precision}", "rangMin": 3},
+                    {"type": "texte", "effet": "1×/combat, déchaînement : 2d6 DMG de glace aux ennemis au contact.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "foudre",
+                  "nom": "Héritage élémentaire (foudre)",
+                  "effet": "I : insensible aux décharges électriques · II : +1d4 DMG de foudre · III : 1×/combat, déchaînement : 2d6 DMG de foudre aux ennemis au contact.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "texte", "effet": "Insensible aux décharges électriques (arme familiale en main)."},
+                    {"type": "degats", "valeur": "1d4", "si": "arme-choisie", "condition": "{precision}", "rangMin": 3},
+                    {"type": "texte", "effet": "1×/combat, déchaînement : 2d6 DMG de foudre aux ennemis au contact.", "rangMin": 5}
+                  ]
+                },
+                {
+                  "id": "vengeance",
+                  "nom": "Serment de vengeance",
+                  "effet": "I : +1 AdC contre un ennemi qui a blessé un allié ce combat · II : +2 AdC et +1 DMG contre lui · III : la 1re attaque réussie contre lui ajoute +1d6 DMG.",
+                  "question": "Quelle arme familiale ? (arme de corps à corps maîtrisée)",
+                  "liste": "armes",
+                  "objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true, "equipe": true}],
+                  "effets": [
+                    {"type": "test", "categorie": "ADC", "valeur": "1", "condition": "contre un ennemi qui a blessé un allié ce combat", "rangMax": 2},
+                    {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "contre un ennemi qui a blessé un allié ce combat", "rangMin": 3},
+                    {"type": "texte", "effet": "+1 DMG contre un ennemi qui a blessé un allié ce combat.", "rangMin": 3},
+                    {"type": "texte", "effet": "La 1re attaque réussie contre cet ennemi ajoute +1d6 DMG.", "rangMin": 5}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 3,
+            "nom": "Écuyer",
+            "type": "soutien",
+            "effet": "Un écuyer PNJ non combattant porte jusqu'à 30 kg et aide à revêtir l'armure en deux fois moins de temps. Armure entretenue chaque jour : +1 CA. Il entretient aussi l'arme familiale : son trait de lignée passe au niveau II.",
+            "effets": [
+              {"type": "ca", "valeur": "1", "condition": "armure entretenue par l'écuyer"}
+            ],
+            "choix": {
+              "cle": "ecuyer",
+              "titre": "Écuyer",
+              "options": [
+                {
+                  "id": "ecuyer",
+                  "nom": "Choisir son écuyer",
+                  "question": "Quel écuyer ? (trois jeunes gens se présentent)",
+                  "liste": "ecuyers",
+                  "objets": [
+                    {
+                      "nom": "Écuyer · {precision.nom}",
+                      "categorie": "compagnon",
+                      "description": "{precision.description} Écuyer non combattant : porte jusqu'à 30 kg, aide à revêtir l'armure en deux fois moins de temps, entretient l'armure (+1 CA) et l'arme familiale."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 4,
+            "nom": "Droit du sang",
+            "type": "passif + renforcement",
+            "effet": "+3 aux tests de SOC face aux autorités. RANG fois par aventure, peut faire jouer son titre de noblesse pour obtenir un logement ou un service (audience, réquisition de chevaux…). L'arme familiale gagne +1 AdC et +1 DMG.",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "3", "condition": "face aux autorités"},
+              {"type": "usage", "nom": "Faire jouer son titre", "valeur": "RANG", "condition": "par aventure", "effet": "Obtenir un logement ou un service (audience, réquisition de chevaux…) : à voir avec le MJ."},
+              {"type": "toucher", "valeur": "1", "si": "arme-choisie", "condition": "{precision:arme-familiale}"},
+              {"type": "degats", "valeur": "1", "si": "arme-choisie", "condition": "{precision:arme-familiale}"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Titre de noblesse",
+            "type": "passif",
+            "effet": "+2 INT, +2 SOC, titre de noblesse au choix, renommée ; +5 aux tests de SOC face aux personnes un minimum éduquées mais de rang de noblesse inférieur. L'arme familiale devient légendaire : elle reçoit un nom, critique sur 19-20, et son trait de lignée passe au niveau III.",
+            "effets": [
+              {"type": "bonus", "categorie": "INT", "valeur": "2"},
+              {"type": "bonus", "categorie": "SOC", "valeur": "2"},
+              {"type": "test", "categorie": "SOC", "valeur": "5", "condition": "face aux personnes éduquées de rang de noblesse inférieur"},
+              {"type": "critique", "valeur": "19", "si": "arme-choisie", "condition": "{precision:arme-familiale}"},
+              {"type": "texte", "effet": "Arme familiale légendaire : elle reçoit un nom."}
+            ],
+            "choix": {
+              "cle": "titre-noblesse",
+              "titre": "Titre",
+              "options": [
+                {"id": "comte", "nom": "Comte / Comtesse", "effets": [{"type": "titre", "valeur": "Comte|Comtesse"}]},
+                {"id": "baron", "nom": "Baron / Baronne", "effets": [{"type": "titre", "valeur": "Baron|Baronne"}]},
+                {"id": "duc", "nom": "Duc / Duchesse", "effets": [{"type": "titre", "valeur": "Duc|Duchesse"}]}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "chevalier-cavalerie",
+        "nom": "Voie de la cavalerie",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Cheval de guerre",
+            "type": "soutien",
+            "effet": "Cheval de bataille et lance d'arçon ; sait monter (équitation gratuite).",
+            "objets": [
+              {"nom": "Cheval de guerre", "categorie": "monture", "description": "Cheval de bataille dressé au combat. Équipé = monté."},
+              {"nom": "Lance d'arçon", "categorie": "arme", "catalogue": true}
+            ],
+            "effets": [
+              {"type": "aptitude", "valeur": "equitation", "nom": "Équitation"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Charge",
+            "type": "actif",
+            "effet": "Monté, après au moins 10 m en ligne droite : +2 AdC et +1d6 DMG (+2d6 à la lance), puis −2 CA jusqu'au prochain tour.",
+            "etat": {
+              "nom": "Charge (garde baissée)",
+              "effets": [{"type": "ca", "valeur": "-2"}]
+            },
+            "jets": [
+              {"libelle": "Charge", "des": "1d20", "carac": "ADC", "attaque": {"toucher": 2, "degatsEnPlus": "1d6", "etat": "Charge (garde baissée)"}},
+              {"libelle": "Charge à la lance", "des": "1d20", "carac": "ADC", "attaque": {"toucher": 2, "degatsEnPlus": "2d6", "arme": "Lance", "etat": "Charge (garde baissée)"}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Cavalier émérite",
+            "type": "passif",
+            "effet": "Monté : +2 CA CaC, +3 AdC (+5 AdC en charge avec le +2 de la charge).",
+            "effets": [
+              {"type": "ca", "categorie": "CaC", "valeur": "2", "si": "monte", "condition": "monté"},
+              {"type": "test", "categorie": "ADC", "valeur": "3", "condition": "monté"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Piétinement",
+            "type": "gratuit",
+            "effet": "Monté, 1×/tour, la monture frappe une cible de taille moyenne ou moins au contact : 1d8 DMG ; test de FOR diff. 12 ou mise au sol.",
+            "jets": [
+              {"libelle": "Piétinement", "des": "1d8"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Chevalier dragon",
+            "type": "soutien + passif",
+            "effet": "+2 SOC. Un drake (créature volante de grande taille, à négocier avec le MJ) rejoint le chevalier comme monture : vole, porte le chevalier + 1 personne, attaque 2d6. Charge en piqué : +3d6 DMG. Les bonus de cavalier émérite s'appliquent en vol.",
+            "effets": [
+              {"type": "bonus", "categorie": "SOC", "valeur": "2"}
+            ],
+            "objets": [
+              {"nom": "Drake", "categorie": "monture", "description": "Drake de guerre (créature volante de grande taille, à négocier avec le MJ) : vole, porte le chevalier + 1 personne, attaque 2d6. Équipé = monté."}
+            ],
+            "jets": [
+              {"libelle": "Drake : attaque", "des": "2d6"},
+              {"libelle": "Charge en piqué (dégâts en plus)", "des": "3d6"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chevalier-duel",
+        "nom": "Voie du duel",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Entraînement à la parade",
+            "type": "passif",
+            "effet": "+1 CA CaC par rang ou +1 CA DIST par rang.",
+            "choix": {
+              "cle": "parade",
+              "titre": "Parade",
+              "options": [
+                {"id": "cac", "nom": "Corps à corps", "effets": [{"type": "ca", "categorie": "CaC", "valeur": "RANG"}]},
+                {"id": "dist", "nom": "Distance", "effets": [{"type": "ca", "categorie": "DIST", "valeur": "RANG"}]}
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Ouverture",
+            "type": "passif",
+            "effet": "+2 en attaque pour toucher une cible en armure (+4 avec Dehors les importuns !).",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "pour toucher une cible en armure", "rangMax": 3},
+              {"type": "test", "categorie": "ADT", "valeur": "2", "condition": "pour toucher une cible en armure", "rangMax": 3},
+              {"type": "test", "categorie": "ADC", "valeur": "4", "condition": "pour toucher une cible en armure", "rangMin": 4},
+              {"type": "test", "categorie": "ADT", "valeur": "4", "condition": "pour toucher une cible en armure", "rangMin": 4}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Feinte",
+            "type": "action complexe",
+            "effet": "Attaque normale ; au tour suivant, attaque normale à +5 et +2D6 DMG. Après la feinte, activer « Feinte préparée » ; annulée après les dégâts suivants.",
+            "etat": {
+              "nom": "Feinte préparée",
+              "finApresDegats": true,
+              "effets": [
+                {"type": "test", "categorie": "ADC", "valeur": "5"},
+                {"type": "degats", "valeur": "2d6"}
+              ]
+            }
+          },
+          {
+            "rang": 4,
+            "nom": "Dehors les importuns !",
+            "type": "passif + renforcement",
+            "effet": "Contre des groupes de petite/minuscule taille ou de niveau < moitié du sien : +2D6 DMG et +5 CA. Renforcement : ouverture → +4.",
+            "effets": [
+              {"type": "degats", "valeur": "2d6", "si": "situation", "condition": "contre des petits groupes ou de niveau < moitié du sien"},
+              {"type": "ca", "valeur": "5", "si": "situation", "condition": "contre des petits groupes ou de niveau < moitié du sien"},
+              {"type": "renforcement", "nom": "Ouverture", "effet": "+4 en attaque pour toucher une cible en armure."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Duelliste",
+            "type": "passif",
+            "effet": "En 1 contre 1 clairement identifié : +3 CA CaC, +3 CA DIST, +3 AdC, +1d6 DMG au CaC.",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "3", "condition": "en 1 contre 1"},
+              {"type": "degats", "valeur": "1d6", "si": "situation", "condition": "en 1 contre 1"},
+              {"type": "ca", "categorie": "CaC", "valeur": "3", "si": "situation", "condition": "en 1 contre 1"},
+              {"type": "ca", "categorie": "DIST", "valeur": "3", "si": "situation", "condition": "en 1 contre 1"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chevalier-commandement",
+        "nom": "Voie du commandement",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Meneur",
+            "type": "passif",
+            "effet": "+1/rang aux tests de SOC pour convaincre/encourager à le suivre.",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "RANG", "condition": "pour convaincre / encourager à le suivre"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Montrer l'exemple",
+            "type": "passif",
+            "effet": "1ʳᵉ fois dans un combat qu'il tue une créature de taille moyenne ou plus : alliés proches +5 à leur prochain jet.",
+            "effets": [
+              {"type": "usage", "nom": "Montrer l'exemple", "valeur": "1", "condition": "par combat", "effet": "Après avoir tué une créature de taille moyenne ou plus : alliés proches +5 à leur prochain jet."}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Cri de ralliement",
+            "type": "actif",
+            "effet": "1×/combat : les alliés à portée de voix sont libérés de la peur non magique, gagnent +2 CA jusqu'à la fin du tour et 1d4 + SOC PV temporaires.",
+            "effets": [
+              {"type": "usage", "nom": "Cri de ralliement", "valeur": "1", "condition": "par combat", "effet": "Alliés à portée de voix : libérés de la peur non magique, +2 CA jusqu'à la fin du tour, 1d4 + SOC PV temporaires."}
+            ],
+            "jets": [
+              {"libelle": "Cri de ralliement : PV temporaires", "des": "1d4", "carac": "SOC"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Ordres tactiques",
+            "type": "action de mouvement",
+            "effet": "1×/tour, un allié qui l'entend peut faire immédiatement une action de mouvement. À la place, 2×/combat : cet allié fait une attaque avec un d12.",
+            "effets": [
+              {"type": "usage", "nom": "Ordre d'attaque", "valeur": "2", "condition": "par combat", "effet": "Un allié qui l'entend fait immédiatement une attaque avec un d12 (à la place de l'action de mouvement)."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Général des armées",
+            "type": "passif",
+            "effet": "+2 SOC, peut prendre la tête d'une armée, +5 aux tests de SOC pour mener au combat ; +2 AdC, +1D6 DMG, +3 CA aux côtés de soldats sous ses ordres.",
+            "effets": [
+              {"type": "bonus", "categorie": "SOC", "valeur": "2"},
+              {"type": "test", "categorie": "SOC", "valeur": "5", "condition": "pour mener au combat"},
+              {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "aux côtés de soldats sous ses ordres"},
+              {"type": "degats", "valeur": "1d6", "si": "situation", "condition": "aux côtés de soldats sous ses ordres"},
+              {"type": "ca", "valeur": "3", "si": "situation", "condition": "aux côtés de soldats sous ses ordres"}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Héritier d'une maison noble, le chevalier porte haut le blason de sa famille et l'arme qui l'accompagne depuis des générations. Cavalier redoutable, duelliste accompli ou meneur d'hommes, il fait de l'honneur une armure aussi solide que l'acier. Son titre lui ouvre des portes, et lui impose des devoirs."
+  },
+  {
+    "id": "druide",
+    "nom": "Druide",
+    "modifDeVie": "=",
+    "modifDeMana": "+",
+    "lanceurDeSorts": true,
+    "profil": "lanceur",
+    "maitrises": "Armes civiles ; communes.",
+    "restrictionArmure": "Pas de plaques.",
+    "voies": [
+      {
+        "id": "druide-bestiale",
+        "nom": "Voie bestiale",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Animal de compagnie",
+            "type": "soutien",
+            "effet": "Un animal de compagnie au choix : +2 aux tests de la caractéristique associée (pas à la caractéristique elle-même), +4 dès le rang 3 (Animal de combat). L'animal suit le druide comme compagnon.",
+            "choix": {
+              "cle": "animal-druide",
+              "titre": "Animal",
+              "options": [
+                {
+                  "id": "jeune-ours",
+                  "nom": "Jeune ours (+2 aux tests de FOR)",
+                  "objets": [{"nom": "Jeune ours", "categorie": "compagnon", "description": "Animal de compagnie du druide : jeune ours robuste et protecteur."}],
+                  "effets": [
+                    {"type": "test", "categorie": "FOR", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "FOR", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "panthere",
+                  "nom": "Panthère (+2 aux tests de DEX)",
+                  "objets": [{"nom": "Panthère", "categorie": "compagnon", "description": "Animal de compagnie du druide : panthère souple et silencieuse."}],
+                  "effets": [
+                    {"type": "test", "categorie": "DEX", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "DEX", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "sanglier",
+                  "nom": "Sanglier (+2 aux tests de CON)",
+                  "objets": [{"nom": "Sanglier", "categorie": "compagnon", "description": "Animal de compagnie du druide : sanglier endurant et têtu."}],
+                  "effets": [
+                    {"type": "test", "categorie": "CON", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "CON", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "chouette",
+                  "nom": "Chouette (+2 aux tests de INT)",
+                  "objets": [{"nom": "Chouette", "categorie": "compagnon", "description": "Animal de compagnie du druide : chouette sage aux yeux perçants dans la nuit."}],
+                  "effets": [
+                    {"type": "test", "categorie": "INT", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "INT", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "aigle",
+                  "nom": "Aigle (+2 aux tests de PER)",
+                  "objets": [{"nom": "Aigle", "categorie": "compagnon", "description": "Animal de compagnie du druide : aigle à la vue perçante."}],
+                  "effets": [
+                    {"type": "test", "categorie": "PER", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "PER", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "chien",
+                  "nom": "Chien (+2 aux tests de SOC)",
+                  "objets": [{"nom": "Chien", "categorie": "compagnon", "description": "Animal de compagnie du druide : chien amical qui met les gens en confiance."}],
+                  "effets": [
+                    {"type": "test", "categorie": "SOC", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "SOC", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "loup",
+                  "nom": "Loup (+2 aux tests de MEN)",
+                  "objets": [{"nom": "Loup", "categorie": "compagnon", "description": "Animal de compagnie du druide : loup fidèle et impressionnant."}],
+                  "effets": [
+                    {"type": "test", "categorie": "MEN", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "MEN", "valeur": "4", "rangMin": 3}
+                  ]
+                },
+                {
+                  "id": "lievre",
+                  "nom": "Lièvre (+2 aux tests de CHAN)",
+                  "objets": [{"nom": "Lièvre", "categorie": "compagnon", "description": "Animal de compagnie du druide : lièvre vif, porte-bonheur."}],
+                  "effets": [
+                    {"type": "test", "categorie": "CHAN", "valeur": "2", "rangMax": 2},
+                    {"type": "test", "categorie": "CHAN", "valeur": "4", "rangMin": 3}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Transformation minime",
+            "type": "sort",
+            "typesSort": ["transformation"],
+            "effet": "Se transforme (soi seul) en animal minuscule (souris, chat, moineau, poisson rouge) pendant 1d6 min.",
+            "effetApplique": "Animal minuscule pendant 1d6 min (soi seul)",
+            "etat": {"nom": "Transformé (animal minuscule)"},
+            "jets": [
+              {"libelle": "Transformation minime : durée (min)", "des": "1d6"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Animal de combat",
+            "type": "passif + renforcement",
+            "effet": "L'animal attaque au tour de son compagnon : +RANG AdC, 1d8 DMG. Renforcement : le bonus aux tests de l'animal de compagnie (rang 1) passe à +4.",
+            "effets": [
+              {"type": "renforcement", "nom": "Animal de compagnie", "effet": "Le bonus aux tests de l'animal passe à +4."}
+            ],
+            "jets": [
+              {"libelle": "Animal : attaque", "des": "1d20 + RANG", "carac": "ADC"},
+              {"libelle": "Animal : dégâts", "des": "1d8"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Mutation partielle",
+            "type": "sort",
+            "typesSort": ["transformation"],
+            "effet": "Change une partie du corps (aile, branchies, patte de lézard pour grimper, patte d'araignée, bras de gorille).",
+            "effetApplique": "Aile, branchies, patte de lézard ou d'araignée, bras de gorille…",
+            "etat": {"nom": "Mutation partielle"}
+          },
+          {
+            "rang": 5,
+            "nom": "Transformation majeure",
+            "type": "sort",
+            "typesSort": ["transformation"],
+            "effet": "Se transforme en grand animal (gorille, loup, lion, requin, aigle royal) ; utilisable sur une autre cible consentante.",
+            "effetApplique": "Grand animal (gorille, loup, lion, requin, aigle royal) ; aussi sur une cible consentante",
+            "etat": {"nom": "Transformé (grand animal)"}
+          }
+        ]
+      },
+      {
+        "id": "druide-protecteur",
+        "nom": "Voie du protecteur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Peau d'écorce",
+            "type": "passif",
+            "effet": "+1 CA CaC, +1 CA distance ; +2 au rang 3.",
+            "effets": [
+              {"type": "ca", "categorie": "CaC", "valeur": "1", "rangMax": 2},
+              {"type": "ca", "categorie": "DIST", "valeur": "1", "rangMax": 2},
+              {"type": "ca", "categorie": "CaC", "valeur": "2", "rangMin": 3},
+              {"type": "ca", "categorie": "DIST", "valeur": "2", "rangMin": 3}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Écorces partagées",
+            "type": "sort",
+            "typesSort": ["support"],
+            "effet": "Partage le bonus de Peau d'écorce avec ses alliés pendant INT tours.",
+            "effetApplique": "Alliés : bonus de Peau d'écorce (CA CaC et DIST) pendant INT tours"
+          },
+          {
+            "rang": 3,
+            "nom": "Brume",
+            "type": "sort",
+            "typesSort": ["support", "controle-physique"],
+            "effet": "Brouillard dense autour du groupe, 1d6 + INT tours : +5 discrétion, −5 AdC, −5 AdT, −5 attaque magique.",
+            "effetApplique": "Brouillard 1d6 + INT tours : +5 discrétion, −5 AdC / AdT / attaque magique",
+            "effets": [
+              {"type": "savoir", "categorie": "Discrétion", "valeur": "5", "si": "situation", "condition": "dans la brume"}
+            ],
+            "jets": [
+              {"libelle": "Brume : durée (tours)", "des": "1d6", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Instinct de survie",
+            "type": "passif",
+            "effet": "Frisson à l'approche d'un danger (test PER caché diff. 18 pour savoir s'il est mortel).",
+            "jets": [
+              {"libelle": "Instinct de survie", "des": "1d20", "carac": "PER", "difficulte": 18}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Pissenlit protecteur",
+            "type": "sort",
+            "typesSort": ["support"],
+            "effet": "Pissenlit géant protégeant jusqu'à INT personnes : absorbe jusqu'à 4 × NIVEAU × INT dégâts pendant 2d6 + INT tours.",
+            "effetApplique": "Protège INT personnes : absorbe 4 × NIVEAU × INT dégâts",
+            "jets": [
+              {"libelle": "Pissenlit : durée (tours)", "des": "2d6", "carac": "INT"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "druide-nature",
+        "nom": "Voie de la nature",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Enfant de la nature",
+            "type": "passif",
+            "effet": "+2/rang aux tests de déplacement et de survie en milieu difficile (collines, montagnes, neige…).",
+            "effets": [
+              {"type": "savoir", "categorie": "Survie, Escalade, Natation, Acrobatie", "valeur": "2×RANG", "si": "situation", "condition": "en milieu difficile"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Calme animal",
+            "type": "passif",
+            "effet": "+2/rang aux tests de SOC pour calmer/comprendre les émotions des animaux.",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "2×RANG", "condition": "pour calmer / comprendre un animal"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Fruit de la vie",
+            "type": "sort",
+            "typesSort": ["support"],
+            "effet": "Petit arbre fruitier avec RANG fruits magiques rendant chacun 1d6 + INT PV (1 jour max ; en pleine nature).",
+            "soin": "1d6 + INT PV par fruit (RANG fruits)",
+            "effetApplique": "Arbre fruitier en pleine nature (fruits gardés 1 jour)"
+          },
+          {
+            "rang": 4,
+            "nom": "Invocation animal",
+            "type": "sort",
+            "typesSort": ["invocation"],
+            "effet": "Invoque un animal magique de taille moyenne à ses côtés.",
+            "effetApplique": "Animal magique de taille moyenne à ses côtés"
+          },
+          {
+            "rang": 5,
+            "nom": "Tempête menaçante",
+            "type": "sort",
+            "typesSort": ["offensif"],
+            "effet": "+2 CON. Tempête de bourrasques, éclairs et grêle : 4D6 sur une zone de 20 m de diamètre.",
+            "degats": "4d6 (zone de 20 m de diamètre)",
+            "effets": [
+              {"type": "bonus", "categorie": "CON", "valeur": "2"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "druide-vegetaux",
+        "nom": "Voie des végétaux",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Vie sylvestre",
+            "type": "passif",
+            "effet": "+3 INIT et +2 PER entouré de végétation.",
+            "effets": [
+              {"type": "test", "categorie": "INIT", "valeur": "3", "condition": "entouré de végétation"},
+              {"type": "test", "categorie": "PER", "valeur": "2", "condition": "entouré de végétation"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Se fondre dans la nature",
+            "type": "sort",
+            "typesSort": ["support"],
+            "effet": "+5 discrétion en nature ; (actif) applicable aux alliés.",
+            "effetApplique": "Alliés : +5 discrétion en nature",
+            "effets": [
+              {"type": "savoir", "categorie": "Discrétion", "valeur": "5", "si": "situation", "condition": "en nature"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Lianes immobilisantes",
+            "type": "sort",
+            "typesSort": ["controle-physique"],
+            "effet": "Lianes aux pieds des ennemis : immobilisés 1d6/2 tours (réduit de moitié sur grandes créatures et plus).",
+            "effetApplique": "Ennemis immobilisés 1d6/2 tours (moitié sur les grandes créatures)",
+            "jets": [
+              {"libelle": "Lianes : durée (1d6, à diviser par 2)", "des": "1d6"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Arbrification",
+            "type": "sort",
+            "typesSort": ["transformation", "controle-physique"],
+            "effet": "Transforme quelqu'un (ou soi) en arbre : ne peut ni agir ni bouger, +10 RD physique, régénère 1d6 PV/tour, durée INT tours ; annulable par le lanceur ; sur autrui : test de CON en opposition.",
+            "effetApplique": "Arbre INT tours : immobile, +10 RD physique",
+            "soin": "1d6 PV par tour",
+            "reussite": {"libelle": "Arbrification", "carac": "ADM", "contre": "sur autrui : test de CON en opposition"},
+            "etat": {"nom": "Arbrifié", "effets": [{"type": "texte", "effet": "Ne peut ni agir ni bouger ; +10 RD physique ; régénère 1d6 PV par tour."}]}
+          },
+          {
+            "rang": 5,
+            "nom": "Plante carnivore",
+            "type": "sort",
+            "typesSort": ["invocation", "offensif"],
+            "effet": "Fait surgir une très grande plante carnivore qui obéit au druide ou attaque les ennemis à portée.",
+            "effetApplique": "Plante carnivore géante qui obéit au druide"
+          }
+        ]
+      }
+    ],
+    "description": "Gardien des forêts et des bêtes, le druide puise sa magie dans la nature elle-même. Il parle aux animaux, prend leur forme, fait pousser des lianes et appelle la tempête. Pour lui, chaque arbre a une mémoire et chaque créature une place.",
+    "originePouvoir": "Origine du pouvoir : proximité avec la nature."
+  },
+  {
+    "id": "guerrier",
+    "nom": "Guerrier",
+    "modifDeVie": "+",
+    "modifDeMana": "-",
+    "lanceurDeSorts": false,
+    "profil": "physique",
+    "maitrises": "Armes civiles ; communes.",
+    "restrictionArmure": "Aucune.",
+    "voies": [
+      {
+        "id": "guerrier-bouclier",
+        "nom": "Voie du bouclier",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Formation",
+            "type": "passif",
+            "effet": "Le bouclier n'applique pas d'encombrement de CA.",
+            "effets": [
+              {"type": "texte", "effet": "Le bouclier n'applique pas d'encombrement de CA."}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "À couvert",
+            "type": "actif",
+            "effet": "Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA CaC, DIST, MAG et ELEM.",
+            "etat": {
+              "nom": "À couvert",
+              "effets": [
+                {"type": "ca", "categorie": "CaC", "valeur": "3"},
+                {"type": "ca", "categorie": "DIST", "valeur": "3"},
+                {"type": "ca", "categorie": "MAG", "valeur": "3"},
+                {"type": "texte", "effet": "+3 CA ELEM."}
+              ]
+            }
+          },
+          {
+            "rang": 3,
+            "nom": "Protection",
+            "type": "renforcement",
+            "effet": "S'il ne s'est pas déplacé, fait profiter un allié de sa défense pour intercepter un coup à sa place.",
+            "effets": [
+              {"type": "texte", "effet": "S'il ne s'est pas déplacé : intercepte un coup destiné à un allié."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Rempart arcanique",
+            "type": "passif",
+            "effet": "Le bouclier donne aussi +2 CA MAG et +2 CA ELEM. 1×/combat, bloque entièrement un sort d'attaque de rang ≤ 2 visant le guerrier (jet d'AdC contre le jet d'AdM du lanceur).",
+            "effets": [
+              {"type": "ca", "categorie": "MAG", "valeur": "2", "si": "bouclier", "condition": "bouclier équipé"},
+              {"type": "texte", "effet": "+2 CA ELEM avec un bouclier équipé."},
+              {"type": "usage", "nom": "Rempart arcanique", "valeur": "1", "condition": "par combat", "effet": "Bloque un sort d'attaque de rang ≤ 2 visant le guerrier (jet d'AdC contre le jet d'AdM du lanceur)."}
+            ],
+            "jets": [
+              {"libelle": "Rempart arcanique : blocage", "des": "1d20", "carac": "ADC"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Égide",
+            "type": "passif + renforcement",
+            "effet": "+2 CON. « À couvert » → +5, et les alliés au contact derrière lui gagnent +3. « Protection » utilisable même après un déplacement, jusqu'à 2×/tour.",
+            "effets": [
+              {"type": "bonus", "categorie": "CON", "valeur": "2"},
+              {"type": "renforcement", "nom": "À couvert", "effet": "+5 CA CaC, DIST, MAG et ELEM ; les alliés au contact derrière lui gagnent +3."},
+              {"type": "renforcement", "nom": "Protection", "effet": "Utilisable même après un déplacement, jusqu'à 2×/tour."}
+            ],
+            "etat": {
+              "nom": "À couvert",
+              "effets": [
+                {"type": "ca", "categorie": "CaC", "valeur": "5"},
+                {"type": "ca", "categorie": "DIST", "valeur": "5"},
+                {"type": "ca", "categorie": "MAG", "valeur": "5"},
+                {"type": "texte", "effet": "+5 CA ELEM ; alliés au contact derrière lui : +3."}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "guerrier-melee",
+        "nom": "Voie de la mêlée",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Entraînement martial",
+            "type": "passif",
+            "effet": "+1 AdC par rang (au toucher).",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Frappe de précision",
+            "type": "actif",
+            "effet": "Attaque avec un d12 ; si touche, +2D6 DMG.",
+            "jets": [
+              {"libelle": "Frappe de précision", "des": "1d12", "carac": "ADC", "attaque": {"degatsEnPlus": "2d6"}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Coup de boucher",
+            "type": "action complexe",
+            "effet": "Attaque brutale : DMG ÷2 (arrondi à l'inférieur), mais sur un d6 de 5-6 le membre est tranché/entaillé (lâche l'arme).",
+            "jets": [
+              {"libelle": "Coup de boucher", "des": "1d20", "carac": "ADC", "attaque": {"diviseDegats": 2}},
+              {"libelle": "Coup de boucher : membre tranché", "des": "1d6", "difficulte": 5}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Arme de prédilection",
+            "type": "passif",
+            "effet": "Choisit un type d'arme : +1d4 DMG et +2 AdC (changeable via un maître d'armes).",
+            "choix": {
+              "cle": "arme-predilection",
+              "titre": "Arme de prédilection",
+              "options": [
+                {
+                  "id": "arme",
+                  "nom": "Arme de prédilection",
+                  "question": "Quel type d'arme ?",
+                  "liste": "armes",
+                  "effets": [
+                    {"type": "toucher", "valeur": "2", "si": "arme-choisie", "condition": "{precision}"},
+                    {"type": "degats", "valeur": "1d4", "si": "arme-choisie", "condition": "{precision}"}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 5,
+            "nom": "Ambidextrie",
+            "type": "renforcement",
+            "effet": "2ᵉ arme à 1 main équipée (épée + pistolet possible) ; attaque avec pour une action de mouvement (au d20). Coup de boucher : membre tranché sur 4-6 ; critique = membre tranché + dégâts non réduits.",
+            "effets": [
+              {"type": "maitrise", "categorie": "ambidextrie", "valeur": "2ᵉ arme à une main (attaque au d20)"},
+              {"type": "renforcement", "nom": "Coup de boucher", "effet": "Membre tranché sur 4-6 ; critique = membre tranché + dégâts non réduits."}
+            ],
+            "jets": [
+              {"libelle": "Coup de boucher : membre tranché", "difficulte": 4}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "guerrier-guerre",
+        "nom": "Voie de la guerre",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Rangs serrés",
+            "type": "passif",
+            "effet": "+1 CA CaC par allié au contact (max +3).",
+            "effets": [
+              {"type": "ca", "categorie": "CaC", "valeur": "1", "si": "situation", "condition": "par allié au contact (max +3)"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Contre-attaque",
+            "type": "passif",
+            "effet": "Si une attaque de contact contre lui rate d'au moins 5 sous sa CA : attaque gratuite avec un d12 (1×/tour max).",
+            "jets": [
+              {"libelle": "Contre-attaque", "des": "1d12", "carac": "ADC", "attaque": {}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Contre-attaque améliorée",
+            "type": "renforcement",
+            "effet": "Idem avec un d20, jusqu'à 2×/tour.",
+            "effets": [
+              {"type": "renforcement", "nom": "Contre-attaque", "effet": "Attaque gratuite avec un d20, jusqu'à 2×/tour."}
+            ],
+            "jets": [
+              {"libelle": "Contre-attaque", "des": "1d20", "carac": "ADC", "attaque": {}}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Tenir une position",
+            "type": "actif",
+            "effet": "Sans déplacement ce tour : +3 CA CaC, +2 AdC, insensible aux repoussements et mises au sol. Un ennemi qui tente de le dépasser au contact subit une attaque gratuite avec un d12.",
+            "etat": {
+              "nom": "Tenir une position",
+              "effets": [
+                {"type": "ca", "categorie": "CaC", "valeur": "3"},
+                {"type": "test", "categorie": "ADC", "valeur": "2"},
+                {"type": "texte", "effet": "Insensible aux repoussements et mises au sol."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Attaque gratuite (dépassement)", "des": "1d12", "carac": "ADC", "attaque": {}}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Vétéran des champs de bataille",
+            "type": "passif + renforcement",
+            "effet": "+2 FOR ou +2 CON. Rangs serrés : max +5, et les alliés au contact gagnent +1 CA. Contre-attaque déclenchée par n'importe quelle attaque ratée (toujours 2×/tour).",
+            "effets": [
+              {"type": "renforcement", "nom": "Rangs serrés", "effet": "Max +5 ; les alliés au contact gagnent +1 CA."},
+              {"type": "renforcement", "nom": "Contre-attaque", "effet": "Déclenchée par n'importe quelle attaque ratée (toujours 2×/tour)."}
+            ],
+            "choix": {
+              "cle": "veteran",
+              "titre": "Caractéristique",
+              "options": [
+                {"id": "FOR", "nom": "+2 FOR", "effets": [{"type": "bonus", "categorie": "FOR", "valeur": "2"}]},
+                {"id": "CON", "nom": "+2 CON", "effets": [{"type": "bonus", "categorie": "CON", "valeur": "2"}]}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "guerrier-polyvalence",
+        "nom": "Voie de la polyvalence",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Archerie",
+            "type": "passif",
+            "effet": "Maîtrise de toutes les armes à distance hors siège (arcs, arbalètes, pistolet, mousquet…).",
+            "effets": [
+              {"type": "maitrise", "categorie": "arme", "valeur": "Arc"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Arbalète"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Pétoire"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Pistolet"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Mousquet"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Fronde"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Posture défensive",
+            "type": "gratuit",
+            "effet": "1×/tour : +3 CA mais pas de sprint (pas 2 actions de mouvement).",
+            "etat": {
+              "nom": "Posture défensive",
+              "groupe": "posture",
+              "effets": [
+                {"type": "ca", "valeur": "3"},
+                {"type": "texte", "effet": "Pas de sprint (pas 2 actions de mouvement)."}
+              ]
+            }
+          },
+          {
+            "rang": 3,
+            "nom": "Jonglage d'armes",
+            "type": "passif",
+            "effet": "Changer d'arme passe d'action simple à gratuite.",
+            "effets": [
+              {"type": "texte", "effet": "Changer d'arme est une action gratuite."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Posture offensive",
+            "type": "gratuit",
+            "effet": "1×/tour : +3 AdC et +1d6 DMG, mais −3 CA.",
+            "etat": {
+              "nom": "Posture offensive",
+              "groupe": "posture",
+              "effets": [
+                {"type": "test", "categorie": "ADC", "valeur": "3"},
+                {"type": "degats", "valeur": "1d6"},
+                {"type": "ca", "valeur": "-3"}
+              ]
+            }
+          },
+          {
+            "rang": 5,
+            "nom": "Imprévisible",
+            "type": "passif",
+            "effet": "1×/tour, changer d'arme donne +3 AdC et +3 AdT.",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "3", "condition": "après avoir changé d'arme ce tour"},
+              {"type": "test", "categorie": "ADT", "valeur": "3", "condition": "après avoir changé d'arme ce tour"}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Soldat de métier, le guerrier a appris à se battre avec tout ce qui lui tombe sous la main. Derrière son bouclier ou au cœur de la mêlée, il tient la ligne, rend coup pour coup et change de posture selon le combat. Là où les autres hésitent, il avance."
+  },
+  {
+    "id": "ingenieur",
+    "nom": "Ingénieur",
+    "modifDeVie": "+",
+    "modifDeMana": "-",
+    "lanceurDeSorts": false,
+    "profil": "physique",
+    "maitrises": "Armes civiles ; mêlée communes ; poudre ; siège.",
+    "restrictionArmure": "Pas de plaques.",
+    "voies": [
+      {
+        "id": "ingenieur-artillerie",
+        "nom": "Voie de l'artillerie",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Apprenti artilleur",
+            "type": "passif",
+            "effet": "+2/rang aux tests pour maîtriser/utiliser/comprendre une arme de siège ; maîtrise des armes à poudre et de siège.",
+            "effets": [
+              {"type": "maitrise", "categorie": "arme", "valeur": "Pétoire"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Pistolet"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Mousquet"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Canon"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Armes de siège"},
+              {"type": "savoir", "categorie": "Ingénierie et mécanismes", "valeur": "2×RANG", "si": "situation", "condition": "arme de siège"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Canon à mains",
+            "type": "soutien",
+            "effet": "Obtient (avec le MJ) un petit canon à mains : boulet, portée 50 m, 3D10 DMG, deux mains, rechargement = action complexe (le rechargement rapide ne marche pas).",
+            "objets": [
+              {"nom": "Canon à mains", "categorie": "arme", "catalogue": true}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Artilleur confirmé",
+            "type": "renforcement",
+            "effet": "Rechargement de canon à 2 mains = action de mouvement ; +2 DMG armes à poudre légères (pétoire, pistolet), +5 DMG lourdes (mousquet, canon).",
+            "effets": [
+              {"type": "degats", "valeur": "2", "si": "arme-choisie", "condition": "Pétoire, Pistolet"},
+              {"type": "degats", "valeur": "5", "si": "arme-choisie", "condition": "Mousquet, Canon"},
+              {"type": "texte", "effet": "Rechargement d'un canon à 2 mains : action de mouvement."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Médecin de campagne",
+            "type": "complexe",
+            "effet": "Stabilise une personne blessée physiquement et lui rend 4D4 PV.",
+            "jets": [
+              {"libelle": "Médecin de campagne : soin", "des": "4d4"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Artilleur vétéran",
+            "type": "passif",
+            "effet": "Peut commander une unité de siège (légitimité) ; +10 aux attaques contre une structure (arme de siège ou à poudre) ; +5 contre une créature (+10 si grande ou plus, ou très grand groupe).",
+            "effets": [
+              {"type": "test", "categorie": "ADT", "valeur": "10", "condition": "contre une structure (arme de siège ou à poudre)"},
+              {"type": "test", "categorie": "ADT", "valeur": "5", "condition": "contre une créature (arme de siège ou à poudre)"},
+              {"type": "test", "categorie": "ADT", "valeur": "10", "condition": "contre une grande créature ou un très grand groupe"},
+              {"type": "texte", "effet": "Peut commander une unité de siège (légitimité)."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ingenieur-chimiste",
+        "nom": "Voie du chimiste",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Chimiste en herbe",
+            "type": "passif",
+            "effet": "+2/rang pour fabriquer poudre ou potions (jets d'Alchimie) ; max RANG×2 potions/jour, 10 min chacune. Débloque : potion de santé.",
+            "effets": [
+              {"type": "savoir", "valeur": "2×RANG", "condition": "Alchimie"},
+              {"type": "usage", "nom": "Potions du jour", "valeur": "2×RANG", "condition": "par jour", "effet": "Fabrication d'une potion : 10 min."}
+            ],
+            "fabrication": [
+              {"nom": "Potion de santé (niveau 1)", "categorie": "consommable", "description": "Rend 1D8 PV.", "usage": "Potions du jour"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Expertise de la poudre",
+            "type": "passif",
+            "effet": "Ajoute sa DEX aux dégâts d'une arme à feu. Débloque : potion de fer.",
+            "effets": [
+              {"type": "maitrise", "categorie": "expertise-poudre", "valeur": "DEX ajoutée aux dégâts des armes à feu"}
+            ],
+            "fabrication": [
+              {"nom": "Potion de fer", "categorie": "consommable", "description": "+5 CA pendant 1D6 heures.", "usage": "Potions du jour"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Projectile explosif",
+            "type": "actif",
+            "effet": "Petit projectile explosant sur 3-4 m : 2D6 DMG ; fabrication 1 h ; test d'attaque/lancer de DEX. Débloque : potion de poison.",
+            "fabrication": [
+              {"nom": "Projectile explosif", "categorie": "consommable", "description": "Explose sur 3-4 m (4-6 m avec Sapeur). Fabrication : 1 h. Lancer : test de DEX."},
+              {"nom": "Potion de poison", "categorie": "consommable", "description": "+1D6 DMG de chaos à l'impact ; test de CON diff. 15 pour résister (1D6 pendant 1D6 tours).", "usage": "Potions du jour"}
+            ],
+            "jets": [
+              {"libelle": "Projectile explosif : lancer", "des": "1d20", "carac": "DEX"},
+              {"libelle": "Projectile explosif : dégâts", "des": "2d6"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Démolisseur",
+            "type": "actif",
+            "effet": "Charge d'explosif perçant mur, structure ou coffre ; pose 2 tours, fabrication 3 h. Débloque : potion de réussite.",
+            "fabrication": [
+              {"nom": "Charge d'explosif", "categorie": "consommable", "description": "Perce un mur, une structure ou un coffre. Pose : 2 tours. Fabrication : 3 h."},
+              {"nom": "Potion de réussite", "categorie": "consommable", "description": "+3 aux prochains jets pendant 5 min.", "usage": "Potions du jour"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Sapeur",
+            "type": "renforcement",
+            "effet": "Projectile explosif : rayon 4-6 m, 4d6 dégâts ; améliore démolisseur ; débloque les potions magiques (avec l'aide d'un magicien).",
+            "effets": [
+              {"type": "renforcement", "nom": "Projectile explosif", "effet": "Rayon 4-6 m, 4d6 dégâts."},
+              {"type": "renforcement", "nom": "Démolisseur", "effet": "Charge d'explosif améliorée (à voir avec le MJ)."}
+            ],
+            "fabrication": [
+              {"nom": "Potion magique", "categorie": "consommable", "description": "Avec l'aide d'un magicien connaissant le sort : respiration aquatique, agrandissement, lumière, brume, bannissement.", "usage": "Potions du jour"}
+            ],
+            "jets": [
+              {"libelle": "Projectile explosif : dégâts", "des": "4d6"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ingenieur-tireur",
+        "nom": "Voie du tireur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Entraînement au tir",
+            "type": "passif",
+            "effet": "+1 AdT par rang avec les armes à feu (au toucher).",
+            "effets": [
+              {"type": "toucher", "valeur": "RANG", "si": "arme-choisie", "condition": "Pétoire, Pistolet, Mousquet, Canon"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Tenir en joue",
+            "type": "action de mouvement",
+            "effet": "Action de mouvement : la cible subit une attaque gratuite de l'ingénieur si elle se déplace.",
+            "jets": [
+              {"libelle": "Tenir en joue : tir de réaction", "des": "1d20", "carac": "ADT", "attaque": {"distance": true}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Pistoléro",
+            "type": "actif",
+            "effet": "Deux armes à feu à une main avec un d12 au lieu du d20 ; 2 tirs possibles comme une action d'attaque (un seul tir : d20 et +2).",
+            "jets": [
+              {"libelle": "Pistoléro : 2 tirs", "des": "1d12", "carac": "ADT", "attaque": {"distance": true}},
+              {"libelle": "Pistoléro : tir unique", "des": "1d20", "carac": "ADT", "attaque": {"distance": true, "toucher": 2}}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Rechargement rapide",
+            "type": "passif + renforcement",
+            "effet": "Rechargement gratuit après avoir tiré (pas avec 2 armes). Tenir en joue : jusqu'à 3 cibles (une seule réaction de tir par tour).",
+            "effets": [
+              {"type": "texte", "effet": "Rechargement gratuit après avoir tiré (pas avec 2 armes)."},
+              {"type": "renforcement", "nom": "Tenir en joue", "effet": "Jusqu'à 3 cibles (une seule réaction de tir par tour)."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "As de la gâchette",
+            "type": "renforcement",
+            "effet": "Pistoléro avec d20 (2 armes) ; +2D10 dégâts avec 1 seule arme ; rechargement rapide fonctionne avec 2 armes.",
+            "effets": [
+              {"type": "renforcement", "nom": "Pistoléro", "effet": "2 tirs au d20 ; tir unique : +2D10 dégâts."},
+              {"type": "renforcement", "nom": "Rechargement rapide", "effet": "Fonctionne aussi avec 2 armes."}
+            ],
+            "jets": [
+              {"libelle": "Pistoléro : 2 tirs", "des": "1d20", "carac": "ADT", "attaque": {"distance": true}},
+              {"libelle": "Pistoléro : tir unique", "attaque": {"degatsEnPlus": "2d10"}}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ingenieur-mecanismes",
+        "nom": "Voie des mécanismes",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Mécanicien",
+            "type": "passif",
+            "effet": "+2/rang aux tests de mécanique et de compréhension d'un mécanisme (jets d'Ingénierie et mécanismes).",
+            "effets": [
+              {"type": "savoir", "valeur": "2×RANG", "condition": "Ingénierie et mécanismes"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Physique appliquée",
+            "type": "passif",
+            "effet": "+5 aux tests de FOR ou DEX optimisables par la physique (levier…), applicable au lancer de projectile explosif.",
+            "effets": [
+              {"type": "test", "categorie": "FOR", "valeur": "5", "condition": "optimisable par la physique (levier…)"},
+              {"type": "test", "categorie": "DEX", "valeur": "5", "condition": "optimisable par la physique (levier, projectile explosif…)"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Automate",
+            "type": "soutien",
+            "effet": "Fabrique un petit automate d'engrenages et de métal (porte du matériel ou se vend aux riches).",
+            "fabrication": [
+              {"nom": "Petit automate", "categorie": "compagnon", "description": "Petit automate d'engrenages et de métal : porte du matériel ou se vend aux riches."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Bidouillage",
+            "type": "soutien",
+            "effet": "Améliore une arme à poudre (≈ 10 pa de pièces), une seule amélioration par arme (remplaçable, 10 pa à chaque fois) : crosse modifiée +3 AdT ; canon vissé +1D6 DMG ; ou chargeur +2 balles sans recharger (augmente d'autant les réactions de « tenir en joue »).",
+            "effets": [
+              {"type": "maitrise", "categorie": "bidouillage", "valeur": "améliorer les armes à poudre, une amélioration par arme (menu de l'arme dans l'inventaire, 10 pa)"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Golem",
+            "type": "soutien",
+            "effet": "Construit un golem (un seul à la fois) avec jusqu'à 2 modules : artilleur (canon d'épaule), protecteur (bouclier), mobile (allégé), combattant (armes CaC), mule (buste de rangement).",
+            "objets": [
+              {"nom": "Golem", "categorie": "compagnon", "description": "Golem de l'ingénieur (un seul à la fois ; stats à voir avec le MJ) : jusqu'à 2 modules, voir la compétence Golem."}
+            ],
+            "choix": {
+              "cle": "golem-modules",
+              "titre": "Modules du golem",
+              "nombre": 2,
+              "options": [
+                {"id": "artilleur", "nom": "Artilleur", "effets": [{"type": "texte", "effet": "Golem : canon d'épaule."}]},
+                {"id": "protecteur", "nom": "Protecteur", "effets": [{"type": "texte", "effet": "Golem : bouclier."}]},
+                {"id": "mobile", "nom": "Mobile", "effets": [{"type": "texte", "effet": "Golem : allégé, plus mobile."}]},
+                {"id": "combattant", "nom": "Combattant", "effets": [{"type": "texte", "effet": "Golem : armes de corps à corps."}]},
+                {"id": "mule", "nom": "Mule", "effets": [{"type": "texte", "effet": "Golem : buste de rangement."}]}
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "description": "Esprit inventif et mains noircies de poudre, l'ingénieur fait confiance à la science plus qu'à la magie. Canons, potions, explosifs, automates et golems sortent de son atelier. Sur le champ de bataille comme dans les ruines, il trouve toujours un mécanisme à comprendre… ou à faire sauter."
+  },
+  {
+    "id": "magicien",
+    "nom": "Magicien",
+    "modifDeVie": "-",
+    "modifDeMana": "+",
+    "lanceurDeSorts": true,
+    "profil": "lanceur",
+    "maitrises": "Armes civiles.",
+    "restrictionArmure": "Cuir maximum.",
+    "voies": [
+      {
+        "id": "magicien-magie-universelle",
+        "nom": "Voie de la magie universelle",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Savoir magique",
+            "type": "passif",
+            "effet": "+1/rang aux tests de savoirs occultes/magiques (Arcanes, Plans et démonologie) ; accès aux sorts de rang 0.",
+            "effets": [
+              {"type": "savoir", "valeur": "RANG", "condition": "Arcanes"},
+              {"type": "savoir", "valeur": "RANG", "condition": "Plans et démonologie"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Cercle de protection",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Cercle pour jusqu'à INT personnes : +3 CA MAG aux alliés ; dure INT + 1d4 tours ; brisé si le magicien en sort. Au rang 4 : peut intercepter les sorts visant ses alliés et utiliser sa défense magique.",
+            "effetApplique": "Jusqu'à INT alliés : +3 CA MAG pendant INT + 1d4 tours",
+            "effets": [
+              {"type": "ca", "categorie": "MAG", "valeur": "3", "si": "situation", "condition": "dans le cercle de protection"},
+              {"type": "texte", "effet": "Peut intercepter les sorts visant ses alliés et utiliser sa défense magique.", "rangMin": 4}
+            ],
+            "jets": [
+              {"libelle": "Cercle de protection : durée (tours)", "des": "1d4", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Transfert de mana",
+            "type": "renforcement + passif",
+            "effet": "Transfère du mana d'une personne à une autre (consentante : action simple ; sinon : attaque magique), débit = DM du magicien par action. Permet de dépasser son mana max sans overdose pendant INT × 2 min.",
+            "effets": [
+              {"type": "texte", "effet": "Transfert de mana : débit = DM par action ; peut dépasser son mana max sans overdose pendant INT × 2 min."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Téléportation",
+            "type": "actif, sort",
+            "typesSort": ["utilitaire"],
+            "mana": "N × D PM (personnes × km)",
+            "effet": "Téléporte le magicien (+ alliés) sur une grande distance ; coût en mana = N (personnes) × D (km).",
+            "effetApplique": "Téléporte N personnes sur D km"
+          },
+          {
+            "rang": 5,
+            "nom": "Archimage",
+            "type": "passif",
+            "effet": "Titre, +2 INT, +2 AdM ; peut lancer 2 sorts dans un même tour (d12 pour les sorts d'attaque magique, effets ÷2 pour les autres, pas de déplacement).",
+            "effets": [
+              {"type": "bonus", "categorie": "INT", "valeur": "2"},
+              {"type": "bonus", "categorie": "ADM", "valeur": "2"},
+              {"type": "titre", "valeur": "Archimage"},
+              {"type": "texte", "effet": "Peut lancer 2 sorts dans un même tour (d12 pour les attaques magiques, effets ÷2 pour les autres, pas de déplacement)."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "magicien-feu",
+        "nom": "Voie du feu",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Boule de feu",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "modulable": true,
+            "effet": "Projetée jusqu'à 20 m : 1d6 DM FEU (modulable aux rangs suivants : [RANG]d6 avec coût de mana adapté).",
+            "degats": "1d6 feu",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+          },
+          {
+            "rang": 2,
+            "nom": "Esprit du Phénix",
+            "type": "passif",
+            "effet": "Tatouages rouges ; +1 RD feu par rang.",
+            "effets": [
+              {"type": "bonus", "categorie": "RD feu", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Mur de flamme",
+            "type": "actif, sort",
+            "typesSort": ["offensif", "controle-physique"],
+            "effet": "Mur large de 1d8 + INT m pendant 1d6 + INT tours ; 3d6 de feu à qui le traverse.",
+            "degats": "3d6 feu (à qui le traverse)",
+            "effetApplique": "Mur de 1d8 + INT m pendant 1d6 + INT tours",
+            "jets": [
+              {"libelle": "Mur de flamme : largeur (m)", "des": "1d8", "carac": "INT"},
+              {"libelle": "Mur de flamme : durée (tours)", "des": "1d6", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Contrôle du feu",
+            "type": "renforcement, sort, coût rang 1",
+            "typesSort": ["utilitaire"],
+            "effet": "Intensifier, éteindre, donner une forme (contrôle minimal au coût d'un rang 1).",
+            "effetApplique": "Intensifie, éteint ou façonne un feu"
+          },
+          {
+            "rang": 5,
+            "nom": "Élémentaire de feu",
+            "type": "actif, sort",
+            "typesSort": ["invocation", "transformation"],
+            "effet": "Invoquer ou se transformer en élémentaire.",
+            "effetApplique": "Élémentaire de feu invoqué, ou forme d'élémentaire (stats avec le MJ)",
+            "etat": {"nom": "Forme d'élémentaire de feu"}
+          }
+        ]
+      },
+      {
+        "id": "magicien-terre",
+        "nom": "Voie de la terre",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Poing de pierre",
+            "type": "complexe, sort",
+            "typesSort": ["offensif"],
+            "effet": "Bras en pierre : 2d6 DM PHY.",
+            "degats": "2d6 phy",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+          },
+          {
+            "rang": 2,
+            "nom": "Esprit de Gaïa",
+            "type": "passif",
+            "effet": "Tatouages verts ; +1 RD physique par rang.",
+            "effets": [
+              {"type": "bonus", "categorie": "RD phy", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Prison terrestre",
+            "type": "actif, sort",
+            "typesSort": ["controle-physique"],
+            "effet": "Le sol s'ouvre sous une cible (taille moyenne max ; grande au rang 4).",
+            "effetApplique": "Cible prise dans le sol (taille moyenne max ; grande au rang 4)",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+          },
+          {
+            "rang": 4,
+            "nom": "Sens tellurique",
+            "type": "renforcement",
+            "effet": "Détecte tout mouvement sur/sous le sol : 20 m par minute de concentration.",
+            "effets": [
+              {"type": "texte", "effet": "Détecte tout mouvement sur ou sous le sol : 20 m par minute de concentration."},
+              {"type": "renforcement", "nom": "Prison terrestre", "effet": "Cible de grande taille possible."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Élémentaire de pierre",
+            "type": "actif, sort",
+            "typesSort": ["invocation", "transformation"],
+            "effet": "Invoquer ou se transformer en élémentaire.",
+            "effetApplique": "Élémentaire de pierre invoqué, ou forme d'élémentaire (stats avec le MJ)",
+            "etat": {"nom": "Forme d'élémentaire de pierre"}
+          }
+        ]
+      },
+      {
+        "id": "magicien-eau",
+        "nom": "Voie de l'eau",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Lance de givre",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Lance de glace : 1d6 DM GLACE.",
+            "degats": "1d6 glace",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+          },
+          {
+            "rang": 2,
+            "nom": "Esprit de Neptune",
+            "type": "passif",
+            "effet": "Tatouages bleus ; +1 RD glace par rang.",
+            "effets": [
+              {"type": "bonus", "categorie": "RD glace", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Soutien marin",
+            "type": "passif + actif, sort",
+            "typesSort": ["support"],
+            "effet": "Respire sous l'eau 10 min sans gêne ; (actif) peut en faire profiter autrui par un sort.",
+            "effetApplique": "Un allié respire sous l'eau 10 min",
+            "effets": [
+              {"type": "texte", "effet": "Respire sous l'eau 10 min sans gêne."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Prison aqueuse",
+            "type": "actif + renforcement, sort, maintenu",
+            "typesSort": ["offensif", "controle-physique"],
+            "effet": "Sphère d'eau autour d'une cible pour la noyer/blesser (2d6 par tour tant que le sort est maintenu), ou la vider de son eau. Renforcement : la lance de givre peut transpercer sa cible et toucher une 2ᵉ cible derrière elle.",
+            "degats": "2d6 par tour (maintenu)",
+            "effetApplique": "Cible enfermée dans une sphère d'eau",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "effets": [
+              {"type": "renforcement", "nom": "Lance de givre", "effet": "Peut transpercer sa cible et toucher une 2ᵉ cible derrière elle."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Élémentaire de glace",
+            "type": "actif, sort",
+            "typesSort": ["invocation", "transformation"],
+            "effet": "Invoquer ou se transformer en élémentaire.",
+            "effetApplique": "Élémentaire de glace invoqué, ou forme d'élémentaire (stats avec le MJ)",
+            "etat": {"nom": "Forme d'élémentaire de glace"}
+          }
+        ]
+      },
+      {
+        "id": "magicien-air",
+        "nom": "Voie de l'air",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Bourrasque",
+            "type": "actif, sort",
+            "typesSort": ["controle-physique"],
+            "effet": "Repousse jusqu'à RANG + AdM cibles sur RANG × 2 m max.",
+            "effetApplique": "Repousse RANG + AdM cibles sur RANG × 2 m",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+          },
+          {
+            "rang": 2,
+            "nom": "Esprit de Zéphyr",
+            "type": "passif",
+            "effet": "Tatouages blancs ; +1 RD foudre par rang.",
+            "effets": [
+              {"type": "bonus", "categorie": "RD foudre", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Mur d'air",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Dévie les projectiles vers le mage et ses alliés proches : +10 CA contre projectiles (magiques ou physiques).",
+            "effetApplique": "Alliés proches : +10 CA contre les projectiles",
+            "etat": {
+              "nom": "Mur d'air",
+              "effets": [
+                {"type": "ca", "categorie": "DIST", "valeur": "10"},
+                {"type": "texte", "effet": "+10 CA contre les projectiles (magiques ou physiques), aussi pour les alliés proches."}
+              ]
+            }
+          },
+          {
+            "rang": 4,
+            "nom": "Chaîne d'éclairs",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Éclair sur un ennemi rebondissant sur jusqu'à 3 autres cibles (attaques magiques avec −3 par rebond, dégâts −2 par nouvelle cible).",
+            "degats": "3d6 foudre (−2 par nouvelle cible)",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible (−3 par rebond)"}
+          },
+          {
+            "rang": 5,
+            "nom": "Élémentaire d'air",
+            "type": "actif, sort",
+            "typesSort": ["invocation", "transformation"],
+            "effet": "Invoquer ou se transformer en élémentaire.",
+            "effetApplique": "Élémentaire d'air invoqué, ou forme d'élémentaire (stats avec le MJ)",
+            "etat": {"nom": "Forme d'élémentaire d'air"}
+          }
+        ]
+      },
+      {
+        "id": "magicien-arcanes",
+        "nom": "Voie des arcanes",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Éclat des arcanes",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Éclat de magie pure inesquivable : 1d4 DM MAG ; renforcé aux rangs 3 (2d4) et 5 (3d4 + INT).",
+            "degats": "1d4 mag, inesquivable (2d4 au rang 3, 3d4 au rang 5)",
+            "jets": [
+              {"libelle": "Éclat des arcanes · dégâts", "des": "1d4", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Esprit arcanique",
+            "type": "passif",
+            "effet": "Tatouages violets ; +1 RD magique par rang.",
+            "effets": [
+              {"type": "bonus", "categorie": "RD mag", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Agrandissement",
+            "type": "actif, sort",
+            "typesSort": ["transformation", "support"],
+            "effet": "Accroît la taille d'un allié (ou soi) ; renforcement éclat des arcanes : 2D4 DM.",
+            "effetApplique": "Un allié (ou soi) grandit (effet avec le MJ)",
+            "effets": [
+              {"type": "renforcement", "nom": "Éclat des arcanes", "effet": "2d4 DM."}
+            ],
+            "jets": [
+              {"libelle": "Éclat des arcanes · dégâts", "des": "2d4", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Artéfact magique",
+            "type": "renforcement",
+            "effet": "Lie un focaliseur (bâton, anneau ou orbe) : +2 AdM ; −1 mana sur les sorts des arcanes (min. 1). 1×/jour, stocke un sort de rang ≤ 2 et le libère sans action. L'éclat des arcanes peut toucher une 2ᵉ cible.",
+            "effets": [
+              {"type": "test", "categorie": "ADM", "valeur": "2"},
+              {"type": "cout-mana", "valeur": "-1", "condition": "magicien-arcanes"},
+              {"type": "usage", "nom": "Sort stocké", "valeur": "1", "condition": "par jour", "effet": "Stocke un sort de rang ≤ 2 dans le focaliseur et le libère sans action."},
+              {"type": "renforcement", "nom": "Éclat des arcanes", "effet": "Peut toucher une 2ᵉ cible."}
+            ],
+            "choix": {
+              "cle": "focaliseur",
+              "titre": "Focaliseur",
+              "options": [
+                {"id": "baton", "nom": "Bâton", "objets": [{"nom": "Bâton focaliseur", "categorie": "accessoire", "description": "Focaliseur lié au magicien (Artéfact magique) : +2 AdM, −1 PM sur les sorts des arcanes, peut stocker un sort de rang ≤ 2."}]},
+                {"id": "anneau", "nom": "Anneau", "objets": [{"nom": "Anneau focaliseur", "categorie": "accessoire", "description": "Focaliseur lié au magicien (Artéfact magique) : +2 AdM, −1 PM sur les sorts des arcanes, peut stocker un sort de rang ≤ 2."}]},
+                {"id": "orbe", "nom": "Orbe", "objets": [{"nom": "Orbe focaliseur", "categorie": "accessoire", "description": "Focaliseur lié au magicien (Artéfact magique) : +2 AdM, −1 PM sur les sorts des arcanes, peut stocker un sort de rang ≤ 2."}]}
+              ]
+            }
+          },
+          {
+            "rang": 5,
+            "nom": "Déchaînement des arcanes",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Explosion désintégrante : 5d6 + INT DMG ; renforcement éclat des arcanes : 3d4 + INT DM magiques.",
+            "degats": "5d6 mag",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "effets": [
+              {"type": "renforcement", "nom": "Éclat des arcanes", "effet": "3d4 + INT DM magiques."}
+            ],
+            "jets": [
+              {"libelle": "Éclat des arcanes · dégâts", "des": "3d4", "carac": "INT"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "magicien-lumiere",
+        "nom": "Voie de la lumière",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Orbe de lumière",
+            "type": "actif, sort",
+            "typesSort": ["utilitaire"],
+            "effet": "Orbe lumineux flottant pendant INT tours (INT + RANG tours avec Armure du zénith).",
+            "effetApplique": "Orbe lumineux pendant INT tours"
+          },
+          {
+            "rang": 2,
+            "nom": "Lueur scintillante",
+            "type": "actif, sort",
+            "typesSort": ["controle-physique", "utilitaire"],
+            "effet": "Aveugle ou dissipe des ténèbres.",
+            "effetApplique": "Aveugle une cible, ou dissipe des ténèbres",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible (pour aveugler)"}
+          },
+          {
+            "rang": 3,
+            "nom": "Perception vitale",
+            "type": "actif, sort",
+            "typesSort": ["utilitaire"],
+            "effet": "Perçoit nombre et direction approximative des êtres vivants jusqu'à RANG × 10 m.",
+            "effetApplique": "Êtres vivants perçus jusqu'à RANG × 10 m"
+          },
+          {
+            "rang": 4,
+            "nom": "Armure du zénith",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Orbe de lumière dure INT + RANG tours. 1×/combat, l'orbe se change en bouclier sur soi ou un allié : absorbe 10 + INT × 2 dégâts ; tout ennemi qui le frappe au CaC est ébloui (−2 AdC à son tour suivant).",
+            "effetApplique": "Bouclier : absorbe 10 + INT × 2 dégâts ; l'attaquant au CaC est ébloui (−2 AdC)",
+            "effets": [
+              {"type": "usage", "nom": "Bouclier du zénith", "valeur": "1", "condition": "par combat", "effet": "L'orbe devient un bouclier sur soi ou un allié : absorbe 10 + INT × 2 dégâts."},
+              {"type": "renforcement", "nom": "Orbe de lumière", "effet": "Dure INT + RANG tours."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Bannissement",
+            "type": "passif + actif, sort",
+            "typesSort": ["support"],
+            "mana": "coût du sort d'invocation banni",
+            "effet": "+2 INT, +2 AdM ; lève l'invocation d'une entité (coût = coût du rang du sort d'invocation).",
+            "effetApplique": "Lève l'invocation d'une entité",
+            "effets": [
+              {"type": "bonus", "categorie": "INT", "valeur": "2"},
+              {"type": "bonus", "categorie": "ADM", "valeur": "2"}
+            ]
+          }
+        ]
+      }
+    ],
+    "note": "Pas de sort d'attaque au rang 1 ; accès aux sorts de rang 0. Les voies élémentaires (feu, terre, eau, air) contiennent un passif « esprit de … » : +1 RD de l'élément par rang.",
+    "description": "Érudit des arcanes, le magicien a passé des années penché sur des grimoires pour plier les éléments à sa volonté. Feu, terre, eau, air, lumière : chaque école est un langage qu'il apprend à parler. Fragile au corps à corps, il peut renverser un combat d'un seul sort.",
+    "originePouvoir": "Origine du pouvoir : connaissance et apprentissage."
+  },
+  {
+    "id": "moine",
+    "nom": "Moine",
+    "modifDeVie": "+",
+    "modifDeMana": "=",
+    "lanceurDeSorts": false,
+    "profil": "hybride",
+    "maitrises": "Armes civiles ; mêlée communes.",
+    "restrictionArmure": "Cuir maximum.",
+    "voies": [
+      {
+        "id": "moine-ki",
+        "nom": "Voie du ki",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Frappe de ki",
+            "type": "renforcement d'attaque, sort",
+            "typesSort": ["offensif"],
+            "effet": "Ajoute son dé de mana aux dégâts de ses attaques (lancé avant l'attaque : 1 dé de mana aux dégâts de l'attaque suivante).",
+            "degats": "+1 dé de mana à l'attaque suivante",
+            "etat": {
+              "nom": "Frappe de ki",
+              "finApresDegats": true,
+              "effets": [{"type": "degats", "valeur": "1dDM"}]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Méditation",
+            "type": "complexe",
+            "effet": "Médite une petite heure pour regagner 1 DM de mana.",
+            "jets": [
+              {"libelle": "Méditation : mana regagné", "des": "1dDM", "recuperePm": true}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Projection mentale",
+            "type": "actif, sort, maintenu",
+            "typesSort": ["utilitaire"],
+            "effet": "Projette son esprit en boule de lumière intangible (2× plus rapide, distance illimitée mais limitée par le mana) ; voit à travers. Dégâts magiques déduits du mana, surplus ×2 sur ses PV.",
+            "effetApplique": "Esprit projeté, voit à travers"
+          },
+          {
+            "rang": 4,
+            "nom": "Kenn-do-ha",
+            "type": "complexe, sort",
+            "typesSort": ["offensif"],
+            "effet": "Attaque magique : boule de ki en ligne droite, 4 DM (dés de mana) + INT ; peut transpercer en perdant 1 DM par cible.",
+            "degats": "4dDM (dés de mana), −1 dé par cible transpercée",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+          },
+          {
+            "rang": 5,
+            "nom": "Mental d'acier",
+            "type": "passif",
+            "effet": "Augmente le dé de mana ; immunisé aux attaques magiques de l'esprit/des sens (contrôle mental, peur magique).",
+            "effets": [
+              {"type": "texte", "effet": "Immunisé aux attaques magiques de l'esprit et des sens (contrôle mental, peur magique)."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "moine-runes",
+        "nom": "Voie des runes",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Rune d'aptitude (bras)",
+            "type": "passif",
+            "effet": "Au choix : +1 AdC/rang, ou +1 AdT/rang, ou +1 AdM/rang (au toucher).",
+            "choix": {
+              "cle": "rune-aptitude",
+              "titre": "Rune d'aptitude",
+              "options": [
+                {"id": "adc", "nom": "AdC (corps à corps)", "effets": [{"type": "test", "categorie": "ADC", "valeur": "RANG"}]},
+                {"id": "adt", "nom": "AdT (distance)", "effets": [{"type": "test", "categorie": "ADT", "valeur": "RANG"}]},
+                {"id": "adm", "nom": "AdM (magie)", "effets": [{"type": "test", "categorie": "ADM", "valeur": "RANG"}]}
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Rune de défense (dos)",
+            "type": "passif",
+            "effet": "+1 classe d'armure par rang.",
+            "effets": [
+              {"type": "ca", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Rune de précision (mains/poignets)",
+            "type": "passif",
+            "effet": "Critique +2 et échec critique sur 2 (1 ou 2 = échec critique ; réussite critique sur 18-19-20), pour les jets d'attaque.",
+            "effets": [
+              {"type": "critique", "valeur": "18"},
+              {"type": "echec-critique", "valeur": "2"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Rune de vitesse (jambes)",
+            "type": "passif",
+            "effet": "+5 initiative, +5 aux tests de vitesse et dextérité (course, nage…), −3 aux tests de CON.",
+            "effets": [
+              {"type": "test", "categorie": "INIT", "valeur": "5"},
+              {"type": "test", "categorie": "DEX", "valeur": "5", "condition": "vitesse (course, nage…)"},
+              {"type": "savoir", "categorie": "Natation, Acrobatie", "valeur": "5", "si": "situation", "condition": "vitesse"},
+              {"type": "test", "categorie": "CON", "valeur": "-3"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Rune du berzerker (épaules)",
+            "type": "actif",
+            "effet": "1 attaque supplémentaire par tour, mais −3 CA tant qu'active (avec la rune de défense : +2 CA, soit −1 CA).",
+            "etat": {
+              "nom": "Rune du berzerker",
+              "effets": [
+                {"type": "ca", "valeur": "-1"},
+                {"type": "texte", "effet": "1 attaque supplémentaire par tour (−3 CA, +2 avec la rune de défense)."}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "moine-ninja",
+        "nom": "Voie du ninja",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Mouvement de shinobi",
+            "type": "passif",
+            "effet": "+3 initiative (+5 avec Lancer de shuriken) ; +1d6 DMG si attaque sa cible avant qu'elle agisse.",
+            "effets": [
+              {"type": "test", "categorie": "INIT", "valeur": "3", "rangMax": 2},
+              {"type": "test", "categorie": "INIT", "valeur": "5", "rangMin": 3},
+              {"type": "degats", "valeur": "1d6", "si": "situation", "condition": "contre une cible qui n'a pas encore agi"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "L'art du camouflage",
+            "type": "passif",
+            "effet": "+5 discrétion, camouflage, déplacement silencieux (jets de Discrétion).",
+            "effets": [
+              {"type": "savoir", "valeur": "5", "condition": "Discrétion"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Lancer de shuriken",
+            "type": "gratuit",
+            "effet": "1×/tour, shuriken à 10 m (pas au CaC) : 1d4 + DEX ; bonus d'initiative → +5.",
+            "effets": [
+              {"type": "renforcement", "nom": "Mouvement de shinobi", "effet": "+5 à l'initiative."}
+            ],
+            "jets": [
+              {"libelle": "Shuriken : attaque", "des": "1d20", "carac": "ADT"},
+              {"libelle": "Shuriken : dégâts", "des": "1d4", "carac": "DEX"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Déplacement rapide",
+            "type": "renforcement",
+            "effet": "Action de mouvement → 15 m ; peut courir sur les murs jusqu'à 15 m.",
+            "effets": [
+              {"type": "deplacement", "valeur": "5"},
+              {"type": "texte", "effet": "Peut courir sur les murs jusqu'à 15 m."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Assaillant fantôme",
+            "type": "actif",
+            "effet": "2×/combat, attaque presque intangible traversant résistances et armure ; jusqu'à 2 shurikens par tour ; plus de contrecoup d'esquive.",
+            "effets": [
+              {"type": "usage", "nom": "Assaillant fantôme", "valeur": "2", "condition": "par combat", "effet": "Attaque presque intangible qui traverse résistances et armure."},
+              {"type": "renforcement", "nom": "Lancer de shuriken", "effet": "Jusqu'à 2 shurikens par tour."},
+              {"type": "texte", "effet": "Plus de contrecoup d'esquive."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "moine-poing",
+        "nom": "Voie du poing",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Pugilat",
+            "type": "amélioration + passif",
+            "effet": "Coups de poing létaux au choix ; dégâts 1d4 + FOR → 1d6 + FOR ; +RANG AdC à mains nues.",
+            "effets": [
+              {"type": "mains-nues", "valeur": "1d6"},
+              {"type": "toucher", "valeur": "RANG", "si": "mains-nues", "condition": "à mains nues"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Déferlement de coups",
+            "type": "complexe",
+            "effet": "RANG coups de poing sur une cible (FOR non appliquée, 1 jet d'attaque par coup) : 1d6 chacun.",
+            "jets": [
+              {"libelle": "Déferlement de coups", "des": "1d20", "carac": "ADC", "attaque": {"mainsNues": true, "repetable": 0, "degatsArme": "1d6", "sansCarac": true}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Uppercut",
+            "type": "actif",
+            "effet": "2D6 + FOR×2.",
+            "jets": [
+              {"libelle": "Uppercut", "des": "1d20", "carac": "ADC", "attaque": {"mainsNues": true, "degatsArme": "2d6", "degatsEnPlus": "FOR"}}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Lutte",
+            "type": "actif",
+            "effet": "Attrape et immobilise : attaque +5 ; chaque tour, test de FOR +5 contre le test de FOR de la cible.",
+            "effets": [
+              {"type": "test", "categorie": "FOR", "valeur": "5", "condition": "pour maintenir la lutte"}
+            ],
+            "etat": {
+              "nom": "Lutte en cours",
+              "effets": [{"type": "texte", "effet": "Cible attrapée et immobilisée ; chaque tour, test de FOR +5 contre le test de FOR de la cible."}]
+            },
+            "jets": [
+              {"libelle": "Lutte", "des": "1d20", "carac": "ADC", "attaque": {"mainsNues": true, "toucher": 5, "etat": "Lutte en cours"}}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Poing de fer",
+            "type": "renforcement",
+            "effet": "Poing 1d8 + FOR ; déferlement 1d8 ; uppercut 3d6.",
+            "effets": [
+              {"type": "mains-nues", "valeur": "1d8"},
+              {"type": "renforcement", "nom": "Déferlement de coups", "effet": "1d8 par coup."},
+              {"type": "renforcement", "nom": "Uppercut", "effet": "3d6 + FOR × 2."}
+            ],
+            "jets": [
+              {"libelle": "Déferlement de coups", "attaque": {"degatsArme": "1d8"}},
+              {"libelle": "Uppercut", "attaque": {"degatsArme": "3d6"}}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Discipliné jusqu'à l'os, le moine a fait de son corps une arme et de son esprit un rempart. Par le ki, les runes et des années d'entraînement, il frappe plus vite qu'on ne le voit et disparaît comme une ombre. Il n'a besoin ni d'armure lourde ni d'épée."
+  },
+  {
+    "id": "necromancien",
+    "nom": "Nécromancien",
+    "modifDeVie": "-",
+    "modifDeMana": "+",
+    "lanceurDeSorts": true,
+    "profil": "lanceur",
+    "maitrises": "Armes civiles.",
+    "restrictionArmure": "Cuir maximum.",
+    "voies": [
+      {
+        "id": "necromancien-mort",
+        "nom": "Voie de la mort",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Toucher nécrotique",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "degats": "1d6",
+            "effetApplique": "Pas de PV regagnés jusqu'à son prochain tour",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Attaque magique au contact : 1d6 DM ; la cible ne peut pas regagner de PV jusqu'à la fin de son prochain tour."
+          },
+          {
+            "rang": 2,
+            "nom": "Siphon d'âme",
+            "type": "renforcement",
+            "effet": "Quand une créature meurt près de lui, son âme est visible ; une action de mouvement pour l'absorber et se soigner (soin selon la taille : petite 1d4, moyenne 1d6, grande 2d6).",
+            "jets": [
+              {"libelle": "Siphon d'âme : petite créature", "des": "1d4", "applique": "+pv"},
+              {"libelle": "Siphon d'âme : créature moyenne", "des": "1d6", "applique": "+pv"},
+              {"libelle": "Siphon d'âme : grande créature", "des": "2d6", "applique": "+pv"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Récits du passé",
+            "type": "actif, sort, maintenu",
+            "typesSort": ["utilitaire"],
+            "effetApplique": "Fantôme appelé depuis un cadavre, pour lui parler",
+            "effet": "Appelle un fantôme depuis un cadavre pour lui parler."
+          },
+          {
+            "rang": 4,
+            "nom": "Afflux mortuaire",
+            "type": "actif, sort",
+            "typesSort": ["offensif", "support"],
+            "degats": "3D6 (créature vivante non démoniaque)",
+            "soin": "3D6 + INT (être non vivant ou démoniaque)",
+            "effet": "Vague d'énergie funèbre : rend 3D6 + INT à un être non vivant ou démoniaque, ou inflige 3D6 + INT à une créature vivante non démoniaque."
+          },
+          {
+            "rang": 5,
+            "nom": "Présage de mort",
+            "type": "actif complexe, sort",
+            "typesSort": ["offensif"],
+            "effet": "+2 INT. 1×/jour, attaque magique marquant une cible vivante pendant INT tours : tous les dégâts qu'elle subit gagnent +1d6. Si elle tombe à 2 × NIVEAU PV ou moins : test de CON diff. 15 + INT, sinon elle meurt. Créatures uniques / boss immunisés à la mort (mais pas au bonus de dégâts).",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "effetApplique": "Cible marquée INT tours : +1d6 à tous les dégâts qu'elle subit ; à 2 × NIVEAU PV ou moins, test de CON diff. 15 + INT ou mort (sauf créatures uniques / boss)",
+            "effets": [
+              {"type": "bonus", "categorie": "INT", "valeur": "2"},
+              {"type": "usage", "nom": "Présage de mort", "valeur": "1", "condition": "par jour", "effet": "Attaque magique marquant une cible vivante pendant INT tours."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "necromancien-morts-vivants",
+        "nom": "Voie des morts-vivants",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Perception nécrotique",
+            "type": "passif",
+            "effet": "Perçoit nombre et direction grossière des créatures mortes jusqu'à RANG × 10 m.",
+            "effets": [
+              {"type": "texte", "effet": "Portée : RANG × 10 m."}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Fidèle serviteur",
+            "type": "actif, sort",
+            "typesSort": ["invocation"],
+            "effetApplique": "Relève un cadavre de taille moyenne (temporaire)",
+            "effet": "Relève un cadavre de taille moyenne (temporaire)."
+          },
+          {
+            "rang": 3,
+            "nom": "Maître des cadavres",
+            "type": "renforcement",
+            "effet": "« Fidèle serviteur » relève jusqu'à 2 cadavres moyens ; les serviteurs gagnent +2 AdC et +5 PV.",
+            "effets": [
+              {"type": "renforcement", "nom": "Fidèle serviteur", "effet": "Jusqu'à 2 cadavres moyens ; les serviteurs gagnent +2 AdC et +5 PV."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Fidèle et puissant serviteur",
+            "type": "actif, sort",
+            "typesSort": ["invocation"],
+            "effetApplique": "Relève un cadavre de grande taille (temporaire)",
+            "effet": "Relève un cadavre de grande taille (temporaire). Serviteur permanent : en sacrifiant 1d4 PV max, relève de façon permanente un serviteur plus grand et plus fort. Un seul serviteur permanent à la fois ; s'il est tué, le nécromancien récupère les PV max sacrifiés.",
+            "aussi": [
+              {
+                "nom": "Serviteur permanent",
+                "type": "complexe",
+                "effet": "En sacrifiant 1d4 PV max (à retirer à la main), relève de façon permanente un serviteur plus grand et plus fort. Un seul à la fois ; s'il est tué, le nécromancien récupère les PV max sacrifiés.",
+                "jets": [
+                  {"libelle": "Sacrifice : PV max", "des": "1d4"}
+                ]
+              }
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Requiem",
+            "type": "complexe, sort",
+            "typesSort": ["invocation"],
+            "effetApplique": "Petite armée de morts-vivants",
+            "effet": "Chant ramenant les morts : petite armée de morts-vivants."
+          }
+        ]
+      },
+      {
+        "id": "necromancien-invocation",
+        "nom": "Voie de l'invocation",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Familier",
+            "type": "soutien",
+            "effet": "Petit esprit ou créature au choix (corbeau, rat, chat noir, crâne flottant) : +2 PER ; avec concentration, voit par ses yeux jusqu'à 50 m ; porte de petits objets. Détruit : réinvocable après 1 jour.",
+            "effets": [
+              {"type": "bonus", "categorie": "PER", "valeur": "2"},
+              {"type": "texte", "effet": "Avec concentration, voit par ses yeux jusqu'à 50 m ; porte de petits objets. Détruit : réinvocable après 1 jour."}
+            ],
+            "choix": {
+              "cle": "familier-necromancien",
+              "titre": "Familier",
+              "options": [
+                {"id": "corbeau", "nom": "Corbeau", "objets": [{"nom": "Corbeau", "categorie": "compagnon", "description": "Familier du nécromancien : corbeau aux yeux luisants."}]},
+                {"id": "rat", "nom": "Rat", "objets": [{"nom": "Rat", "categorie": "compagnon", "description": "Familier du nécromancien : rat furtif."}]},
+                {"id": "chat-noir", "nom": "Chat noir", "objets": [{"nom": "Chat noir", "categorie": "compagnon", "description": "Familier du nécromancien : chat noir silencieux."}]},
+                {"id": "crane-flottant", "nom": "Crâne flottant", "objets": [{"nom": "Crâne flottant", "categorie": "compagnon", "description": "Familier du nécromancien : crâne qui flotte dans les airs."}]}
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Ténèbres",
+            "type": "actif, sort",
+            "typesSort": ["controle-physique"],
+            "effetApplique": "Brouillard de ténèbres : aveugle tous sauf le lanceur, ou dissipe une lumière magique",
+            "effet": "Brouillard de ténèbres qui aveugle tous (sauf le lanceur) ou dissipe une lumière magique."
+          },
+          {
+            "rang": 3,
+            "nom": "Diablotin",
+            "degats": "1d6 feu infernal (diablotin)",
+            "effetApplique": "Invoque un diablotin (INT + 1d4 tours)",
+            "type": "actif, sort",
+            "typesSort": ["invocation"],
+            "effet": "Invoque un diablotin volant pendant INT + 1d4 tours : attaque 1d6 feu infernal ; se dissipe à 0 PV.",
+            "jets": [
+              {"libelle": "Diablotin · dégâts", "des": "1d6"},
+              {"libelle": "Diablotin : durée (tours)", "des": "1d4", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Molosse des abysses",
+            "degats": "2d6 (molosse)",
+            "effetApplique": "Invoque un chien infernal (INT + 1d6 tours)",
+            "type": "actif, sort",
+            "typesSort": ["invocation"],
+            "effet": "Invoque un chien infernal de taille moyenne pendant INT + 1d6 tours : attaque 2d6, perçoit les créatures invisibles.",
+            "jets": [
+              {"libelle": "Molosse des abysses · dégâts", "des": "2d6"},
+              {"libelle": "Molosse des abysses : durée (tours)", "des": "1d6", "carac": "INT"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Démon",
+            "type": "actif, sort",
+            "typesSort": ["invocation"],
+            "effetApplique": "Invoque un démon",
+            "effet": "Invoque un démon."
+          }
+        ]
+      },
+      {
+        "id": "necromancien-rituels",
+        "nom": "Voie des rituels",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Rituel du sang",
+            "type": "actif, sort, coût 0 PM",
+            "typesSort": ["invocation"],
+            "effet": "Dépense 1d4 PV (au lieu de mana) : invoque une épée sanguine d'outre-tombe, 1d6 + INT, reste 1 jour.",
+            "effetApplique": "Épée sanguine invoquée pour 1 jour (1d6 + INT)",
+            "etat": {
+              "nom": "Épée sanguine",
+              "effets": [
+                {"type": "texte", "effet": "Épée sanguine en main pour la journée : 1d6 + INT."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Rituel du sang : PV dépensés", "des": "1d4", "applique": "-pv"},
+              {"libelle": "Épée sanguine", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Épée sanguine", "degatsArme": "1d6", "degatsEnPlus": "INT", "sansCarac": true}}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Rituel des os",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Os humains/animaux renforçant une personne ou créature : +2 RD physique pour la journée.",
+            "effetApplique": "+2 RD physique pour la journée",
+            "etat": {
+              "nom": "Rituel des os",
+              "effets": [
+                {"type": "bonus", "categorie": "RD phy", "valeur": "2"}
+              ]
+            }
+          },
+          {
+            "rang": 3,
+            "nom": "Rituel sanguinaire",
+            "type": "actif, sort, coût 0 PM",
+            "typesSort": ["offensif"],
+            "effet": "Dépense 1d10 PV : marque de sang sur une arme ; la prochaine attaque explose en 2d6 + INT DMG magique (+1d6 sur l'épée sanguine).",
+            "effetApplique": "Prochaine attaque : +2d6 + INT DMG magique",
+            "etat": {
+              "nom": "Marque de sang",
+              "finApresDegats": true,
+              "effets": [
+                {"type": "degats", "valeur": "2d6"},
+                {"type": "degats", "valeur": "INT"},
+                {"type": "texte", "effet": "+1d6 de plus sur l'épée sanguine."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Rituel sanguinaire : PV dépensés", "des": "1d10", "applique": "-pv"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Rituel de la lune",
+            "type": "actif, sort",
+            "typesSort": ["utilitaire"],
+            "effet": "De nuit en extérieur, coûte du mana : surface réfléchissante pour trouver une personne/objet, test d'AdM diff. 10 à 30 (selon le MJ).",
+            "effetApplique": "De nuit en extérieur : trouve une personne ou un objet",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "difficulté fixée par le MJ (10 à 30)"}
+          },
+          {
+            "rang": 5,
+            "nom": "Rituel abominable",
+            "type": "actif, sort",
+            "typesSort": ["invocation"],
+            "effetApplique": "Abomination faite de cadavres",
+            "effet": "Invoque une abomination à partir de cadavres."
+          }
+        ]
+      }
+    ],
+    "description": "Le nécromancien a regardé la mort en face, et a choisi de l'étudier plutôt que de la craindre. Il commande aux morts-vivants, invoque des créatures d'outre-monde et accomplit des rituels que d'autres jugent impies. Le savoir n'a pas de morale, et la mort est un outil comme un autre.",
+    "originePouvoir": "Origine du pouvoir : connaissance et expérience."
+  },
+  {
+    "id": "pretre",
+    "nom": "Prêtre",
+    "modifDeVie": "=",
+    "modifDeMana": "+",
+    "lanceurDeSorts": true,
+    "profil": "hybride",
+    "maitrises": "Armes civiles ; mêlée communes.",
+    "restrictionArmure": "Cotte de mailles maximum.",
+    "voies": [
+      {
+        "id": "pretre-soins",
+        "nom": "Voie des soins",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Soin léger",
+            "soin": "1D6 PV",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Soigne une cible au contact de 1D6 PV."
+          },
+          {
+            "rang": 2,
+            "nom": "Soin modéré",
+            "soin": "2D6 PV (une cible jusqu'à RANG × 10 m)",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Soigne une cible jusqu'à RANG × 10 m de 2D6 PV."
+          },
+          {
+            "rang": 3,
+            "nom": "Soin de groupe",
+            "soin": "2D6 PV à INT + 1 cibles (20 m)",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Soigne jusqu'à INT+1 cibles à 20 m autour du prêtre de 2D6 PV."
+          },
+          {
+            "rang": 4,
+            "nom": "Guérison",
+            "soin": "5D6 PV",
+            "effetApplique": "Guérit les maladies (non magiques et magiques mineures)",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Soigne 5D6 PV une cible au contact et guérit les maladies non magiques et magiques mineures."
+          },
+          {
+            "rang": 5,
+            "nom": "Résurrection",
+            "type": "complexe, sort",
+            "typesSort": ["support"],
+            "effetApplique": "Ranime une créature morte",
+            "effet": "Ranime une créature morte."
+          }
+        ]
+      },
+      {
+        "id": "pretre-paladin",
+        "nom": "Voie du paladin",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Bénédiction",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Pour la journée, au choix : arme +1 DMG et +1 AdC/AdT ; armure +1 CA ; personne : bloque le prochain sort d'attaque direct de rang 1.",
+            "effetApplique": "Arme, armure ou personne bénie pour la journée",
+            "etats": [
+              {
+                "nom": "Bénédiction (arme)",
+                "groupe": "benediction",
+                "effets": [
+                  {"type": "degats", "valeur": "1", "rangMax": 2},
+                  {"type": "test", "categorie": "ADC", "valeur": "1", "rangMax": 2},
+                  {"type": "test", "categorie": "ADT", "valeur": "1", "rangMax": 2},
+                  {"type": "degats", "valeur": "2", "rangMin": 3},
+                  {"type": "test", "categorie": "ADC", "valeur": "2", "rangMin": 3},
+                  {"type": "test", "categorie": "ADT", "valeur": "2", "rangMin": 3}
+                ]
+              },
+              {
+                "nom": "Bénédiction (armure)",
+                "groupe": "benediction",
+                "effets": [
+                  {"type": "ca", "valeur": "1", "rangMax": 2},
+                  {"type": "ca", "valeur": "2", "rangMin": 3}
+                ]
+              },
+              {
+                "nom": "Bénédiction (personne)",
+                "groupe": "benediction",
+                "effets": [
+                  {"type": "texte", "effet": "Bloque le prochain sort d'attaque directe de rang 1.", "rangMax": 2},
+                  {"type": "texte", "effet": "Bloque le prochain sort d'attaque directe de rang 1 ou 2.", "rangMin": 3}
+                ]
+              }
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Délivrance",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Attaque magique opposée à un jet précédent pour arrêter l'effet d'un sort durable.",
+            "effetApplique": "Arrête l'effet d'un sort durable",
+            "reussite": {"libelle": "Attaque magique opposée", "carac": "ADM", "contre": "jet du sort à arrêter"}
+          },
+          {
+            "rang": 3,
+            "nom": "Lien vital",
+            "type": "actif, sort + renforcement",
+            "typesSort": ["support"],
+            "effet": "Lie un allié au prêtre : le prêtre prend ses dégâts, INT tours. Renforcement bénédiction : +2 et sort de rang 2.",
+            "effetApplique": "Le prêtre prend les dégâts de l'allié lié (INT tours)",
+            "etat": {
+              "nom": "Lien vital",
+              "effets": [
+                {"type": "texte", "effet": "Le prêtre subit les dégâts de l'allié lié (INT tours)."}
+              ]
+            },
+            "effets": [
+              {"type": "renforcement", "nom": "Bénédiction", "effet": "+2 au lieu de +1 ; la protection bloque aussi les sorts de rang 2."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Glas de soutien",
+            "type": "actif, sort, maintenu",
+            "typesSort": ["support"],
+            "soin": "1D10 PV à INT + 1 cibles (20 m), chaque tour si maintenu",
+            "effet": "Soigne jusqu'à INT+1 cibles à 20 m de 1D10 PV (maintenable pour soigner chaque tour)."
+          },
+          {
+            "rang": 5,
+            "nom": "Martyr",
+            "type": "renforcement",
+            "effet": "Lien vital utilisable dans l'autre sens (test d'attaque magique si lancé sur un ennemi). +2 CON ; la bénédiction peut viser 2 cibles.",
+            "effets": [
+              {"type": "bonus", "categorie": "CON", "valeur": "2"},
+              {"type": "renforcement", "nom": "Lien vital", "effet": "Utilisable dans l'autre sens (test d'attaque magique si lancé sur un ennemi)."},
+              {"type": "renforcement", "nom": "Bénédiction", "effet": "Peut viser 2 cibles."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pretre-divin",
+        "nom": "Voie du divin",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Foi",
+            "type": "passif",
+            "effet": "+1 CA MAG par rang et +1/rang aux tests de connaissance religieuse.",
+            "effets": [
+              {"type": "ca", "categorie": "MAG", "valeur": "RANG"},
+              {"type": "savoir", "valeur": "RANG", "condition": "Religions et cultes"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Lumière sacrée",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "degats": "1d8 chaos (×2 contre morts-vivants et démons)",
+            "variantesDegats": [
+              {"libelle": "morts-vivants, démons", "multiplie": 2}
+            ],
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Attaque magique à 20 m : 1d8 dégâts de chaos, doublés contre morts-vivants et démons."
+          },
+          {
+            "rang": 3,
+            "nom": "Sanctuaire",
+            "effetApplique": "Zone de 5 m, INT tours : alliés +2 CA MAG",
+            "type": "actif, sort",
+            "typesSort": ["support", "controle-physique"],
+            "effet": "Zone de 5 m autour du prêtre pendant INT tours : morts-vivants et démons doivent réussir un test de MEN diff. 10 + INT pour y entrer ; les alliés à l'intérieur gagnent +2 CA MAG.",
+            "etat": {
+              "nom": "Sanctuaire",
+              "effets": [
+                {"type": "ca", "categorie": "MAG", "valeur": "2"},
+                {"type": "texte", "effet": "Morts-vivants et démons : test de MEN diff. 10 + INT pour entrer dans la zone (5 m, INT tours)."}
+              ]
+            }
+          },
+          {
+            "rang": 4,
+            "nom": "Courroux céleste",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Éclair divin : attaque magique, 4D6 dégâts de chaos ; si esquivé, dégâts ÷2 (« personne n'échappe à la colère divine »).",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "degats": "4D6 chaos (÷2 si esquivé)",
+            "variantesDegats": [
+              {"libelle": "esquivé", "divise": 2}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Justice divine",
+            "type": "actif, sort, coût 0 PM",
+            "typesSort": ["invocation", "offensif"],
+            "effet": "Arme d'énergie divine pure d'un autre plan (la saisir/ranger = action de mouvement) : 2D6 + FOR + INT de chaos, 5 mana par attaque ; quiconque d'autre la touche subit 1D6 chaos ; sans mana suffisant elle repart.",
+            "effetApplique": "Arme divine invoquée (5 PM par attaque)",
+            "etat": {
+              "nom": "Arme divine",
+              "effets": [
+                {"type": "texte", "effet": "Arme divine en main : 2D6 + FOR + INT de chaos, 5 PM par attaque ; quiconque d'autre la touche subit 1D6 chaos."}
+              ]
+            },
+            "jets": [
+              {"libelle": "Arme divine", "des": "1d20", "carac": "ADC", "coutPm": 5, "attaque": {"armeInvoquee": "Arme divine", "degatsArme": "2d6", "degatsEnPlus": "INT"}}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pretre-inquisiteur",
+        "nom": "Voie de l'inquisiteur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Prémices de l'inquisition",
+            "type": "passif",
+            "effet": "+2 AdC et +2 tests d'attaque magique contre morts-vivants et démons.",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "contre morts-vivants et démons"},
+              {"type": "test", "categorie": "ADM", "valeur": "2", "condition": "contre morts-vivants et démons"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Paroles impies",
+            "type": "actif, sort",
+            "typesSort": ["controle-mental"],
+            "effet": "Sermon interdit immobilisant INT ennemis dans 10 m jusqu'au prochain tour (test de CON diff. 10 + INT pour s'en libérer).",
+            "effetApplique": "Immobilise INT ennemis à 10 m jusqu'au prochain tour (test de CON diff. 10 + INT pour se libérer)"
+          },
+          {
+            "rang": 3,
+            "nom": "Dissipation",
+            "effetApplique": "Dissipe un sort ou une transformation mineure",
+            "mana": "Coût du sort dissipé",
+            "type": "actif, sort",
+            "typesSort": ["support"],
+            "effet": "Dissipe un sort ou une transformation mineure (sorts de rang ≤ 3) ; coût = coût du sort."
+          },
+          {
+            "rang": 4,
+            "nom": "Consumation",
+            "type": "actif, sort",
+            "typesSort": ["offensif"],
+            "effet": "Attaque magique : retire 3D6 mana à la cible (inutile contre les non-lanceurs).",
+            "effetApplique": "Retire 3D6 PM à la cible",
+            "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
+            "jets": [
+              {"libelle": "Consumation · mana retiré", "des": "3d6"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Inquisition",
+            "type": "passif + renforcement",
+            "effet": "+2 INT ; paroles impies diff. 15 + INT ; dissipation possible sur les sorts de rang 4 et 5.",
+            "effets": [
+              {"type": "bonus", "categorie": "INT", "valeur": "2"},
+              {"type": "renforcement", "nom": "Paroles impies", "effet": "Test de CON diff. 15 + INT pour se libérer."},
+              {"type": "renforcement", "nom": "Dissipation", "effet": "Possible sur les sorts de rang 4 et 5."}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Serviteur d'une divinité, le prêtre porte sa foi comme une lumière dans les ténèbres. Il soigne les blessés, protège ses compagnons en paladin et traque l'hérésie en inquisiteur. Sa force ne vient pas de lui, mais de celle ou celui qu'il sert.",
+    "originePouvoir": "Origine du pouvoir : proximité avec sa divinité et la force de sa croyance."
+  },
+  {
+    "id": "rodeur",
+    "nom": "Rôdeur",
+    "modifDeVie": "=",
+    "modifDeMana": "=",
+    "lanceurDeSorts": false,
+    "profil": "physique",
+    "maitrises": "Armes civiles ; communes ; distance (hors poudre).",
+    "restrictionArmure": "Cuir maximum.",
+    "voies": [
+      {
+        "id": "rodeur-archer",
+        "nom": "Voie de l'archer",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Précision",
+            "type": "passif",
+            "effet": "+1 AdT par rang.",
+            "effets": [
+              {"type": "test", "categorie": "ADT", "valeur": "RANG"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Visée",
+            "type": "complexe",
+            "effet": "Sans action de mouvement ce tour : avantage à son test d'attaque à distance.",
+            "effets": [
+              {"type": "avantage", "categorie": "ADT", "condition": "Visée (sans mouvement ce tour)"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Fuite stratégique",
+            "type": "gratuit",
+            "effet": "1×/combat, action de mouvement supplémentaire pour fuir.",
+            "effets": [
+              {"type": "usage", "nom": "Fuite stratégique", "valeur": "1", "condition": "par combat", "effet": "Action de mouvement supplémentaire pour fuir."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Flèches multiples",
+            "type": "complexe",
+            "effet": "Au choix : 3 flèches sur 3 cibles différentes, ou 2 flèches sur la même cible.",
+            "jets": [
+              {"libelle": "Flèches multiples", "des": "1d20", "carac": "ADT", "attaque": {"distance": true, "repetable": 0}}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Points vitaux",
+            "type": "renforcement + complexe",
+            "effet": "+2 PER ; vise les points vitaux : ajoute la PER aux DMG + 1d6.",
+            "effets": [
+              {"type": "bonus", "categorie": "PER", "valeur": "2"}
+            ],
+            "jets": [
+              {"libelle": "Points vitaux", "des": "1d20", "carac": "ADT", "attaque": {"distance": true, "degatsEnPlus": "1d6 + PER"}}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rodeur-chasseur",
+        "nom": "Voie du chasseur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Pistage",
+            "type": "passif",
+            "effet": "+2/rang aux tests de PER pour pister/suivre des traces, et aux tests d'INT pour interpréter les traces.",
+            "effets": [
+              {"type": "savoir", "valeur": "2×RANG", "condition": "Pistage"},
+              {"type": "test", "categorie": "INT", "valeur": "2×RANG", "condition": "pour interpréter des traces"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Proie favorite",
+            "type": "passif",
+            "effet": "+2 AdC, +2 AdT, +1d4 DM contre une proie définie à la prise.",
+            "choix": {
+              "cle": "proie-favorite",
+              "titre": "Proie favorite",
+              "options": [
+                {
+                  "id": "proie",
+                  "nom": "Proie",
+                  "question": "Quelle proie ? (orcs, loups, morts-vivants…)",
+                  "effets": [
+                    {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "contre {precision}", "rangMax": 3},
+                    {"type": "test", "categorie": "ADT", "valeur": "2", "condition": "contre {precision}", "rangMax": 3},
+                    {"type": "degats", "categorie": "DIST", "valeur": "1d4", "si": "situation", "condition": "contre {precision}", "rangMax": 3},
+                    {"type": "test", "categorie": "ADC", "valeur": "4", "condition": "contre {precision}", "rangMin": 4},
+                    {"type": "test", "categorie": "ADT", "valeur": "4", "condition": "contre {precision}", "rangMin": 4},
+                    {"type": "degats", "categorie": "DIST", "valeur": "1d6", "si": "situation", "condition": "contre {precision}", "rangMin": 4}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 3,
+            "nom": "Armement",
+            "type": "renforcement",
+            "effet": "Maîtrise de l'arbalète et du fusil (mousquet).",
+            "effets": [
+              {"type": "maitrise", "categorie": "arme", "valeur": "Arbalète"},
+              {"type": "maitrise", "categorie": "arme", "valeur": "Mousquet"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Chasseur expérimenté",
+            "type": "renforcement",
+            "effet": "Proie favorite : 2 proies ; +4 et +1d6 DM.",
+            "effets": [
+              {"type": "renforcement", "nom": "Proie favorite", "effet": "2 proies ; +4 au toucher et +1d6 DM."}
+            ],
+            "choix": {
+              "cle": "proie-favorite-2",
+              "titre": "Deuxième proie",
+              "options": [
+                {
+                  "id": "proie",
+                  "nom": "Proie",
+                  "question": "Quelle deuxième proie ?",
+                  "effets": [
+                    {"type": "test", "categorie": "ADC", "valeur": "4", "condition": "contre {precision}"},
+                    {"type": "test", "categorie": "ADT", "valeur": "4", "condition": "contre {precision}"},
+                    {"type": "degats", "categorie": "DIST", "valeur": "1d6", "si": "situation", "condition": "contre {precision}"}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "rang": 5,
+            "nom": "Chasseur de gros gibier",
+            "type": "passif",
+            "effet": "+2D6 DMG contre les ennemis de grande taille ou plus.",
+            "effets": [
+              {"type": "degats", "categorie": "DIST", "valeur": "2d6", "si": "situation", "condition": "contre une créature de grande taille ou plus"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rodeur-animaux",
+        "nom": "Voie des animaux",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Compagnon animal",
+            "type": "passif + soutien",
+            "effet": "+5 tests de PER ; animal terrestre (taille max : loup).",
+            "effets": [
+              {"type": "test", "categorie": "PER", "valeur": "5"}
+            ],
+            "choix": {
+              "cle": "compagnon-rodeur",
+              "titre": "Compagnon",
+              "options": [
+                {"id": "loup", "nom": "Loup", "objets": [{"nom": "Loup", "categorie": "compagnon", "description": "Compagnon animal du rôdeur : loup fidèle."}]},
+                {"id": "chien", "nom": "Chien", "objets": [{"nom": "Chien", "categorie": "compagnon", "description": "Compagnon animal du rôdeur : chien de chasse."}]},
+                {"id": "lynx", "nom": "Lynx", "objets": [{"nom": "Lynx", "categorie": "compagnon", "description": "Compagnon animal du rôdeur : lynx discret."}]},
+                {"id": "renard", "nom": "Renard", "objets": [{"nom": "Renard", "categorie": "compagnon", "description": "Compagnon animal du rôdeur : renard rusé."}]},
+                {"id": "jeune-sanglier", "nom": "Jeune sanglier", "objets": [{"nom": "Jeune sanglier", "categorie": "compagnon", "description": "Compagnon animal du rôdeur : jeune sanglier têtu."}]}
+              ]
+            }
+          },
+          {
+            "rang": 2,
+            "nom": "Communication avec les animaux",
+            "type": "passif",
+            "effet": "+2/rang aux tests de SOC/INT pour les comprendre, et de SOC pour se faire comprendre/obtenir leur aide.",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "2×RANG", "condition": "avec les animaux (comprendre, se faire comprendre, obtenir leur aide)"},
+              {"type": "test", "categorie": "INT", "valeur": "2×RANG", "condition": "pour comprendre un animal"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Compagnon adulte",
+            "type": "renforcement",
+            "effet": "Buff + peut attaquer. Attaque : +RANG AdC, 1d6 DMG (volontairement sous l'animal de combat du druide, 1d8).",
+            "effets": [
+              {"type": "renforcement", "nom": "Compagnon animal", "effet": "Adulte : plus fort, peut attaquer (+RANG AdC, 1d6 DMG)."}
+            ],
+            "jets": [
+              {"libelle": "Compagnon : attaque", "des": "1d20 + RANG", "carac": "ADC"},
+              {"libelle": "Compagnon : dégâts", "des": "1d6"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Chasse en meute",
+            "type": "passif",
+            "effet": "Si le rôdeur et son compagnon attaquent la même cible dans le tour : +2 AdC pour les deux et −2 CA pour la cible jusqu'au prochain tour. 1×/combat, le compagnon peut intercepter un coup destiné au rôdeur.",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "avec le compagnon sur la même cible"},
+              {"type": "texte", "effet": "Avec le compagnon sur la même cible : le compagnon a aussi +2 AdC, et la cible −2 CA jusqu'au prochain tour."},
+              {"type": "usage", "nom": "Interception", "valeur": "1", "condition": "par combat", "effet": "Le compagnon intercepte un coup destiné au rôdeur."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Compagnon géant",
+            "type": "renforcement",
+            "effet": "Buff + peut servir de monture.",
+            "effets": [
+              {"type": "renforcement", "nom": "Compagnon animal", "effet": "Géant : peut servir de monture."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rodeur-trappeur",
+        "nom": "Voie du trappeur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Dépeçage",
+            "type": "renforcement",
+            "effet": "+2/rang pour dépecer correctement peau et viande (revente possible).",
+            "effets": [
+              {"type": "savoir", "categorie": "Pêche et chasse, Travail du cuir", "valeur": "2×RANG", "si": "situation", "condition": "pour dépecer"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Piège",
+            "type": "actif",
+            "effet": "Pose un collet ou un piège à mâchoires (1 min hors combat, ou action complexe). La victime fait un test de PER diff. 10 + RANG pour le repérer ; sinon 1d6 + RANG DMG et immobilisée (test de FOR diff. 12 pour se libérer). Max RANG pièges posés.",
+            "effets": [
+              {"type": "texte", "effet": "Repérer le piège : test de PER diff. 10 + RANG ; se libérer : test de FOR diff. 12. Pièges posés : RANG au maximum."}
+            ],
+            "jets": [
+              {"libelle": "Piège : dégâts", "des": "1d6 + RANG"}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Affût",
+            "type": "passif",
+            "effet": "+5 discrétion en nature s'il reste immobile ; sa première attaque depuis l'affût gagne +1d6 DMG.",
+            "effets": [
+              {"type": "savoir", "categorie": "Discrétion", "valeur": "5", "si": "situation", "condition": "en nature, immobile"},
+              {"type": "degats", "categorie": "DIST", "valeur": "1d6", "si": "situation", "condition": "première attaque depuis l'affût"}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Survivaliste",
+            "type": "passif",
+            "effet": "Maîtrise de la Survie et avantage à ses jets de Survie (trouver/fabriquer un abri de fortune, de la nourriture).",
+            "effets": [
+              {"type": "aptitude", "valeur": "survie", "nom": "Survie"},
+              {"type": "savoir", "valeur": "avantage", "condition": "Survie"}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Maître trappeur",
+            "type": "passif + renforcement",
+            "effet": "+2 PER. Pièges : 2d6 + RANG, posables en combat avec une action de mouvement, peuvent être enduits de poison ou piégés avec un explosif d'ingénieur. Max RANG × 2 pièges.",
+            "effets": [
+              {"type": "bonus", "categorie": "PER", "valeur": "2"},
+              {"type": "renforcement", "nom": "Piège", "effet": "2d6 + RANG ; posable en combat (action de mouvement) ; poison ou explosif d'ingénieur possibles ; RANG × 2 pièges au maximum."}
+            ],
+            "jets": [
+              {"libelle": "Piège : dégâts", "des": "2d6 + RANG"}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Éclaireur des terres sauvages, le rôdeur connaît chaque piste, chaque gué et chaque cri d'animal. Archer d'une précision redoutable, chasseur patient et poseur de pièges, il se déplace sans bruit, souvent avec un compagnon animal à ses côtés."
+  },
+  {
+    "id": "voleur",
+    "nom": "Voleur",
+    "modifDeVie": "=",
+    "modifDeMana": "=",
+    "lanceurDeSorts": false,
+    "profil": "hybride",
+    "maitrises": "Armes civiles ; communes.",
+    "restrictionArmure": "Cuir maximum.",
+    "voies": [
+      {
+        "id": "voleur-assassin",
+        "nom": "Voie de l'assassin",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Attaque dans le dos",
+            "type": "renforcement",
+            "effet": "+1D4/rang DMG sur une attaque dans le dos.",
+            "effets": [
+              {"type": "degats", "valeur": "RANGd4", "si": "situation", "condition": "attaque dans le dos"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Fourberie",
+            "type": "renforcement",
+            "effet": "Test de discrétion pour se cacher (pénombre, recoin, pilier) : l'ennemi perd sa trace et doit réussir un test de PER (ne fonctionne que si le voleur n'est pas sa seule cible)."
+          },
+          {
+            "rang": 3,
+            "nom": "Coupe-jarret",
+            "type": "action",
+            "effet": "Attaque d12 : la cible n'a pas d'action de mouvement au prochain tour (à faire 2× sur un quadrupède ou une grande créature+).",
+            "effets": [
+              {"type": "texte", "effet": "Si l'attaque touche : la cible n'a pas d'action de mouvement au prochain tour (2 fois sur un quadrupède ou une grande créature)."}
+            ],
+            "jets": [
+              {"libelle": "Coupe-jarret", "des": "1d12", "carac": "ADC", "attaque": {}}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Embuscade",
+            "type": "passif",
+            "effet": "Au 1er tour d'un combat où il n'a pas été repéré : +5 AdC et +2d6 DMG ; l'attaque dans le dos s'applique quelle que soit sa position.",
+            "effets": [
+              {"type": "test", "categorie": "ADC", "valeur": "5", "condition": "1er tour, non repéré"},
+              {"type": "degats", "valeur": "2d6", "si": "situation", "condition": "1er tour, non repéré"},
+              {"type": "texte", "effet": "Au 1er tour sans avoir été repéré, l'attaque dans le dos s'applique quelle que soit sa position (cocher aussi « attaque dans le dos »)."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Dague de verre pourpre",
+            "type": "complexe",
+            "effet": "Au prix de 5 DV, imprègne une dague de son envie de tuer (maniable seulement par son créateur, sinon elle se brise) : +5 AdC ; se brise dans la cible et les éclats gagnent son cœur : 1 DMG chaos au 1ᵉʳ tour, doublé chaque tour jusqu'à l'arrêt du cœur. Seuls un prêtre et un ingénieur combinés peuvent l'arrêter ; la cible reste soignable.",
+            "effets": [
+              {"type": "texte", "effet": "Coût : 5 DV (à retirer à la main). Éclats dans le cœur : 1 DMG chaos au 1er tour, doublé à chaque tour (1, 2, 4, 8…) ; seuls un prêtre et un ingénieur réunis peuvent l'arrêter."}
+            ],
+            "jets": [
+              {"libelle": "Dague de verre pourpre", "des": "1d20", "carac": "ADC", "attaque": {"arme": "Dague", "toucher": 5}}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "voleur-bretteur",
+        "nom": "Voie du bretteur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Escrime",
+            "type": "passif",
+            "effet": "+1 AdC/rang avec une arme légère à une main (rapière, dague, épée courte), si la main secondaire est libre ou tient une dague.",
+            "effets": [
+              {"type": "toucher", "valeur": "RANG", "si": "arme-choisie", "condition": "Rapière, Dague, Épée courte"},
+              {"type": "texte", "effet": "Main secondaire libre ou tenant une dague."}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Riposte",
+            "type": "passif",
+            "effet": "Après une esquive réussie contre une attaque de CaC : attaque gratuite avec un d12, 1×/tour.",
+            "effets": [
+              {"type": "texte", "effet": "Après une esquive réussie contre une attaque au CaC, 1 fois par tour."}
+            ],
+            "jets": [
+              {"libelle": "Riposte", "des": "1d12", "carac": "ADC", "attaque": {}}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Appui solide",
+            "type": "renforcement",
+            "effet": "+1 esquive par tour ; pas de contrecoup d'esquive si l'esquive réussit.",
+            "effets": [
+              {"type": "texte", "effet": "Une esquive de plus par tour ; pas de contrecoup d'esquive si l'esquive réussit."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Désarmement",
+            "type": "actif + renforcement",
+            "effet": "Attaque d12 contre l'arme de la cible ; si elle touche, test de DEX du voleur contre FOR ou DEX de la cible : l'arme est projetée à 1d6 m. Riposte désormais avec un d20.",
+            "effets": [
+              {"type": "renforcement", "nom": "Riposte", "effet": "Attaque au d20."}
+            ],
+            "jets": [
+              {"libelle": "Désarmement : attaque", "des": "1d12", "carac": "ADC"},
+              {"libelle": "Désarmement : test de DEX", "des": "1d20", "carac": "DEX"},
+              {"libelle": "Riposte", "des": "1d20", "carac": "ADC", "attaque": {}}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Botte secrète",
+            "type": "complexe",
+            "effet": "+2 DEX. 1×/combat, attaque inesquivable : +5 AdC et +3d6 DMG ; sur un critique, la cible perd son prochain tour.",
+            "effets": [
+              {"type": "bonus", "categorie": "DEX", "valeur": "2"},
+              {"type": "usage", "nom": "Botte secrète", "valeur": "1", "condition": "par combat", "effet": "Attaque inesquivable : +5 AdC et +3d6 DMG ; sur un critique, la cible perd son prochain tour."}
+            ],
+            "jets": [
+              {"libelle": "Botte secrète", "des": "1d20", "carac": "ADC", "attaque": {"toucher": 5, "degatsEnPlus": "3d6"}}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "voleur-roublard",
+        "nom": "Voie du roublard",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Vol à la tire",
+            "type": "passif",
+            "effet": "+1/rang (test de DEX).",
+            "effets": [
+              {"type": "savoir", "valeur": "RANG", "condition": "Pickpocket"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Crochetage",
+            "type": "passif",
+            "effet": "+1/rang pour crocheter + kit de crochetage ; les outils ne cassent plus sur échec critique.",
+            "objets": [{"nom": "Outils de crochetage", "categorie": "accessoire", "catalogue": true}],
+            "effets": [
+              {"type": "savoir", "valeur": "RANG", "condition": "Crochetage"},
+              {"type": "texte", "effet": "Les outils de crochetage ne cassent plus sur un échec critique."}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Sprint",
+            "type": "gratuit",
+            "effet": "1×/combat, au choix : +1 action de mouvement ce tour, ou +2 actions de mouvement (mais aucune au tour suivant).",
+            "effets": [
+              {"type": "usage", "nom": "Sprint", "valeur": "1", "condition": "par combat", "effet": "+1 action de mouvement ce tour, ou +2 (mais aucune au tour suivant)."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Comme chez soi",
+            "type": "passif",
+            "effet": "+5 en DEX, FOR et discrétion pour entrer/sortir d'un bâtiment non autorisé (le voleur + son groupe après un briefing).",
+            "effets": [
+              {"type": "test", "categorie": "DEX", "valeur": "5", "condition": "entrer / sortir d'un bâtiment sans autorisation"},
+              {"type": "test", "categorie": "FOR", "valeur": "5", "condition": "entrer / sortir d'un bâtiment sans autorisation"},
+              {"type": "savoir", "categorie": "Discrétion", "valeur": "5", "si": "situation", "condition": "entrer / sortir d'un bâtiment sans autorisation"},
+              {"type": "texte", "effet": "Vaut aussi pour son groupe après un briefing."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Le roi des roublards",
+            "type": "passif + renforcement",
+            "effet": "2d20 au vol à la tire (garde le meilleur) ; sprint : peut distraire un ennemi pour faire profiter ses alliés ciblés des mêmes bonus de mouvement.",
+            "effets": [
+              {"type": "savoir", "valeur": "avantage", "condition": "Pickpocket"},
+              {"type": "renforcement", "nom": "Sprint", "effet": "Peut distraire un ennemi pour faire profiter ses alliés ciblés des mêmes bonus de mouvement."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "voleur-seducteur",
+        "nom": "Voie du séducteur",
+        "competences": [
+          {
+            "rang": 1,
+            "nom": "Beau parleur",
+            "type": "passif",
+            "effet": "+1/rang aux tests de SOC pour baratiner, mentir.",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "RANG", "condition": "pour baratiner, mentir"}
+            ]
+          },
+          {
+            "rang": 2,
+            "nom": "Faux-semblants",
+            "type": "passif + soutien",
+            "effet": "Kit de déguisement ; +2/rang aux tests de déguisement et d'imitation de voix ou d'accent.",
+            "objets": [{"nom": "Kit de déguisement", "categorie": "divers", "description": "Maquillage, perruques et accessoires (Faux-semblants)."}],
+            "effets": [
+              {"type": "savoir", "valeur": "2×RANG", "condition": "Déguisement"},
+              {"type": "texte", "effet": "Le bonus de Déguisement vaut aussi pour imiter une voix ou un accent."}
+            ]
+          },
+          {
+            "rang": 3,
+            "nom": "Distraction charnelle",
+            "type": "action",
+            "effet": "Sur cible humanoïde. Combat (1×/combat/cible, action de mouvement, compétence) : test d'INT de la cible diff. 10 + RANG, échec = perd son tour. Hors combat (1×/cible) : test d'INT diff. 10 + RANG ; échec = +5 SOC du voleur contre son admirateur ; réussite = nouveau test pour comprendre la manœuvre, si réussi : −5 SOC et −5 MEN du voleur contre cette personne.",
+            "effets": [
+              {"type": "texte", "effet": "Cible humanoïde : test d'INT diff. 10 + RANG. En combat (1×/combat/cible, action de mouvement) : échec = perd son tour. Hors combat (1×/cible) : échec = +5 SOC du voleur contre elle ; si elle comprend la manœuvre : −5 SOC et −5 MEN contre elle."}
+            ]
+          },
+          {
+            "rang": 4,
+            "nom": "Réseau d'information",
+            "type": "passif + renforcement",
+            "effet": "+5 pour obtenir des informations en ville/village. Distraction charnelle : combat → diff. 10 + SOC + RANG ; hors combat : pas de bonus de SOC mais 2 jets d'INT (garde le pire).",
+            "effets": [
+              {"type": "test", "categorie": "SOC", "valeur": "5", "condition": "obtenir des informations en ville / village"},
+              {"type": "renforcement", "nom": "Distraction charnelle", "effet": "En combat : diff. 10 + SOC + RANG ; hors combat : pas de bonus de SOC, mais la cible lance 2 jets d'INT et garde le pire."}
+            ]
+          },
+          {
+            "rang": 5,
+            "nom": "Irrésistible",
+            "type": "passif + renforcement",
+            "effet": "+4 SOC. Distraction charnelle en combat : 2 cibles. 1×/aventure, une cible qui rate la distraction hors combat devient un allié dévoué tant que le voleur ne la trahit pas ouvertement.",
+            "effets": [
+              {"type": "bonus", "categorie": "SOC", "valeur": "4"},
+              {"type": "renforcement", "nom": "Distraction charnelle", "effet": "En combat : 2 cibles."},
+              {"type": "usage", "nom": "Allié dévoué", "valeur": "1", "condition": "par aventure", "effet": "Une cible qui rate la distraction hors combat devient un allié dévoué tant que le voleur ne la trahit pas ouvertement."}
+            ]
+          }
+        ]
+      }
+    ],
+    "description": "Agile, rusé et toujours à l'affût d'une occasion, le voleur vit dans l'ombre des cités. Assassin silencieux, bretteur élégant, roublard ou séducteur, il obtient par la ruse ce que d'autres prennent par la force. Une serrure, un garde, un cœur : tout finit par céder.",
+    "originePouvoir": "Origine du pouvoir : appât du gain / spectacles ou assistant d'un mage."
+  }
+]

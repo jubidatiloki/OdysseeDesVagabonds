@@ -1,0 +1,41 @@
+name: odyssee_vagabonds
+description: "L'odyssée des vagabonds — création et gestion de personnages de jeu de rôle."
+publish_to: 'none'
+
+version: 0.16.0+20
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # Stockage local V1 (Android, iOS, web, desktop). Remplaçable grâce à
+  # l'interface PersonnageRepository (voir lib/data/).
+  shared_preferences: ^2.3.0
+  # Ouvrir / enregistrer des fichiers (import-export de personnages),
+  # sur le web, Android, iOS et ordinateur.
+  file_picker: ^10.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/images/
+  # Police d'ambiance de la charte graphique (titres). Licence : OFL
+  # (assets/fonts/Cinzel-OFL.txt).
+  fonts:
+    - family: Cinzel
+      fonts:
+        - asset: assets/fonts/Cinzel-Regular.ttf
+        - asset: assets/fonts/Cinzel-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Cinzel-Bold.ttf
+          weight: 700

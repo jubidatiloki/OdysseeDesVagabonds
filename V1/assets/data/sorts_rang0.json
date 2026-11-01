@@ -1,0 +1,273 @@
+[
+  {
+    "id": "sort-etincelle",
+    "nom": "Étincelle",
+    "description": "1d4 dégâts de feu à 10 m ; allume une torche ou une mèche.",
+    "classes": [],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["offensif"],
+      "effet": "Projette une étincelle à 10 m : 1d4 dégâts de feu. Peut aussi allumer une torche ou une mèche.",
+      "degats": "1d4 feu",
+      "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+    }
+  },
+  {
+    "id": "sort-eclat-de-givre",
+    "nom": "Éclat de givre",
+    "description": "1d4 dégâts de glace ; la cible perd 2 m de déplacement au prochain tour.",
+    "classes": [],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["offensif", "controle-physique"],
+      "effet": "Un éclat de glace à 10 m : 1d4 dégâts de glace ; la cible perd 2 m de déplacement à son prochain tour.",
+      "degats": "1d4 glace",
+      "effetApplique": "−2 m de déplacement au prochain tour",
+      "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+    }
+  },
+  {
+    "id": "sort-decharge",
+    "nom": "Décharge",
+    "description": "1d4 dégâts de foudre au contact ; +2 au toucher contre une armure en métal.",
+    "classes": [],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["offensif"],
+      "effet": "Au contact : 1d4 dégâts de foudre ; +2 au jet d'attaque contre une cible en armure de métal.",
+      "degats": "1d4 foudre",
+      "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible (+2 contre une armure en métal)"}
+    }
+  },
+  {
+    "id": "sort-frisson-necrotique",
+    "nom": "Frisson nécrotique",
+    "description": "1d4 dégâts nécrotiques au contact.",
+    "classes": ["necromancien"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["offensif"],
+      "effet": "Au contact : 1d4 dégâts nécrotiques.",
+      "degats": "1d4 nécrotique",
+      "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+    }
+  },
+  {
+    "id": "sort-epine",
+    "nom": "Épine",
+    "description": "1d4 dégâts perçants à 10 m, lancés par une plante proche.",
+    "classes": ["druide"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["offensif"],
+      "effet": "Une plante proche projette une épine à 10 m : 1d4 dégâts perçants.",
+      "degats": "1d4 perçant",
+      "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
+    }
+  },
+  {
+    "id": "sort-stabilisation",
+    "nom": "Stabilisation",
+    "description": "Une créature à 0 PV ne perd plus de PV ce tour-ci (aucun soin).",
+    "classes": ["pretre", "druide"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["support"],
+      "effet": "Au contact, une créature à 0 PV ne perd plus de PV ce tour-ci. Ne soigne pas.",
+      "effetApplique": "Ne perd plus de PV ce tour-ci"
+    }
+  },
+  {
+    "id": "sort-petit-soin",
+    "nom": "Petit soin",
+    "description": "Soigne 1 PV, une fois par cible et par jour.",
+    "classes": ["pretre"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["support"],
+      "effet": "Au contact : soigne 1 PV. Une fois par cible et par jour.",
+      "soin": "1 PV",
+      "effetApplique": "Une fois par cible et par jour"
+    }
+  },
+  {
+    "id": "sort-bouclier-mineur",
+    "nom": "Bouclier mineur",
+    "description": "Réaction : +1 CA jusqu'à la fin du tour.",
+    "classes": [],
+    "sort": {
+      "type": "gratuit, sort, 1×/tour",
+      "typesSort": ["support"],
+      "effet": "En réaction à une attaque : +1 CA jusqu'à la fin du tour.",
+      "effetApplique": "+1 CA jusqu'à la fin du tour"
+    }
+  },
+  {
+    "id": "sort-benediction-mineure",
+    "nom": "Bénédiction mineure",
+    "description": "Un allié gagne +1 à son prochain test.",
+    "classes": ["pretre", "barde"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["support"],
+      "effet": "Un allié à portée de voix gagne +1 à son prochain test.",
+      "effetApplique": "Un allié : +1 au prochain test"
+    }
+  },
+  {
+    "id": "sort-lumiere",
+    "nom": "Lumière",
+    "description": "Un objet éclaire à 10 m pendant 1 H.",
+    "classes": [],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Un objet touché éclaire comme une torche, à 10 m, pendant 1 H.",
+      "effetApplique": "Éclaire à 10 m pendant 1 H"
+    }
+  },
+  {
+    "id": "sort-main-de-mage",
+    "nom": "Main de mage",
+    "description": "Déplace un petit objet (moins de 1 kg) jusqu'à 10 m.",
+    "classes": ["magicien"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Une main invisible déplace un petit objet (moins de 1 kg) jusqu'à 10 m.",
+      "effetApplique": "Déplace un objet de moins de 1 kg (10 m)"
+    }
+  },
+  {
+    "id": "sort-prestidigitation",
+    "nom": "Prestidigitation",
+    "description": "Nettoie, réchauffe, colore, petit effet visuel ou sonore.",
+    "classes": [],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["illusion", "utilitaire"],
+      "effet": "Petit tour de magie : nettoyer, réchauffer ou colorer un objet, produire un petit effet visuel ou sonore.",
+      "effetApplique": "Petit effet visuel, sonore ou pratique"
+    }
+  },
+  {
+    "id": "sort-detection-magie",
+    "nom": "Détection de la magie",
+    "description": "Sent la magie dans un rayon de 5 m (sans détail).",
+    "classes": ["magicien", "pretre"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Sent la présence de magie dans un rayon de 5 m, sans en connaître la nature.",
+      "effetApplique": "Présence de magie à 5 m"
+    }
+  },
+  {
+    "id": "sort-murmure",
+    "nom": "Murmure",
+    "description": "Message de quelques mots à un allié à portée de vue.",
+    "classes": ["barde", "voleur"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Fait entendre un message de quelques mots à un allié à portée de vue, sans que les autres l'entendent.",
+      "effetApplique": "Message discret à un allié en vue"
+    }
+  },
+  {
+    "id": "sort-ouverture",
+    "nom": "Ouverture",
+    "description": "Défait un nœud, une boucle ou un loquet simple (pas une serrure).",
+    "classes": ["voleur"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Défait un nœud, une boucle ou un loquet simple à portée de main. Sans effet sur une serrure.",
+      "effetApplique": "Défait un nœud ou un loquet simple"
+    }
+  },
+  {
+    "id": "sort-illusion-sonore",
+    "nom": "Illusion sonore",
+    "description": "Un bruit à 10 m pendant 1 tour : la cible tourne la tête (test de PER diff. 10).",
+    "classes": ["barde", "voleur"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["illusion"],
+      "effet": "Un bruit imaginaire à 10 m pendant 1 tour : la cible tourne la tête, sauf réussite d'un test de PER diff. 10.",
+      "effetApplique": "La cible est distraite (PER diff. 10 pour l'ignorer)"
+    }
+  },
+  {
+    "id": "sort-charme-fugace",
+    "nom": "Charme fugace",
+    "description": "+2 au prochain test de SOC contre une personne.",
+    "classes": ["barde"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["controle-mental"],
+      "effet": "Un sourire, un geste : +2 au prochain test de SOC contre une personne.",
+      "effetApplique": "+2 au prochain test de SOC"
+    }
+  },
+  {
+    "id": "sort-regard-troublant",
+    "nom": "Regard troublant",
+    "description": "La cible a −1 à son prochain jet d'attaque.",
+    "classes": ["necromancien", "moine"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["controle-mental"],
+      "effet": "Un regard qui glace : la cible a −1 à son prochain jet d'attaque.",
+      "effetApplique": "Cible : −1 au prochain jet d'attaque"
+    }
+  },
+  {
+    "id": "sort-langage-des-betes",
+    "nom": "Langage des bêtes",
+    "description": "Comprend l'humeur d'un animal (pas de dialogue).",
+    "classes": ["druide"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Comprend l'humeur d'un animal (peur, colère, faim…), sans dialogue.",
+      "effetApplique": "Humeur d'un animal"
+    }
+  },
+  {
+    "id": "sort-pousse",
+    "nom": "Pousse",
+    "description": "Fait germer une graine ou mûrir un fruit.",
+    "classes": ["druide"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["utilitaire"],
+      "effet": "Fait germer une graine ou mûrir un fruit en quelques instants.",
+      "effetApplique": "Germination ou maturation"
+    }
+  },
+  {
+    "id": "sort-souffle-de-ki",
+    "nom": "Souffle de ki",
+    "description": "+1 au prochain test de CON ou de DEX.",
+    "classes": ["moine"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["support"],
+      "effet": "Une respiration maîtrisée : +1 au prochain test de CON ou de DEX.",
+      "effetApplique": "+1 au prochain test de CON ou de DEX"
+    }
+  },
+  {
+    "id": "sort-pas-leger",
+    "nom": "Pas léger",
+    "description": "Aucun bruit de pas pendant 1 tour.",
+    "classes": ["moine", "voleur"],
+    "sort": {
+      "type": "actif, sort, 1×/tour",
+      "typesSort": ["support"],
+      "effet": "Les pas ne font aucun bruit pendant 1 tour.",
+      "effetApplique": "Pas silencieux pendant 1 tour"
+    }
+  }
+]

@@ -1,0 +1,38 @@
+# Règle système
+
+## Dé
+Il s'agit d'un système avec D20 (dé à 20 faces). 
+* Le 20 représente une réussite critique.
+* Le 1 répresente un échec critique.
+
+## Avantage 
+Avoir un avantage sur un jet signifie que 2 dés sont lancé et que l'on prend en compte le meilleur résultat
+
+## Désavantage 
+Avoir un désavantage sur un jet signifie que 2 dés sont lancé et que l'on prend en compte le plus mauvais résultat
+
+
+## Actions
+Un personnage dispose de 3 Points d'action (PA) pendant son tour.
+Chaque action (actions ou mouvement) se séparent dans les catégories suivantes : 
+* action gratuite : coute 0 PA
+* action de mouvement / se déplacer : coute 1 PA 
+* Action simple : coute 2 PA
+* Action complexe : coute 3 PA
+
+## Poudre et armes à feu
+Par défaut (sauf bonus, malus ou indication contraire), le rechargement :
+* d'une arme accroché/légère est une action gratuite
+* d'une arme à une main prend l'équivalent d'une action de mouvement
+* d'une arme à deux mains prend l'équivalent d'une action complexe
+
+
+## cout en mana 
+Les sorts ont un cout en mana selon leur rang.
+* Un sort de rang 1 coute 1 PM.
+* Un sort de rang 2 coute 3 PM.
+* Un sort de rang 3 coute 6 PM.
+* Un sort de rang 4 coute 10 PM.
+* Un sort de rang 5 coute 15 PM.
+
+

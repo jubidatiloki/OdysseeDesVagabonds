@@ -1,0 +1,490 @@
+[
+  {
+    "id": "arme",
+    "nom": "Maîtrise d'une arme",
+    "description": "Maîtrise d'une arme supplémentaire (−5 sans la maîtrise).",
+    "question": "Quelle arme ?",
+    "multiple": true
+  },
+  {
+    "id": "instrument",
+    "nom": "Maîtrise d'un instrument",
+    "description": "Jouer d'un instrument (échec automatique sans la maîtrise ; test 1d20 + DEX).",
+    "question": "Quel instrument ?",
+    "multiple": true
+  },
+  {
+    "id": "langue",
+    "nom": "Nouvelle langue",
+    "description": "Parler une langue de plus que celle de sa race.",
+    "question": "Quelle langue ?",
+    "liste": "langues",
+    "multiple": true
+  },
+  {
+    "id": "connaissance",
+    "nom": "Connaissance d'un domaine",
+    "description": "+5 aux tests liés au domaine (géologie, cartographie, histoire…).",
+    "question": "Quel domaine ?",
+    "multiple": true
+  },
+  {
+    "id": "autre",
+    "nom": "Autre aptitude",
+    "description": "Navigation, cartographie… avec l'accord du MJ.",
+    "question": "Laquelle ?",
+    "multiple": true
+  },
+
+  {
+    "id": "cartographie",
+    "nom": "Cartographie",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Permet de comprendre et de réaliser des cartes et des plans détaillés d'un lieu, d'une structure"
+  },
+  {
+    "id": "faune",
+    "nom": "Faune",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Reconnaître un animal, ses habitudes, s'il est dangereux."
+  },
+  {
+    "id": "flore",
+    "nom": "Flore",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Plantes comestibles, toxiques ou médicinales."
+  },
+  {
+    "id": "bestiaire-monstrueux",
+    "nom": "Bestiaire monstrueux",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Points faibles et comportement des créatures (trolls, goules…)."
+  },
+  {
+    "id": "connaissance-demi-elfe",
+    "nom": "Peuple demi-elfe",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "demi-elfe",
+    "description": "Coutumes, histoire et préjugés des demi-elfes (innée pour un demi-elfe)."
+  },
+  {
+    "id": "connaissance-demi-orque",
+    "nom": "Peuple demi-orque",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "demi-orque",
+    "description": "Coutumes, histoire et préjugés des demi-orques (innée pour un demi-orque)."
+  },
+  {
+    "id": "connaissance-draconien",
+    "nom": "Peuple draconien",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "draconien",
+    "description": "Coutumes, histoire et préjugés des draconiens (innée pour un draconien)."
+  },
+  {
+    "id": "connaissance-elfe-sylvain",
+    "nom": "Peuple elfe-sylvain",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "elfe-sylvain",
+    "description": "Coutumes, histoire et préjugés des elfes sylvains (innée pour un elfe-sylvain)."
+  },
+  {
+    "id": "connaissance-haut-elfe",
+    "nom": "Peuple haut-elfe",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "haut-elfe",
+    "description": "Coutumes, histoire et préjugés des hauts-elfes (innée pour un haut-elfe)."
+  },
+  {
+    "id": "connaissance-gnome",
+    "nom": "Peuple gnome",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "gnome",
+    "description": "Coutumes, histoire et préjugés des gnomes (innée pour un gnome)."
+  },
+  {
+    "id": "connaissance-humain",
+    "nom": "Peuple humain",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "humain",
+    "description": "Coutumes, histoire et préjugés des humains (innée pour un humain)."
+  },
+  {
+    "id": "connaissance-nain",
+    "nom": "Peuple nain",
+    "famille": "savoir",
+    "carac": "INT",
+    "race": "nain",
+    "description": "Coutumes, histoire et préjugés des nains (innée pour un nain)."
+  },
+  {
+    "id": "architecture",
+    "nom": "Architecture",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Repérer un passage secret, un mur fragile, l'âge d'un bâtiment."
+  },
+  {
+    "id": "heraldique",
+    "nom": "Héraldique et noblesse",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Reconnaître un blason, une famille, les règles de la cour."
+  },
+  {
+    "id": "bas-fonds",
+    "nom": "Rumeurs et bas-fonds",
+    "famille": "savoir",
+    "carac": "SOC",
+    "description": "Savoir qui contacter, les prix du marché noir, les guildes de voleurs."
+  },
+  {
+    "id": "commerce",
+    "nom": "Commerce et estimation",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Évaluer la valeur d'un objet, déceler une contrefaçon."
+  },
+  {
+    "id": "cuisine",
+    "nom": "Cuisine",
+    "famille": "savoir",
+    "carac": "INT",
+    "description": "Préparer des rations qui se conservent, repérer un plat empoisonné."
+  },
+  {
+    "id": "meteorologie",
+    "nom": "Météorologie",
+    "famille": "savoir",
+    "carac": "PER",
+    "description": "Prévoir l'orage, la tempête ou le brouillard."
+  },
+  {
+    "id": "geologie",
+    "nom": "Géologie",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Minerais, grottes, risque d'éboulement."
+  },
+  {
+    "id": "histoire",
+    "nom": "Histoire du continent",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Guerres, royaumes disparus, ruines anciennes."
+  },
+  {
+    "id": "arcanes",
+    "nom": "Arcanes",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Reconnaître un sort, un objet magique, un cercle rituel."
+  },
+  {
+    "id": "religions",
+    "nom": "Religions et cultes",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Dieux, rites, symboles, cultes interdits."
+  },
+  {
+    "id": "alchimie",
+    "nom": "Alchimie",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Identifier une potion ou une substance."
+  },
+  {
+    "id": "medecine",
+    "nom": "Médecine",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Diagnostiquer une maladie, un poison, une blessure."
+  },
+  {
+    "id": "demonologie",
+    "nom": "Plans et démonologie",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Démons, morts-vivants, autres plans d'existence."
+  },
+  {
+    "id": "legendes",
+    "nom": "Littérature et légendes",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Prophéties, contes, énigmes anciennes."
+  },
+  {
+    "id": "droit",
+    "nom": "Droit et lois",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Lois locales, contrats, tribunaux."
+  },
+  {
+    "id": "astronomie",
+    "nom": "Astronomie",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "S'orienter la nuit, calendrier, présages célestes."
+  },
+  {
+    "id": "ingenierie",
+    "nom": "Ingénierie et mécanismes",
+    "famille": "savoir",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Machines, pièges mécaniques, engins de siège."
+  },
+
+  {
+    "id": "escalade",
+    "nom": "Escalade",
+    "famille": "savoir-faire",
+    "carac": "FOR",
+    "description": "Grimper un mur, une falaise, un arbre."
+  },
+  {
+    "id": "crochetage",
+    "nom": "Crochetage",
+    "famille": "savoir-faire",
+    "carac": "DEX",
+    "description": "Ouvrir une serrure (malus sans outils)."
+  },
+  {
+    "id": "discretion",
+    "nom": "Discrétion",
+    "famille": "savoir-faire",
+    "carac": "DEX",
+    "description": "Se déplacer sans bruit, se cacher."
+  },
+  {
+    "id": "pistage",
+    "nom": "Pistage",
+    "famille": "savoir-faire",
+    "carac": "PER",
+    "description": "Suivre des traces, savoir combien de créatures sont passées."
+  },
+  {
+    "id": "survie",
+    "nom": "Survie",
+    "famille": "savoir-faire",
+    "carac": "INT",
+    "description": "Trouver de l'eau, un abri, faire du feu."
+  },
+  {
+    "id": "peche-chasse",
+    "nom": "Pêche et chasse",
+    "famille": "savoir-faire",
+    "carac": "INT",
+    "description": "Nourrir le groupe en pleine nature."
+  },
+  {
+    "id": "premiers-soins",
+    "nom": "Premiers soins",
+    "famille": "savoir-faire",
+    "carac": "INT",
+    "description": "Stabiliser un blessé (pas de soin magique)."
+  },
+  {
+    "id": "acrobatie",
+    "nom": "Acrobatie",
+    "famille": "savoir-faire",
+    "carac": "DEX",
+    "description": "Sauter, se rattraper, garder l'équilibre."
+  },
+  {
+    "id": "pickpocket",
+    "nom": "Pickpocket",
+    "famille": "savoir-faire",
+    "carac": "DEX",
+    "description": "Voler une bourse discrètement."
+  },
+  {
+    "id": "marchandage",
+    "nom": "Marchandage",
+    "famille": "savoir-faire",
+    "carac": "SOC",
+    "description": "Obtenir un meilleur prix."
+  },
+  {
+    "id": "dressage",
+    "nom": "Dressage",
+    "famille": "savoir-faire",
+    "carac": "SOC",
+    "description": "Calmer ou dresser un animal."
+  },
+  {
+    "id": "deguisement",
+    "nom": "Déguisement",
+    "famille": "savoir-faire",
+    "carac": "SOC",
+    "description": "Se faire passer pour quelqu'un d'autre."
+  },
+  {
+    "id": "jeux-hasard",
+    "nom": "Jeux de hasard",
+    "famille": "savoir-faire",
+    "carac": "CHAN",
+    "description": "Dés, cartes, paris en taverne."
+  },
+  {
+    "id": "natation",
+    "nom": "Natation",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "FOR",
+    "description": "Nager, traverser une rivière, ne pas se noyer."
+  },
+  {
+    "id": "equitation",
+    "nom": "Équitation",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Monter à cheval, galoper, combattre en selle."
+  },
+  {
+    "id": "lire-ecrire",
+    "nom": "Lire et écrire",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Inné si INT ≥ 10 ; sinon à apprendre.",
+    "inneeSiIntAuMoins": 10
+  },
+  {
+    "id": "navigation",
+    "nom": "Navigation",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Diriger un bateau, lire les courants."
+  },
+  {
+    "id": "attelage",
+    "nom": "Conduite d'attelage",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Charrette, char, diligence."
+  },
+  {
+    "id": "forge",
+    "nom": "Forge",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "FOR",
+    "description": "Réparer ou fabriquer armes et armures."
+  },
+  {
+    "id": "herboristerie",
+    "nom": "Herboristerie",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "INT",
+    "description": "Fabriquer onguents, remèdes, poisons simples."
+  },
+  {
+    "id": "desamorcage",
+    "nom": "Désamorçage de pièges",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Neutraliser un piège sans le déclencher."
+  },
+  {
+    "id": "contrefacon",
+    "nom": "Contrefaçon",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Imiter une signature, un sceau, un document."
+  },
+  {
+    "id": "couture",
+    "nom": "Couture",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Artisanat : coudre, réparer ou créer vêtements, sacs et tentes."
+  },
+  {
+    "id": "menuiserie",
+    "nom": "Menuiserie",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Artisanat : travailler le bois (meubles, coffres, manches, charpente légère)."
+  },
+  {
+    "id": "joaillerie",
+    "nom": "Joaillerie",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Artisanat : tailler les gemmes, sertir bagues et colliers, estimer un bijou."
+  },
+  {
+    "id": "maroquinerie",
+    "nom": "Travail du cuir",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Artisanat : tanner, coudre le cuir (bottes, ceintures, armures de cuir)."
+  },
+  {
+    "id": "poterie",
+    "nom": "Poterie",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Artisanat : façonner et cuire l'argile (jarres, fioles, tuiles)."
+  },
+  {
+    "id": "tissage",
+    "nom": "Tissage",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Artisanat : filer et tisser laine, lin ou soie, tapis et tentures."
+  },
+  {
+    "id": "calligraphie",
+    "nom": "Calligraphie et copie",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "DEX",
+    "description": "Recopier un parchemin magique, un livre."
+  },
+  {
+    "id": "apnee",
+    "nom": "Plongée en apnée",
+    "famille": "savoir-faire",
+    "complexe": true,
+    "carac": "CON",
+    "description": "Rester longtemps sous l'eau (après Natation)."
+  }
+]

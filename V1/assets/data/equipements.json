@@ -1,0 +1,412 @@
+[
+	{
+		"id": "potion-fer",
+		"nom": "Potion de fer",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "+5 CA pendant 1D6 heures.",
+		"proprietes": {
+			"Déblocage (ingénieur)": "Voie du chimiste, rang 2"
+		}
+	},
+	{
+		"id": "potion-feu-gregeois",
+		"nom": "Feu grégeois",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "Une petite potion permettant de déchaîner les flammes sur ses ennemis.",
+		"proprietes": {
+			"Dégâts": "2D6 feu",
+			"Zone": "3 m"
+		}
+	},
+	{
+		"id": "potion-glace-condensee",
+		"nom": "Glace condensée",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "1D6 dégâts de glace sur 3 m et ralenti pendant 1D6 tours.",
+		"proprietes": {
+			"Dégâts": "1D6 glace",
+			"Zone": "3 m",
+			"Affliction": "Ralenti 1D6 tours"
+		}
+	},
+	{
+		"id": "potion-sante-1",
+		"nom": "Potion de santé (niveau 1)",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "Rend la force vitale de celui qui la boit.",
+		"proprietes": {
+			"Soin": "1D8 PV",
+			"Déblocage (ingénieur)": "Voie du chimiste, rang 1"
+		}
+	},
+	{
+		"id": "potion-eclair-canalise",
+		"nom": "Éclair canalisé",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "1D6 dégâts de foudre sur 5 m.",
+		"proprietes": {
+			"Dégâts": "1D6 foudre",
+			"Zone": "5 m"
+		}
+	},
+	{
+		"id": "potion-reussite",
+		"nom": "Potion de réussite",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "+3 aux prochains jets pendant 5 minutes.",
+		"proprietes": {
+			"Durée": "5 min",
+			"Déblocage (ingénieur)": "Voie du chimiste, rang 4"
+		}
+	},
+	{
+		"id": "potion-poison",
+		"nom": "Poison",
+		"categorie": "Consommable",
+		"sousCategorie": "Potion",
+		"description": "+1D6 dégâts de chaos à l'impact, puis test de CON (difficulté 15) pour résister : sinon 1D6 dégâts pendant 1D6 tours.",
+		"proprietes": {
+			"Dégâts": "1D6 chaos",
+			"Résistance": "CON diff. 15",
+			"Déblocage (ingénieur)": "Voie du chimiste, rang 3"
+		}
+	},
+	{
+		"id": "biere-naine",
+		"nom": "Bière naine",
+		"categorie": "Consommable",
+		"sousCategorie": "Alcool",
+		"description": "Une bière issue des meilleurs brasseurs nains."
+	},
+	{
+		"id": "potions-magiques",
+		"nom": "Potions magiques",
+		"categorie": "objet-magique",
+		"sousCategorie": "Potion",
+		"description": "Préparées avec l'aide d'un magicien connaissant le sort : respiration aquatique, agrandissement, lumière, brume, bannissement.",
+		"proprietes": {
+			"Déblocage (ingénieur)": "Voie du chimiste, rang 5"
+		}
+	},
+	{
+		"id": "parchemin-magie",
+		"nom": "Parchemin de magie",
+		"categorie": "objet-magique",
+		"sousCategorie": "Parchemin",
+		"description": "Porte une formule écrite une ou plusieurs fois. Chaque lecture lance le sort et efface une ligne. Seul moyen de lancer un sort pour les non-mages ; ne consomme pas de mana.",
+		"proprietes": {
+			"Utilisations": "1 par ligne écrite",
+			"Lignes": "selon la qualité et la taille du parchemin"
+		}
+	},
+	{
+		"id": "materiel-ecriture",
+		"nom": "Matériel d'écriture",
+		"categorie": "accessoire",
+		"sousCategorie": "Outil",
+		"description": "Parchemin, encre et encrier. Nécessaire pour écrire un parchemin de magie (il faut aussi connaître le sort et dépenser son mana).",
+		"proprietes": {
+			"Prix": "20 pc"
+		}
+	},
+	{
+		"id": "outils-crochetage",
+		"nom": "Outils de crochetage",
+		"categorie": "accessoire",
+		"sousCategorie": "Outil",
+		"description": "Crochetage = test de DEX. Sans outils : −10. Sur un échec critique, les outils cassent (sauf voleur, voie du roublard rang 2).",
+		"proprietes": {}
+	},
+	{
+		"id": "epee-longue",
+		"nom": "Épée longue",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, Épée, une main, tranchante",
+		"description": "Épée longue tranchante. Relativement commune.",
+		"proprietes": {
+			"Dégâts": "1D6 phy",
+			"Prix": "25 pc"
+		}
+	},
+	{
+		"id": "lance-arcon",
+		"nom": "Lance d'arçon",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, Lance, une main, perforante",
+		"description": "Lance de cavalier, maniée à une main depuis la selle (charge : +2d6 DMG au lieu de +1d6).",
+		"proprietes": {
+			"Dégâts": "1D8 phy"
+		}
+	},
+	{
+		"id": "baton",
+		"nom": "Bâton",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, bâton, une main, deux mains, contondant",
+		"description": "Bâton pouvant servir d'arme et ayant l'avantage d'être utilisable à une ou deux mains.",
+		"proprietes": {
+			"Dégâts (une main)": "1D6 phy",
+			"Dégâts (deux mains)": "1D8 phy",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "hache-de-guerre",
+		"nom": "Hache de guerre",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, hache, une main, deux mains, tranchante",
+		"description": "Hache de guerre utilisable à une ou deux mains.",
+		"proprietes": {
+			"Dégâts (une main)": "1D6 phy",
+			"Dégâts (deux mains)": "1D8 phy"
+		}
+	},
+	{
+		"id": "marteau-de-guerre",
+		"nom": "Marteau de guerre",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, marteau, une main, deux mains, contondant",
+		"description": "Marteau de guerre utilisable à une ou deux mains.",
+		"proprietes": {
+			"Dégâts (une main)": "1D6 phy",
+			"Dégâts (deux mains)": "1D8 phy"
+		}
+	},
+	{
+		"id": "arc-court",
+		"nom": "Arc court",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, arc, deux mains, perçant",
+		"description": "Petit arc efficace à courte et moyenne distance.",
+		"proprietes": {
+			"Dégâts": "1D6 phy",
+			"Portée": "20m",
+			"Prix": "15 pc"
+		}
+	},
+	{
+		"id": "arc-long",
+		"nom": "Arc long",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, arc, deux mains, perçant",
+		"description": "Grand arc permettant de tirer sur des ennemis depuis une plus grande distance que l'arc court.",
+		"proprietes": {
+			"Dégâts": "1D8 phy",
+			"Portée": "40m",
+			"Prix": "10 pa"
+		}
+	},
+	{
+		"id": "petoire",
+		"nom": "Pétoire",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, poudre, une main",
+		"description": "Gros pistolet produisant beaucoup de fumée ainsi qu'un potentiel trou dans sa cible.",
+		"proprietes": {
+			"Dégâts": "1D10 phy",
+			"Portée": "20m",
+			"Prix": "10 pa"
+		}
+	},
+{
+		"id": "mousquet",
+		"nom": "Mousquet",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, poudre, deux main",
+		"description": "Fusil permettant de viser et tirer sur sa cible, même de loin.",
+		"proprietes": {
+			"Dégâts": "2d6 phy",
+			"Portée": "50m",
+			"Prix": "30 pa"
+		}
+	},
+	{
+		"id": "canon-a-mains",
+		"nom": "Canon à mains",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, poudre, deux mains",
+		"description": "Petit canon tiré à bout de bras : boulet. Arme à poudre lourde ; rechargement = action complexe.",
+		"proprietes": {
+			"Dégâts": "3d10 phy",
+			"Portée": "50m",
+			"Prix": "50 pa"
+		}
+	},
+	{
+		"id": "bikini-de-plaque",
+		"nom": "Bikini de plaque",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, lourde, légendaire",
+		"description": "Le ô combien connu et légendaire bikini de plaque.",
+		"proprietes": {
+			"CA": "+5",
+			"DEX max": "+1",
+			"Prix": "999 po"
+		}
+	},
+	{
+		"id": "armure-cuir",
+		"nom": "Armure de cuir",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, légère, cuir",
+		"description": "Armure de cuir souple : protège peu mais laisse libre de ses mouvements.",
+		"proprietes": {
+			"CA": "+1",
+			"DEX max": "+3"
+		}
+	},
+	{
+		"id": "cotte-de-mailles",
+		"nom": "Cotte de mailles",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, intermédiaire, métal",
+		"description": "Chemise d'anneaux de métal entrelacés.",
+		"proprietes": {
+			"CA": "+3",
+			"DEX max": "+2"
+		}
+	},
+	{
+		"id": "armure-plaques",
+		"nom": "Armure de plaques",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, lourde, métal",
+		"description": "Armure complète de plaques d'acier : très protectrice mais lourde.",
+		"proprietes": {
+			"CA": "+6",
+			"DEX max": "+1"
+		}
+	},
+	{
+		"id": "casque-cuir",
+		"nom": "Casque de cuir",
+		"categorie": "Armure",
+		"sousCategorie": "casque, légère, cuir",
+		"description": "Casque tout ce qu'il y a de plus basique et commun. Protège la tête des chocs mineurs.",
+		"proprietes": {
+			"CA": "+1",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "vetement-tissu",
+		"nom": "Vêtement en tissu",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, legère, tissu",
+		"description": "Vêtement en tissu qui ne protège pas bcp, voire pas du tout.",
+		"proprietes": {
+			"CA": "+0",
+			"Prix": "3 pc"
+		}
+	},
+	{
+		"id": "pelle",
+		"nom": "Pelle",
+		"categorie": "Outil, arme",
+		"sousCategorie": "outil, arme, CaC, deux main",
+		"description": "Permet de creuser ou donner des coups.",
+		"proprietes": {
+			"Dégâts": "1d6 phy",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "pioche",
+		"nom": "Pioche",
+		"categorie": "Outil, arme",
+		"sousCategorie": "outil, arme, CaC, deux main",
+		"description": "Permet de miner ou donner des coups.",
+		"proprietes": {
+			"Dégâts": "1d6 phy",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "hache",
+		"nom": "Hache",
+		"categorie": "Outil, arme",
+		"sousCategorie": "outil, arme, CaC, deux main",
+		"description": "Permet de couper des arbres ou des coups.",
+		"proprietes": {
+			"Dégâts": "1d6 phy",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "corde-20m",
+		"nom": "Corde 20m",
+		"categorie": "Outil",
+		"sousCategorie": "outil",
+		"description": "Une corde de 20m",
+		"proprietes": {
+			"Prix": "3 pc"
+		}
+	},
+	{
+		"id": "bouclier-en-bois",
+		"nom": "Bouclier en bois",
+		"categorie": "Armure",
+		"sousCategorie": "bouclier, une main, bois",
+		"description": "Un bouclier en bois basique mais permettant de protéger des coups",
+		"proprietes": {
+			"CA": "+1",
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "lyre",
+		"nom": "Lyre",
+		"categorie": "Instrument",
+		"sousCategorie": "instrument, cordes",
+		"description": "Instrument de musique à cordes pincées, tenu contre soi.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "flute",
+		"nom": "Flûte",
+		"categorie": "Instrument",
+		"sousCategorie": "instrument, vent",
+		"description": "Instrument de musique à vent.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "oud",
+		"nom": "Oud",
+		"categorie": "Instrument",
+		"sousCategorie": "instrument, cordes",
+		"description": "Instrument de musique à cordes pincées, au manche court et à la caisse bombée.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "banjo",
+		"nom": "Banjo",
+		"categorie": "Instrument",
+		"sousCategorie": "instrument, cordes",
+		"description": "Instrument de musique à cordes pincées, à la caisse ronde tendue de peau.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "tambour",
+		"nom": "Tambour",
+		"categorie": "Instrument",
+		"sousCategorie": "instrument, percussion",
+		"description": "Instrument de musique à percussion.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	}
+]

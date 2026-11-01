@@ -1,0 +1,28 @@
+L'odyssee des vagabonds - application Windows
+=============================================
+
+Lancer l'application
+--------------------
+1. Dezipper le dossier n'importe ou (Bureau, cle USB...).
+   Garder tous les fichiers ensemble (le .exe a besoin des .dll et du
+   dossier "data").
+2. Double-cliquer sur "odyssee_vagabonds.exe".
+
+Si Windows affiche "Windows a protege votre ordinateur" : cliquer sur
+"Informations complementaires" puis "Executer quand meme" (l'application
+n'est pas signee).
+
+Sauvegarde des personnages
+--------------------------
+Les personnages sont enregistres sur CET ordinateur (dossier de
+l'utilisateur Windows), pas dans le dossier de l'application.
+
+Pour transferer un personnage d'un ordinateur a un autre :
+fiche du personnage > menu (3 points) > Exporter, puis sur l'autre
+ordinateur : Personnages > icone d'import (dossier) > choisir le fichier.
+
+Configuration requise
+---------------------
+Windows 10 ou 11 (64 bits). Si un message parle de "VCRUNTIME140.dll",
+installer "Microsoft Visual C++ Redistributable" (x64) depuis le site de
+Microsoft.

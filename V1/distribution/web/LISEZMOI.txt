@@ -1,0 +1,25 @@
+L'odyssee des vagabonds - version web
+=====================================
+
+Lancer l'application
+--------------------
+1. Dezipper le dossier n'importe ou (Bureau, cle USB...).
+2. Double-cliquer sur "lancer.bat".
+3. Le navigateur s'ouvre sur http://localhost:8088
+   Laisser la fenetre noire ouverte pendant le jeu ; la fermer pour arreter.
+
+Si Windows affiche "Windows a protege votre ordinateur" : cliquer sur
+"Informations complementaires" puis "Executer quand meme".
+
+Sauvegarde des personnages
+--------------------------
+Les personnages sont enregistres dans le navigateur de CET ordinateur, pour
+l'adresse http://localhost:8088. Toujours utiliser le meme navigateur.
+
+Pour transferer un personnage d'un ordinateur a un autre :
+fiche du personnage > menu (3 points) > Exporter, puis sur l'autre
+ordinateur : Personnages > icone d'import (dossier) > choisir le fichier.
+
+Configuration requise
+---------------------
+Windows 10 ou 11, un navigateur recent (Chrome, Edge, Firefox).

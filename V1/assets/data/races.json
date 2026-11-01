@@ -1,0 +1,1419 @@
+[
+	{
+		"id": "demi-elfe",
+		"nom": "Demi-elfe",
+		"description": "Né entre deux peuples, le demi-elfe n'est jamais tout à fait chez lui, ni chez les humains, ni chez les elfes. De ce sang mêlé, il a tiré une grande capacité d'adaptation et un talent naturel pour servir d'intermédiaire. Là où d'autres voient un bâtard, lui voit le meilleur des deux mondes.",
+		"langues": ["Elfique"],
+		"deVie": 6,
+		"deMana": 6,
+		"profil": "hybride",
+		"modificateurs": {},
+		"passif": null,
+		"origines": [
+			{
+				"id": "humaine",
+				"nom": "Origine humaine",
+				"modificateurs": {
+					"DEX": 1,
+					"SOC": 1,
+					"FOR": -1,
+					"CON": -1
+				},
+				"passif": {
+					"nom": "Entre deux mondes",
+					"description": "Parle le commun et l'elfique ; +2 aux tests de SOC pour servir d'intermédiaire entre deux peuples.",
+					"effets": [
+						{
+							"type": "maitrise",
+							"categorie": "langue",
+							"valeur": "Commun"
+						},
+						{
+							"type": "maitrise",
+							"categorie": "langue",
+							"valeur": "Elfique"
+						},
+						{
+							"type": "test",
+							"categorie": "SOC",
+							"valeur": "2",
+							"condition": "pour servir d'intermédiaire entre deux peuples"
+						}
+					]
+				}
+			},
+			{
+				"id": "sylvaine",
+				"nom": "Origine sylvaine",
+				"modificateurs": {
+					"DEX": 1,
+					"PER": 1,
+					"FOR": -1,
+					"SOC": -1
+				},
+				"passif": {
+					"nom": "Pas léger",
+					"description": "Pas de malus de déplacement en terrain naturel difficile (les jets restent normaux).",
+					"effets": [
+						{
+							"type": "maitrise",
+							"categorie": "déplacement",
+							"valeur": "déplacement en terrain naturel difficile (forêt dense, montagne, ...)"
+						}
+					]
+				}
+			},
+			{
+				"id": "haut-elfe",
+				"nom": "Origine haut-elfe",
+				"modificateurs": {
+					"DEX": 1,
+					"INT": 1,
+					"FOR": -1,
+					"SOC": -1
+				},
+				"passif": {
+					"nom": "Vision crépusculaire",
+					"description": "Voit dans la nuit en extérieur.",
+					"effets": [
+						{
+							"type": "maitrise",
+							"categorie": "vision",
+							"valeur": "voit dans la nuit en extérieur"
+						}
+					]
+				}
+			}
+		],
+		"maitrises": "Armes civiles, armes à 1 main communes ; + arc pour les origines elfiques.",
+		"restrictions": "Aucune.",
+		"voieRaciale": {
+			"id": "race-demi-elfe",
+			"nom": "Voie du demi-elfe — entre deux sangs",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Bâtard",
+					"type": "passif",
+					"description": "Est habitué au rejet",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "MEN",
+							"valeur": "5",
+							"condition": "intimidation"
+						},
+						{
+							"type": "test",
+							"categorie": "SOC",
+							"valeur": "5",
+							"condition": "manipulation"
+						}
+					]
+				},
+				{
+					"rang": 2,
+					"nom": "Sang mêlé",
+					"type": "passif",
+					"effet": "Obtient la compétence de rang 1 de la voie raciale humaine ou elfique (sylvaine ou haut-elfe).",
+					"choix": {
+						"cle": "sang-mele",
+						"titre": "Compétence obtenue",
+						"options": [
+							{
+								"id": "humain",
+								"reference": "race-humain/1",
+								"nom": "Polyglotte (voie d'humain)"
+							},
+							{
+								"id": "elfe-sylvain",
+								"reference": "race-elfe-sylvain/1",
+								"nom": "Nature primordiale (voie de l'elfe-sylvain)"
+							},
+							{
+								"id": "haut-elfe",
+								"reference": "race-haut-elfe/1",
+								"nom": "Sagesse ancestrale (voie du haut-elfe)"
+							}
+						]
+					}
+				},
+				{
+					"rang": 3,
+					"nom": "Médiateur",
+					"type": "actif, 1×/jour",
+					"effet": "Avant qu'un combat n'éclate : test de SOC contre le MEN du meneur adverse ; réussite → le conflit est évité ou retardé de 1d4 tours."
+				},
+				{
+					"rang": 4,
+					"nom": "Adaptabilité (niveau 1)",
+					"type": "gratuit, 1×/jour",
+					"effet": "Relance un test raté (hors échec critique)."
+				},
+				{
+					"rang": 5,
+					"nom": "Le meilleur des deux mondes",
+					"type": "passif, renforcement",
+					"effets": [
+						{
+							"type": "bonus",
+							"categorie": "SOC",
+							"valeur": "2"
+						},
+						{
+							"type": "renforcement",
+							"nom": "adaptabilité (niveau 2)",
+							"typeCompetence": "gratuit, 2×/jour",
+							"effet": "Relance un test raté (hors échec critique)."
+						}
+					]
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	},
+	{
+		"id": "demi-orque",
+		"nom": "Demi-orque",
+		"description": "Marqué par un passé de violence et par le sang tribal qui coule dans ses veines, le demi-orque impose le respect par sa seule carrure. Endurant, implacable, capable d'une furie sanguinaire, il peut aussi devenir un chef de guerre redouté. Beaucoup le jugent sur son apparence, et finissent par le regretter.",
+		"langues": ["Guttural (orque)"],
+		"deVie": 8,
+		"deMana": 4,
+		"profil": "physique",
+		"modificateurs": {
+			"FOR": 3,
+			"INT": -2,
+			"SOC": -2
+		},
+		"passif": {
+			"nom": "Passé de violence (niveau 1)",
+			"type": "gratuit, 1×/jour",
+			"effets": [
+				{
+					"type": "test",
+					"categorie": "SOC",
+					"valeur": "5",
+					"condition": "Intimider une créature de taille moyenne ou inférieur"
+				},
+				{
+					"type": "test",
+					"categorie": "SOC",
+					"valeur": "2",
+					"condition": "Intimider une créature de taille grande ou supérieur"
+				}
+			]
+		},
+		"origines": [],
+		"maitrises": "Armes civiles, armes communes de mêlée (hors poudre).",
+		"restrictions": "Armures plus chères à faire (corpulence) ; pas de maîtrise raciale des armes à poudre ni de siège.",
+		"voieRaciale": {
+			"id": "race-demi-orque",
+			"nom": "Voie du demi-orque — sang tribal",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Sang d'orque",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "CON",
+							"valeur": "5",
+							"condition": "Résistance famine"
+						},
+						{
+							"type": "test",
+							"categorie": "CON",
+							"valeur": "5",
+							"condition": "Résistance froid"
+						},
+						{
+							"type": "test",
+							"categorie": "CON",
+							"valeur": "5",
+							"condition": "Résistance maladie"
+						}
+					]
+				},
+				{
+					"rang": 2,
+					"nom": "Carrure imposante",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "FOR",
+							"valeur": "5",
+							"condition": "Action d'enfoncer quelque chose (une porte, une barricade, un ennemi qui se trouve sur le trajet, ...)"
+						},
+						{
+							"type": "test",
+							"categorie": "FOR",
+							"valeur": "5",
+							"condition": "Action de soulever quelque chose (une caisse, un coffre, une personne, ...)"
+						},
+						{
+							"type": "test",
+							"categorie": "FOR",
+							"valeur": "5",
+							"condition": "Action de pousser quelque chose (un meuble, un enemi d'une falaise, ou autres, enfin ce genre de chose quoi)"
+						},
+						{
+							"type": "passif",
+							"categorie": "FOR",
+							"valeur": "5",
+							"condition": "FOR virtuelle pour le calcul du poids porté (sera utilisé quand le système de poids sera mis en place)"
+						}
+					]
+				},
+				{
+					"rang": 3,
+					"nom": "Furie sanguinaire",
+					"type": "gratuit, 1×/combat",
+					"effet": "Quand il réduit un ennemi à 0 PV : attaque gratuite immédiate au d12 sur une cible au contact."
+				},
+				{
+					"rang": 4,
+					"nom": "Endurance implacable",
+					"type": "passif, 1×/jour",
+					"effet": "Quand il tombe à 0 PV, reste debout à 1 PV."
+				},
+				{
+					"rang": 5,
+					"nom": "Chef de guerre",
+					"type": "passif + renforcement",
+					"choix": {
+						"cle": "chef-de-guerre",
+						"titre": "Bonus au choix (annule un malus)",
+						"options": [
+							{
+								"id": "INT",
+								"nom": "+2 INT",
+								"effets": [
+									{
+										"type": "bonus",
+										"categorie": "INT",
+										"valeur": "2"
+									}
+								]
+							},
+							{
+								"id": "SOC",
+								"nom": "+2 SOC",
+								"effets": [
+									{
+										"type": "bonus",
+										"categorie": "SOC",
+										"valeur": "2"
+									}
+								]
+							}
+						]
+					},
+					"effets": [
+						{
+							"type": "bonus",
+							"categorie": "CON",
+							"valeur": "2"
+						},
+						{
+							"type": "renforcement",
+							"nom": "passé de violence (niveau 2)",
+							"typeCompetence": "gratuit, 2×/jour",
+							"effets": [
+								{
+									"type": "test",
+									"categorie": "SOC",
+									"valeur": "5",
+									"condition": "Intimider un groupe de créatures de taille moyenne ou inférieur dans les 10m"
+								},
+								{
+									"type": "test",
+									"categorie": "SOC",
+									"valeur": "2",
+									"condition": "Intimider un groupe de créature de taille grande ou supérieur dans les 10m"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	},
+	{
+		"id": "draconien",
+		"nom": "Draconien",
+		"description": "Lointaine descendance des dragons, plus petite et moins puissante qu'eux, les draconiens ont longtemps servi d'esclaves à leurs ancêtres. Depuis quelques siècles, ils ont réussi à se libérer de leur joug et à forger leur propre destin. Ils portent toujours l'héritage draconique dans leurs écailles, leurs griffes et leur souffle de feu, de glace ou de foudre, et leurs ailes vestigiales rappellent ce qu'ils pourraient devenir en libérant pleinement leur puissance.",
+		"langues": ["Draconique"],
+		"deVie": 8,
+		"deMana": 4,
+		"profil": "physique",
+		"modificateurs": {
+			"CON": 2,
+			"DEX": -2,
+			"CHAN": -2
+		},
+		"passif": {
+			"nom": "Héritage draconique",
+			"description": "Au choix, à la création : Souffle élémentaire ou Ailes vestigiales."
+		},
+		"origines": [],
+		"optionsPassif": [
+			{
+				"id": "souffle",
+				"nom": "Souffle élémentaire",
+				"type": "actif, compétence",
+				"description": "1D6 DMG ({element-draconien}), relançable après 1D4 tours. Petites cornes sur la tête, pas d'ailes.",
+				"jets": [
+					{
+						"libelle": "Souffle élémentaire ({element-draconien})",
+						"des": "1d6",
+						"recharge": "1d4"
+					}
+				],
+				"choix": {
+					"cle": "element-draconien",
+					"titre": "Élément",
+					"options": [
+						{
+							"id": "feu",
+							"nom": "Feu"
+						},
+						{
+							"id": "glace",
+							"nom": "Glace"
+						},
+						{
+							"id": "foudre",
+							"nom": "Foudre"
+						}
+					]
+				}
+			},
+			{
+				"id": "ailes",
+				"nom": "Ailes vestigiales",
+				"type": "mouvement",
+				"description": "Vol pendant CON tours max (doit ensuite se poser). Ailes atrophiées, pas de cornes."
+			}
+		],
+		"maitrises": "Armes civiles, armes communes de mêlée ; griffes et crocs (voie, rang 1).",
+		"restrictions": "Armures adaptées obligatoires et plus chères ; avec Ailes vestigiales, pas de vol en plaques ou chargé lourdement.",
+		"voieRaciale": {
+			"id": "race-draconien",
+			"nom": "Voie du draconien",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Griffes et crocs",
+					"type": "actif",
+					"effet": "Mord ou griffe pour une action d'attaque : 1D6 + FOR DMG.",
+					"jets": [
+						{
+							"libelle": "Griffes et crocs",
+							"des": "1d6",
+							"carac": "FOR"
+						}
+					]
+				},
+				{
+					"rang": 2,
+					"nom": "Cuir de dragon (niveau 1)",
+					"type": "passif",
+					"effet": "+2 RD élémentaire ({element-draconien}) (dans son élément, ou choisi à ce rang).",
+					"choix": {
+						"cle": "element-draconien",
+						"titre": "Élément",
+						"options": [
+							{
+								"id": "feu",
+								"nom": "Feu",
+								"effets": [
+									{"type": "bonus", "categorie": "RD feu", "valeur": "2", "rangMax": 3},
+									{"type": "bonus", "categorie": "RD feu", "valeur": "4", "rangMin": 4}
+								]
+							},
+							{
+								"id": "glace",
+								"nom": "Glace",
+								"effets": [
+									{"type": "bonus", "categorie": "RD glace", "valeur": "2", "rangMax": 3},
+									{"type": "bonus", "categorie": "RD glace", "valeur": "4", "rangMin": 4}
+								]
+							},
+							{
+								"id": "foudre",
+								"nom": "Foudre",
+								"effets": [
+									{"type": "bonus", "categorie": "RD foudre", "valeur": "2", "rangMax": 3},
+									{"type": "bonus", "categorie": "RD foudre", "valeur": "4", "rangMin": 4}
+								]
+							}
+						]
+					}
+				},
+				{
+					"rang": 3,
+					"nom": "Coup de queue",
+					"type": "gratuit",
+					"effet": "1×/tour sur une cible au contact : 1D6 dégâts physiques ; test de FOR diff. 10 pour ne pas tomber.",
+					"jets": [
+						{
+							"libelle": "Coup de queue",
+							"des": "1d6"
+						}
+					]
+				},
+				{
+					"rang": 4,
+					"nom": "Libération",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "bonus",
+							"categorie": "CHAN",
+							"description": "Le draconien a appris vraiment accepté ses origines (annule le manus de stat)",
+							"valeur": "2"
+						},
+						{
+							"type": "renforcement",
+							"nom": "cuir de dragon (niveau 2)",
+							"typeCompetence": "passif",
+							"effets": [
+								{
+									"type": "passif",
+									"effet": "+4 RD élémentaire (dans son élément, ou choisi à ce rang)."
+								}
+							]
+						}
+					]
+				},
+				{
+					"rang": 5,
+					"nom": "Accroissement draconique",
+					"type": "renforcement",
+					"effet": "Améliore le passif choisi. Souffle : cornes plus grandes, 2D6 DMG + effet (feu = brûlure 1D6 pendant 1D6 tours ; glace = ralentit, 1 action/tour pendant 1D6 tours ; foudre = réduit le mana de la cible de DMG/2). Ailes : grandes ailes intactes, vol sans limite de durée, peut porter une créature moyenne pendant FOR tours, combat aérien possible.",
+					"selonPassif": {
+						"souffle": {
+							"effet": "Améliore le souffle élémentaire ({element-draconien}) : cornes plus grandes, 2D6 DMG + effet (feu = brûlure 1D6 pendant 1D6 tours ; glace = ralentit, 1 action/tour pendant 1D6 tours ; foudre = réduit le mana de la cible de DMG/2).",
+							"jets": [
+								{
+									"libelle": "Souffle élémentaire ({element-draconien})",
+									"des": "2d6",
+									"recharge": "1d4"
+								}
+							]
+						},
+						"ailes": {
+							"type": "renforcement, mouvement",
+							"effet": "Améliore les ailes vestigiales : grandes ailes intactes, vol sans limite de durée, peut porter une créature moyenne pendant FOR tours, combat aérien possible."
+						}
+					}
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	},
+	{
+		"id": "elfe-sylvain",
+		"nom": "Elfe-sylvain",
+		"description": "Enfant des forêts profondes, l'elfe-sylvain se déplace à grands pas silencieux entre les arbres qu'il considère comme ses frères. Les animaux le reconnaissent comme un ami, et la nature lui fournit armes et protection. Son cri sauvage résonne comme un avertissement pour ceux qui menacent les bois.",
+		"langues": ["Elfique"],
+		"deVie": 6,
+		"deMana": 6,
+		"profil": "hybride",
+		"modificateurs": {
+			"DEX": 1,
+			"PER": 2,
+			"FOR": -1,
+			"SOC": -2
+		},
+		"passif": {
+			"nom": "Grand pas",
+			"description": "Pas de malus de déplacement en terrain naturel difficile (les jets restent normaux).",
+			"effets": [
+				{
+					"type": "maitrise",
+					"categorie": "déplacement",
+					"valeur": "déplacement en terrain naturel difficile (forêt dense, montagne, ...)"
+				}
+			]
+		},
+		"origines": [],
+		"maitrises": "Armes civiles, arcs (courts et longs), armes à 1 main communes (lance, dague, épée courte).",
+		"restrictions": "En armure métallique lourde (cotte de mailles, plaques), perd le bénéfice de Grand pas.",
+		"voieRaciale": {
+			"id": "race-elfe-sylvain",
+			"nom": "Voie de l'elfe-sylvain",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Nature primordiale",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Connaissance faune"
+						},
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Connaissance flore"
+						}
+					]
+				},
+				{
+					"rang": 2,
+					"nom": "Cri sauvage",
+					"effetApplique": "Imite le cri d'un animal (SOC diff. 10)",
+					"type": "actif, sort",
+					"typesSort": ["illusion"],
+					"effet": "Test SOC diff. 10 pour imiter le cri/bruit d'un animal connu.",
+					"jets": [
+						{
+							"libelle": "Cri sauvage",
+							"des": "1d20",
+							"carac": "SOC",
+							"difficulte": 10
+						}
+					]
+				},
+				{
+					"rang": 3,
+					"nom": "Amis de la forêt (niveau 1)",
+					"type": "actif, compétence",
+					"effet": "1×/jour, en pleine nature vivante : cri qui appelle des animaux attaquant des ennemis au hasard. Test de CON : 1–5 → 1d6 DMG · 6–10 → 2×1d6 · 11–15 → 3×1d6 · 16–19 → 4×1d6 · 20 → 5×1d6.",
+					"jets": [
+						{
+							"libelle": "Amis de la forêt",
+							"des": "1d20",
+							"carac": "CON",
+							"paliers": [
+								{
+									"jusqua": 5,
+									"des": "1d6",
+									"libelle": "Amis de la forêt · dégâts (1 animal)"
+								},
+								{
+									"jusqua": 10,
+									"des": "2d6",
+									"libelle": "Amis de la forêt · dégâts (2 animaux, 1d6 chacun)"
+								},
+								{
+									"jusqua": 15,
+									"des": "3d6",
+									"libelle": "Amis de la forêt · dégâts (3 animaux, 1d6 chacun)"
+								},
+								{
+									"jusqua": 19,
+									"des": "4d6",
+									"libelle": "Amis de la forêt · dégâts (4 animaux, 1d6 chacun)"
+								},
+								{
+									"jusqua": 20,
+									"des": "5d6",
+									"libelle": "Amis de la forêt · dégâts (5 animaux, 1d6 chacun)"
+								}
+							]
+						}
+					]
+				},
+				{
+					"rang": 4,
+					"nom": "Équipement naturel",
+					"type": "passif",
+					"effet": "+1d6 aux armes non métallique (baton, arc, pièges) et +2 CA si l'elfe ne porte pas une armure métallique; plus de malus de DEX d'armure si elle n'est pas métallique.",
+					"effets": [
+						{
+							"type": "degats",
+							"valeur": "1d6",
+							"si": "arme-non-metallique",
+							"condition": "armes non métalliques"
+						},
+						{
+							"type": "ca",
+							"valeur": "2",
+							"si": "sans-armure-metallique",
+							"condition": "sans armure métallique"
+						}
+					]
+				},
+				{
+					"rang": 5,
+					"nom": "Harmonie avec la nature",
+					"type": "passif + renforcement",
+					"effets": [
+						{
+							"type": "bonus",
+							"categorie": "DEX",
+							"valeur": "2"
+						},
+						{
+							"type": "bonus",
+							"categorie": "CON",
+							"valeur": "2"
+						},
+						{
+							"type": "renforcement",
+							"nom": "amis de la forêt (niveau 2)",
+							"typeCompetence": "actif, compétence",
+							"effet": "Avantage sur le jet."
+						}
+					],
+					"jets": [
+						{
+							"libelle": "Amis de la forêt",
+							"avantage": true
+						}
+					]
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	},
+	{
+		"id": "haut-elfe",
+		"nom": "Haut-elfe",
+		"description": "Héritier d'une civilisation ancienne et raffinée, le haut-elfe porte en lui une sagesse ancestrale et une affinité naturelle avec la magie. Sa vision perçante et sa vitalité légendaire traversent les siècles.",
+		"langues": ["Elfique"],
+		"deVie": 4,
+		"deMana": 8,
+		"profil": "lanceur",
+		"modificateurs": {
+			"DEX": 2,
+			"INT": 2,
+			"FOR": -2,
+			"SOC": -2
+		},
+		"passif": {
+			"nom": "Vision elfique",
+			"description": "Voit dans la nuit en extérieur.",
+			"effets": [
+				{
+					"type": "maitrise",
+					"categorie": "vision",
+					"valeur": "voit dans la nuit en extérieur"
+				},
+				{
+					"type": "test",
+					"valeur": "1",
+					"condition": "se trouve en forêts ou chez les elfes"
+				},
+				{
+					"type": "test",
+					"valeur": "-1",
+					"condition": "se trouve sous terre, en montagne ou chez les nains"
+				}
+			]
+		},
+		"origines": [],
+		"maitrises": "Armes civiles, épées fines et longues, arcs, bâton.",
+		"restrictions": "Pas d'armure de plaques ; méprise les armes à poudre (−2 AdT avec elles).",
+		"voieRaciale": {
+			"id": "race-haut-elfe",
+			"nom": "Voie du haut-elfe",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Sagesse ancestrale",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Connaissance sur les races"
+						},
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Connaissance sur le continent"
+						},
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Connaissance sur des évenements historiques passés"
+						}
+					]
+				},
+				{
+					"rang": 2,
+					"nom": "Affinité magique",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "SOC",
+							"valeur": "5",
+							"condition": "Parler à une créature magique"
+						},
+						{
+							"type": "test",
+							"categorie": "SOC",
+							"valeur": "5",
+							"condition": "Parler à une créature mythique"
+						},
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Comprendre une créature magique"
+						},
+						{
+							"type": "test",
+							"categorie": "INT",
+							"valeur": "5",
+							"condition": "Comprendre une créature mythique"
+						}
+					]
+				},
+				{
+					"rang": 3,
+					"nom": "Puits d'arcane",
+					"type": "actif, compétence",
+					"effet": "1×/jour : perd 1d10 PV pour regagner RANG d6 mana (ne peut dépasser son mana max sans le dépassement de mana du magicien).",
+					"jets": [
+						{
+							"libelle": "Puits d'arcane · PV perdus",
+							"des": "1d10",
+							"applique": "-pv",
+							"suite": {
+								"libelle": "Puits d'arcane · mana regagné",
+								"des": "RANGd6",
+								"applique": "+pm"
+							}
+						}
+					]
+				},
+				{
+					"rang": 4,
+					"nom": "Visage impensable",
+					"effetApplique": "Apparence monstrueuse",
+					"type": "actif, sort",
+					"typesSort": ["transformation", "controle-mental"],
+					"effet": "1×/jour : prend les traits d'un être monstrueux disparu depuis des millénaires",
+					"etat": {
+						"nom": "Apparence monstrueuse",
+						"effets": [
+							{
+								"type": "test",
+								"categorie": "SOC",
+								"valeur": "10",
+								"condition": "faire fuir ou intimider"
+							},
+							{
+								"type": "test",
+								"categorie": "MEN",
+								"valeur": "10",
+								"condition": "faire fuir ou intimider"
+							}
+						]
+					}
+				},
+				{
+					"rang": 5,
+					"nom": "Vitalité elfique",
+					"type": "renforcement + passif",
+					"effet": "DV porté à d6 (gain de 10 PV MAX à la prise de ce RANG) ; +3 à les tests de CON.",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "CON",
+							"valeur": "3"
+						}
+					]
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	},
+	{
+		"id": "gnome",
+		"nom": "Gnome",
+		"description": "Petit par la taille mais immense par l'imagination, le gnome traverse la vie avec une chance insolente et une sacoche dont personne ne connaît le fond. Il ne se sépare jamais de son accessoire « vraisemblablement indispensable » et peut noyer n'importe qui sous une discussion insensée. On le sous-estime souvent, et c'est toujours une erreur.",
+		"langues": ["Gnome"],
+		"deVie": 6,
+		"deMana": 6,
+		"profil": "hybride",
+		"modificateurs": {
+			"SOC": 2,
+			"CHAN": 2,
+			"FOR": -2,
+			"MEN": -2
+		},
+		"passif": {
+			"nom": "D'une nature chanceuse",
+			"description": "Avantage aux jets de CHAN.",
+			"effets": [
+				{
+					"type": "avantage",
+					"categorie": "CHAN"
+				}
+			]
+		},
+		"origines": [],
+		"maitrises": "Armes à 1 main communes.",
+		"restrictions": "Pas d'arme dépassant le d8 (2d6 autorisé) ; pas d'armure au-delà de la cotte de mailles (plaques ajustées possibles) ; armures moins chères.",
+		"voieRaciale": {
+			"id": "race-gnome",
+			"nom": "Voie du gnome",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Accessoire vraisemblablement indispensable",
+					"type": "passif + soutien, objet",
+					"effet": "Maîtrise d'une arme ou d'un instrument au choix (si déjà maîtrisé : +1 AdC/+1 AdT avec cette arme, +2 pour un instrument). Possède un porte-bonheur (+2 CHAN tant qu'il l'a sur lui).",
+					"choix": {
+						"cle": "accessoire-gnome",
+						"titre": "Maîtrise au choix",
+						"options": [
+							{
+								"id": "arme",
+								"nom": "Arme",
+								"question": "Quelle arme ?",
+								"liste": "armes",
+								"siDejaMaitrise": "arme-maitrisee",
+								"objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true}],
+								"effets": [
+									{
+										"type": "maitrise",
+										"categorie": "arme",
+										"valeur": "{precision}"
+									}
+								]
+							},
+							{
+								"id": "arme-maitrisee",
+								"nom": "Arme déjà maîtrisée : +1 au toucher",
+								"cache": true,
+								"liste": "armes",
+								"question": "Quelle arme ? (son nom dans l'inventaire)",
+								"objets": [{"nom": "{precision}", "categorie": "arme", "catalogue": true}],
+								"effets": [
+									{
+										"type": "toucher",
+										"valeur": "1",
+										"si": "arme-choisie",
+										"condition": "{precision}"
+									}
+								]
+							},
+							{
+								"id": "instrument",
+								"nom": "Instrument",
+								"question": "Quel instrument ?",
+								"liste": "instruments",
+								"siDejaMaitrise": "instrument-maitrise",
+								"objets": [{"nom": "{precision}", "categorie": "instrument", "description": "Instrument de musique."}],
+								"effets": [
+									{
+										"type": "maitrise",
+										"categorie": "instrument",
+										"valeur": "{precision}"
+									}
+								]
+							},
+							{
+								"id": "instrument-maitrise",
+								"nom": "Instrument déjà maîtrisé : +2 pour en jouer",
+								"cache": true,
+								"liste": "instruments",
+								"question": "Quel instrument ?",
+								"objets": [{"nom": "{precision}", "categorie": "instrument", "description": "Instrument de musique."}],
+								"effets": [
+									{
+										"type": "instrument",
+										"valeur": "2",
+										"condition": "{precision}"
+									}
+								]
+							}
+						]
+					},
+					"objets": [
+						{
+							"nom": "Porte-bonheur",
+							"categorie": "extra",
+							"personnaliser": true,
+							"equipe": true,
+							"description": "Porte-bonheur du gnome : +2 CHAN tant qu'il l'a sur lui (équipé).",
+							"effets": [
+								{
+									"type": "bonus",
+									"categorie": "CHAN",
+									"valeur": "2"
+								}
+							]
+						}
+					]
+				},
+				{
+					"rang": 2,
+					"nom": "Discussion insensée (en combat)",
+					"type": "actif, compétence, 1×/combat, en combat",
+					"effet": "Sur une cible humanoïde comprenant sa langue : raconte sa vie en plein combat. Test de SOC du gnome contre MEN de la cible ; réussite → −3 dans toutes les CA de la cible jusqu'au prochain tour + perte de son action d'attaque si elle joue après le gnome.",
+					"jets": [
+						{
+							"libelle": "Discussion insensée (combat) · SOC",
+							"des": "1d20",
+							"carac": "SOC"
+						}
+					],
+					"aussi": [
+						{
+							"nom": "Discussion insensée (hors combat)",
+							"type": "actif, compétence, hors combat",
+							"effet": "Hors combat, raconter sa vie peut distraire sa cible."
+						}
+					]
+				},
+				{
+					"rang": 3,
+					"nom": "Dans ma sacoche, j'ai…",
+					"type": "soutien, objet",
+					"effet": "Trouve/achète (voir avec le MJ) une sacoche contenant jusqu'à 50 kg d'objets non vivants ; ne pèse rien pour le gnome.",
+					"objets": [
+						{
+							"nom": "Sacoche du gnome",
+							"categorie": "divers",
+							"description": "Contient jusqu'à 50 kg d'objets non vivants ; ne pèse rien pour le gnome. Trouvée / achetée avec le MJ."
+						}
+					]
+				},
+				{
+					"rang": 4,
+					"nom": "P'tit bonhomme",
+					"type": "passif",
+					"effet": "+3 CA contre les ennemis de grande taille, +5 CA contre plus grands encore."
+				},
+				{
+					"rang": 5,
+					"nom": "Chanceux",
+					"type": "passif, usage unique",
+					"effet": "+2 CHAN ; 1×/aventure, face à des dégâts mortels, ne meurt pas et regagne 2d6 PV, mais son porte-bonheur est détruit (perd le +2 CHAN).",
+					"effets": [
+						{
+							"type": "bonus",
+							"categorie": "CHAN",
+							"valeur": "2"
+						}
+					],
+					"jets": [
+						{
+							"libelle": "Chanceux : échapper à la mort (PV = 2d6)",
+							"des": "2d6",
+							"applique": "=pv",
+							"requiert": "Porte-bonheur",
+							"detruit": "Porte-bonheur"
+						}
+					]
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	},
+	{
+		"id": "humain",
+		"nom": "Humain",
+		"description": "Ni les plus forts, ni les plus vieux, ni les plus doués pour la magie, les humains ont pourtant conquis le monde grâce à leur polyvalence. Campagnard, marin, érudit, garde, marchand ou troubadour : chacun porte la marque de ses origines et de sa richesse culturelle. Leur vie est courte, alors ils apprennent vite.",
+		"langues": [],
+		"deVie": 6,
+		"deMana": 6,
+		"profil": "hybride",
+		"modificateurs": {},
+		"passif": {
+			"nom": "Richesse culturelle",
+			"description": "Démarre avec 1 point de compétence supplémentaire."
+		},
+		"origines": [
+			{
+				"id": "campagnard",
+				"nom": "Campagnard",
+				"modificateurs": {
+					"FOR": 2,
+					"INT": -2
+				},
+				"bonus": "+5 SOC dans les campagnes et villages (rang 2)."
+			},
+			{
+				"id": "orfevre",
+				"nom": "Orfèvre",
+				"modificateurs": {
+					"DEX": 2,
+					"SOC": -2
+				},
+				"bonus": "Géologie gratuite ; +5 pour identifier un métal ou une pierre précieuse (rang 2)."
+			},
+			{
+				"id": "marin",
+				"nom": "Marin",
+				"modificateurs": {
+					"CON": 2,
+					"INT": -2
+				},
+				"bonus": "Natation et cartographie ; +5 aux tests de navigation (rang 2)."
+			},
+			{
+				"id": "erudit",
+				"nom": "Érudit",
+				"modificateurs": {
+					"INT": 2,
+					"FOR": -1,
+					"SOC": -1
+				},
+				"bonus": "+5 aux tests d'INT liés à une connaissance au choix (rang 2)."
+			},
+			{
+				"id": "garde",
+				"nom": "Garde",
+				"modificateurs": {
+					"PER": 2,
+					"DEX": -2
+				},
+				"bonus": "+5 aux tests de CON liés à la fatigue (rang 2)."
+			},
+			{
+				"id": "marchand",
+				"nom": "Marchand",
+				"modificateurs": {
+					"SOC": 2,
+					"CON": -2
+				},
+				"bonus": "+5 SOC pour négocier avec d'autres marchands (rang 2)."
+			},
+			{
+				"id": "troubadour",
+				"nom": "Troubadour",
+				"modificateurs": {
+					"SOC": 2,
+					"FOR": -2
+				},
+				"bonus": "Maîtrise d'un instrument (rang 2)."
+			}
+		],
+		"maitrises": "Armes communes.",
+		"restrictions": "Aucune.",
+		"voieRaciale": {
+			"id": "race-humain",
+			"nom": "Voie d'humain",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Polyglotte",
+					"type": "passif",
+					"effet": "Maîtrise une autre langue au choix.",
+					"choix": {
+						"cle": "langue-polyglotte",
+						"titre": "Langue",
+						"options": [
+							{
+								"id": "langue",
+								"nom": "Nouvelle langue",
+								"question": "Quelle langue ?",
+								"liste": "langues",
+								"effets": [{"type": "maitrise", "categorie": "langue", "valeur": "{precision}"}]
+							}
+						]
+					}
+				},
+				{
+					"rang": 2,
+					"nom": "Origines marquées",
+					"type": "passif",
+					"effet": "Maîtrise une autre langue au choix ; bonus selon l'origine (« Bonus d'origine »).",
+					"choix": {
+						"cle": "langue-origines",
+						"titre": "Langue",
+						"options": [
+							{
+								"id": "langue",
+								"nom": "Nouvelle langue",
+								"question": "Quelle langue ?",
+								"liste": "langues",
+								"effets": [{"type": "maitrise", "categorie": "langue", "valeur": "{precision}"}]
+							}
+						]
+					},
+					"aussi": [
+						{
+							"nom": "Bonus d'origine",
+							"type": "passif",
+							"effet": "+5 aux tests liés à son origine (campagnard, orfèvre, marin, érudit, garde, marchand) ou maîtrise d'un instrument (troubadour).",
+							"selonOrigine": {
+								"campagnard": {
+									"effet": "Campagnard : +5 SOC dans les campagnes et villages.",
+									"effets": [
+										{"type": "test", "categorie": "SOC", "valeur": "5", "condition": "dans les campagnes et villages"}
+									]
+								},
+								"orfevre": {
+									"effet": "Orfèvre : connaissance de la géologie ; +5 pour identifier un métal ou une pierre précieuse.",
+									"effets": [
+										{"type": "maitrise", "categorie": "connaissance", "valeur": "Géologie"},
+										{"type": "test", "valeur": "5", "condition": "identifier un métal ou une pierre précieuse"}
+									]
+								},
+								"marin": {
+									"effet": "Marin : natation et cartographie ; +5 aux tests de navigation.",
+									"effets": [
+										{"type": "maitrise", "categorie": "aptitude", "valeur": "Natation"},
+										{"type": "maitrise", "categorie": "aptitude", "valeur": "Cartographie"},
+										{"type": "test", "valeur": "5", "condition": "navigation"}
+									]
+								},
+								"erudit": {
+									"effet": "Érudit : +5 aux tests d'INT liés à une connaissance au choix.",
+									"effets": [],
+									"choix": {
+										"cle": "domaine-erudit",
+										"titre": "Connaissance",
+										"options": [
+											{
+												"id": "domaine",
+												"nom": "Domaine de connaissance",
+												"question": "Quel domaine ?",
+												"effets": [{"type": "test", "categorie": "INT", "valeur": "5", "condition": "connaissance : {precision}"}]
+											}
+										]
+									}
+								},
+								"garde": {
+									"effet": "Garde : +5 aux tests de CON liés à la fatigue.",
+									"effets": [
+										{"type": "test", "categorie": "CON", "valeur": "5", "condition": "fatigue"}
+									]
+								},
+								"marchand": {
+									"effet": "Marchand : +5 SOC pour négocier avec d'autres marchands.",
+									"effets": [
+										{"type": "test", "categorie": "SOC", "valeur": "5", "condition": "négocier avec d'autres marchands"}
+									]
+								},
+								"troubadour": {
+									"effet": "Troubadour : maîtrise d'un instrument.",
+									"effets": [],
+									"choix": {
+										"cle": "instrument-troubadour",
+										"titre": "Instrument",
+										"options": [
+											{
+												"id": "instrument",
+												"nom": "Instrument",
+												"question": "Quel instrument ?",
+												"liste": "instruments",
+												"objets": [{"nom": "{precision}", "categorie": "instrument", "description": "Instrument de musique."}],
+												"effets": [{"type": "maitrise", "categorie": "instrument", "valeur": "{precision}"}]
+											}
+										]
+									}
+								}
+							}
+						}
+					]
+				},
+				{
+					"rang": 3,
+					"nom": "Charme",
+					"type": "passif",
+					"effets": [
+						{
+							"type": "test",
+							"categorie": "SOC",
+							"valeur": "5",
+							"condition": "Parler avec une personne de sexe opposé"
+						},
+						{
+							"type": "test",
+							"categorie": "SOC",
+							"valeur": "5",
+							"condition": "Manipuler une personne de sexe opposé"
+						}
+					]
+				},
+				{
+					"rang": 4,
+					"nom": "Polyvalence",
+					"type": "passif",
+					"effet": "Gagne 2 rangs (1 ou 2) d'une autre classe.",
+					"emprunts": 2
+				},
+				{
+					"rang": 5,
+					"nom": "Perfectionnement",
+					"type": "passif",
+					"effet": "+2 dans sa plus faible stat (hors CHAN ; au choix en cas d'égalité) et +2 dans une autre au choix (« Perfectionnement (au choix) »).",
+					"choix": {
+						"cle": "perfectionnement-faible",
+						"titre": "Stat la plus faible",
+						"filtre": "plus-faible",
+						"options": [
+							{"id": "ADC", "nom": "+2 AdC", "effets": [{"type": "bonus", "categorie": "ADC", "valeur": "2"}]},
+							{"id": "ADT", "nom": "+2 AdT", "effets": [{"type": "bonus", "categorie": "ADT", "valeur": "2"}]},
+							{"id": "ADM", "nom": "+2 AdM", "effets": [{"type": "bonus", "categorie": "ADM", "valeur": "2"}]},
+							{"id": "FOR", "nom": "+2 FOR", "effets": [{"type": "bonus", "categorie": "FOR", "valeur": "2"}]},
+							{"id": "DEX", "nom": "+2 DEX", "effets": [{"type": "bonus", "categorie": "DEX", "valeur": "2"}]},
+							{"id": "CON", "nom": "+2 CON", "effets": [{"type": "bonus", "categorie": "CON", "valeur": "2"}]},
+							{"id": "INT", "nom": "+2 INT", "effets": [{"type": "bonus", "categorie": "INT", "valeur": "2"}]},
+							{"id": "PER", "nom": "+2 PER", "effets": [{"type": "bonus", "categorie": "PER", "valeur": "2"}]},
+							{"id": "SOC", "nom": "+2 SOC", "effets": [{"type": "bonus", "categorie": "SOC", "valeur": "2"}]},
+							{"id": "CHA", "nom": "+2 MEN", "effets": [{"type": "bonus", "categorie": "MEN", "valeur": "2"}]}
+						]
+					},
+					"aussi": [
+						{
+							"nom": "Perfectionnement (au choix)",
+							"type": "passif",
+							"effet": "+2 dans une autre stat au choix (hors CHAN).",
+							"choix": {
+								"cle": "perfectionnement-autre",
+								"titre": "Autre stat",
+								"filtre": "autre:perfectionnement-faible",
+								"options": [
+							{"id": "ADC", "nom": "+2 AdC", "effets": [{"type": "bonus", "categorie": "ADC", "valeur": "2"}]},
+							{"id": "ADT", "nom": "+2 AdT", "effets": [{"type": "bonus", "categorie": "ADT", "valeur": "2"}]},
+							{"id": "ADM", "nom": "+2 AdM", "effets": [{"type": "bonus", "categorie": "ADM", "valeur": "2"}]},
+							{"id": "FOR", "nom": "+2 FOR", "effets": [{"type": "bonus", "categorie": "FOR", "valeur": "2"}]},
+							{"id": "DEX", "nom": "+2 DEX", "effets": [{"type": "bonus", "categorie": "DEX", "valeur": "2"}]},
+							{"id": "CON", "nom": "+2 CON", "effets": [{"type": "bonus", "categorie": "CON", "valeur": "2"}]},
+							{"id": "INT", "nom": "+2 INT", "effets": [{"type": "bonus", "categorie": "INT", "valeur": "2"}]},
+							{"id": "PER", "nom": "+2 PER", "effets": [{"type": "bonus", "categorie": "PER", "valeur": "2"}]},
+							{"id": "SOC", "nom": "+2 SOC", "effets": [{"type": "bonus", "categorie": "SOC", "valeur": "2"}]},
+							{"id": "CHA", "nom": "+2 MEN", "effets": [{"type": "bonus", "categorie": "MEN", "valeur": "2"}]}
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		"pointsCompetenceBonus": 1
+	},
+	{
+		"id": "nain",
+		"nom": "Nain",
+		"description": "Petit, têtu et barbu, le nain est un enfant des montagnes et des galeries souterraines. Forgeron hors pair, il manie la hache et le marteau de guerre comme personne et tient la bière mieux que quiconque. Sa tête de fer et sa ténacité sont légendaires.",
+		"langues": ["Nain"],
+		"deVie": 8,
+		"deMana": 4,
+		"profil": "physique",
+		"modificateurs": {
+			"CON": 2,
+			"DEX": -2
+		},
+		"passif": {
+			"nom": "Vision naine",
+			"description": "Voit dans le noir ; +1 à tous ses jets sous terre, en montagne ou chez les siens ; −1 en forêt ou chez les elfes.",
+			"effets": [
+				{
+					"type": "maitrise",
+					"categorie": "vision",
+					"valeur": "voit dans le noir"
+				},
+				{
+					"type": "test",
+					"valeur": "1",
+					"condition": "se trouve sous terre, en montagne ou chez les nains"
+				},
+				{
+					"type": "test",
+					"valeur": "-1",
+					"condition": "se trouve en forêts ou chez les elfes"
+				}
+			]
+		},
+		"origines": [],
+		"maitrises": "Armes civiles, armes à 1 main communes, arbalètes (hache et marteau via la voie, rang 1).",
+		"restrictions": "Pas d'arc long ni d'arme d'hast.",
+		"voieRaciale": {
+			"id": "race-nain",
+			"nom": "Voie du nain",
+			"competences": [
+				{
+					"rang": 1,
+					"nom": "Outils de nain",
+					"type": "passif",
+					"effet": "Maîtrise de la hache et du marteau ; +1 AdC et +1 DM avec ces armes. Une hache de guerre ou un marteau de guerre offert à la création.",
+					"effets": [
+						{"type": "maitrise", "categorie": "arme", "valeur": "Hache"},
+						{"type": "maitrise", "categorie": "arme", "valeur": "Marteau"},
+						{"type": "toucher", "valeur": "1", "si": "arme-choisie", "condition": "Hache, Marteau"},
+						{"type": "degats", "valeur": "1", "si": "arme-choisie", "condition": "Hache, Marteau"}
+					],
+					"choix": {
+						"cle": "arme-nain",
+						"titre": "Arme offerte",
+						"options": [
+							{
+								"id": "hache",
+								"nom": "Hache de guerre",
+								"objets": [{"nom": "Hache de guerre", "categorie": "arme", "catalogue": true}]
+							},
+							{
+								"id": "marteau",
+								"nom": "Marteau de guerre",
+								"objets": [{"nom": "Marteau de guerre", "categorie": "arme", "catalogue": true}]
+							}
+						]
+					}
+				},
+				{
+					"rang": 2,
+					"nom": "Ivresse naine",
+					"type": "passif",
+					"effets": [
+						{"type": "test", "categorie": "CON", "valeur": "5", "condition": "Consommer un breuvage"},
+						{"type": "test", "categorie": "CON", "valeur": "Avantage", "condition": "Consommer un breuvage"}
+					]
+				},
+				{
+					"rang": 3,
+					"nom": "Tête de fer",
+					"type": "gratuit",
+					"effet": "1 coup de tête gratuit par tour : 1D6 + CON DMG.",
+					"jets": [{"libelle": "Tête de fer (coup de tête)", "des": "1d6", "carac": "CON"}]
+				},
+				{
+					"rang": 4,
+					"nom": "Acolyte des montagnes",
+					"type": "soutien, monture",
+					"effet": "Dompte un bouquetin comme monture : +10 en escalade quand il le monte, galope comme un cheval. Le bouquetin est dans l'inventaire (Monter / Descendre).",
+					"objets": [
+						{
+							"nom": "Bouquetin",
+							"categorie": "monture",
+							"description": "Bouquetin dompté (Acolyte des montagnes) : galope comme un cheval ; +10 en escalade quand il est monté.",
+							"effets": [{"type": "test", "valeur": "10", "condition": "escalade (monté sur le bouquetin)"}]
+						}
+					]
+				},
+				{
+					"rang": 5,
+					"nom": "Ténacité",
+					"type": "passif",
+					"effet": "+2 CON, +2 RD phy, +2 RD mag et +2 RD dans un élément au choix (feu, glace ou foudre).",
+					"effets": [
+						{"type": "bonus", "categorie": "CON", "valeur": "2"},
+						{"type": "bonus", "categorie": "RD phy", "valeur": "2"},
+						{"type": "bonus", "categorie": "RD mag", "valeur": "2"}
+					],
+					"choix": {
+						"cle": "rd-element-nain",
+						"titre": "RD élémentaire",
+						"options": [
+							{"id": "feu", "nom": "RD feu", "effets": [{"type": "bonus", "categorie": "RD feu", "valeur": "2"}]},
+							{"id": "glace", "nom": "RD glace", "effets": [{"type": "bonus", "categorie": "RD glace", "valeur": "2"}]},
+							{"id": "foudre", "nom": "RD foudre", "effets": [{"type": "bonus", "categorie": "RD foudre", "valeur": "2"}]}
+						]
+					}
+				}
+			]
+		},
+		"pointsCompetenceBonus": 0
+	}
+]

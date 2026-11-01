@@ -1,0 +1,19 @@
+# Copie locale du SDK Flutter (pas notre code)
+/flutter/
+
+# Livrables (APK, zips web) : à publier dans les Releases GitHub
+/livraison/
+
+# Fichiers générés, journaux, éditeurs
+*.log
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets (signature Android, Firebase)
+key.properties
+*.keystore
+*.jks
+*service-account*.json
+.env

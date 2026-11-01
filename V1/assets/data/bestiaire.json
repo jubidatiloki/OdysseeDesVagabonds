@@ -1,0 +1,643 @@
+[
+  {
+    "id": "loup",
+    "nom": "Loup",
+    "famille": "Bêtes",
+    "archetype": "Meute",
+    "taille": "standard",
+    "description": "Grand canidé au pelage gris ou brun, aux crocs puissants et à l'odorat très développé.",
+    "comportement": "Chasse en meute : encercle sa proie et attaque les cibles isolées ou blessées. Fuit souvent quand le chef de meute tombe.",
+    "ca": 14,
+    "pv": 9,
+    "initiative": 12,
+    "mods": {"ADC": 1, "FOR": 1, "DEX": 1, "CON": 1, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d6 +1"}
+    ]
+  },
+  {
+    "id": "loup-alpha",
+    "nom": "Loup alpha",
+    "famille": "Bêtes",
+    "archetype": "Meute, Chef",
+    "taille": "standard",
+    "description": "Chef de meute plus massif que ses congénères, au poil hérissé et aux crocs marqués de cicatrices.",
+    "comportement": "Mène la meute et désigne la proie ; attaque en premier les adversaires les plus menaçants. Sa chute disperse souvent la meute.",
+    "ca": 15,
+    "pv": 15,
+    "initiative": 16,
+    "mods": {"ADC": 3, "FOR": 3, "DEX": 1, "CON": 3, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d6 +3"}
+    ]
+  },
+  {
+    "id": "ours-noir",
+    "nom": "Ours noir",
+    "famille": "Bêtes",
+    "archetype": "Puissant",
+    "taille": "grande",
+    "description": "Ours au pelage sombre et lustré, plus agile qu'il n'y paraît, doté d'une mâchoire redoutable.",
+    "comportement": "Discret et opportuniste, il évite l'affrontement mais devient féroce s'il est acculé ou s'il défend sa nourriture.",
+    "ca": 15,
+    "pv": 35,
+    "initiative": 15,
+    "mods": {"ADC": 3, "FOR": 3, "DEX": 2, "CON": 3, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d6 +3"}
+    ]
+  },
+  {
+    "id": "ours-hibou",
+    "nom": "Ours-hibou",
+    "famille": "Bêtes",
+    "archetype": "Puissant, Berzerk",
+    "taille": "grande",
+    "description": "Créature hybride au corps d'ours couvert de plumes et à la tête de hibou munie d'un bec crochu ; ses griffes lacèrent comme des lames.",
+    "comportement": "Territorial et d'une rage aveugle : charge tout intrus et ne lâche prise qu'à la mort de sa proie ou de lui-même.",
+    "ca": 16,
+    "pv": 40,
+    "initiative": 12,
+    "mods": {"ADC": 6, "FOR": 6, "DEX": 1, "CON": 6, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Bec et griffes", "portee": "CaC", "toucher": "1d20 +6", "degats": "3d6 +6"}
+    ]
+  },
+  {
+    "id": "ours-brun",
+    "nom": "Ours brun",
+    "famille": "Bêtes",
+    "archetype": "Puissant",
+    "taille": "grande",
+    "description": "Massif et couvert d'une épaisse fourrure brune ; griffes longues et mâchoire puissante. Se dresse sur ses pattes arrière pour intimider.",
+    "comportement": "Solitaire et plutôt pacifique, mais très dangereux s'il est surpris, affamé ou s'il protège ses petits.",
+    "ca": 17,
+    "pv": 50,
+    "initiative": 12,
+    "mods": {"ADC": 6, "FOR": 6, "DEX": 1, "CON": 1, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +6", "degats": "1d6 +6"}
+    ]
+  },
+  {
+    "id": "chien-sauvage",
+    "nom": "Chien sauvage",
+    "famille": "Bêtes",
+    "archetype": "Meute, Rapide",
+    "taille": "petite",
+    "description": "Chien efflanqué au pelage ras et sale, aux oreilles dressées et aux babines retroussées sur des crocs jaunis.",
+    "comportement": "Rôde en bande autour des villages et des campements ; harcèle les voyageurs isolés et s'enfuit dès que la proie se défend trop bien.",
+    "ca": 13,
+    "pv": 6,
+    "initiative": 14,
+    "mods": {"ADC": 1, "DEX": 2, "CON": 1, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "sanglier",
+    "nom": "Sanglier",
+    "famille": "Bêtes",
+    "archetype": "Puissant",
+    "taille": "standard",
+    "description": "Bête trapue au poil dru et noir, à la nuque massive et aux défenses recourbées capables d'ouvrir une jambe.",
+    "comportement": "Craintif tant qu'on le laisse fouiller en paix, il charge tête baissée dès qu'il se sent menacé et continue de se battre même grièvement blessé.",
+    "ca": 13,
+    "pv": 14,
+    "initiative": 10,
+    "mods": {"ADC": 2, "FOR": 2, "CON": 2, "INT": -4},
+    "attaques": [
+      {"nom": "Défenses", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6 +2"},
+      {"nom": "Charge", "portee": "CaC", "degats": "+1d6", "note": "après 10 m de course en ligne droite vers la cible"}
+    ]
+  },
+  {
+    "id": "araignee-geante",
+    "nom": "Araignée géante",
+    "famille": "Bêtes",
+    "archetype": "Rapide, Furtif",
+    "taille": "grande",
+    "description": "Araignée de la taille d'un cheval, au corps velu et noir, aux huit yeux luisants et aux crochets suintant de venin.",
+    "comportement": "Tend ses toiles dans les grottes et les forêts profondes, attend que la proie s'y prenne puis la paralyse de son venin avant de l'emporter.",
+    "ca": 14,
+    "pv": 26,
+    "initiative": 16,
+    "mods": {"ADC": 3, "ADT": 3, "FOR": 2, "DEX": 3, "CON": 1, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d8 +2", "note": "poison : test de CON diff. 12, sinon 2d8 dégâts de poison"},
+      {"nom": "Toile", "portee": "distance", "toucher": "1d20 +3", "note": "la cible est entravée ; test de FOR diff. 12 pour se libérer"}
+    ],
+    "note": "Se déplace sur les murs et les plafonds ; sent toute créature qui touche sa toile."
+  },
+  {
+    "id": "wyverne",
+    "nom": "Wyverne",
+    "famille": "Dragons",
+    "archetype": "Puissant, Volant",
+    "taille": "grande",
+    "description": "Cousin bestial des dragons : deux pattes, de grandes ailes membraneuses, une gueule hérissée de dents et une longue queue terminée par un dard venimeux.",
+    "comportement": "Prédateur territorial et peu malin, il fond sur ses proies depuis les falaises et frappe de son dard avant de les emporter dans les airs.",
+    "ca": 14,
+    "pv": 55,
+    "initiative": 12,
+    "mods": {"ADC": 4, "FOR": 4, "DEX": 1, "CON": 3, "INT": -3, "PER": 1},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +4", "degats": "1d10 +4"},
+      {"nom": "Dard", "portee": "CaC", "toucher": "1d20 +4", "degats": "1d6 +4", "note": "poison : test de CON diff. 14, sinon 4d6 dégâts de poison"}
+    ]
+  },
+  {
+    "id": "griffon",
+    "nom": "Griffon",
+    "famille": "Monstres",
+    "archetype": "Volant",
+    "taille": "grande",
+    "description": "Créature noble à l'avant d'aigle géant, bec crochu et serres puissantes, et à l'arrière de lion, au pelage fauve.",
+    "comportement": "Niche sur les pics escarpés et chasse les chevaux, sa proie favorite. Dressé dès l'œuf, il devient une monture fidèle et redoutée.",
+    "ca": 13,
+    "pv": 45,
+    "initiative": 14,
+    "mods": {"ADC": 4, "FOR": 4, "DEX": 2, "CON": 3, "INT": -4, "PER": 3},
+    "attaques": [
+      {"nom": "Bec", "portee": "CaC", "toucher": "1d20 +4", "degats": "1d8 +4"},
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d6 +4"}
+    ]
+  },
+  {
+    "id": "harpie",
+    "nom": "Harpie",
+    "famille": "Monstres",
+    "archetype": "Volant",
+    "taille": "standard",
+    "description": "Femme hideuse au corps d'oiseau de proie, aux ailes sales et aux serres crasseuses, dont la voix peut pourtant être d'une beauté envoûtante.",
+    "comportement": "Cruelle et vorace, elle attire les voyageurs par son chant jusqu'au bord des précipices ou dans son repaire, puis les déchire de ses serres.",
+    "ca": 12,
+    "pv": 20,
+    "initiative": 14,
+    "mods": {"ADC": 1, "FOR": 1, "DEX": 2, "CON": 1, "INT": -2, "MEN": 1},
+    "attaques": [
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 +1", "degats": "2d4 +1"},
+      {"nom": "Chant envoûtant", "note": "pas de jet d'attaque ; chaque créature qui l'entend : test de MEN diff. 11, sinon charmée et attirée vers la harpie (réussite : insensible au chant pendant 24 h)"}
+    ]
+  },
+  {
+    "id": "manticore",
+    "nom": "Manticore",
+    "famille": "Monstres",
+    "archetype": "Puissant, Volant",
+    "taille": "grande",
+    "description": "Corps de lion, ailes de chauve-souris et visage vaguement humain à la bouche pleine de crocs ; sa queue est hérissée de pointes acérées.",
+    "comportement": "Cruelle et rusée, elle aime jouer avec ses proies, négocie parfois sa vie contre de la nourriture et crible ses ennemis de pointes depuis les airs.",
+    "ca": 14,
+    "pv": 60,
+    "initiative": 14,
+    "mods": {"ADC": 3, "ADT": 3, "FOR": 3, "DEX": 2, "CON": 3, "INT": -2, "PER": 1},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d8 +3"},
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d6 +3"},
+      {"nom": "Pointes de queue", "portee": "distance", "toucher": "1d20 +3", "degats": "1d8 +2", "note": "30 m ; jusqu'à 3 pointes par tour"}
+    ]
+  },
+  {
+    "id": "minotaure",
+    "nom": "Minotaure",
+    "famille": "Monstres",
+    "archetype": "Puissant, Berzerk",
+    "taille": "grande",
+    "description": "Colosse à la tête de taureau, aux cornes épaisses et au corps humain massif couvert de poils, qui brandit une énorme hache.",
+    "comportement": "Hante les labyrinthes et les ruines ; il ne se perd jamais, traque ses proies à l'odeur et charge en mugissant, pris d'une rage sanguinaire.",
+    "ca": 14,
+    "pv": 75,
+    "initiative": 10,
+    "mods": {"ADC": 4, "FOR": 4, "CON": 3, "INT": -2, "PER": 3},
+    "attaques": [
+      {"nom": "Grande hache", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d12 +4"},
+      {"nom": "Encornade", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d8 +4", "note": "après 10 m de charge ; la cible fait un test de FOR diff. 14, sinon elle est renversée"}
+    ]
+  },
+  {
+    "id": "bulette",
+    "nom": "Bulette",
+    "famille": "Monstres",
+    "archetype": "Puissant, Fouisseur",
+    "taille": "grande",
+    "description": "« Requin de terre » : énorme carapace bleu-gris, gueule béante en forme de bec et pattes griffues taillées pour creuser la roche.",
+    "comportement": "Nage sous la terre et surgit sous ses proies, attirée par les vibrations ; vorace et stupide, elle dévore tout, chevaux et cavaliers compris.",
+    "ca": 17,
+    "pv": 95,
+    "initiative": 10,
+    "mods": {"ADC": 5, "FOR": 4, "CON": 5, "INT": -4, "PER": 2},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +5", "degats": "4d12 +4"},
+      {"nom": "Bond mortel", "degats": "3d6 +4", "note": "pas de jet d'attaque ; les créatures sur lesquelles elle retombe : esquive réussie = rien, sinon dégâts et renversées"}
+    ]
+  },
+  {
+    "id": "naga",
+    "nom": "Naga",
+    "famille": "Monstres",
+    "archetype": "Lanceur de sorts",
+    "taille": "grande",
+    "description": "Immense serpent au visage humain, couronné d'une crête d'écailles colorées, dont le regard trahit une intelligence ancienne.",
+    "comportement": "Gardien de ruines, de temples ou de trésors oubliés ; orgueilleux, il préfère la magie à la force et ne combat au contact qu'en dernier recours.",
+    "ca": 15,
+    "pv": 75,
+    "initiative": 14,
+    "mods": {"ADC": 4, "ADM": 4, "FOR": 4, "DEX": 3, "CON": 2, "INT": 2, "PER": 2, "MEN": 3},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +4", "degats": "1d6 +4", "note": "poison : test de CON diff. 13, sinon 3d8 dégâts de poison"},
+      {"nom": "Sort", "portee": "distance", "toucher": "1d20 +4", "degats": "3d8", "note": "attaque magique"}
+    ]
+  },
+  {
+    "id": "kobold",
+    "nom": "Kobold",
+    "famille": "Gobelinoïdes",
+    "archetype": "Meute",
+    "taille": "petite",
+    "description": "Petit humanoïde reptilien aux écailles rouille, à la queue fine et au museau de lézard, armé de dagues rouillées et de frondes.",
+    "comportement": "Lâche seul mais téméraire en nombre, il vénère les dragons, truffe ses tunnels de pièges et attaque toujours en meute.",
+    "ca": 12,
+    "pv": 5,
+    "initiative": 14,
+    "mods": {"ADC": 1, "ADT": 1, "FOR": -2, "DEX": 2, "CON": -1, "INT": -1},
+    "attaques": [
+      {"nom": "Dague", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d4"},
+      {"nom": "Fronde", "portee": "distance", "toucher": "1d20 +1", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "gobelin",
+    "nom": "Gobelin",
+    "famille": "Gobelinoïdes",
+    "archetype": "Rapide, Furtif",
+    "taille": "petite",
+    "description": "Petit humanoïde à la peau verdâtre, aux grandes oreilles pointues et aux yeux jaunes, vêtu de cuirs volés et armé d'un cimeterre ébréché.",
+    "comportement": "Sournois et cupide, il tend des embuscades, frappe puis se cache, et s'enfuit dès que le combat tourne mal.",
+    "ca": 15,
+    "pv": 7,
+    "initiative": 14,
+    "mods": {"ADC": 2, "ADT": 2, "FOR": -1, "DEX": 2},
+    "attaques": [
+      {"nom": "Cimeterre", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6"},
+      {"nom": "Arc court", "portee": "distance", "toucher": "1d20 +2", "degats": "1d6"}
+    ]
+  },
+  {
+    "id": "gobelin-archer",
+    "nom": "Gobelin archer",
+    "famille": "Gobelinoïdes",
+    "archetype": "Tireur",
+    "taille": "petite",
+    "description": "Gobelin maigre au regard perçant, carquois en bandoulière et arc court bricolé, toujours perché ou caché à couvert.",
+    "comportement": "Reste en retrait, tire sur les cibles les moins protégées et change de position après chaque flèche.",
+    "ca": 13,
+    "pv": 7,
+    "initiative": 16,
+    "mods": {"ADC": 1, "ADT": 3, "FOR": -1, "DEX": 3, "PER": 1},
+    "attaques": [
+      {"nom": "Arc court", "portee": "distance", "toucher": "1d20 +3", "degats": "1d6 +2"},
+      {"nom": "Dague", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "gobelin-shaman",
+    "nom": "Gobelin shaman",
+    "famille": "Gobelinoïdes",
+    "archetype": "Lanceur de sorts",
+    "taille": "petite",
+    "description": "Gobelin couvert d'os, de plumes et de fétiches, appuyé sur un bâton noueux et marmonnant des incantations.",
+    "comportement": "Conseiller du chef et gardien des superstitions de la tribu ; il reste derrière les guerriers, les soigne et lance du feu sur l'ennemi.",
+    "ca": 12,
+    "pv": 10,
+    "initiative": 12,
+    "mods": {"ADM": 3, "FOR": -1, "DEX": 1, "INT": 1, "MEN": 2},
+    "attaques": [
+      {"nom": "Bâton", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d6 −1"},
+      {"nom": "Trait de feu", "portee": "distance", "toucher": "1d20 +3", "degats": "2d6", "note": "attaque magique, dégâts de feu"},
+      {"nom": "Soin", "degats": "1d8", "note": "1×/combat : un allié regagne 1d8 PV"}
+    ]
+  },
+  {
+    "id": "chef-gobelin",
+    "nom": "Chef gobelin",
+    "famille": "Gobelinoïdes",
+    "archetype": "Chef",
+    "taille": "petite",
+    "description": "Gobelin plus grand et plus vicieux que les autres, couvert de trophées et d'une armure dépareillée, la mâchoire hérissée de crocs.",
+    "comportement": "Règne par la peur, envoie ses troupes en première ligne et se bat avec férocité quand il est acculé ; sa mort sème souvent la panique.",
+    "ca": 17,
+    "pv": 21,
+    "initiative": 14,
+    "mods": {"ADC": 3, "FOR": 1, "DEX": 2, "CON": 1, "SOC": 1, "MEN": 1},
+    "attaques": [
+      {"nom": "Cimeterre", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d6 +2", "note": "2 attaques par tour"}
+    ]
+  },
+  {
+    "id": "gobelours",
+    "nom": "Gobelours",
+    "famille": "Gobelinoïdes",
+    "archetype": "Puissant, Furtif",
+    "taille": "grande",
+    "description": "Grand gobelinoïde velu d'environ 2 m, aux longs bras, au museau d'ours et aux oreilles pointues, étonnamment silencieux pour sa taille.",
+    "comportement": "Aime frapper par surprise depuis l'ombre ; sert souvent de brute ou de garde du corps dans les tribus gobelines.",
+    "ca": 16,
+    "pv": 27,
+    "initiative": 14,
+    "mods": {"ADC": 3, "FOR": 2, "DEX": 2, "CON": 1, "INT": -1},
+    "attaques": [
+      {"nom": "Morgenstern", "portee": "CaC", "toucher": "1d20 +3", "degats": "2d8 +2"},
+      {"nom": "Attaque surprise", "degats": "+2d6", "note": "contre une cible surprise"}
+    ]
+  },
+  {
+    "id": "bandit-des-chemins",
+    "nom": "Bandit des chemins",
+    "famille": "Humanoïdes",
+    "archetype": "Meute",
+    "taille": "standard",
+    "description": "Brigand mal rasé aux vêtements rapiécés, armé d'un cimeterre et d'une arbalète, qui guette les voyageurs au bord des routes.",
+    "comportement": "Attaque en groupe et en nombre, exige la bourse plutôt que la vie, et fuit quand les choses tournent mal.",
+    "ca": 12,
+    "pv": 11,
+    "initiative": 12,
+    "mods": {"ADC": 1, "ADT": 1, "DEX": 1, "CON": 1},
+    "attaques": [
+      {"nom": "Cimeterre", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d6 +1"},
+      {"nom": "Arbalète légère", "portee": "distance", "toucher": "1d20 +1", "degats": "1d8 +1"}
+    ]
+  },
+  {
+    "id": "chef-bandit",
+    "nom": "Chef bandit",
+    "famille": "Humanoïdes",
+    "archetype": "Chef",
+    "taille": "standard",
+    "description": "Hors-la-loi charismatique au regard dur, en cuir clouté, une lame à la main et des dagues à la ceinture.",
+    "comportement": "Organise les embuscades, parlemente volontiers et sait quand se retirer ; ses hommes lui obéissent tant qu'il remporte la partie.",
+    "ca": 15,
+    "pv": 40,
+    "initiative": 16,
+    "mods": {"ADC": 3, "ADT": 3, "FOR": 1, "DEX": 3, "CON": 2, "SOC": 2, "MEN": 2},
+    "attaques": [
+      {"nom": "Cimeterre", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d6 +3", "note": "2 attaques par tour"},
+      {"nom": "Dague lancée", "portee": "distance", "toucher": "1d20 +3", "degats": "1d4 +3"}
+    ]
+  },
+  {
+    "id": "bandit-assassin",
+    "nom": "Bandit assassin",
+    "famille": "Humanoïdes",
+    "archetype": "Furtif",
+    "taille": "standard",
+    "description": "Silhouette encapuchonnée aux gestes précis, vêtue de sombre, une épée courte enduite de poison à la main.",
+    "comportement": "Frappe dans le dos, vise les lanceurs de sorts et les chefs, puis disparaît ; ne se bat jamais à la loyale.",
+    "ca": 15,
+    "pv": 25,
+    "initiative": 16,
+    "mods": {"ADC": 3, "ADT": 3, "DEX": 3, "CON": 1, "PER": 2},
+    "attaques": [
+      {"nom": "Épée courte", "portee": "CaC", "toucher": "1d20 +3", "degats": "1d6 +3", "note": "poison : test de CON diff. 13, sinon 2d6 dégâts de poison"},
+      {"nom": "Attaque dans le dos", "degats": "+2d6", "note": "contre une cible prise à revers ou surprise"}
+    ]
+  },
+  {
+    "id": "corsaire",
+    "nom": "Corsaire",
+    "famille": "Humanoïdes",
+    "archetype": "Standard",
+    "taille": "standard",
+    "description": "Marin aguerri au teint hâlé, chemise ouverte et foulard, un sabre au côté et une pétoire glissée dans la ceinture.",
+    "comportement": "Pille les navires marchands sous lettre de marque ou pour son propre compte ; audacieux à l'abordage, il respecte son capitaine et le partage du butin.",
+    "ca": 14,
+    "pv": 22,
+    "initiative": 14,
+    "mods": {"ADC": 2, "ADT": 2, "FOR": 1, "DEX": 2, "CON": 1, "SOC": 1},
+    "attaques": [
+      {"nom": "Sabre", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6 +2"},
+      {"nom": "Pétoire", "portee": "distance", "toucher": "1d20 +2", "degats": "1d10", "note": "arme à feu : sans bonus de DEX"}
+    ]
+  },
+  {
+    "id": "dryade",
+    "nom": "Dryade",
+    "famille": "Fées",
+    "archetype": "Lanceur de sorts",
+    "taille": "standard",
+    "description": "Esprit d'un arbre à l'apparence de jeune femme à la peau d'écorce lisse, aux cheveux de feuillage changeant avec les saisons.",
+    "comportement": "Liée à son arbre, dont elle ne peut s'éloigner longtemps ; méfiante envers les étrangers, elle charme ceux qui menacent sa forêt plutôt que de les combattre.",
+    "ca": 11,
+    "pv": 22,
+    "initiative": 14,
+    "mods": {"ADM": 3, "DEX": 2, "INT": 1, "PER": 2, "SOC": 3, "MEN": 3},
+    "attaques": [
+      {"nom": "Gourdin", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d4"},
+      {"nom": "Charme féerique", "note": "pas de jet d'attaque ; test de MEN diff. 14, sinon charmé"}
+    ],
+    "note": "CA 16 avec sa peau d'écorce. Peut entrer dans un arbre et ressortir d'un autre arbre proche."
+  },
+  {
+    "id": "nymphe",
+    "nom": "Nymphe",
+    "famille": "Fées",
+    "archetype": "Lanceur de sorts",
+    "taille": "standard",
+    "description": "Fée d'une beauté surnaturelle, liée à une source, un lac ou une grotte sauvage, vêtue de lumière et d'eau.",
+    "comportement": "Timide et capricieuse, elle fuit les mortels mais aveugle ou charme ceux qui souillent son domaine ; certaines accordent leur faveur aux âmes pures.",
+    "ca": 12,
+    "pv": 18,
+    "initiative": 14,
+    "mods": {"ADM": 3, "DEX": 2, "PER": 2, "SOC": 4, "MEN": 3},
+    "attaques": [
+      {"nom": "Beauté aveuglante", "note": "pas de jet d'attaque ; test de CON diff. 14, sinon aveuglé"},
+      {"nom": "Charme", "note": "pas de jet d'attaque ; test de MEN diff. 14, sinon charmé"}
+    ]
+  },
+  {
+    "id": "elementaire-feu",
+    "nom": "Élémentaire de feu",
+    "famille": "Élémentaires",
+    "archetype": "Rapide",
+    "taille": "grande",
+    "description": "Silhouette vaguement humaine faite de flammes rugissantes, qui laisse derrière elle des traces de cendres et de roche fondue.",
+    "comportement": "Furieux et destructeur, il embrase tout ce qu'il touche et ne connaît que la volonté de celui qui l'a invoqué.",
+    "ca": 13,
+    "pv": 60,
+    "initiative": 16,
+    "mods": {"ADC": 4, "DEX": 3, "CON": 3, "INT": -3},
+    "attaques": [
+      {"nom": "Contact", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d6 +3 feu", "note": "la cible prend feu : 1d10 dégâts de feu par tour jusqu'à ce qu'elle s'éteigne"}
+    ],
+    "note": "Immunisé au feu et au poison."
+  },
+  {
+    "id": "elementaire-eau",
+    "nom": "Élémentaire d'eau",
+    "famille": "Élémentaires",
+    "archetype": "Puissant",
+    "taille": "grande",
+    "description": "Vague dressée à la forme changeante, au cœur d'un bleu profond, qui frappe avec la force d'une marée.",
+    "comportement": "Implacable et patient, il engloutit ses ennemis et les noie dans son propre corps.",
+    "ca": 14,
+    "pv": 70,
+    "initiative": 14,
+    "mods": {"ADC": 4, "FOR": 4, "DEX": 2, "CON": 4, "INT": -3},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d8 +4"},
+      {"nom": "Engloutir", "note": "test de FOR diff. 15, sinon la cible est prisonnière et commence à se noyer"}
+    ],
+    "note": "Immunisé au poison."
+  },
+  {
+    "id": "elementaire-air",
+    "nom": "Élémentaire d'air",
+    "famille": "Élémentaires",
+    "archetype": "Rapide, Volant",
+    "taille": "grande",
+    "description": "Tourbillon hurlant de vent et de poussière, à peine visible, qui se déplace plus vite qu'un cheval au galop.",
+    "comportement": "Insaisissable et capricieux, il frappe puis se dérobe et projette ses ennemis au loin.",
+    "ca": 15,
+    "pv": 55,
+    "initiative": 20,
+    "mods": {"ADC": 5, "FOR": 3, "DEX": 5, "CON": 2, "INT": -3},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +5", "degats": "2d8 +3"},
+      {"nom": "Tourbillon", "degats": "3d8", "note": "pas de jet d'attaque ; esquive réussie = rien, sinon dégâts et projeté à 6 m"}
+    ],
+    "note": "Immunisé au poison."
+  },
+  {
+    "id": "elementaire-terre",
+    "nom": "Élémentaire de terre",
+    "famille": "Élémentaires",
+    "archetype": "Puissant, Fouisseur",
+    "taille": "grande",
+    "description": "Colosse de roche et de terre aux poings comme des rochers, qui traverse la pierre comme un nageur fend l'eau.",
+    "comportement": "Lent mais inébranlable, il surgit du sol pour écraser ses ennemis puis y disparaît.",
+    "ca": 17,
+    "pv": 80,
+    "initiative": 8,
+    "mods": {"ADC": 5, "FOR": 5, "DEX": -1, "CON": 5, "INT": -3},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +5", "degats": "2d8 +5"}
+    ],
+    "note": "Immunisé au poison ; traverse la terre et la pierre."
+  },
+  {
+    "id": "golem-pierre",
+    "nom": "Golem de pierre",
+    "famille": "Créatures artificielles",
+    "archetype": "Gardien, Puissant",
+    "taille": "grande",
+    "description": "Statue géante taillée dans la roche et animée par la magie, aux traits grossiers et au regard vide, haute de près de 3 m.",
+    "comportement": "Sans volonté propre, il obéit aveuglément aux ordres de son créateur : garder une porte, un trésor, ou écraser tout intrus.",
+    "ca": 17,
+    "pv": 90,
+    "initiative": 8,
+    "mods": {"ADC": 5, "FOR": 5, "DEX": -1, "CON": 5, "INT": -4},
+    "attaques": [
+      {"nom": "Poing", "portee": "CaC", "toucher": "1d20 +5", "degats": "3d8 +5"}
+    ],
+    "note": "Immunisé au poison, au contrôle mental et à la peur."
+  },
+  {
+    "id": "geant-collines",
+    "nom": "Géant des collines",
+    "famille": "Géants",
+    "archetype": "Puissant",
+    "taille": "tres-grande",
+    "description": "Brute de près de 5 m, ventripotente et crasseuse, vêtue de peaux mal tannées et armée d'un tronc d'arbre en guise de massue.",
+    "comportement": "Glouton, stupide et brutal, il pille les fermes pour se nourrir, lance des rochers sur tout ce qui bouge et écrase ce qui lui résiste.",
+    "ca": 13,
+    "pv": 105,
+    "initiative": 8,
+    "mods": {"ADC": 5, "ADT": 3, "FOR": 5, "DEX": -1, "CON": 4, "INT": -3},
+    "attaques": [
+      {"nom": "Massue", "portee": "CaC", "toucher": "1d20 +5", "degats": "3d8 +5"},
+      {"nom": "Rocher lancé", "portee": "distance", "toucher": "1d20 +3", "degats": "3d10 +5"}
+    ]
+  },
+  {
+    "id": "zombie",
+    "nom": "Zombie",
+    "famille": "Morts-vivants",
+    "archetype": "Standard",
+    "taille": "standard",
+    "description": "Cadavre réanimé, à la chair en décomposition et aux mouvements lents et saccadés.",
+    "comportement": "Sans intelligence ni peur : avance vers les vivants les plus proches et attaque jusqu'à sa destruction. Souvent en groupe.",
+    "note": "Statistiques à définir."
+  },
+  {
+    "id": "dragon-juvenile",
+    "nom": "Dragon juvénile",
+    "famille": "Dragons",
+    "archetype": "Puissant",
+    "taille": "grande",
+    "description": "Dragon à peine sorti de l'enfance, aux écailles encore souples et aux ailes déjà capables de le porter ; ses cornes commencent tout juste à pousser.",
+    "comportement": "Impétueux et curieux, il teste sa force sur tout ce qui croise son territoire et fuit si le combat tourne mal.",
+    "ca": 16,
+    "pv": 35,
+    "initiative": 22,
+    "mods": {"ADC": 6, "FOR": 4, "DEX": 5, "CON": 4, "PER": 4},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +6", "degats": "2d6 +4"},
+      {"nom": "Souffle élémentaire", "degats": "4d6 (de son élément)", "note": "pas de jet d'attaque ; esquive réussie : moitié des dégâts"}
+    ]
+  },
+  {
+    "id": "jeune-dragon",
+    "nom": "Jeune dragon",
+    "famille": "Dragons",
+    "archetype": "Puissant",
+    "taille": "gigantesque",
+    "description": "Dragon dans la force de sa jeunesse, aux écailles durcies et à la queue puissante ; son souffle peut déjà raser un hameau.",
+    "comportement": "Arrogant et avide, il commence à amasser un trésor et défend farouchement le territoire qu'il s'est choisi.",
+    "ca": 20,
+    "pv": 80,
+    "initiative": 20,
+    "mods": {"ADC": 8, "FOR": 6, "DEX": 4, "CON": 8, "INT": 2, "PER": 4},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +8", "degats": "3d6 +6"},
+      {"nom": "Coup de queue", "portee": "CaC", "toucher": "1d20 +8", "degats": "2d6", "note": "action gratuite"},
+      {"nom": "Souffle élémentaire", "degats": "6d6 (de son élément)", "note": "pas de jet d'attaque ; esquive réussie : moitié des dégâts"}
+    ]
+  },
+  {
+    "id": "dragon-adulte",
+    "nom": "Dragon adulte",
+    "famille": "Dragons",
+    "archetype": "Puissant",
+    "taille": "gigantesque",
+    "description": "Immense reptile ailé couvert d'écailles épaisses comme des boucliers, aux cornes recourbées et au regard d'une intelligence froide.",
+    "comportement": "Rusé et patient, il règne sur une vaste région, négocie parfois avec les mortels et n'hésite pas à anéantir ceux qui convoitent son trésor.",
+    "ca": 24,
+    "pv": 160,
+    "initiative": 17,
+    "mods": {"ADC": 12, "FOR": 12, "DEX": 3, "CON": 12, "INT": 4, "PER": 4},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +12", "degats": "4d6 +12"},
+      {"nom": "Coup de queue", "portee": "CaC", "toucher": "1d20 +12", "degats": "3d6", "note": "action gratuite"},
+      {"nom": "Souffle élémentaire", "degats": "8d6 (de son élément)", "note": "pas de jet d'attaque ; esquive réussie : moitié des dégâts"}
+    ]
+  },
+  {
+    "id": "dragon-ancien",
+    "nom": "Dragon ancien",
+    "famille": "Dragons",
+    "archetype": "Puissant",
+    "taille": "titanesque",
+    "description": "Colosse millénaire dont les écailles ternies portent les cicatrices de guerres oubliées ; son ombre suffit à plonger une vallée dans la nuit.",
+    "comportement": "Sage, orgueilleux et lent à s'émouvoir, il considère les mortels comme des insectes, mais sa colère, une fois éveillée, est une catastrophe.",
+    "ca": 25,
+    "pv": 260,
+    "initiative": 15,
+    "mods": {"ADC": 15, "FOR": 15, "DEX": 0, "CON": 15, "INT": 6, "PER": 6},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +15", "degats": "4d6 +15"},
+      {"nom": "Coup de queue", "portee": "CaC", "toucher": "1d20 +15", "degats": "4d6", "note": "action gratuite"},
+      {"nom": "Souffle élémentaire", "degats": "10d6 (de son élément)", "note": "pas de jet d'attaque ; esquive réussie : moitié des dégâts"}
+    ]
+  }
+]

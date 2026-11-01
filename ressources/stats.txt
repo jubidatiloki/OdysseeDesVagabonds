@@ -1,0 +1,133 @@
+# stats Principales (innées)
+
+## Dé de vie (DV)
+Représente le gain de point de vie par montée de niveau, ainsi que la quantité limite encaissable avant de mourir
+* Dépend de la race et de la classe du personnage
+
+## Dé de mana (DM)
+Représente le gain de point de mana par montée de niveau
+* Dépend de la race et de la classe du personnage
+
+
+## Aptitude de combat (AC)
+Maîtrise du combat au corps à corps, importante pour les guerriers et les chevaliers
+* permet d’augmenter les chances de toucher au corps à corps (toucher bonus = AC)
+* (refonte du 29/10/2026 : ne compte plus en défense)
+ 
+## Force (FOR)
+Représente la puissance brute / musculaire, importante pour les barbares
+* permet d’augmenter les dégâts au corps à corps (dégâts bonus = FOR)
+* est utile pour soulever quelque chose, immobiliser quelqu’un
+
+
+## Aptitude de tir (AT)
+Maîtrise des armes à distance, importante pour les ingénieurs et les rôdeurs
+* permet d’augmenter les chances de toucher à distance (toucher bonus = AT)
+* (refonte du 29/10/2026 : ne compte plus en défense)
+
+## Dextérité (DEX)
+Représente l’agilité, ainsi que la précision et la vitesse dans certaines situation, importante pour les voleurs
+* donne l'initiative : valeur de DEX + bonus (pas de jet, depuis le 31/10/2026)
+* est utile pour acrobatie, crochetage, désamorçage de piège, escalade, se cacher, se déplacer silencieusement, sauter par dessus un trou, courir (vitesse)
+
+## Aptitude magique (AM)
+Maitrise des lancers de sort et de la magie en général, importante pour les druides, magiciens et nécromanciens
+* permet d'augmenter les chances de toucher avec les sorts (toucher bonus = AM)
+* (refonte du 29/10/2026 : ne compte plus en défense)
+
+## Intelligence (INT)
+Représente les connaissances, et la maîtrise de la magie chez les druides, les magiciens, les nécromanciens et les prêtres
+* (refonte du 29/10/2026 : ne compte plus en défense magique)
+* est utile pour se souvenir, connaître, apprendre
+
+## Perception (PER)
+Représente la capacité à percevoir certaines choses, importante pour les bardes, les rôdeurs et  les moines
+* est utile pour la détection de piège, détection d’une embuscade, trouver un objet dans une pièce, trouver une personne dans une rue bondée
+
+## Constitution (CON)
+Représente l’endurance et la résistance, importante pour les barbares et moines
+* Permet d’augmenter les points de vie (vie bonus = END)
+* est utile pour la résistance au poison, à la fatigue, courir (endurance), retenir son souffle
+
+## Mental (MEN) — anciennement Charisme (CHA), renommé le 29/10/2026
+Représente la force mentale et la conviction
+* est utile pour résister à l'intimidation, aux contrôles mentaux et à la peur
+
+## Social (SOC)
+Représente l’aisance à communiquer, importante pour les bardes et les voleurs
+* est utile pour baratiner, bluffer, convaincre, mentir, distraire, obtenir une information
+
+
+
+# Stats secondaires (calculées)
+
+## Points de vie maximum (PV MAX)
+Représente la quantité de coup et de blessure qu’il est possible d’encaisser avant de s’évanouir ou de mourir
+* point de vie < dé de vie (en négatif)  → mort
+* point de vie maximum initiale = dé de vie max + dé de vie(lancée)
+
+
+## Points de vie actuels (PV)
+Représente l'état de santé actuel 
+* point de vie = 0 → évanouissement pendant 1d6 heures
+
+
+## Points de mana maximum (PM MAX)
+Représente la quantité de magie possible d’utiliser
+* régénération: dé de mana PM par nuit de sommeil (divisé par 2 si demi-nuit de sommeil)
+* point de mana initiale = dé de mana max
+
+
+## Points de mana actuels (PM)
+Réprésente la quantité de magie disponible actuellement
+
+
+## Esquive (Esq)
+Représente la capacité à pouvoir esquiver une attaque, plutôt que l’encaisser
+* retire l’action de mouvement du prochain tour (peu importe le résultat du test)
+* 1 esquive par tour max (peut changer en cas de bonus ou malus)
+* jet d'esquive = 1d20 + DEX (dans la limite de l'armure) + bonus d'esquive (refonte du 29/10/2026 ; pas de valeur fixe)
+* sert contre ce qui n'a pas de jet d'attaque (souffle, trait des arcanes)
+* une esquive réussie annule complètement les dégâts ou l'effet (sauf mention contraire)
+
+
+## Initiative (INIT)
+Représente la vitesse de réaction et permet d’agir avant ses adversaires en combat
+* l'initiatives est recalculé au début d'un combat
+* les initiatives des différentes créatures engageant un combat sont comparés, la plus grande joue avant la plus petite
+* calcul initiative = valeur de DEX + bonus d'initiative (compétences, équipement, autres) ; pas de jet, pas de limite de DEX liée à l'armure (règle du 31/10/2026)
+
+
+
+## Classe d'arumure (CA)
+Représente la faculté à ne pas prendre les attaques contre soi (grâce à son armure ou son agilité)
+* calcul classe d'armure = 10 + CA d'armure + DEX (dans la limite de l'armure : cuir +3, cotte de mailles +2, plaques +1) + compétences (refonte du 29/10/2026)
+* sert contre tout ce qui a un jet d'attaque (corps à corps, distance, sort)
+
+
+
+
+# Stats tertiaires (réduction de dégats)
+
+## Réduction de dégâts physique (RD PHY)
+Réduit les dégâts physique subis
+* RD PHY = 0 + compétence + équipement + autre
+
+## Réduction de dégâts magique (RD MAG)
+Réduit les dégâts magique subis
+* RD MAG = 0 + compétence + équipement + autre
+
+
+## Réduction de dégâts de feu (RD FEU)
+Réduit les dégâts élémentaire de feu subis
+* RD FEU = 0 + compétence + équipement + autre
+
+
+## Réduction de dégâts de glace (RD GLACE)
+Réduit les dégâts élémentaire de glace subis
+* RD GLACE = 0 + compétence + équipement + autre
+
+
+## Réduction de dégâts de foudre (RD FOUDRE)
+Réduit les dégâts élémentaire foudre subis
+* RD FOUDRE = 0 + compétence + équipement + autre
