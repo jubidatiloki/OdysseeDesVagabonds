@@ -75,7 +75,17 @@ class Creature {
     this.attaques = const [],
     this.voies = const [],
     this.note = '',
+    this.siChoix = '',
+    this.remplace = '',
   });
+
+  /// Invocation ou compagnon propre à une option choisie : « cle:option »
+  /// (`animal-druide:loup`) ; vide : toujours.
+  final String siChoix;
+
+  /// Fiche d'un stade précédent qu'elle remplace (animal de combat au rang 3
+  /// à la place de l'animal de compagnie).
+  final String remplace;
 
   final String id;
   final String nom;
@@ -147,5 +157,7 @@ class Creature {
             .map((e) => Voie.depuisJson(e as Map<String, dynamic>))
             .toList(),
         note: j['note'] as String? ?? '',
+        siChoix: j['siChoix'] as String? ?? '',
+        remplace: j['remplace'] as String? ?? '',
       );
 }

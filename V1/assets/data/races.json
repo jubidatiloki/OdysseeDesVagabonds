@@ -1381,6 +1381,7 @@
 				{
 					"rang": 4,
 					"nom": "Acolyte des montagnes",
+					"invocations": ["bouquetin-nain"],
 					"type": "soutien, monture",
 					"effet": "Dompte un bouquetin comme monture : +10 en escalade quand il le monte, galope comme un cheval. Le bouquetin est dans l'inventaire (Monter / Descendre).",
 					"objets": [

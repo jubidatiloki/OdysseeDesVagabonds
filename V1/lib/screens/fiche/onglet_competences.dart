@@ -99,6 +99,7 @@ class OngletCompetences extends StatelessWidget {
             LigneCompetence(
               competence: c.competence,
               acquise: true,
+              choixFaits: p.choix,
               mention: c.raciale ? 'Voie raciale · ${c.voie.nom}' : c.voie.nom,
             ),
         const SizedBox(height: 8),

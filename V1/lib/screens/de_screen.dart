@@ -9,6 +9,7 @@ import '../models/historique.dart';
 import '../models/objet.dart';
 import '../models/voie.dart';
 import '../regles/des.dart';
+import '../regles/etats.dart';
 import '../regles/fiche_calculee.dart';
 import '../regles/savoirs.dart';
 import '../state/historique_lancers.dart';
@@ -628,23 +629,10 @@ class _DeScreenState extends State<DeScreen> {
   /// annule l'apparence).
   void _basculerEtat(EtatCompetence etat, String competence) {
     final f = _fiche;
-    final p = f?.personnage;
-    if (f == null || p == null) return;
-    final actif = !p.etats.remove(etat.nom);
-    if (actif) p.etats.add(etat.nom);
-    // Postures : une seule à la fois (même groupe).
-    if (actif && etat.groupe.isNotEmpty) {
-      for (final e in f.etatsPossibles) {
-        if (e.etat.groupe == etat.groupe && e.etat.nom != etat.nom) {
-          p.etats.remove(e.etat.nom);
-        }
-      }
-    }
-    p.journaliser(
-      '$competence : ${etat.nom} ${actif ? 'activée' : 'annulée'}',
-      categorie: CategorieHistorique.competences,
-    );
-    widget.personnages?.sauvegarder(p);
+    if (f == null) return;
+    // Postures, formes : une seule à la fois (même groupe).
+    basculerEtat(f, etat, competence);
+    widget.personnages?.sauvegarder(f.personnage);
   }
 
   /// Utilise une capacité limitée (« Faire jouer son titre ») après
@@ -2007,7 +1995,7 @@ class _PanneauPersonnage extends StatelessWidget {
                               ].join(' · '),
                         infobulle: d == null
                             ? null
-                            : 'Dégâts ${a.armeInvoquee != null ? 'de l\'${a.armeInvoquee!.toLowerCase()}' : nues ? 'à mains nues' : 'de ${arme!.nom}'}'
+                            : 'Dégâts ${a.armeInvoquee != null ? deNom(a.armeInvoquee!.toLowerCase()) : nues ? 'à mains nues' : 'de ${arme!.nom}'}'
                                 ' et dés ajoutés, en un seul jet : '
                                 '${formaterJet(d.des, d.bonus)}',
                         large: true,
@@ -2087,6 +2075,28 @@ class _PanneauPersonnage extends StatelessWidget {
                     showCheckmark: false,
                     onSelected: (_) => onEtat(e.etat, e.competence.nom),
                   ),
+              ],
+            ),
+          ],
+          // Effets reçus d'un allié actifs (Agrandi) : rappel, annulables ;
+          // ils se cochent sur la fiche.
+          if (f.etatsRecus.any((e) => p.etats.contains(e.etat.nom))) ...[
+            const _Titre('Effets reçus', Icons.auto_fix_high_outlined),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final e in f.etatsRecus)
+                  if (p.etats.contains(e.etat.nom))
+                    FilterChip(
+                      key: Key('etat-${e.etat.nom}'),
+                      avatar:
+                          const Icon(Icons.auto_fix_high_outlined, size: 18),
+                      label: Text('${e.etat.nom} (reçu) · annuler'),
+                      selected: true,
+                      showCheckmark: false,
+                      onSelected: (_) => onEtat(e.etat, e.competence.nom),
+                    ),
               ],
             ),
           ],
@@ -3133,3 +3143,10 @@ class _Historique extends StatelessWidget {
     ],
   );
 }
+
+/// « de l'épée sanguine », « de morsure de loup » (élision devant une
+/// voyelle ou un h).
+String deNom(String nom) =>
+    RegExp(r'^[aeiouyéèêàâîôûh]', caseSensitive: false).hasMatch(nom)
+        ? "de l'$nom"
+        : 'de $nom';

@@ -194,6 +194,14 @@ Le bonus de DEX à la CA et à l'esquive ne dépasse pas la limite de l'armure p
 - Seul moyen de lancer un sort pour les non-mages.
 - Écriture : matériel d'écriture (**10 pa**), connaître le sort, dépenser son mana pour l'infuser.
 
+### Invocations et transformations
+
+- Chaque créature invoquée ou compagnon a sa **fiche** (bouton « Statistiques » de la compétence). Les compagnons non combattants n'ont que des **PV**.
+- Compagnons du druide et du rôdeur : attaque **1d20 + RANG + AdC du maître**. Créatures invoquées par un sort : leur propre toucher.
+- Durée d'une invocation sans durée écrite : **INT + 1d6 tours**.
+- **Transformation** : une forme à la fois ; ses bonus comptent tant qu'elle est active (forme activée sur la fiche ou la page dé).
+- **Agrandissement** : taille +1 catégorie, **+4 FOR, +4 CON, −2 DEX** pendant INT tours. Lancé sur un allié : il le coche dans **« Effets reçus »** sur sa fiche.
+
 ## Progression
 
 ### Points de compétence

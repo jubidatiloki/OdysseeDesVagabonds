@@ -704,6 +704,7 @@
           {
             "rang": 3,
             "nom": "Écuyer",
+            "invocations": ["ecuyer-chevalier"],
             "type": "soutien",
             "effet": "Un écuyer PNJ non combattant porte jusqu'à 30 kg et aide à revêtir l'armure en deux fois moins de temps. Armure entretenue chaque jour : +1 CA. Il entretient aussi l'arme familiale : son trait de lignée passe au niveau II.",
             "effets": [
@@ -772,6 +773,7 @@
           {
             "rang": 1,
             "nom": "Cheval de guerre",
+            "invocations": ["cheval-de-guerre"],
             "type": "soutien",
             "effet": "Cheval de bataille et lance d'arçon ; sait monter (équitation gratuite).",
             "objets": [
@@ -818,6 +820,7 @@
           {
             "rang": 5,
             "nom": "Chevalier dragon",
+            "invocations": ["drake"],
             "type": "soutien + passif",
             "effet": "+2 SOC. Un drake (créature volante de grande taille, à négocier avec le MJ) rejoint le chevalier comme monture : vole, porte le chevalier + 1 personne, attaque 2d6. Charge en piqué : +3d6 DMG. Les bonus de cavalier émérite s'appliquent en vol.",
             "effets": [
@@ -980,6 +983,7 @@
           {
             "rang": 1,
             "nom": "Animal de compagnie",
+            "invocations": ["druide-jeune-ours", "druide-panthere", "druide-sanglier", "druide-chouette", "druide-aigle", "druide-chien", "druide-loup", "druide-lievre"],
             "type": "soutien",
             "effet": "Un animal de compagnie au choix : +2 aux tests de la caractéristique associée (pas à la caractéristique elle-même), +4 dès le rang 3 (Animal de combat). L'animal suit le druide comme compagnon.",
             "choix": {
@@ -1067,8 +1071,26 @@
             "type": "sort",
             "typesSort": ["transformation"],
             "effet": "Se transforme (soi seul) en animal minuscule (souris, chat, moineau, poisson rouge) pendant 1d6 min.",
-            "effetApplique": "Animal minuscule pendant 1d6 min (soi seul)",
-            "etat": {"nom": "Transformé (animal minuscule)"},
+            "effetApplique": "Animal minuscule pendant 1d6 min (soi seul) : forme à activer",
+            "etats": [
+              {"nom": "Forme de souris", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Ni attaque ni sort ; se faufile partout."},
+                {"type": "savoir", "categorie": "Discrétion", "valeur": "5"}
+              ]},
+              {"nom": "Forme de chat", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Ni attaque ni sort."},
+                {"type": "savoir", "categorie": "Discrétion", "valeur": "5"},
+                {"type": "test", "categorie": "DEX", "valeur": "2"}
+              ]},
+              {"nom": "Forme de moineau", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Ni attaque ni sort ; vole."},
+                {"type": "savoir", "categorie": "Discrétion", "valeur": "5"}
+              ]},
+              {"nom": "Forme de poisson rouge", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Ni attaque ni sort ; nage et respire sous l'eau."},
+                {"type": "savoir", "categorie": "Discrétion", "valeur": "5"}
+              ]}
+            ],
             "jets": [
               {"libelle": "Transformation minime : durée (min)", "des": "1d6"}
             ]
@@ -1076,6 +1098,7 @@
           {
             "rang": 3,
             "nom": "Animal de combat",
+            "invocations": ["druide-jeune-ours-combat", "druide-panthere-combat", "druide-sanglier-combat", "druide-chouette-combat", "druide-aigle-combat", "druide-chien-combat", "druide-loup-combat", "druide-lievre-combat"],
             "type": "passif + renforcement",
             "effet": "L'animal attaque au tour de son compagnon : +RANG AdC, 1d8 DMG. Renforcement : le bonus aux tests de l'animal de compagnie (rang 1) passe à +4.",
             "effets": [
@@ -1092,8 +1115,26 @@
             "type": "sort",
             "typesSort": ["transformation"],
             "effet": "Change une partie du corps (aile, branchies, patte de lézard pour grimper, patte d'araignée, bras de gorille).",
-            "effetApplique": "Aile, branchies, patte de lézard ou d'araignée, bras de gorille…",
-            "etat": {"nom": "Mutation partielle"}
+            "effetApplique": "Aile, branchies, patte de lézard ou d'araignée, bras de gorille… : mutation à activer",
+            "etats": [
+              {"nom": "Mutation : ailes", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Vole."}
+              ]},
+              {"nom": "Mutation : branchies", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Respire sous l'eau."},
+                {"type": "savoir", "categorie": "Natation", "valeur": "5"}
+              ]},
+              {"nom": "Mutation : patte de lézard", "groupe": "forme-druide", "effets": [
+                {"type": "savoir", "categorie": "Escalade", "valeur": "5"}
+              ]},
+              {"nom": "Mutation : patte d'araignée", "groupe": "forme-druide", "effets": [
+                {"type": "texte", "effet": "Marche aux murs et aux plafonds."},
+                {"type": "savoir", "categorie": "Escalade", "valeur": "5"}
+              ]},
+              {"nom": "Mutation : bras de gorille", "groupe": "forme-druide", "effets": [
+                {"type": "bonus", "categorie": "FOR", "valeur": "4"}
+              ]}
+            ]
           },
           {
             "rang": 5,
@@ -1101,8 +1142,44 @@
             "type": "sort",
             "typesSort": ["transformation"],
             "effet": "Se transforme en grand animal (gorille, loup, lion, requin, aigle royal) ; utilisable sur une autre cible consentante.",
-            "effetApplique": "Grand animal (gorille, loup, lion, requin, aigle royal) ; aussi sur une cible consentante",
-            "etat": {"nom": "Transformé (grand animal)"}
+            "effetApplique": "Grand animal (gorille, loup, lion, requin, aigle royal) ; aussi sur une cible consentante : forme à activer (« Effets reçus » sur sa fiche)",
+            "etats": [
+              {"nom": "Forme de gorille", "groupe": "forme-druide", "recevable": true, "effets": [
+                {"type": "texte", "effet": "Ni sort ni objet ; garde ses PV et sa CA."},
+                {"type": "bonus", "categorie": "FOR", "valeur": "4"},
+                {"type": "bonus", "categorie": "CON", "valeur": "2"},
+                {"type": "savoir", "categorie": "Escalade", "valeur": "5"}
+              ], "jets": [
+                {"libelle": "Gorille : poings", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Poings de gorille", "degatsArme": "2d6"}}
+              ]},
+              {"nom": "Forme de loup", "groupe": "forme-druide", "recevable": true, "effets": [
+                {"type": "texte", "effet": "Ni sort ni objet ; garde ses PV et sa CA."},
+                {"type": "bonus", "categorie": "DEX", "valeur": "4"},
+                {"type": "test", "categorie": "INIT", "valeur": "5"},
+                {"type": "test", "categorie": "PER", "valeur": "2"}
+              ], "jets": [
+                {"libelle": "Loup : morsure", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Morsure de loup", "degatsArme": "1d8"}}
+              ]},
+              {"nom": "Forme de lion", "groupe": "forme-druide", "recevable": true, "effets": [
+                {"type": "texte", "effet": "Ni sort ni objet ; garde ses PV et sa CA."},
+                {"type": "bonus", "categorie": "FOR", "valeur": "4"},
+                {"type": "bonus", "categorie": "DEX", "valeur": "2"}
+              ], "jets": [
+                {"libelle": "Lion : griffes", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Griffes de lion", "degatsArme": "2d6"}}
+              ]},
+              {"nom": "Forme de requin", "groupe": "forme-druide", "recevable": true, "effets": [
+                {"type": "texte", "effet": "Ni sort ni objet ; garde ses PV et sa CA ; dans l'eau seulement."},
+                {"type": "bonus", "categorie": "FOR", "valeur": "4"}
+              ], "jets": [
+                {"libelle": "Requin : morsure", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Morsure de requin", "degatsArme": "2d8"}}
+              ]},
+              {"nom": "Forme d'aigle royal", "groupe": "forme-druide", "recevable": true, "effets": [
+                {"type": "texte", "effet": "Ni sort ni objet ; garde ses PV et sa CA ; vole."},
+                {"type": "test", "categorie": "PER", "valeur": "4"}
+              ], "jets": [
+                {"libelle": "Aigle royal : serres", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Serres d'aigle royal", "degatsArme": "1d8"}}
+              ]}
+            ]
           }
         ]
       },
@@ -1200,6 +1277,8 @@
           {
             "rang": 4,
             "nom": "Invocation animal",
+            "invocations": ["animal-magique"],
+            "jets": [{"libelle": "Invocation animal : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "sort",
             "typesSort": ["invocation"],
             "effet": "Invoque un animal magique de taille moyenne à ses côtés.",
@@ -1263,11 +1342,16 @@
             "effetApplique": "Arbre INT tours : immobile, +10 RD physique",
             "soin": "1d6 PV par tour",
             "reussite": {"libelle": "Arbrification", "carac": "ADM", "contre": "sur autrui : test de CON en opposition"},
-            "etat": {"nom": "Arbrifié", "effets": [{"type": "texte", "effet": "Ne peut ni agir ni bouger ; +10 RD physique ; régénère 1d6 PV par tour."}]}
+            "etat": {"nom": "Arbrifié", "effets": [
+              {"type": "texte", "effet": "Ne peut ni agir ni bouger ; régénère 1d6 PV par tour."},
+              {"type": "bonus", "categorie": "RD physique", "valeur": "10"}
+            ]}
           },
           {
             "rang": 5,
             "nom": "Plante carnivore",
+            "invocations": ["plante-carnivore"],
+            "jets": [{"libelle": "Plante carnivore : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "sort",
             "typesSort": ["invocation", "offensif"],
             "effet": "Fait surgir une très grande plante carnivore qui obéit au druide ou attaque les ennemis à portée.",
@@ -1799,6 +1883,7 @@
           {
             "rang": 3,
             "nom": "Automate",
+            "invocations": ["petit-automate"],
             "type": "soutien",
             "effet": "Fabrique un petit automate d'engrenages et de métal (porte du matériel ou se vend aux riches).",
             "fabrication": [
@@ -1817,10 +1902,11 @@
           {
             "rang": 5,
             "nom": "Golem",
+            "invocations": ["golem-ingenieur"],
             "type": "soutien",
             "effet": "Construit un golem (un seul à la fois) avec jusqu'à 2 modules : artilleur (canon d'épaule), protecteur (bouclier), mobile (allégé), combattant (armes CaC), mule (buste de rangement).",
             "objets": [
-              {"nom": "Golem", "categorie": "compagnon", "description": "Golem de l'ingénieur (un seul à la fois ; stats à voir avec le MJ) : jusqu'à 2 modules, voir la compétence Golem."}
+              {"nom": "Golem", "categorie": "compagnon", "description": "Golem de l'ingénieur (un seul à la fois ; statistiques : bouton « Statistiques » de la compétence Golem) : jusqu'à 2 modules, voir la compétence Golem."}
             ],
             "choix": {
               "cle": "golem-modules",
@@ -1958,11 +2044,21 @@
           {
             "rang": 5,
             "nom": "Élémentaire de feu",
+            "invocations": ["elementaire-feu"],
+            "jets": [{"libelle": "Élémentaire de feu : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation", "transformation"],
             "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire de feu invoqué, ou forme d'élémentaire (stats avec le MJ)",
-            "etat": {"nom": "Forme d'élémentaire de feu"}
+            "effetApplique": "Élémentaire de feu invoqué, ou forme d'élémentaire : forme à activer",
+            "etats": [
+              {"nom": "Forme d'élémentaire de feu", "groupe": "forme-elementaire", "effets": [
+                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                {"type": "bonus", "categorie": "RD feu", "valeur": "10"},
+                {"type": "bonus", "categorie": "DEX", "valeur": "2"}
+              ], "jets": [
+                {"libelle": "Forme de feu : contact", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Contact de feu", "degatsArme": "2d6"}}
+              ]}
+            ]
           }
         ]
       },
@@ -2010,11 +2106,22 @@
           {
             "rang": 5,
             "nom": "Élémentaire de pierre",
+            "invocations": ["elementaire-terre"],
+            "jets": [{"libelle": "Élémentaire de pierre : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation", "transformation"],
             "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire de pierre invoqué, ou forme d'élémentaire (stats avec le MJ)",
-            "etat": {"nom": "Forme d'élémentaire de pierre"}
+            "effetApplique": "Élémentaire de pierre invoqué, ou forme d'élémentaire : forme à activer",
+            "etats": [
+              {"nom": "Forme d'élémentaire de pierre", "groupe": "forme-elementaire", "effets": [
+                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                {"type": "bonus", "categorie": "RD physique", "valeur": "5"},
+                {"type": "bonus", "categorie": "FOR", "valeur": "4"},
+                {"type": "bonus", "categorie": "DEX", "valeur": "-2"}
+              ], "jets": [
+                {"libelle": "Forme de pierre : coup", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Poing de pierre", "degatsArme": "2d8"}}
+              ]}
+            ]
           }
         ]
       },
@@ -2067,11 +2174,21 @@
           {
             "rang": 5,
             "nom": "Élémentaire de glace",
+            "invocations": ["elementaire-glace"],
+            "jets": [{"libelle": "Élémentaire de glace : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation", "transformation"],
             "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire de glace invoqué, ou forme d'élémentaire (stats avec le MJ)",
-            "etat": {"nom": "Forme d'élémentaire de glace"}
+            "effetApplique": "Élémentaire de glace invoqué, ou forme d'élémentaire : forme à activer",
+            "etats": [
+              {"nom": "Forme d'élémentaire de glace", "groupe": "forme-elementaire", "effets": [
+                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                {"type": "bonus", "categorie": "RD glace", "valeur": "10"},
+                {"type": "bonus", "categorie": "CON", "valeur": "2"}
+              ], "jets": [
+                {"libelle": "Forme de glace : contact", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Contact de glace", "degatsArme": "2d6"}}
+              ]}
+            ]
           }
         ]
       },
@@ -2124,11 +2241,23 @@
           {
             "rang": 5,
             "nom": "Élémentaire d'air",
+            "invocations": ["elementaire-air"],
+            "jets": [{"libelle": "Élémentaire d'air : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation", "transformation"],
             "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire d'air invoqué, ou forme d'élémentaire (stats avec le MJ)",
-            "etat": {"nom": "Forme d'élémentaire d'air"}
+            "effetApplique": "Élémentaire d'air invoqué, ou forme d'élémentaire : forme à activer",
+            "etats": [
+              {"nom": "Forme d'élémentaire d'air", "groupe": "forme-elementaire", "effets": [
+                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                {"type": "texte", "effet": "Vole."},
+                {"type": "bonus", "categorie": "RD foudre", "valeur": "5"},
+                {"type": "bonus", "categorie": "DEX", "valeur": "4"},
+                {"type": "test", "categorie": "INIT", "valeur": "5"}
+              ], "jets": [
+                {"libelle": "Forme d'air : coup", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Coup de vent", "degatsArme": "2d6"}}
+              ]}
+            ]
           }
         ]
       },
@@ -2162,7 +2291,15 @@
             "type": "actif, sort",
             "typesSort": ["transformation", "support"],
             "effet": "Accroît la taille d'un allié (ou soi) ; renforcement éclat des arcanes : 2D4 DM.",
-            "effetApplique": "Un allié (ou soi) grandit (effet avec le MJ)",
+            "effetApplique": "Un allié (ou soi) grandit pendant INT tours : taille +1 catégorie, +4 FOR, +4 CON, −2 DEX (« Effets reçus » sur la fiche de l'allié)",
+            "etats": [
+              {"nom": "Agrandi", "recevable": true, "effets": [
+                {"type": "texte", "effet": "Taille +1 catégorie (durée INT tours)."},
+                {"type": "bonus", "categorie": "FOR", "valeur": "4"},
+                {"type": "bonus", "categorie": "CON", "valeur": "4"},
+                {"type": "bonus", "categorie": "DEX", "valeur": "-2"}
+              ]}
+            ],
             "effets": [
               {"type": "renforcement", "nom": "Éclat des arcanes", "effet": "2d4 DM."}
             ],
@@ -2609,6 +2746,8 @@
           {
             "rang": 2,
             "nom": "Fidèle serviteur",
+            "invocations": ["fidele-serviteur"],
+            "jets": [{"libelle": "Fidèle serviteur : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation"],
             "effetApplique": "Relève un cadavre de taille moyenne (temporaire)",
@@ -2626,6 +2765,8 @@
           {
             "rang": 4,
             "nom": "Fidèle et puissant serviteur",
+            "invocations": ["puissant-serviteur", "serviteur-permanent"],
+            "jets": [{"libelle": "Puissant serviteur : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation"],
             "effetApplique": "Relève un cadavre de grande taille (temporaire)",
@@ -2644,6 +2785,8 @@
           {
             "rang": 5,
             "nom": "Requiem",
+            "invocations": ["mort-vivant-requiem"],
+            "jets": [{"libelle": "Requiem : nombre de morts-vivants", "des": "1d4", "carac": "INT"}, {"libelle": "Requiem : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "complexe, sort",
             "typesSort": ["invocation"],
             "effetApplique": "Petite armée de morts-vivants",
@@ -2658,6 +2801,7 @@
           {
             "rang": 1,
             "nom": "Familier",
+            "invocations": ["familier-corbeau", "familier-rat", "familier-chat-noir", "familier-crane-flottant"],
             "type": "soutien",
             "effet": "Petit esprit ou créature au choix (corbeau, rat, chat noir, crâne flottant) : +2 PER ; avec concentration, voit par ses yeux jusqu'à 50 m ; porte de petits objets. Détruit : réinvocable après 1 jour.",
             "effets": [
@@ -2686,6 +2830,7 @@
           {
             "rang": 3,
             "nom": "Diablotin",
+            "invocations": ["diablotin"],
             "degats": "1d6 feu infernal (diablotin)",
             "effetApplique": "Invoque un diablotin (INT + 1d4 tours)",
             "type": "actif, sort",
@@ -2699,6 +2844,7 @@
           {
             "rang": 4,
             "nom": "Molosse des abysses",
+            "invocations": ["molosse-abysses"],
             "degats": "2d6 (molosse)",
             "effetApplique": "Invoque un chien infernal (INT + 1d6 tours)",
             "type": "actif, sort",
@@ -2712,6 +2858,8 @@
           {
             "rang": 5,
             "nom": "Démon",
+            "invocations": ["demon-invoque"],
+            "jets": [{"libelle": "Démon : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation"],
             "effetApplique": "Invoque un démon",
@@ -2787,6 +2935,8 @@
           {
             "rang": 5,
             "nom": "Rituel abominable",
+            "invocations": ["abomination"],
+            "jets": [{"libelle": "Rituel abominable : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
             "typesSort": ["invocation"],
             "effetApplique": "Abomination faite de cadavres",
@@ -3232,6 +3382,7 @@
           {
             "rang": 1,
             "nom": "Compagnon animal",
+            "invocations": ["rodeur-loup", "rodeur-chien", "rodeur-lynx", "rodeur-renard", "rodeur-jeune-sanglier"],
             "type": "passif + soutien",
             "effet": "+5 tests de PER ; animal terrestre (taille max : loup).",
             "effets": [
@@ -3262,6 +3413,7 @@
           {
             "rang": 3,
             "nom": "Compagnon adulte",
+            "invocations": ["rodeur-loup-adulte", "rodeur-chien-adulte", "rodeur-lynx-adulte", "rodeur-renard-adulte", "rodeur-jeune-sanglier-adulte"],
             "type": "renforcement",
             "effet": "Buff + peut attaquer. Attaque : +RANG AdC, 1d6 DMG (volontairement sous l'animal de combat du druide, 1d8).",
             "effets": [
@@ -3286,6 +3438,8 @@
           {
             "rang": 5,
             "nom": "Compagnon géant",
+            "invocations": ["rodeur-loup-geant", "rodeur-chien-geant", "rodeur-lynx-geant", "rodeur-renard-geant", "rodeur-jeune-sanglier-geant"],
+            "jets": [{"libelle": "Compagnon : dégâts", "des": "1d8"}],
             "type": "renforcement",
             "effet": "Buff + peut servir de monture.",
             "effets": [

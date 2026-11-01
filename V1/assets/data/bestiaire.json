@@ -491,6 +491,24 @@
     "note": "Immunisé au poison."
   },
   {
+    "id": "elementaire-glace",
+    "nom": "Élémentaire de glace",
+    "famille": "Élémentaires",
+    "archetype": "Puissant",
+    "taille": "grande",
+    "description": "Bloc de glace mouvant aux arêtes tranchantes, d'où s'échappe un souffle de givre.",
+    "comportement": "Lent à s'émouvoir mais implacable, il fige ses ennemis dans le froid avant de les broyer.",
+    "ca": 14,
+    "pv": 70,
+    "initiative": 14,
+    "mods": {"ADC": 4, "FOR": 4, "DEX": 2, "CON": 4, "INT": -3},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d8 +4 glace"},
+      {"nom": "Engloutir", "note": "test de FOR diff. 15, sinon la cible est prisonnière de la glace"}
+    ],
+    "note": "Immunisé au poison."
+  },
+  {
     "id": "elementaire-air",
     "nom": "Élémentaire d'air",
     "famille": "Élémentaires",
@@ -567,7 +585,728 @@
     "taille": "standard",
     "description": "Cadavre réanimé, à la chair en décomposition et aux mouvements lents et saccadés.",
     "comportement": "Sans intelligence ni peur : avance vers les vivants les plus proches et attaque jusqu'à sa destruction. Souvent en groupe.",
-    "note": "Statistiques à définir."
+    "ca": 10,
+    "pv": 15,
+    "initiative": 6,
+    "mods": {"ADC": 2, "FOR": 2, "DEX": -2, "CON": 2, "INT": -4},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6 +2"}
+    ]
+  },
+  {
+    "id": "bouquetin-nain",
+    "nom": "Bouquetin (monture du nain)",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "standard",
+    "description": "Bouquetin des montagnes dompté par le nain : cornes recourbées, sabots sûrs, il galope comme un cheval et grimpe partout.",
+    "pv": 15,
+    "note": "Non combattant. Monté : +10 en escalade."
+  },
+  {
+    "id": "ecuyer-chevalier",
+    "nom": "Écuyer du chevalier",
+    "famille": "Invocations",
+    "archetype": "Soutien",
+    "taille": "standard",
+    "description": "Jeune écuyer au service du chevalier : porte jusqu'à 30 kg, aide à revêtir l'armure et entretient l'équipement.",
+    "pv": 8,
+    "note": "Non combattant."
+  },
+  {
+    "id": "petit-automate",
+    "nom": "Petit automate",
+    "famille": "Invocations",
+    "archetype": "Soutien",
+    "taille": "petite",
+    "description": "Petit automate d'engrenages et de métal fabriqué par l'ingénieur ; porte du matériel.",
+    "pv": 10,
+    "note": "Non combattant."
+  },
+  {
+    "id": "familier-corbeau",
+    "nom": "Corbeau (familier)",
+    "famille": "Invocations",
+    "archetype": "Familier",
+    "taille": "petite",
+    "siChoix": "familier-necromancien:corbeau",
+    "description": "Familier du nécromancien : Corbeau aux yeux luisants.",
+    "pv": 3,
+    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+  },
+  {
+    "id": "familier-rat",
+    "nom": "Rat (familier)",
+    "famille": "Invocations",
+    "archetype": "Familier",
+    "taille": "minuscule",
+    "siChoix": "familier-necromancien:rat",
+    "description": "Familier du nécromancien : Rat furtif.",
+    "pv": 3,
+    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+  },
+  {
+    "id": "familier-chat-noir",
+    "nom": "Chat noir (familier)",
+    "famille": "Invocations",
+    "archetype": "Familier",
+    "taille": "petite",
+    "siChoix": "familier-necromancien:chat-noir",
+    "description": "Familier du nécromancien : Chat noir silencieux.",
+    "pv": 3,
+    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+  },
+  {
+    "id": "familier-crane-flottant",
+    "nom": "Crâne flottant (familier)",
+    "famille": "Invocations",
+    "archetype": "Familier",
+    "taille": "minuscule",
+    "siChoix": "familier-necromancien:crane-flottant",
+    "description": "Familier du nécromancien : Crâne qui flotte dans les airs.",
+    "pv": 3,
+    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+  },
+  {
+    "id": "druide-jeune-ours",
+    "nom": "Jeune ours (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "animal-druide:jeune-ours",
+    "description": "Animal de compagnie du druide.",
+    "pv": 12,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+  },
+  {
+    "id": "druide-jeune-ours-combat",
+    "nom": "Jeune ours (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "animal-druide:jeune-ours",
+    "remplace": "druide-jeune-ours",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 14,
+    "pv": 24,
+    "initiative": 10,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ]
+  },
+  {
+    "id": "druide-panthere",
+    "nom": "Panthère (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "animal-druide:panthere",
+    "description": "Animal de compagnie du druide.",
+    "pv": 10,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+  },
+  {
+    "id": "druide-panthere-combat",
+    "nom": "Panthère (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "animal-druide:panthere",
+    "remplace": "druide-panthere",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 15,
+    "pv": 18,
+    "initiative": 16,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ]
+  },
+  {
+    "id": "druide-sanglier",
+    "nom": "Sanglier (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "animal-druide:sanglier",
+    "description": "Animal de compagnie du druide.",
+    "pv": 12,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+  },
+  {
+    "id": "druide-sanglier-combat",
+    "nom": "Sanglier (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "animal-druide:sanglier",
+    "remplace": "druide-sanglier",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 13,
+    "pv": 22,
+    "initiative": 10,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ]
+  },
+  {
+    "id": "druide-chouette",
+    "nom": "Chouette (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "minuscule",
+    "siChoix": "animal-druide:chouette",
+    "description": "Animal de compagnie du druide.",
+    "pv": 4,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat). Vole, voit dans le noir."
+  },
+  {
+    "id": "druide-chouette-combat",
+    "nom": "Chouette (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "minuscule",
+    "siChoix": "animal-druide:chouette",
+    "remplace": "druide-chouette",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 14,
+    "pv": 8,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ],
+    "note": "Vole, voit dans le noir."
+  },
+  {
+    "id": "druide-aigle",
+    "nom": "Aigle (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "animal-druide:aigle",
+    "description": "Animal de compagnie du druide.",
+    "pv": 5,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat). Vole."
+  },
+  {
+    "id": "druide-aigle-combat",
+    "nom": "Aigle (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "animal-druide:aigle",
+    "remplace": "druide-aigle",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 14,
+    "pv": 10,
+    "initiative": 16,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ],
+    "note": "Vole."
+  },
+  {
+    "id": "druide-chien",
+    "nom": "Chien (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "animal-druide:chien",
+    "description": "Animal de compagnie du druide.",
+    "pv": 8,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+  },
+  {
+    "id": "druide-chien-combat",
+    "nom": "Chien (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "animal-druide:chien",
+    "remplace": "druide-chien",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 13,
+    "pv": 16,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ]
+  },
+  {
+    "id": "druide-loup",
+    "nom": "Loup (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "animal-druide:loup",
+    "description": "Animal de compagnie du druide.",
+    "pv": 9,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+  },
+  {
+    "id": "druide-loup-combat",
+    "nom": "Loup (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "animal-druide:loup",
+    "remplace": "druide-loup",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 14,
+    "pv": 18,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ]
+  },
+  {
+    "id": "druide-lievre",
+    "nom": "Lièvre (compagnon du druide)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "minuscule",
+    "siChoix": "animal-druide:lievre",
+    "description": "Animal de compagnie du druide.",
+    "pv": 3,
+    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+  },
+  {
+    "id": "druide-lievre-combat",
+    "nom": "Lièvre (animal de combat)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "minuscule",
+    "siChoix": "animal-druide:lievre",
+    "remplace": "druide-lievre",
+    "description": "Animal de compagnie du druide, aguerri au combat (rang 3).",
+    "ca": 15,
+    "pv": 8,
+    "initiative": 18,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du druide", "degats": "1d8", "note": "attaque au tour du druide"}
+    ]
+  },
+  {
+    "id": "rodeur-loup",
+    "nom": "Loup (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:loup",
+    "description": "Compagnon animal du rôdeur, encore jeune.",
+    "pv": 9,
+    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+  },
+  {
+    "id": "rodeur-loup-adulte",
+    "nom": "Loup adulte (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:loup",
+    "remplace": "rodeur-loup",
+    "description": "Compagnon animal du rôdeur, adulte (rang 3).",
+    "ca": 14,
+    "pv": 20,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d6"}
+    ]
+  },
+  {
+    "id": "rodeur-loup-geant",
+    "nom": "Loup géant (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "siChoix": "compagnon-rodeur:loup",
+    "remplace": "rodeur-loup-adulte",
+    "description": "Compagnon animal du rôdeur devenu géant (rang 5) : il peut servir de monture.",
+    "ca": 15,
+    "pv": 40,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d8"}
+    ]
+  },
+  {
+    "id": "rodeur-chien",
+    "nom": "Chien (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:chien",
+    "description": "Compagnon animal du rôdeur, encore jeune.",
+    "pv": 8,
+    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+  },
+  {
+    "id": "rodeur-chien-adulte",
+    "nom": "Chien adulte (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:chien",
+    "remplace": "rodeur-chien",
+    "description": "Compagnon animal du rôdeur, adulte (rang 3).",
+    "ca": 13,
+    "pv": 18,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d6"}
+    ]
+  },
+  {
+    "id": "rodeur-chien-geant",
+    "nom": "Chien géant (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "siChoix": "compagnon-rodeur:chien",
+    "remplace": "rodeur-chien-adulte",
+    "description": "Compagnon animal du rôdeur devenu géant (rang 5) : il peut servir de monture.",
+    "ca": 14,
+    "pv": 36,
+    "initiative": 14,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d8"}
+    ]
+  },
+  {
+    "id": "rodeur-lynx",
+    "nom": "Lynx (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:lynx",
+    "description": "Compagnon animal du rôdeur, encore jeune.",
+    "pv": 8,
+    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+  },
+  {
+    "id": "rodeur-lynx-adulte",
+    "nom": "Lynx adulte (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:lynx",
+    "remplace": "rodeur-lynx",
+    "description": "Compagnon animal du rôdeur, adulte (rang 3).",
+    "ca": 15,
+    "pv": 16,
+    "initiative": 16,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d6"}
+    ]
+  },
+  {
+    "id": "rodeur-lynx-geant",
+    "nom": "Lynx géant (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "siChoix": "compagnon-rodeur:lynx",
+    "remplace": "rodeur-lynx-adulte",
+    "description": "Compagnon animal du rôdeur devenu géant (rang 5) : il peut servir de monture.",
+    "ca": 16,
+    "pv": 32,
+    "initiative": 16,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d8"}
+    ]
+  },
+  {
+    "id": "rodeur-renard",
+    "nom": "Renard (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "compagnon-rodeur:renard",
+    "description": "Compagnon animal du rôdeur, encore jeune.",
+    "pv": 5,
+    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+  },
+  {
+    "id": "rodeur-renard-adulte",
+    "nom": "Renard adulte (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "petite",
+    "siChoix": "compagnon-rodeur:renard",
+    "remplace": "rodeur-renard",
+    "description": "Compagnon animal du rôdeur, adulte (rang 3).",
+    "ca": 14,
+    "pv": 12,
+    "initiative": 16,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d6"}
+    ]
+  },
+  {
+    "id": "rodeur-renard-geant",
+    "nom": "Renard géant (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "siChoix": "compagnon-rodeur:renard",
+    "remplace": "rodeur-renard-adulte",
+    "description": "Compagnon animal du rôdeur devenu géant (rang 5) : il peut servir de monture.",
+    "ca": 15,
+    "pv": 28,
+    "initiative": 16,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d8"}
+    ]
+  },
+  {
+    "id": "rodeur-jeune-sanglier",
+    "nom": "Jeune sanglier (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:jeune-sanglier",
+    "description": "Compagnon animal du rôdeur, encore jeune.",
+    "pv": 10,
+    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+  },
+  {
+    "id": "rodeur-jeune-sanglier-adulte",
+    "nom": "Sanglier adulte (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Compagnon",
+    "taille": "standard",
+    "siChoix": "compagnon-rodeur:jeune-sanglier",
+    "remplace": "rodeur-jeune-sanglier",
+    "description": "Compagnon animal du rôdeur, adulte (rang 3).",
+    "ca": 13,
+    "pv": 22,
+    "initiative": 10,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d6"}
+    ]
+  },
+  {
+    "id": "rodeur-jeune-sanglier-geant",
+    "nom": "Sanglier géant (compagnon du rôdeur)",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "siChoix": "compagnon-rodeur:jeune-sanglier",
+    "remplace": "rodeur-jeune-sanglier-adulte",
+    "description": "Compagnon animal du rôdeur devenu géant (rang 5) : il peut servir de monture.",
+    "ca": 14,
+    "pv": 44,
+    "initiative": 10,
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 + RANG + AdC du rôdeur", "degats": "1d8"}
+    ]
+  },
+  {
+    "id": "cheval-de-guerre",
+    "nom": "Cheval de guerre",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "description": "Destrier entraîné au fracas des batailles, harnaché pour porter un chevalier en armure.",
+    "ca": 13,
+    "pv": 30,
+    "initiative": 12,
+    "attaques": [
+      {"nom": "Piétinement", "portee": "CaC", "degats": "1d8", "note": "monté, 1×/tour (Piétinement) : cible de taille moyenne ou moins ; test de FOR diff. 12 ou mise au sol"}
+    ]
+  },
+  {
+    "id": "drake",
+    "nom": "Drake",
+    "famille": "Invocations",
+    "archetype": "Monture",
+    "taille": "grande",
+    "description": "Créature volante de grande taille, cousine des dragons, qui accepte un chevalier pour cavalier.",
+    "ca": 15,
+    "pv": 50,
+    "initiative": 14,
+    "mods": {"ADC": 4},
+    "attaques": [
+      {"nom": "Attaque", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d6"},
+      {"nom": "Charge en piqué", "degats": "+3d6", "note": "dégâts en plus"}
+    ],
+    "note": "Vole ; porte le chevalier et une autre personne."
+  },
+  {
+    "id": "golem-ingenieur",
+    "nom": "Golem de l'ingénieur",
+    "famille": "Invocations",
+    "archetype": "Gardien",
+    "taille": "grande",
+    "description": "Golem de métal et d'engrenages construit par l'ingénieur ; un seul à la fois.",
+    "ca": 16,
+    "pv": 40,
+    "initiative": 8,
+    "mods": {"ADC": 3, "ADT": 3},
+    "attaques": [
+      {"nom": "Poing", "portee": "CaC", "toucher": "1d20 +3", "degats": "2d6"},
+      {"nom": "Canon d'épaule", "portee": "distance", "toucher": "1d20 +3", "degats": "2d8", "note": "module Artilleur seulement"}
+    ],
+    "note": "Modules (2 au choix) : Artilleur (canon d'épaule) ; Protecteur (+2 CA) ; Mobile (+6 à l'initiative) ; Combattant (poing : 2d8 et +2 au toucher) ; Mule (porte 100 kg)."
+  },
+  {
+    "id": "diablotin",
+    "nom": "Diablotin",
+    "famille": "Invocations",
+    "archetype": "Volant",
+    "taille": "petite",
+    "description": "Petit démon ailé à la peau rouge et aux cornes tordues, ricanant sans cesse.",
+    "ca": 14,
+    "pv": 8,
+    "initiative": 16,
+    "mods": {"ADM": 3},
+    "attaques": [
+      {"nom": "Feu infernal", "portee": "distance", "toucher": "1d20 +3", "degats": "1d6 feu", "note": "attaque magique"}
+    ],
+    "note": "Vole. Durée INT + 1d4 tours ; se dissipe à 0 PV."
+  },
+  {
+    "id": "molosse-abysses",
+    "nom": "Molosse des abysses",
+    "famille": "Invocations",
+    "archetype": "Prédateur",
+    "taille": "standard",
+    "description": "Chien infernal au pelage charbonneux et aux yeux de braise.",
+    "ca": 14,
+    "pv": 25,
+    "initiative": 15,
+    "mods": {"ADC": 4},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d6"}
+    ],
+    "note": "Perçoit les créatures invisibles. Durée INT + 1d6 tours."
+  },
+  {
+    "id": "demon-invoque",
+    "nom": "Démon invoqué",
+    "famille": "Invocations",
+    "archetype": "Puissant",
+    "taille": "grande",
+    "description": "Démon arraché aux abysses, cornu et griffu, enveloppé d'une odeur de soufre.",
+    "ca": 16,
+    "pv": 60,
+    "initiative": 14,
+    "mods": {"ADC": 6},
+    "attaques": [
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 +6", "degats": "2d8 +4"}
+    ],
+    "note": "RD feu 5. Durée INT + 1d6 tours."
+  },
+  {
+    "id": "fidele-serviteur",
+    "nom": "Fidèle serviteur",
+    "famille": "Invocations",
+    "archetype": "Mort-vivant",
+    "taille": "standard",
+    "description": "Cadavre de taille moyenne relevé par le nécromancien, qui obéit sans un mot.",
+    "ca": 10,
+    "pv": 15,
+    "initiative": 6,
+    "mods": {"ADC": 2},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6 +2"}
+    ],
+    "note": "Maître des cadavres : +2 AdC et +5 PV. Durée INT + 1d6 tours."
+  },
+  {
+    "id": "puissant-serviteur",
+    "nom": "Puissant serviteur",
+    "famille": "Invocations",
+    "archetype": "Mort-vivant",
+    "taille": "grande",
+    "description": "Cadavre de grande taille relevé par le nécromancien.",
+    "ca": 12,
+    "pv": 35,
+    "initiative": 6,
+    "mods": {"ADC": 4},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d6 +3"}
+    ],
+    "note": "Temporaire : durée INT + 1d6 tours."
+  },
+  {
+    "id": "serviteur-permanent",
+    "nom": "Serviteur permanent",
+    "famille": "Invocations",
+    "archetype": "Mort-vivant",
+    "taille": "grande",
+    "description": "Serviteur mort-vivant plus grand et plus fort, lié au nécromancien par le sacrifice de ses PV max.",
+    "ca": 14,
+    "pv": 50,
+    "initiative": 8,
+    "mods": {"ADC": 5},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +5", "degats": "2d8 +4"}
+    ],
+    "note": "Un seul à la fois ; s'il est tué, le nécromancien récupère les PV max sacrifiés."
+  },
+  {
+    "id": "mort-vivant-requiem",
+    "nom": "Mort-vivant du requiem",
+    "famille": "Invocations",
+    "archetype": "Mort-vivant",
+    "taille": "standard",
+    "description": "Mort ramené par le chant du requiem, au sein d'une petite armée.",
+    "ca": 10,
+    "pv": 8,
+    "initiative": 8,
+    "mods": {"ADC": 2},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6"}
+    ],
+    "note": "Requiem : INT + 1d4 morts-vivants. Durée INT + 1d6 tours."
+  },
+  {
+    "id": "abomination",
+    "nom": "Abomination",
+    "famille": "Invocations",
+    "archetype": "Puissant",
+    "taille": "tres-grande",
+    "description": "Amas de cadavres cousus et fondus en une seule créature difforme.",
+    "ca": 14,
+    "pv": 80,
+    "initiative": 6,
+    "mods": {"ADC": 5},
+    "attaques": [
+      {"nom": "Coup", "portee": "CaC", "toucher": "1d20 +5", "degats": "2d8 +5", "note": "2 coups par tour"}
+    ],
+    "note": "Durée INT + 1d6 tours."
+  },
+  {
+    "id": "animal-magique",
+    "nom": "Animal magique",
+    "famille": "Invocations",
+    "archetype": "Prédateur",
+    "taille": "standard",
+    "description": "Animal de taille moyenne aux contours lumineux, invoqué par le druide.",
+    "ca": 14,
+    "pv": 25,
+    "initiative": 14,
+    "mods": {"ADC": 4},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +4", "degats": "2d6"}
+    ],
+    "note": "Durée INT + 1d6 tours."
+  },
+  {
+    "id": "plante-carnivore",
+    "nom": "Plante carnivore",
+    "famille": "Invocations",
+    "archetype": "Gardien",
+    "taille": "tres-grande",
+    "description": "Plante carnivore géante surgie du sol, aux mâchoires végétales garnies d'épines.",
+    "ca": 13,
+    "pv": 60,
+    "initiative": 10,
+    "mods": {"ADC": 5},
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 +5", "degats": "3d6", "note": "allonge 3 m"}
+    ],
+    "note": "Immobile. Durée INT + 1d6 tours."
   },
   {
     "id": "dragon-juvenile",

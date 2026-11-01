@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../models/creature.dart';
 import '../models/effet.dart';
 import '../models/voie.dart';
 import '../regles/fiche_calculee.dart';
+import '../regles/invocations.dart';
 import '../regles/progression.dart';
+import '../screens/bestiaire_screen.dart';
 import 'libelles_sort.dart';
 import 'types_competence.dart';
 
@@ -16,9 +19,14 @@ class LigneCompetence extends StatelessWidget {
     this.attenuee = false,
     this.mention,
     this.action,
+    this.choixFaits,
   });
 
   final Competence competence;
+
+  /// Choix du personnage : seules les invocations de l'option choisie
+  /// (son animal) ont leur bouton « Statistiques » ; `null` : toutes.
+  final Map<String, String>? choixFaits;
 
   /// Pastille remplie (compétence obtenue).
   final bool acquise;
@@ -117,6 +125,23 @@ class LigneCompetence extends StatelessWidget {
                 if (c.effets.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   ListeEffets(c.effets, attenue: attenuee),
+                ],
+                // États au choix (formes animales) : leurs effets.
+                for (final e in c.etatsAuChoix)
+                  if (e.effets.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      e.recevable ? '${e.nom} (aussi sur un allié)' : e.nom,
+                      style: theme.textTheme.labelLarge
+                          ?.copyWith(color: couleurTexte ?? scheme.onSurface),
+                    ),
+                    ListeEffets(e.effets, attenue: attenuee),
+                  ],
+                // Créatures invoquées, compagnons : leur fiche.
+                if (invocationsDeCompetence(c, choix: choixFaits)
+                    case final liste when liste.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  BoutonsStatistiques(liste),
                 ],
                 if (mention != null) ...[
                   const SizedBox(height: 2),
@@ -445,6 +470,36 @@ class ListeEffets extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Boutons « Statistiques » des créatures invoquées ou des compagnons : la
+/// fiche du bestiaire s'ouvre en page entière.
+class BoutonsStatistiques extends StatelessWidget {
+  const BoutonsStatistiques(this.creatures, {super.key});
+
+  final List<Creature> creatures;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final x in creatures)
+          ActionChip(
+            key: Key('statistiques-${x.id}'),
+            avatar: const Icon(Icons.pets, size: 18),
+            label: Text(
+              'Statistiques : ${x.nom}',
+              overflow: TextOverflow.ellipsis,
+            ),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => CreatureDetailScreen(creature: x),
+            )),
           ),
       ],
     );

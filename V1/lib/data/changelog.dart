@@ -29,6 +29,37 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.17.0',
+    date: '01/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Invocations et compagnons : bouton « Statistiques » vers leur fiche (PV seuls pour les non-combattants).'
+      ),
+      (
+        type: _a,
+        texte:
+            'Transformations : formes au choix du druide et des élémentaires, avec bonus temporaires et attaques sur la page dé.'
+      ),
+      (
+        type: _a,
+        texte:
+            'Agrandissement : +4 FOR, +4 CON, −2 DEX ; section « Effets reçus » pour les sorts lancés par un allié.'
+      ),
+      (
+        type: _m,
+        texte:
+            'Invocations : durée INT + 1d6 tours, requiem INT + 1d4 morts-vivants, compagnon géant du rôdeur 1d8.'
+      ),
+      (
+        type: _m,
+        texte:
+            "Bestiaire : 51 fiches d'invocations et de compagnons, élémentaire de glace, statistiques du zombie."
+      ),
+    ],
+  ),
+  (
     version: '0.16.0',
     date: '30/10/2026',
     changements: [

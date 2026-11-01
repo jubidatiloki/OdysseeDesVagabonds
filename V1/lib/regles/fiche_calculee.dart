@@ -313,10 +313,6 @@ class FicheCalculee {
         ajouter(o.nom, 'objet équipé', o.effets);
       }
     }
-    // État actif (apparence monstrueuse, rage…) : ses effets comptent. Un
-    // état du même nom obtenu plus tard (rage niveau 2) remplace le
-    // précédent.
-    final etats = <String, (EtatCompetence, String, int)>{};
     for (final c in competencesAcquises) {
       // « RANG » dans une valeur : rang atteint dans la voie (CA + RANG).
       final rang = _rangAtteint(c);
@@ -327,21 +323,59 @@ class FicheCalculee {
           if (e.actifAuRang(rang))
             e.avecRang(rang).avecPrecisions(personnage.precisionsChoix),
       ]);
-      for (final etat in c.competence.etats) {
-        if (personnage.etats.contains(etat.nom)) {
-          etats[etat.nom] = (etat, c.competence.nom, rang);
-        }
-      }
     }
     // Effets d'un état selon le rang de la voie (Bénédiction : +2 avec Lien
     // vital, rang 3).
-    for (final (etat, comp, rang) in etats.values) {
+    for (final (etat, comp, rang) in _etatsActifs) {
       ajouter(etat.nom, '$comp (actif)', [
         for (final e in etat.effets)
           if (e.actifAuRang(rang)) e.avecRang(rang),
       ]);
     }
     return res;
+  }
+
+  /// États actifs (apparence monstrueuse, rage, forme animale…) avec la
+  /// compétence qui les donne et le rang atteint dans sa voie. Un état du
+  /// même nom obtenu plus tard (rage niveau 2) remplace le précédent. Les
+  /// effets reçus d'un autre personnage (Agrandissement) comptent aussi.
+  List<(EtatCompetence, String, int)> get _etatsActifs {
+    final etats = <String, (EtatCompetence, String, int)>{};
+    for (final e in etatsRecus) {
+      if (personnage.etats.contains(e.etat.nom)) {
+        etats[e.etat.nom] = (e.etat, e.competence.nom, e.competence.rang);
+      }
+    }
+    for (final c in competencesAcquises) {
+      for (final etat in c.competence.etats) {
+        if (personnage.etats.contains(etat.nom)) {
+          etats[etat.nom] = (etat, c.competence.nom, _rangAtteint(c));
+        }
+      }
+    }
+    return etats.values.toList();
+  }
+
+  /// États qu'un autre personnage peut donner (Agrandissement,
+  /// Transformation majeure sur une cible consentante) : activables sur
+  /// la fiche, section « Effets reçus » ; sauf ceux que le personnage peut
+  /// activer lui-même.
+  List<({Competence competence, EtatCompetence etat})> get etatsRecus {
+    final propres = {
+      for (final c in competencesAcquises)
+        for (final e in c.competence.etats) e.nom,
+    };
+    final res = <String, ({Competence competence, EtatCompetence etat})>{};
+    for (final v in voiesDesClasses) {
+      for (final c in v.voie.competences) {
+        for (final e in c.etats) {
+          if (e.recevable && !propres.contains(e.nom)) {
+            res[e.nom] ??= (competence: c, etat: e);
+          }
+        }
+      }
+    }
+    return res.values.toList();
   }
 
   /// « Draconien · voie raciale, rang 2 », « Barbare · Voie de la brute,
@@ -1094,6 +1128,10 @@ class FicheCalculee {
     if (op != null) ajouter(op.jets, op.nom, 0);
     for (final c in competencesAcquises) {
       ajouter(c.competence.jets, c.competence.nom, _rangAtteint(c));
+    }
+    // Jets d'un état actif (forme de loup : morsure).
+    for (final (etat, comp, rang) in _etatsActifs) {
+      ajouter(etat.jets, comp, rang);
     }
     final connus = choixConnus;
     JetDisponible convertir(

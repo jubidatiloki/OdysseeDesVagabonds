@@ -5,6 +5,7 @@ import '../../models/equipement.dart';
 import '../../models/historique.dart';
 import '../../models/voie.dart';
 import '../../regles/des.dart';
+import '../../regles/etats.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../regles/inventaire.dart';
 import '../../regles/montee_niveau.dart';
@@ -285,8 +286,45 @@ class OngletFiche extends StatelessWidget {
             ),
           ),
         ),
+      // Effets reçus d'un allié (Agrandissement, forme animale) : à cocher.
+      if (fiche.etatsRecus.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: ExpansionTile(
+              key: const Key('effets-recus'),
+              leading: const Icon(Icons.auto_fix_high_outlined),
+              title: const Text('Effets reçus'),
+              subtitle:
+                  const Text('Sorts lancés sur ce personnage par un allié'),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              expandedAlignment: Alignment.centerLeft,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final e in fiche.etatsRecus)
+                      FilterChip(
+                        key: Key('effet-recu-${e.etat.nom}'),
+                        label: Text('${e.etat.nom} (${e.competence.nom})'),
+                        tooltip: e.etat.effets.map((x) => x.libelle).join('\n'),
+                        selected: p.etats.contains(e.etat.nom),
+                        onSelected: (oui) {
+                          basculerEtat(fiche, e.etat, e.competence.nom,
+                              actif: oui);
+                          onModifie();
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       // États actifs (apparence monstrueuse…) : rappel, annulables ici.
-      for (final e in fiche.etatsPossibles)
+      for (final e in [...fiche.etatsPossibles, ...fiche.etatsRecus])
         if (p.etats.contains(e.etat.nom))
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -436,6 +474,7 @@ class OngletFiche extends StatelessWidget {
         modulable: c.modulable,
         etatsAuChoix: c.etatsAuChoix,
         variantesDegats: c.variantesDegats,
+        invocations: c.invocations,
       );
     }
 
@@ -477,6 +516,7 @@ class OngletFiche extends StatelessWidget {
             competence: affichee(c.competence),
             acquise: true,
             mention: mention(c),
+            choixFaits: fiche.personnage.choix,
           ),
         );
       }

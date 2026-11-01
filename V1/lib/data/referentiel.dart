@@ -9,6 +9,7 @@ import '../models/equipement.dart';
 import '../models/race.dart';
 import '../models/voie.dart';
 import '../regles/fiche_calculee.dart';
+import '../regles/invocations.dart';
 
 /// Données de référence du jeu (races, classes, équipements, bestiaire,
 /// règles), embarquées dans `assets/data/`. Elles changent rarement : pas besoin du cloud.
@@ -156,9 +157,9 @@ class Referentiel {
       equipements: equipementsJson
           .map((e) => Equipement.depuisJson(e as Map<String, dynamic>))
           .toList(),
-      creatures: bestiaireJson
+      creatures: enregistrerCreatures(bestiaireJson
           .map((e) => Creature.depuisJson(e as Map<String, dynamic>))
-          .toList(),
+          .toList()),
       reglesSysteme: regles,
     );
   }

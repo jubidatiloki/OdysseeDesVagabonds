@@ -7,7 +7,7 @@ import 'package:odyssee_vagabonds/models/carac.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/screens/bestiaire_screen.dart';
 
-/// Bestiaire (31/10/2026) : statistiques (CA, PV, initiative, modificateurs,
+/// Bestiaire (31/10/2026, invocations le 01/11/2026) : statistiques (CA, PV, initiative, modificateurs,
 /// attaques) du loup, loup alpha, ours noir et ours-hibou.
 void main() {
   final creatures = {
@@ -112,7 +112,7 @@ void main() {
   });
 
   test('toutes les créatures : statistiques complètes et cohérentes', () {
-    expect(creatures, hasLength(38));
+    expect(creatures, hasLength(90));
     const familles = {
       'Bêtes',
       'Monstres',
@@ -124,17 +124,25 @@ void main() {
       'Géants',
       'Dragons',
       'Morts-vivants',
+      'Invocations',
     };
     for (final c in creatures.values) {
       expect(familles, contains(c.famille), reason: c.id);
       expect(c.description, isNotEmpty, reason: c.id);
-      if (c.id == 'zombie') continue; // statistiques à définir
-      expect((c.ca, c.pv, c.initiative), isNot((null, null, null)),
-          reason: c.id);
-      expect(c.mods, isNotEmpty, reason: c.id);
+      expect(c.pv, isNotNull, reason: c.id);
+      // Compagnons non combattants (bouquetin, familier) : PV seulement.
+      if (c.ca == null) {
+        expect(c.famille, 'Invocations', reason: c.id);
+        expect(c.attaques, isEmpty, reason: c.id);
+        continue;
+      }
+      expect(c.initiative, isNotNull, reason: c.id);
       expect(c.attaques, isNotEmpty, reason: c.id);
       // Toucher = 1d20 + AdC (contact), AdT (distance) ou AdM (magie).
-      for (final a in c.attaques.where((a) => a.toucher.isNotEmpty)) {
+      for (final a in c.attaques.where((a) =>
+          a.toucher.isNotEmpty &&
+          // Compagnons : 1d20 + RANG + AdC du maître (règle validée).
+          !a.toucher.contains('RANG'))) {
         final apt = a.note.contains('magique')
             ? Carac.adm
             : a.portee == 'distance'
@@ -150,7 +158,8 @@ void main() {
     expect(creatures['geant-collines']!.taille, TailleCreature.tresGrande);
     expect(creatures['wyverne']!.famille, 'Dragons');
     expect(creatures.values.where((c) => c.famille == 'Élémentaires'),
-        hasLength(4));
+        hasLength(5));
+    expect(creatures['zombie']!.pv, 15);
   });
 
   testWidgets('fiche : CA · PV · initiative, modificateurs, attaque',

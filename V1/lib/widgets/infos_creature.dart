@@ -35,6 +35,13 @@ import '../theme.dart';
       icone: Icons.auto_awesome,
     );
   }
+  // Invocations et compagnons des personnages : or.
+  if (f.contains('invocation')) {
+    return (
+      couleur: sombre ? OdvCouleurs.or : OdvCouleurs.accentDark,
+      icone: Icons.auto_fix_high_outlined,
+    );
+  }
   // Autres familles : couleur neutre, icône propre.
   final icone = f.contains('monstre')
       ? Icons.pest_control_outlined
@@ -69,6 +76,12 @@ IconData iconeArchetype(String archetype) {
   if (a.contains('sorts')) return Icons.auto_awesome_outlined;
   if (a.contains('gardien')) return Icons.shield_outlined;
   if (a.contains('fouisseur')) return Icons.terrain_outlined;
+  if (a.contains('compagnon')) return Icons.favorite_border;
+  if (a.contains('monture')) return Icons.airline_seat_recline_normal;
+  if (a.contains('familier')) return Icons.visibility_outlined;
+  if (a.contains('soutien')) return Icons.handshake_outlined;
+  if (a.contains('mort-vivant')) return Icons.heart_broken_outlined;
+  if (a.contains('prédateur')) return Icons.pets;
   return Icons.radio_button_unchecked;
 }
 

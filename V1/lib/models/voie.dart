@@ -336,11 +336,20 @@ class EtatCompetence {
     this.effets = const [],
     this.finApresDegats = false,
     this.groupe = '',
+    this.jets = const [],
+    this.recevable = false,
   });
 
   /// États d'un même groupe exclusifs : en activer un annule les autres
   /// (postures du guerrier).
   final String groupe;
+
+  /// Jets proposés tant que l'état est actif (forme de loup : morsure).
+  final List<JetCompetence> jets;
+
+  /// Peut être reçu d'un autre personnage (Agrandissement lancé sur un
+  /// allié) : activable sur toutes les fiches, section « Effets reçus ».
+  final bool recevable;
 
   final String nom;
   final List<Effet> effets;
@@ -355,6 +364,8 @@ class EtatCompetence {
       effets: Effet.listeDepuisJson(j['effets']),
       finApresDegats: j['finApresDegats'] == true,
       groupe: j['groupe'] as String? ?? '',
+      jets: JetCompetence.listeDepuisJson(j['jets']),
+      recevable: j['recevable'] == true,
     );
   }
 }
@@ -562,7 +573,12 @@ class Competence {
     this.modulable = false,
     this.etatsAuChoix = const [],
     this.variantesDegats = const [],
+    this.invocations = const [],
   });
+
+  /// Fiches du bestiaire (ids) des créatures invoquées ou des compagnons
+  /// donnés (diablotin, animal de compagnie) : bouton « Statistiques ».
+  final List<String> invocations;
 
   /// États activables au choix, en plus de [etat] (Bénédiction : arme,
   /// armure ou personne) ; lancer le sort n'en active aucun.
@@ -606,6 +622,7 @@ class Competence {
         modulable: modulable,
         etatsAuChoix: etatsAuChoix,
         variantesDegats: variantesDegats,
+        invocations: invocations,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -749,6 +766,7 @@ class Competence {
       modulable: modulable,
       etatsAuChoix: etatsAuChoix,
       variantesDegats: variantesDegats,
+      invocations: invocations,
     );
   }
 
@@ -797,6 +815,9 @@ class Competence {
             if (TypeSort.depuisCode('$t') case final x?) x,
         ],
         modulable: j['modulable'] == true,
+        invocations: [
+          for (final i in j['invocations'] as List<dynamic>? ?? const []) '$i',
+        ],
       );
 
   static Map<String, VarianteCompetence> _variantes(Object? j) => {
