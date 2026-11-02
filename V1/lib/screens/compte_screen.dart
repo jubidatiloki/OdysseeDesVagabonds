@@ -443,7 +443,8 @@ class _SynchronisationState extends State<_Synchronisation> {
             onChanged: (v) => c.regler(aChaqueLancer: v),
             title: const Text('À chaque lancer de dé (personnage actif)'),
             subtitle: const Text('Le lancer est noté dans l\'historique de '
-                'la fiche, puis tout ce qui attendait est envoyé.'),
+                'la fiche (100 derniers lancers gardés), puis tout ce qui attendait '
+                'est envoyé.'),
           ),
         ] else
           Padding(

@@ -132,6 +132,10 @@ class Personnage {
   /// Nombre maximum de lignes gardées (les plus anciennes sont effacées).
   static const int tailleMaxHistorique = 1000;
 
+  /// Nombre maximum de lancers de dés gardés (les plus anciens sont
+  /// effacés ; les autres lignes ne sont pas touchées).
+  static const int maxLancersHistorique = 100;
+
   /// Délai pendant lequel des actions identiques sont regroupées.
   static const Duration delaiFusion = Duration(minutes: 1);
 
@@ -205,6 +209,20 @@ class Personnage {
 
   void _ajouter(EvenementHistorique e) {
     historique.add(e);
+    if (e.categorie == CategorieHistorique.des) {
+      var lancers = historique
+          .where((x) => x.categorie == CategorieHistorique.des)
+          .length;
+      for (var i = 0;
+          lancers > maxLancersHistorique && i < historique.length;) {
+        if (historique[i].categorie == CategorieHistorique.des) {
+          historique.removeAt(i);
+          lancers--;
+        } else {
+          i++;
+        }
+      }
+    }
     final surplus = historique.length - tailleMaxHistorique;
     if (surplus > 0) historique.removeRange(0, surplus);
   }

@@ -106,6 +106,24 @@ void main() {
     expect(p.historique.first.message, 'Ligne 5');
   });
 
+  test('100 lancers de dés gardés au plus, les autres lignes restent', () {
+    final p = _perso()
+      ..journaliser('Objet ajouté : Corde',
+          categorie: CategorieHistorique.inventaire, maintenant: t0);
+    for (var i = 0; i < 105; i++) {
+      p.journaliser('Lancer · $i',
+          categorie: CategorieHistorique.des, maintenant: t0);
+    }
+    final lancers =
+        p.historique.where((e) => e.categorie == CategorieHistorique.des);
+    expect(lancers, hasLength(Personnage.maxLancersHistorique));
+    expect(lancers.first.message, 'Lancer · 5');
+    expect(lancers.last.message, 'Lancer · 104');
+    // La ligne plus ancienne, d'une autre catégorie, est gardée.
+    expect(p.historique.first.message, 'Objet ajouté : Corde');
+    expect(p.historique, hasLength(101));
+  });
+
   test('l\'historique survit à un aller-retour JSON', () {
     final p = _perso()
       ..journaliser(

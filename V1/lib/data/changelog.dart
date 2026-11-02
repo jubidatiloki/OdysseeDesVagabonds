@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.19.1',
+    date: '02/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte:
+            'Historique : 100 lancers de dés gardés au plus par personnage (les plus anciens sont effacés).'
+      ),
+    ],
+  ),
+  (
     version: '0.19.0',
     date: '02/11/2026',
     changements: [
