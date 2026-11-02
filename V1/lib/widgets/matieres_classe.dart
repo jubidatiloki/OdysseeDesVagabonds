@@ -40,6 +40,11 @@ Offset cibleGuerrier(Size s) => Offset(s.width * 0.56, s.height / 2);
 double rayonCibleGuerrier(Size s) => math.min(s.height * 0.3, 26);
 double epeesGuerrier(Size s) => s.width * 0.76;
 
+/// La classe a-t-elle un effet animé ? Pas le guerrier sur téléphone
+/// ([compact]) : ses flèches et ses épées sont retirées.
+bool aEffetAnime(String classeId, {bool compact = false}) =>
+    !(compact && classeId == 'guerrier');
+
 /// Instant montré quand les effets ne sont pas animés.
 const double kInstantFige = 0.35;
 
@@ -293,8 +298,9 @@ void dessinerMatiere(
   Size size,
   String classeId,
   Color couleur,
-  bool sombre,
-) {
+  bool sombre, {
+  bool compact = false,
+}) {
   final o = _Outils(canvas, size, couleur, sombre, classeId.length * 7919);
   final w = o.w;
   final h = o.h;
@@ -414,19 +420,23 @@ void dessinerMatiere(
             ).createShader(Rect.fromCircle(center: c, radius: r)),
         );
       }
-      final cible = cibleGuerrier(size);
-      final rc = rayonCibleGuerrier(size);
-      canvas.drawCircle(cible, rc + 2, o.plein(const Color(0xFF6B5232)));
-      for (var k = 0; k < 4; k++) {
-        canvas.drawCircle(
-          cible,
-          rc * (1 - k / 4),
-          o.plein(k.isEven
-              ? const Color(0xFFE8DCC4).withValues(alpha: sombre ? 0.75 : 0.95)
-              : const Color(0xFFB0413A).withValues(alpha: 0.85)),
-        );
+      // Téléphone : pas de cible (elle cacherait les infos).
+      if (!compact) {
+        final cible = cibleGuerrier(size);
+        final rc = rayonCibleGuerrier(size);
+        canvas.drawCircle(cible, rc + 2, o.plein(const Color(0xFF6B5232)));
+        for (var k = 0; k < 4; k++) {
+          canvas.drawCircle(
+            cible,
+            rc * (1 - k / 4),
+            o.plein(k.isEven
+                ? const Color(0xFFE8DCC4)
+                    .withValues(alpha: sombre ? 0.75 : 0.95)
+                : const Color(0xFFB0413A).withValues(alpha: 0.85)),
+          );
+        }
+        canvas.drawCircle(cible, rc * 0.12, o.plein(const Color(0xFFD4A24C)));
       }
-      canvas.drawCircle(cible, rc * 0.12, o.plein(const Color(0xFFD4A24C)));
       for (final c in [
         const Offset(10, 10),
         Offset(w - 10, 10),
@@ -594,12 +604,16 @@ class PeintreEffet extends CustomPainter {
     required this.classeId,
     required this.couleur,
     required this.sombre,
+    this.compact = false,
     this.horloge,
   }) : super(repaint: horloge);
 
   final String classeId;
   final Color couleur;
   final bool sombre;
+
+  /// Écran étroit (téléphone) : effet allégé (guerrier : aucun).
+  final bool compact;
 
   /// Avancement de l'animation (0 → 1, en boucle) ; `null` : figé.
   final Animation<double>? horloge;
@@ -697,6 +711,8 @@ class PeintreEffet extends CustomPainter {
           );
         }
       case 'guerrier':
+        // Téléphone : ni flèches ni épées (elles cacheraient les infos).
+        if (compact) break;
         // D'un côté, trois flèches tirées se plantent dans la cible ; de
         // l'autre, deux épées se lèvent et se croisent (étincelles).
         final cible = cibleGuerrier(size);
@@ -954,5 +970,6 @@ class PeintreEffet extends CustomPainter {
       old.classeId != classeId ||
       old.couleur != couleur ||
       old.sombre != sombre ||
+      old.compact != compact ||
       old.horloge != horloge;
 }

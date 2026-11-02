@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.17.1',
+    date: '02/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte:
+            'Téléphone : la cible, les flèches et les épées du cadre guerrier sont retirées (elles cachaient les infos).'
+      ),
+    ],
+  ),
+  (
     version: '0.17.0',
     date: '01/11/2026',
     changements: [

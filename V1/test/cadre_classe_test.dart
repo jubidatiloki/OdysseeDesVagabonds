@@ -116,4 +116,45 @@ void testsAnimations() {
 
     await tester.pumpWidget(const SizedBox());
   });
+
+  testWidgets('guerrier sur téléphone : ni cible, ni flèches, ni épées',
+      (tester) async {
+    CadreClasse.animationsAutorisees = true;
+    addTearDown(() => CadreClasse.animationsAutorisees = false);
+    Future<void> afficher(double largeur) => tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(size: Size(largeur, 800)),
+            child: const MaterialApp(
+              home: Scaffold(
+                body: CadreClasse(
+                  classeId: 'guerrier',
+                  child: SizedBox(height: 80),
+                ),
+              ),
+            ),
+          ),
+        );
+
+    // Grand écran : flèches et épées animées.
+    await afficher(1000);
+    expect(_horloge(tester, 'guerrier')?.isAnimating, isTrue);
+    expect(
+        tester
+            .widget<CustomPaint>(find.byKey(const Key('effet-classe-guerrier')))
+            .painter,
+        isA<PeintreEffet>().having((p) => p.compact, 'compact', isFalse));
+    // Téléphone : plus d'effet animé, seul le filigrane reste.
+    await afficher(380);
+    expect(_horloge(tester, 'guerrier'), isNull);
+    expect(
+        tester
+            .widget<CustomPaint>(find.byKey(const Key('effet-classe-guerrier')))
+            .painter,
+        isA<PeintreEffet>().having((p) => p.compact, 'compact', isTrue));
+    expect(aEffetAnime('guerrier', compact: true), isFalse);
+    // Les autres classes gardent leur effet sur téléphone.
+    expect(aEffetAnime('druide', compact: true), isTrue);
+
+    await tester.pumpWidget(const SizedBox());
+  });
 }

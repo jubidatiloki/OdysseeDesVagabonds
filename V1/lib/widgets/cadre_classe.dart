@@ -194,6 +194,12 @@ class CadreClasse extends StatefulWidget {
   /// empêcherait `pumpAndSettle` de se terminer).
   static bool animationsAutorisees = true;
 
+  /// Écran étroit (téléphone, moins de 600 px) : décor allégé là où il
+  /// cacherait les infos (guerrier : cible, flèches et épées retirées, seul
+  /// le filigrane du coin en bas à droite reste).
+  static bool estCompact(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < 600;
+
   /// Durée d'un cycle d'effet.
   static const Duration cycle = Duration(seconds: 8);
 
@@ -241,6 +247,7 @@ class _CadreClasseState extends State<CadreClasse>
   bool get _animer =>
       CadreClasse.animationsAutorisees &&
       StyleClasse.de(widget.classeId) != null &&
+      aEffetAnime(widget.classeId!, compact: CadreClasse.estCompact(context)) &&
       AnimationsCadres.de(context) &&
       !MediaQuery.of(context).disableAnimations;
 
@@ -266,6 +273,7 @@ class _CadreClasseState extends State<CadreClasse>
     final sombre = theme.brightness == Brightness.dark;
     final couleur = style.couleurPour(theme.brightness);
     final voile = sombre ? OdvCouleurs.fond : OdvCouleurs.parchemin;
+    final compact = CadreClasse.estCompact(context);
     final rayon = BorderRadius.circular(16);
     return DecoratedBox(
       key: Key('cadre-classe-$classeId'),
@@ -294,6 +302,7 @@ class _CadreClasseState extends State<CadreClasse>
                     couleur: couleur,
                     sombre: sombre,
                     selectionnee: widget.selectionnee,
+                    compact: compact,
                   ),
                 ),
               ),
@@ -327,6 +336,7 @@ class _CadreClasseState extends State<CadreClasse>
                           classeId: classeId,
                           couleur: couleur,
                           sombre: sombre,
+                          compact: compact,
                           horloge: _horloge,
                         ),
                       ),
@@ -511,6 +521,7 @@ class _PeintreCadre extends CustomPainter {
     required this.couleur,
     required this.sombre,
     required this.selectionnee,
+    this.compact = false,
   });
 
   final String classeId;
@@ -518,6 +529,7 @@ class _PeintreCadre extends CustomPainter {
   final Color couleur;
   final bool sombre;
   final bool selectionnee;
+  final bool compact;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -556,7 +568,7 @@ class _PeintreCadre extends CustomPainter {
     canvas.clipPath(forme);
     canvas.saveLayer(
         rect, Paint()..color = Colors.black.withValues(alpha: 0.6));
-    dessinerMatiere(canvas, size, classeId, couleur, sombre);
+    dessinerMatiere(canvas, size, classeId, couleur, sombre, compact: compact);
     canvas.restore();
     canvas.restore();
 
@@ -717,6 +729,7 @@ class _PeintreCadre extends CustomPainter {
       old.couleur != couleur ||
       old.sombre != sombre ||
       old.selectionnee != selectionnee ||
+      old.compact != compact ||
       old.style != style ||
       old.classeId != classeId;
 }
