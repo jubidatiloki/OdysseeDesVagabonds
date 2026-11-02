@@ -281,7 +281,7 @@ class _DeScreenState extends State<DeScreen> {
         '${r.echecCritique ? ' · échec critique' : ''}',
         categorie: CategorieHistorique.des,
       );
-      widget.personnages?.sauvegarder(p);
+      widget.personnages?.sauvegarder(p, lancer: true);
     }
     return r;
   }

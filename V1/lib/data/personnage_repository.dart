@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import '../models/personnage.dart';
 
@@ -61,6 +62,14 @@ class EnMemoireDepotEnLigne extends EnMemoirePersonnageRepository
 
   Future<void> _prevenir() async => _flux.add(await tous());
 
+  /// Copie (comme Firestore : la fiche en ligne n'est pas l'objet de l'app).
+  static Personnage _copie(Personnage p) => Personnage.depuisJson(
+      jsonDecode(jsonEncode(p.versJson())) as Map<String, dynamic>);
+
+  @override
+  Future<List<Personnage>> tous() async =>
+      [for (final p in _donnees.values) _copie(p)];
+
   @override
   Stream<List<Personnage>> ecouter() async* {
     yield await tous();
@@ -70,7 +79,8 @@ class EnMemoireDepotEnLigne extends EnMemoirePersonnageRepository
   @override
   Future<void> sauvegarder(Personnage personnage) async {
     if (enPanne) throw StateError('réseau coupé');
-    await super.sauvegarder(personnage);
+    personnage.modifieLe = DateTime.now();
+    _donnees[personnage.id] = _copie(personnage);
     await _prevenir();
   }
 
@@ -84,7 +94,7 @@ class EnMemoireDepotEnLigne extends EnMemoirePersonnageRepository
   Future<void> importer(List<Personnage> personnages) async {
     if (enPanne) throw StateError('réseau coupé');
     for (final p in personnages) {
-      _donnees[p.id] = p;
+      _donnees[p.id] = _copie(p);
     }
     await _prevenir();
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../data/compte.dart';
+import '../data/depot_differe.dart';
 import '../data/personnage_repository.dart';
 import 'personnages_controller.dart';
 
@@ -16,6 +17,10 @@ enum EtatSynchro {
 
   /// Connecté : fiches en ligne, à jour sur tous les appareils.
   synchronise('Synchronisé'),
+
+  /// Connecté, des modifications attendent d'être envoyées (sauvegarde
+  /// au lancer de dé ou manuelle).
+  enAttente('Modifications en attente'),
 
   /// Connecté, mais des fiches de l'appareil n'ont pas pu être envoyées.
   erreur('Erreur de synchronisation');
@@ -35,7 +40,8 @@ class CompteController extends ChangeNotifier {
     required this.personnages,
     required this.local,
     required this.depotEnLigne,
-  });
+    StockageCompte? stockage,
+  }) : stockage = stockage ?? StockageCompteMemoire();
 
   /// Sans compte possible (Windows, tests) : tout reste sur l'appareil.
   factory CompteController.horsLigne(PersonnagesController personnages) =>
@@ -55,14 +61,46 @@ class CompteController extends ChangeNotifier {
   /// Stockage en ligne d'un compte (uid).
   final DepotEnLigne Function(String uid) depotEnLigne;
 
+  /// Réglages gardés sur l'appareil (méthode de sauvegarde, date).
+  final StockageCompte stockage;
+
   Utilisateur? _utilisateur;
   EtatSynchro _etat = EtatSynchro.surAppareil;
   String? _message;
-  DepotEnLigne? _depot;
+  DepotDiffere? _depot;
+
+  // Méthode de sauvegarde (par défaut : automatique, à chaque modification
+  // et à chaque lancer de dé).
+  bool _automatique = true;
+  bool _aChaqueModification = true;
+  bool _aChaqueLancer = true;
+  DateTime? _derniereSynchro;
+
+  /// Sauvegarde automatique (sinon : manuelle, bouton « Synchroniser
+  /// maintenant »).
+  bool get automatique => _automatique;
+
+  /// Automatique : envoi à chaque modification d'un personnage.
+  bool get aChaqueModification => _aChaqueModification;
+
+  /// Automatique : envoi à chaque lancer de dé du personnage actif (le
+  /// lancer est noté dans l'historique de la fiche).
+  bool get aChaqueLancer => _aChaqueLancer;
+
+  /// Dernier envoi réussi vers le compte ; `null` : jamais.
+  DateTime? get derniereSynchro => _derniereSynchro;
+
+  /// Modifications pas encore envoyées.
+  int get nbEnAttente => _depot?.nbEnAttente ?? 0;
+
+  /// Les modifications partent-elles tout de suite ?
+  bool get envoiImmediat => _automatique && _aChaqueModification;
   StreamSubscription<Utilisateur?>? _ecoute;
 
   Utilisateur? get utilisateur => _utilisateur;
-  EtatSynchro get etat => _etat;
+  EtatSynchro get etat => _etat == EtatSynchro.synchronise && nbEnAttente > 0
+      ? EtatSynchro.enAttente
+      : _etat;
   bool get connecte => _utilisateur != null;
 
   /// Dernier compte rendu (« 3 fiches envoyées », erreur…).
@@ -70,6 +108,13 @@ class CompteController extends ChangeNotifier {
 
   /// Suit les connexions ; un compte déjà connecté est repris aussitôt.
   Future<void> demarrer() async {
+    await _lireReglages();
+    // Lancer de dé du personnage actif : envoi si la méthode le prévoit.
+    personnages.apresLancer = () async {
+      if (_automatique && _aChaqueLancer && nbEnAttente > 0) {
+        await synchroniser();
+      }
+    };
     _ecoute = service.changements.listen(_changement);
     await _changement(service.actuel);
   }
@@ -84,9 +129,18 @@ class CompteController extends ChangeNotifier {
       await personnages.utiliser(local);
       return;
     }
-    _depot = depotEnLigne(u.uid);
+    final depot = DepotDiffere(
+      depotEnLigne(u.uid),
+      envoiImmediat: () => envoiImmediat,
+      stockage: stockage,
+      cle: 'attente.${u.uid}',
+      surEnvoi: _marquerSynchro,
+      surAttente: notifyListeners,
+    );
+    await depot.charger();
+    _depot = depot;
     await envoyerFichesLocales();
-    await personnages.utiliser(_depot!);
+    await personnages.utiliser(depot);
   }
 
   /// Envoie en ligne les fiches restées sur l'appareil (créées sans compte)
@@ -100,6 +154,7 @@ class CompteController extends ChangeNotifier {
     try {
       final n = await envoyer(local, depot);
       _etat = EtatSynchro.synchronise;
+      _marquerSynchro();
       _message = n == 0
           ? null
           : '$n fiche${n > 1 ? 's' : ''} de cet appareil '
@@ -134,6 +189,58 @@ class CompteController extends ChangeNotifier {
       await local.supprimer(p.id);
     }
     return aEnvoyer.length;
+  }
+
+  /// Envoie maintenant les modifications en attente (bouton « Synchroniser
+  /// maintenant », lancer de dé) ; renvoie leur nombre, ou `null` en cas
+  /// d'échec (elles restent en attente).
+  Future<int?> synchroniser() async {
+    final depot = _depot;
+    if (depot == null) return null;
+    try {
+      final n = await depot.envoyer();
+      _etat = EtatSynchro.synchronise;
+      _message = null;
+      notifyListeners();
+      return n;
+    } catch (e) {
+      _message = 'Synchronisation impossible (connexion internet ?) : les '
+          'modifications restent en attente sur cet appareil.';
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Change la méthode de sauvegarde (gardée sur l'appareil). Repasser en
+  /// envoi immédiat envoie ce qui attendait.
+  Future<void> regler({
+    bool? automatique,
+    bool? aChaqueModification,
+    bool? aChaqueLancer,
+  }) async {
+    _automatique = automatique ?? _automatique;
+    _aChaqueModification = aChaqueModification ?? _aChaqueModification;
+    _aChaqueLancer = aChaqueLancer ?? _aChaqueLancer;
+    notifyListeners();
+    await stockage.ecrire('automatique', '$_automatique');
+    await stockage.ecrire('aChaqueModification', '$_aChaqueModification');
+    await stockage.ecrire('aChaqueLancer', '$_aChaqueLancer');
+    if (envoiImmediat && nbEnAttente > 0) await synchroniser();
+  }
+
+  Future<void> _lireReglages() async {
+    Future<bool> oui(String cle) async => (await stockage.lire(cle)) != 'false';
+    _automatique = await oui('automatique');
+    _aChaqueModification = await oui('aChaqueModification');
+    _aChaqueLancer = await oui('aChaqueLancer');
+    _derniereSynchro =
+        DateTime.tryParse(await stockage.lire('derniereSynchro') ?? '');
+  }
+
+  void _marquerSynchro() {
+    _derniereSynchro = DateTime.now();
+    stockage.ecrire('derniereSynchro', _derniereSynchro!.toIso8601String());
+    notifyListeners();
   }
 
   Future<void> connexionEmail(String email, String motDePasse) =>

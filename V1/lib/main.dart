@@ -42,6 +42,7 @@ Future<void> main() async {
         personnages: controller,
         local: local,
         depotEnLigne: FirestorePersonnageRepository.new,
+        stockage: StockageCompteLocal(),
       );
       await compte.demarrer();
     } catch (e) {

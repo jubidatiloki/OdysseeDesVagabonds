@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/personnage.dart';
+import 'compte.dart';
 import 'personnage_repository.dart';
 
 /// Sauvegarde locale : la liste des personnages est stockée en JSON via
@@ -52,5 +53,22 @@ class LocalPersonnageRepository implements PersonnageRepository {
       _cle,
       jsonEncode(liste.map((p) => p.versJson()).toList()),
     );
+  }
+}
+
+/// Réglages du compte sur l'appareil (localStorage sur le web).
+class StockageCompteLocal implements StockageCompte {
+  @override
+  Future<String?> lire(String cle) async =>
+      (await SharedPreferences.getInstance()).getString('odv.compte.$cle');
+
+  @override
+  Future<void> ecrire(String cle, String? valeur) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (valeur == null) {
+      await prefs.remove('odv.compte.$cle');
+    } else {
+      await prefs.setString('odv.compte.$cle', valeur);
+    }
   }
 }

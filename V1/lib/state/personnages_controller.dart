@@ -15,6 +15,10 @@ class PersonnagesController extends ChangeNotifier {
   /// Changements reçus en direct (stockage en ligne : autre appareil).
   StreamSubscription<List<Personnage>>? _ecoute;
 
+  /// Appelé après la sauvegarde d'un lancer de dé (compte : envoi au
+  /// lancer si la méthode de sauvegarde le prévoit).
+  Future<void> Function()? apresLancer;
+
   /// Stockage utilisé (sur l'appareil, ou en ligne avec un compte).
   PersonnageRepository get repository => _repository;
 
@@ -74,8 +78,10 @@ class PersonnagesController extends ChangeNotifier {
     }
   }
 
-  Future<void> sauvegarder(Personnage personnage) async {
+  /// [lancer] : sauvegarde après un lancer de dé du personnage actif.
+  Future<void> sauvegarder(Personnage personnage, {bool lancer = false}) async {
     await _repository.sauvegarder(personnage);
+    if (lancer) await apresLancer?.call();
     final i = _personnages.indexWhere((p) => p.id == personnage.id);
     if (i >= 0) {
       _personnages[i] = personnage;

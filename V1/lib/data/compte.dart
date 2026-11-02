@@ -77,3 +77,29 @@ class AucunCompte implements ServiceCompte {
   @override
   Future<void> supprimerCompte() async {}
 }
+
+/// Réglages et données du compte gardés sur l'appareil (méthode de
+/// sauvegarde, date de synchronisation, modifications en attente), par clé.
+abstract class StockageCompte {
+  Future<String?> lire(String cle);
+
+  /// `null` : efface la clé.
+  Future<void> ecrire(String cle, String? valeur);
+}
+
+/// En mémoire (tests).
+class StockageCompteMemoire implements StockageCompte {
+  final Map<String, String> valeurs = {};
+
+  @override
+  Future<String?> lire(String cle) async => valeurs[cle];
+
+  @override
+  Future<void> ecrire(String cle, String? valeur) async {
+    if (valeur == null) {
+      valeurs.remove(cle);
+    } else {
+      valeurs[cle] = valeur;
+    }
+  }
+}

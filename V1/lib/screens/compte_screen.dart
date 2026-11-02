@@ -37,9 +37,10 @@ class CompteScreen extends StatelessWidget {
                         'personnages restent sur cet appareil.'),
                   ],
                 )
-              else if (compte.connecte)
-                _Connecte(compte: compte)
-              else
+              else if (compte.connecte) ...[
+                _Synchronisation(compte: compte),
+                _Connecte(compte: compte),
+              ] else
                 _Connexion(compte: compte),
             ],
           ),
@@ -89,6 +90,7 @@ IconData iconeSynchro(EtatSynchro e) => switch (e) {
       EtatSynchro.surAppareil => Icons.phone_android_outlined,
       EtatSynchro.envoi => Icons.cloud_sync_outlined,
       EtatSynchro.synchronise => Icons.cloud_done_outlined,
+      EtatSynchro.enAttente => Icons.cloud_upload_outlined,
       EtatSynchro.erreur => Icons.cloud_off_outlined,
     };
 
@@ -340,6 +342,133 @@ class _Connecte extends StatelessWidget {
           'du compte : reconnecte-toi pour les retrouver.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
+      ],
+    );
+  }
+}
+
+/// « 02/11/2026 à 19:42 ».
+String dateHeure(DateTime d) {
+  String deux(int n) => n.toString().padLeft(2, '0');
+  return '${deux(d.day)}/${deux(d.month)}/${d.year} à '
+      '${deux(d.hour)}:${deux(d.minute)}';
+}
+
+/// Synchronisation : date du dernier envoi, méthode de sauvegarde
+/// (automatique : à chaque modification et / ou à chaque lancer de dé ;
+/// manuelle), bouton « Synchroniser maintenant ».
+class _Synchronisation extends StatefulWidget {
+  const _Synchronisation({required this.compte});
+
+  final CompteController compte;
+
+  @override
+  State<_Synchronisation> createState() => _SynchronisationState();
+}
+
+class _SynchronisationState extends State<_Synchronisation> {
+  bool _envoi = false;
+
+  Future<void> _synchroniser() async {
+    setState(() => _envoi = true);
+    final n = await widget.compte.synchroniser();
+    if (!mounted) return;
+    setState(() => _envoi = false);
+    if (n == null) return; // message d'erreur dans la carte d'état
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(n == 0
+          ? 'Tout est déjà à jour.'
+          : '$n modification${n > 1 ? 's' : ''} envoyée${n > 1 ? 's' : ''}.'),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final c = widget.compte;
+    final derniere = c.derniereSynchro;
+    final attente = c.nbEnAttente;
+    return BlocConsultation(
+      titre: 'Synchronisation',
+      icone: Icons.sync,
+      children: [
+        Text(
+          derniere == null
+              ? 'Dernière synchronisation : jamais'
+              : 'Dernière synchronisation : ${dateHeure(derniere)}',
+          key: const Key('derniere-synchro'),
+          style: theme.textTheme.titleSmall,
+        ),
+        if (attente > 0)
+          Text(
+            '$attente modification${attente > 1 ? 's' : ''} en attente '
+            'sur cet appareil',
+            key: const Key('modifications-en-attente'),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.primary),
+          ),
+        const SizedBox(height: 16),
+        Text('Méthode de sauvegarde', style: theme.textTheme.titleSmall),
+        const SizedBox(height: 8),
+        SegmentedButton<bool>(
+          key: const Key('methode-sauvegarde'),
+          segments: const [
+            ButtonSegment(
+              value: true,
+              icon: Icon(Icons.autorenew),
+              label: Text('Automatique'),
+            ),
+            ButtonSegment(
+              value: false,
+              icon: Icon(Icons.touch_app_outlined),
+              label: Text('Manuelle'),
+            ),
+          ],
+          selected: {c.automatique},
+          onSelectionChanged: (s) => c.regler(automatique: s.first),
+        ),
+        if (c.automatique) ...[
+          CheckboxListTile(
+            key: const Key('sauvegarde-modification'),
+            contentPadding: EdgeInsets.zero,
+            value: c.aChaqueModification,
+            onChanged: (v) => c.regler(aChaqueModification: v),
+            title: const Text('À chaque modification de personnage'),
+            subtitle: const Text('Les changements partent aussitôt.'),
+          ),
+          CheckboxListTile(
+            key: const Key('sauvegarde-lancer'),
+            contentPadding: EdgeInsets.zero,
+            value: c.aChaqueLancer,
+            onChanged: (v) => c.regler(aChaqueLancer: v),
+            title: const Text('À chaque lancer de dé (personnage actif)'),
+            subtitle: const Text('Le lancer est noté dans l\'historique de '
+                'la fiche, puis tout ce qui attendait est envoyé.'),
+          ),
+        ] else
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'Les modifications restent sur cet appareil jusqu\'à ce que tu '
+              'touches « Synchroniser maintenant ».',
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        if (!c.envoiImmediat || attente > 0) ...[
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            key: const Key('synchroniser-maintenant'),
+            icon: _envoi
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.cloud_upload_outlined),
+            label: const Text('Synchroniser maintenant'),
+            onPressed: _envoi ? null : _synchroniser,
+          ),
+        ],
       ],
     );
   }

@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.19.0',
+    date: '02/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Compte : bloc Synchronisation avec la date de la dernière synchronisation.'
+      ),
+      (
+        type: _a,
+        texte:
+            'Méthode de sauvegarde : automatique (à chaque modification, à chaque lancer de dé) ou manuelle.'
+      ),
+      (
+        type: _a,
+        texte:
+            "Modifications en attente gardées sur l'appareil, envoyées par « Synchroniser maintenant »."
+      ),
+    ],
+  ),
+  (
     version: '0.18.0',
     date: '02/11/2026',
     changements: [
