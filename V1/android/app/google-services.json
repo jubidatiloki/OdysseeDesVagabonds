@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "664803135219",
+    "project_id": "odyssee-vagabonds",
+    "storage_bucket": "odyssee-vagabonds.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:664803135219:android:b72ad536dae72a998bb186",
+        "android_client_info": {
+          "package_name": "com.odysseevagabonds.odyssee_vagabonds"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "664803135219-shkb837lsb6gicac21lqksjgvu2m1jf6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.odysseevagabonds.odyssee_vagabonds",
+            "certificate_hash": "8902128f0c12307d0d3201922d856b10f52d2594"
+          }
+        },
+        {
+          "client_id": "664803135219-80htuvl9vtclun0eo4i228sip54kpsad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1p-gLLdldb-U9Rq2ax_ReU_S7R4fQQdA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "664803135219-80htuvl9vtclun0eo4i228sip54kpsad.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

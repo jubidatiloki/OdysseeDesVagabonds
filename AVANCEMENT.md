@@ -40,7 +40,7 @@
 | Préférences | `PreferencesController` + shared_preferences (clé `odv.preferences.theme`) | Thème système / clair / sombre conservé d'un lancement à l'autre |
 | Données de référence | JSON embarqués (`V1/assets/data/`) : races, classes, aptitudes, équipements, bestiaire ; règles en Markdown (`regles_systeme.md`) | Changent rarement, pas besoin du réseau. Pour ajouter une arme ou une créature : compléter le JSON |
 | Règles de calcul | Toutes dans `lib/regles/fiche_calculee.dart` | Un seul fichier à modifier quand les règles évoluent |
-| Sauvegarde en ligne (phase 2) | **Firebase** (Auth + Firestore) | Cache hors-ligne intégré, connexion anonyme puis liaison de compte, offre gratuite suffisante |
+| Sauvegarde en ligne (phase 2) | **Firebase** (Auth + Firestore) | Cache hors-ligne intégré, offre gratuite suffisante ; projet `odyssee-vagabonds` (02/11/2026) : e-mail + Google, sans compte = fiches sur l'appareil (envoyées à la création du compte), collection `personnages` avec `proprietaire` / `partageAvec` (prépare le jeu à plusieurs) ; Android et web seulement |
 | Langue | Interface en français (`flutter_localizations`) | — |
 | Fichiers (import / export) | Paquet `file_picker` (^10) + secours copier-coller du texte | Fonctionne sur web, Android, iOS et ordinateur ; le copier-coller marche même si l'accès aux fichiers échoue |
 | Lancement web (dev) | `flutter run -d web-server --web-port=8080` (via `lancer_web.bat`), toujours sur **http://localhost:8080** dans le même navigateur | Sur le web, la sauvegarde locale est liée au navigateur et à l'adresse : une adresse fixe la conserve d'un lancement à l'autre |
@@ -242,29 +242,32 @@ Tailles de créatures : celles des règles (§3.5), « moyenne » renommée **St
 Objectif : retrouver ses personnages sur tous ses appareils, avec un compte.
 
 ### 2.1 Mise en place Firebase
-- [ ] Créer le projet sur la console Firebase (plan gratuit Spark)
-- [ ] Installer la CLI Firebase + `dart pub global activate flutterfire_cli`
-- [ ] `flutterfire configure` (génère `lib/firebase_options.dart`)
-- [ ] Ajouter `firebase_core`, `firebase_auth`, `cloud_firestore` ; `Firebase.initializeApp()` dans `main.dart`
+- [x] Créer le projet sur la console Firebase (plan gratuit Spark) : **`odyssee-vagabonds`** (02/11/2026), base Firestore `(default)`
+- [x] CLI Firebase (`npm install -g firebase-tools`, connexion `firebase login` faite par l'utilisateur) + `dart pub global activate flutterfire_cli`
+- [x] `flutterfire configure --platforms=android,web` → `lib/firebase_options.dart`, `android/app/google-services.json`, `firebase.json` ; empreintes SHA-1 / SHA-256 de la clé de débogage (qui signe l'APK) enregistrées
+- [x] `firebase_core`, `firebase_auth`, `cloud_firestore` ; `Firebase.initializeApp()` dans `main.dart` (Android et web seulement ; Windows : sans compte). Kotlin passé en 2.3.0 (`compilerOptions`) pour firebase-auth
 
 ### 2.2 Authentification
-- [ ] Connexion anonyme automatique au premier lancement (on peut jouer sans compte)
-- [ ] Création de compte e-mail / mot de passe + « mot de passe oublié »
-- [ ] Connexion Google (et Apple, obligatoire sur iOS si Google est proposé)
-- [ ] **Liaison** du compte anonyme vers un vrai compte (les personnages sont conservés)
-- [ ] Écran Profil / Paramètres : connexion, déconnexion, suppression du compte (obligatoire pour les stores)
+- [x] **Sans compte** (décision du 02/11/2026, à la place de la connexion anonyme) : fiches sur l'appareil comme en V1 ; compte créé plus tard → elles sont envoyées
+- [x] Création de compte e-mail / mot de passe + « mot de passe oublié »
+- [x] Connexion Google (web : fenêtre ; Android : `signInWithProvider`). Apple : seulement si une version iOS est faite
+- [x] Fiches de l'appareil **envoyées à la connexion** (la plus récente gagne), puis retirées de l'appareil
+- [x] Page **Compte** (menu) : connexion, création, oubli, Google, déconnexion, suppression du compte (fiches recopiées sur l'appareil d'abord)
+- [ ] 🧪 À vérifier par l'utilisateur : connexion e-mail et Google sur le web et le téléphone (modes de connexion activés dans la console)
 
 ### 2.3 Stockage Firestore
-- [ ] Structure : `utilisateurs/{uid}/personnages/{personnageId}` (un document = une fiche, même JSON que `versJson()`)
-- [ ] `FirestorePersonnageRepository` implémentant `PersonnageRepository`
-- [ ] Activer la persistance hors-ligne (mobile par défaut, à configurer sur le web)
-- [ ] Règles de sécurité : chaque utilisateur ne lit et n'écrit que ses propres documents ; tests avec l'émulateur Firebase
+- [x] Structure (validée le 02/11/2026, prépare le jeu à plusieurs) : collection **`personnages/{id}`** avec `proprietaire` (uid), `partageAvec` (uids, vide pour l'instant), `nom`, `modifieLe`, `schema` et `fiche` (JSON de `versJson()` en texte)
+- [x] `FirestorePersonnageRepository` (`DepotEnLigne` : `ecouter`, `importer`, `toutSupprimer`)
+- [x] Persistance hors-ligne : celle de Firestore par défaut (Android ; web : à revoir si besoin)
+- [x] Règles de sécurité (`V1/firestore.rules`, déployées) : lecture par le propriétaire ou `partageAvec`, écriture par le propriétaire seul, reste fermé
+- [ ] Tests des règles avec l'émulateur Firebase (Java 17 disponible)
 
 ### 2.4 Synchronisation et migration
-- [ ] Au premier login : envoyer les personnages locaux V1 vers le cloud (sans doublons)
-- [ ] Gestion des conflits : la dernière modification gagne (`modifieLe`), à affiner si besoin
-- [ ] Indicateur de synchronisation (synchronisé / en attente / hors-ligne)
-- [ ] Mise à jour en temps réel quand le personnage change sur un autre appareil
+- [x] À la connexion : envoyer les personnages de l'appareil vers le compte (sans doublons) ; échec → ils restent sur l'appareil, bouton « Réessayer l'envoi »
+- [x] Gestion des conflits : la dernière modification gagne (`modifieLe`), à affiner si besoin
+- [x] Indicateur de synchronisation dans le menu (sur cet appareil / synchronisation / synchronisé / erreur)
+- [x] Mise à jour en temps réel quand le personnage change sur un autre appareil (`snapshots()`)
+- [ ] Partage d'une fiche et parties à plusieurs (`partageAvec`, collection `parties`) : à concevoir
 
 ### 2.5 Mise en ligne
 - [ ] Firebase Hosting pour la version web
@@ -636,6 +639,7 @@ Limites : 1 armure, 1 casque, 2 bijoux, **2 mains** : 1 arme / bouclier à une m
 | 01/11/2026 | **Version 0.17.0** — **Invocations et transformations** (§7.3, proposition validée) : 51 fiches « Invocations » dans `bestiaire.json` (compagnons PV seuls, animaux de combat, compagnons adultes / géants, montures, golem, invocations de sort), élémentaire de glace, zombie complété (90 créatures) ; compétences liées par `invocations` (`classes.json`, `races.json`) → bouton « Statistiques » (`BoutonsStatistiques`, `regles/invocations.dart` : `siChoix`, `remplace`) ; jets de durée INT + 1d6, requiem INT + 1d4, compagnon géant 1d8. Formes au choix (`etats` avec `effets`, `jets`, `groupe`, `recevable`) : druide (minime, mutation, majeure), élémentaires, arbrification en vraie RD ; **Agrandi** (+4 FOR, +4 CON, −2 DEX). « Effets reçus » sur la fiche et la page dé (`FicheCalculee.etatsRecus`, `regles/etats.dart` `basculerEtat`). Charte : décision 57, famille Invocations (or). JSON vérifiés (valides, sans clé en double). Test `invocations_test` (9 cas) + `bestiaire_test` adapté ; analyse OK, 334 tests verts. | Redémarrage complet : fermer et relancer `lancer_web.bat` ; relire les chiffres des fiches |
 | 02/11/2026 | **Version 0.17.1** (correction) — Cadre du **guerrier sur téléphone** (écran < 600 px, `CadreClasse.estCompact`) : cible, flèches et épées croisées retirées (elles cachaient les infos), effet non animé ; restent le fer cabossé, les rivets et le filigrane bouclier + arc du coin en bas à droite (aperçu avant / après montré en image). Charte : décision 58. Test ajouté dans `cadre_classe_test` ; analyse OK, tests verts. | Vérifier sur le téléphone (nouvel APK à construire) |
 | 02/11/2026 | Version 0.17.1 **livrée** : web `livraison/odyssee_vagabonds_web_0.17.1.zip` et Android `livraison/odyssee_vagabonds_0.17.1.apk` (54 Mo) ; **release GitHub v0.17.1** publiée avec les deux fichiers (notes : nouveautés 0.17.1 et 0.17.0, non livrée seule). Aucun changement de code. | Installer l'APK sur le téléphone ; vérifier le cadre guerrier et les invocations |
+| 02/11/2026 | **Version 0.18.0** — **Phase 2 : compte et sauvegarde en ligne (Firebase)**. Projet `odyssee-vagabonds` relié (Android + web : `firebase_options.dart`, `google-services.json`, empreintes de la clé de signature) ; règles Firestore déployées (`V1/firestore.rules`). Code : `data/compte.dart` (`ServiceCompte`, `AucunCompte`), `data/firebase_compte.dart` (e-mail, Google, erreurs en français), `data/firestore_personnage_repository.dart` (collection `personnages`, `proprietaire` / `partageAvec`, fiche en JSON), `state/compte_controller.dart` (envoi des fiches de l'appareil à la connexion, la plus récente gagne, liste en direct, déconnexion, suppression avec copie locale), `PersonnagesController.utiliser`, page **Compte** + état de synchro dans le menu (charte, décision 59). Windows : sans compte. Kotlin 2.3.0 pour firebase-auth. Test `compte_test` (10 cas) ; analyse OK, 345 tests verts ; builds web et APK vérifiés. | Tester la connexion e-mail et Google (web : `lancer_web.bat` ; téléphone : nouvel APK) ; vérifier dans la console Firebase que les modes E-mail et Google sont activés |
 | 31/10/2026 | Version 0.16.0 **livrée** : web `livraison/odyssee_vagabonds_web_0.16.0.zip` (`construire_web.bat`) et Android `livraison/odyssee_vagabonds.apk` (`construire_apk.bat`, 53,7 Mo ; l'APK passe de 0.2.0 à 0.16.0). Aucun changement de code. | Installer l'APK sur le téléphone (remplace l'ancienne version) ; vérifier que les personnages sont conservés |
 | 31/10/2026 | Version 0.16.0 (suite) — **Bestiaire : 28 créatures** validées (inspirées de D&D, calées sur l'échelle existante ; toucher = 1d20 + AdC / AdT / AdM, dégâts dé + FOR, initiative ≈ valeur de DEX) : chien sauvage, sanglier, araignée géante (Bêtes) ; wyverne (Dragons) ; griffon, harpie, manticore, minotaure, bulette, naga (Monstres) ; kobold, gobelin, gobelin archer, gobelin shaman, chef gobelin, gobelours (Gobelinoïdes) ; bandit des chemins, chef bandit, bandit assassin, corsaire (Humanoïdes) ; dryade, nymphe (Fées) ; élémentaires de feu, d'eau, d'air, de terre ; golem de pierre (Créatures artificielles) ; géant des collines (Géants). Effets spéciaux (poison, charme, toile, immunités) en note. Archétypes ajoutés (Furtif, Tireur, Lanceur de sorts, Gardien, Fouisseur) et icônes de familles (charte mise à jour). Gobelin archer : initiative 16 (DEX +3). `bestiaire.json` vérifié (38 créatures, ids uniques). Test de cohérence ajouté, `navigation_test` adapté (5 dragons), analyse OK, 325 tests verts. | Fermer et relancer `lancer_web.bat` ; relire descriptions et chiffres |
 | 31/10/2026 | Version 0.16.0 (suite) — **Règle : initiative = valeur de DEX + bonus d'initiative** (§7) : plus de jet (`FicheCalculee.initiative`, `bonusInitiative` = bonus permanents, `initiativeSituationnelle`) ; pas de limite de DEX liée à l'armure. Fiche : case Initiative = la valeur ; page dé : bouton « Initiative » retiré, « Initiative N » dans le rappel en haut (bonus de situation cochés compris), section « Attaques ». Règles : `regles_systeme.md`, `01_REGLES_GENERALES.md`, `stats.txt`. Tests adaptés (5 fichiers), analyse OK, 324 tests verts. | Redémarrage complet (`R`) |

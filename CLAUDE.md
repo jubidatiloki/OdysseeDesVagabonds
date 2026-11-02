@@ -27,7 +27,8 @@ Application Flutter (mobile Android + web + Windows) de création et de gestion 
 - `models/` : `personnage.dart` (schéma JSON v8, historique), `race.dart`, `classe.dart` (`ProfilClasse`), `voie.dart` (`Competence` avec `effets`), `effet.dart` (effets détaillés : bonus / test / renforcement / maîtrise), `equipement.dart`, `creature.dart`, `carac.dart`, `objet.dart`, `historique.dart`, `aptitude.dart`.
 - `regles/` : **toutes les formules** dans `fiche_calculee.dart` (`FicheCalculee`, bonus d'effets, `ameliorationDe`), `progression.dart`, `montee_niveau.dart`, `regles_particulieres.dart`, `inventaire.dart`, `des.dart`.
 - `data/` : `referentiel.dart` (charge `assets/data/*.json` + `regles_systeme.md`), stockage local `shared_preferences` (`local_personnage_repository.dart`), import/export.
-- `state/` : `PersonnagesController`, `PreferencesController` (thème, sombre par défaut).
+- `state/` : `PersonnagesController` (`utiliser` : stockage appareil ou en ligne), `CompteController` (connexion, envoi des fiches de l'appareil), `PreferencesController` (thème, sombre par défaut).
+- Compte en ligne (phase 2, Firebase `odyssee-vagabonds`, Android + web) : `data/compte.dart`, `data/firebase_compte.dart`, `data/firestore_personnage_repository.dart` (collection `personnages` : `proprietaire`, `partageAvec`, `fiche`), `screens/compte_screen.dart` ; règles dans `V1/firestore.rules` (déployer : `firebase deploy --only firestore:rules`).
 - `widgets/` : `theme.dart` est à la racine de `lib/` (couleurs `OdvCouleurs`, `CarteOdv`, `AvatarPersonnage`, `styleAmbiance`) ; `liste_detail.dart` (liste + détail côte à côte ≥ 900 px), `profil_classe.dart` (profils, jauges à 3 crans), `infos_creature.dart`, `voie_detail.dart` (`LigneCompetence`, `LigneTrait`, `ListeEffets`), `types_competence.dart`, `resume_fiche.dart` (statistiques), `carte_identite.dart`, `menu_lateral.dart`, `consultation.dart`, `markdown_simple.dart`.
 
 ## Pièges connus (tests widget)

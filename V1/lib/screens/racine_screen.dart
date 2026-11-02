@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../data/referentiel.dart';
+import '../state/compte_controller.dart';
 import '../state/personnages_controller.dart';
 import '../state/historique_lancers.dart';
 import '../state/preferences_controller.dart';
 import '../widgets/menu_lateral.dart';
 import 'a_propos_screen.dart';
 import 'accueil_screen.dart';
+import 'compte_screen.dart';
 import 'de_screen.dart';
 import 'glossaire_screen.dart';
 import 'nouveautes_screen.dart';
@@ -21,11 +23,15 @@ class RacineScreen extends StatefulWidget {
     required this.referentiel,
     required this.controller,
     required this.preferences,
+    this.compte,
   });
 
   final Referentiel referentiel;
   final PersonnagesController controller;
   final PreferencesController preferences;
+
+  /// Compte (sauvegarde en ligne) ; `null` : personnages sur l'appareil.
+  final CompteController? compte;
 
   @override
   State<RacineScreen> createState() => _RacineScreenState();
@@ -39,6 +45,10 @@ class _RacineScreenState extends State<RacineScreen> {
 
   /// Historique des lancers de dés, gardé quand on change de page.
   final HistoriqueLancers _lancers = HistoriqueLancers();
+
+  /// Compte : celui reçu, ou « sans compte » (tests, Windows).
+  late final CompteController _compte =
+      widget.compte ?? CompteController.horsLigne(widget.controller);
 
   @override
   void dispose() {
@@ -66,6 +76,7 @@ class _RacineScreenState extends State<RacineScreen> {
       controller: widget.controller,
       onChoisir: (s) => setState(() => _section = s),
       fixe: true,
+      compte: _compte,
     );
     // Menu fixe : les pages n'ont plus de tiroir (ni de bouton ☰).
     final MenuLateral? menu = fixe
@@ -74,6 +85,7 @@ class _RacineScreenState extends State<RacineScreen> {
             courante: _section,
             controller: widget.controller,
             onChoisir: (s) => setState(() => _section = s),
+            compte: _compte,
           );
     final ref = widget.referentiel;
     final Widget page = switch (_section) {
@@ -97,6 +109,7 @@ class _RacineScreenState extends State<RacineScreen> {
           onOnglet: (o) => _ongletGlossaire = o,
         ),
       Section.regles => ReglesScreen(referentiel: ref, menu: menu),
+      Section.compte => CompteScreen(compte: _compte, menu: menu),
       Section.preferences =>
         PreferencesScreen(preferences: widget.preferences, menu: menu),
       Section.nouveautes => NouveautesScreen(menu: menu),

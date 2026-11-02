@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/compte_screen.dart';
+import '../state/compte_controller.dart';
 import '../state/personnages_controller.dart';
 import '../theme.dart';
 import '../version.dart';
@@ -11,6 +13,8 @@ enum Section {
   // Classes, races, équipements et bestiaire, en onglets.
   glossaire('Glossaire', Icons.auto_stories_outlined, Icons.auto_stories),
   regles('Règles système', Icons.menu_book_outlined, Icons.menu_book),
+  // Connexion et sauvegarde en ligne (phase 2).
+  compte('Compte', Icons.account_circle_outlined, Icons.account_circle),
   preferences('Préférences', Icons.settings_outlined, Icons.settings),
   // Journal des versions (changelog).
   nouveautes('Nouveautés', Icons.new_releases_outlined, Icons.new_releases),
@@ -33,10 +37,14 @@ class MenuLateral extends StatelessWidget {
     required this.controller,
     required this.onChoisir,
     this.fixe = false,
+    this.compte,
   });
 
   final Section courante;
   final PersonnagesController controller;
+
+  /// Compte (état de la synchronisation sous le nombre de personnages).
+  final CompteController? compte;
   final ValueChanged<Section> onChoisir;
 
   /// Menu toujours visible à gauche (pas de tiroir à refermer).
@@ -46,7 +54,7 @@ class MenuLateral extends StatelessWidget {
   static const double largeurFixe = 300;
 
   /// Un séparateur est inséré avant ces sections (groupes du menu).
-  static const _debutsDeGroupe = {Section.glossaire, Section.preferences};
+  static const _debutsDeGroupe = {Section.glossaire, Section.compte};
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +88,7 @@ class MenuLateral extends StatelessWidget {
         onChoisir(Section.values[i]);
       },
       children: [
-        _Bandeau(controller: controller),
+        _Bandeau(controller: controller, compte: compte),
         const SizedBox(height: 8),
         for (final s in Section.values) ...[
           if (_debutsDeGroupe.contains(s))
@@ -126,9 +134,10 @@ class MenuLateral extends StatelessWidget {
 /// Bandeau du menu : logo, nom de l'app, nombre de personnages
 /// (carte « compteur » de la charte graphique).
 class _Bandeau extends StatelessWidget {
-  const _Bandeau({required this.controller});
+  const _Bandeau({required this.controller, this.compte});
 
   final PersonnagesController controller;
+  final CompteController? compte;
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +181,28 @@ class _Bandeau extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (compte case final c?)
+                    ListenableBuilder(
+                      listenable: c,
+                      builder: (context, _) => Row(
+                        key: const Key('menu-synchro'),
+                        children: [
+                          Icon(iconeSynchro(c.etat),
+                              size: 16,
+                              color: theme.colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              c.etat.libelle,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),

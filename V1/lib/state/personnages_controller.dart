@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/personnage_repository.dart';
@@ -8,7 +10,39 @@ import '../models/personnage.dart';
 class PersonnagesController extends ChangeNotifier {
   PersonnagesController(this._repository);
 
-  final PersonnageRepository _repository;
+  PersonnageRepository _repository;
+
+  /// Changements reçus en direct (stockage en ligne : autre appareil).
+  StreamSubscription<List<Personnage>>? _ecoute;
+
+  /// Stockage utilisé (sur l'appareil, ou en ligne avec un compte).
+  PersonnageRepository get repository => _repository;
+
+  /// Change de stockage (connexion, déconnexion) et recharge la liste ;
+  /// en ligne, la liste suit ensuite les changements des autres appareils.
+  Future<void> utiliser(PersonnageRepository repository) async {
+    await _ecoute?.cancel();
+    _ecoute = null;
+    _repository = repository;
+    await charger();
+    if (repository is DepotEnLigne) {
+      _ecoute = repository.ecouter().listen((liste) {
+        _personnages = liste;
+        _trier();
+        _erreur = null;
+        notifyListeners();
+      }, onError: (Object e) {
+        _erreur = e;
+        notifyListeners();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ecoute?.cancel();
+    super.dispose();
+  }
 
   List<Personnage> _personnages = [];
   bool _chargement = false;

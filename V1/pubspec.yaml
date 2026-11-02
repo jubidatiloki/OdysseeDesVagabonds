@@ -2,7 +2,7 @@ name: odyssee_vagabonds
 description: "L'odyssée des vagabonds — création et gestion de personnages de jeu de rôle."
 publish_to: 'none'
 
-version: 0.17.1+22
+version: 0.18.0+23
 
 environment:
   sdk: ^3.5.0
@@ -18,6 +18,9 @@ dependencies:
   # Ouvrir / enregistrer des fichiers (import-export de personnages),
   # sur le web, Android, iOS et ordinateur.
   file_picker: ^10.0.0
+  firebase_core: ^5.1.0
+  firebase_auth: ^7.0.1
+  cloud_firestore: ^7.1.0
 
 dev_dependencies:
   flutter_test:

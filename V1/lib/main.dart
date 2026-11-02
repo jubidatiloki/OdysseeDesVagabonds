@@ -1,10 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'data/firebase_compte.dart';
+import 'data/firestore_personnage_repository.dart';
 import 'data/local_personnage_repository.dart';
 import 'data/referentiel.dart';
+import 'firebase_options.dart';
+import 'state/compte_controller.dart';
 import 'state/personnages_controller.dart';
 import 'state/preferences_controller.dart';
+
+/// Compte en ligne possible : téléphone Android et version web (Firebase
+/// n'est pas prévu pour une application Windows distribuée).
+bool get compteEnLignePossible =>
+    kIsWeb || defaultTargetPlatform == TargetPlatform.android;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,9 +23,32 @@ Future<void> main() async {
   // Données de référence (races, classes) embarquées dans l'app.
   final referentiel = await Referentiel.charger();
 
-  // Personnages du joueur, sauvegardés localement sur l'appareil.
-  final controller = PersonnagesController(LocalPersonnageRepository());
+  // Personnages du joueur : sur l'appareil sans compte, en ligne avec un
+  // compte (voir CompteController).
+  final local = LocalPersonnageRepository();
+  final controller = PersonnagesController(local);
   await controller.charger();
+
+  // Compte (Firebase). Sans réseau ou en cas d'erreur : l'app reste
+  // utilisable avec les personnages de l'appareil.
+  CompteController? compte;
+  if (compteEnLignePossible) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      compte = CompteController(
+        service: FirebaseServiceCompte(),
+        personnages: controller,
+        local: local,
+        depotEnLigne: FirestorePersonnageRepository.new,
+      );
+      await compte.demarrer();
+    } catch (e) {
+      debugPrint('Firebase indisponible : $e');
+      compte = null;
+    }
+  }
 
   // Préférences (thème clair / sombre).
   final preferences = await PreferencesController.charger(PreferencesLocales());
@@ -24,6 +58,7 @@ Future<void> main() async {
       referentiel: referentiel,
       controller: controller,
       preferences: preferences,
+      compte: compte,
     ),
   );
 }

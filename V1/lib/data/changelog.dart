@@ -29,6 +29,32 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.18.0',
+    date: '02/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Compte (menu) : connexion par e-mail ou Google, mot de passe oublié, suppression du compte.'
+      ),
+      (
+        type: _a,
+        texte:
+            'Sauvegarde en ligne : personnages retrouvés sur tous tes appareils, mis à jour en direct.',
+      ),
+      (
+        type: _a,
+        texte:
+            "Sans compte, rien ne change ; à la connexion, les fiches de l'appareil sont envoyées sur le compte.",
+      ),
+      (
+        type: _a,
+        texte:
+            'Menu : état de la synchronisation sous le nombre de personnages.'
+      ),
+    ],
+  ),
+  (
     version: '0.17.1',
     date: '02/11/2026',
     changements: [

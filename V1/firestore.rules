@@ -1,0 +1,46 @@
+rules_version = '2';
+
+// Règles de sécurité Firestore — L'odyssée des vagabonds.
+// Collection « personnages » : un document par fiche.
+//   proprietaire : uid du compte qui l'a créée (seul à pouvoir la modifier)
+//   partageAvec  : uids qui peuvent la lire (jeu à plusieurs, plus tard)
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /personnages/{id} {
+      function connecte() {
+        return request.auth != null;
+      }
+      function documentValide() {
+        let d = request.resource.data;
+        return d.proprietaire is string
+          && d.partageAvec is list
+          && d.fiche is string
+          && d.fiche.size() < 900000;
+      }
+
+      // Lecture : le propriétaire, ou un joueur avec qui la fiche est partagée.
+      allow read: if connecte()
+        && (resource.data.proprietaire == request.auth.uid
+            || request.auth.uid in resource.data.partageAvec);
+
+      // Création : seulement à son propre nom.
+      allow create: if connecte()
+        && request.resource.data.proprietaire == request.auth.uid
+        && documentValide();
+
+      // Modification : le propriétaire, sans changer de propriétaire.
+      allow update: if connecte()
+        && resource.data.proprietaire == request.auth.uid
+        && request.resource.data.proprietaire == request.auth.uid
+        && documentValide();
+
+      allow delete: if connecte()
+        && resource.data.proprietaire == request.auth.uid;
+    }
+
+    // Tout le reste est fermé.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
