@@ -489,3 +489,32 @@ class DegatsSeance {
         source: j['source'] as String? ?? '',
       );
 }
+
+/// Présence d'un joueur dans la séance : son application le signale à
+/// intervalles réguliers tant que la séance est ouverte. Sans nouvelle
+/// depuis [delaiAbsence] (app fermée, plus de connexion) : absent.
+class PresenceSeance {
+  const PresenceSeance({required this.vu, this.present = true});
+
+  /// Intervalle entre deux signaux.
+  static const Duration intervalle = Duration(seconds: 45);
+  static const Duration delaiAbsence = Duration(minutes: 2);
+
+  final DateTime vu;
+
+  /// `false` : le joueur a quitté la séance.
+  final bool present;
+
+  bool estLa(DateTime maintenant) =>
+      present && maintenant.difference(vu) < delaiAbsence;
+
+  Map<String, dynamic> versJson() => {
+        'vu': vu.toIso8601String(),
+        'present': present,
+      };
+
+  factory PresenceSeance.depuisJson(Map<String, dynamic> j) => PresenceSeance(
+        vu: DateTime.tryParse('${j['vu']}') ?? DateTime(2026),
+        present: j['present'] as bool? ?? false,
+      );
+}

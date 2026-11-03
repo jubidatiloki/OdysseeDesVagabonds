@@ -42,6 +42,13 @@ class SeanceController extends ChangeNotifier {
         }, onError: (Object _) {}));
     suivre(seance.ecouterEtat(c), (v) => _etat = v);
     suivre(seance.ecouterJets(c, _numero), (v) => _jets = v);
+    suivre(seance.ecouterPresences(c), (v) => _presences = v);
+    // Joueur : signale sa présence ; tous : les absents sont réévalués.
+    _signalerPresence(true);
+    _minuteriePresence = Timer.periodic(PresenceSeance.intervalle, (_) {
+      _signalerPresence(true);
+      notifyListeners();
+    });
     suivre(seance.ecouterDegats(c), (v) {
       _degats = v;
       _traiterDegats();
@@ -76,6 +83,8 @@ class SeanceController extends ChangeNotifier {
   RessourcesPj? _publiees;
   int? _initiativePubliee;
   String? _resumePublie;
+  Map<String, PresenceSeance> _presences = const {};
+  Timer? _minuteriePresence;
 
   /// Dégâts reçus, traités un par un (deux coups ne s'écrasent pas).
   List<DegatsSeance> _degats = const [];
@@ -210,6 +219,15 @@ class SeanceController extends ChangeNotifier {
     }
     return 'MJ';
   }
+
+  void _signalerPresence(bool present) {
+    if (estMj) return;
+    unawaited(_agir((s, c) => s.signalerPresence(c, present: present)));
+  }
+
+  /// Le joueur est-il dans la séance ? (Jamais absent pour lui-même.)
+  bool estPresent(String joueur) =>
+      joueur == uid || (_presences[joueur]?.estLa(DateTime.now()) ?? false);
 
   void _campagneChangee() {
     _suivreSelonPermissions();
@@ -591,6 +609,8 @@ class SeanceController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _minuteriePresence?.cancel();
+    _signalerPresence(false);
     for (final a in _abonnements) {
       a.cancel();
     }

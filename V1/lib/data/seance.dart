@@ -50,6 +50,12 @@ abstract class ServiceSeance {
   Stream<List<DegatsSeance>> ecouterDegats(Campagne c);
   Future<bool> prendreDegats(Campagne c, String id);
 
+  /// Présence des joueurs (uid → dernier signal), en direct.
+  Stream<Map<String, PresenceSeance>> ecouterPresences(Campagne c);
+
+  /// Joueur : signale qu'il est dans la séance, ou qu'il la quitte.
+  Future<void> signalerPresence(Campagne c, {required bool present});
+
   /// Joueur : publie ses PV, PM, PE, le résumé et l'initiative du personnage.
   Future<void> publierPersonnage(
     Campagne c,
@@ -70,6 +76,7 @@ class PartieMemoire {
   final Map<String, RessourcesPj> ressources = {};
   final List<JetSeance> jets = [];
   final List<DegatsSeance> degats = [];
+  final Map<String, PresenceSeance> presences = {};
 
   /// « uid/numéro » → texte.
   final Map<String, String> notes = {};
@@ -201,6 +208,17 @@ class ServiceSeanceMemoire implements ServiceSeance {
   @override
   Future<void> lancer(Campagne c, JetSeance jet) async {
     _partie(c).jets.add(jet);
+    base.signaler();
+  }
+
+  @override
+  Stream<Map<String, PresenceSeance>> ecouterPresences(Campagne c) =>
+      _suivre(() => Map.of(_partie(c).presences));
+
+  @override
+  Future<void> signalerPresence(Campagne c, {required bool present}) async {
+    _partie(c).presences[uid] =
+        PresenceSeance(vu: DateTime.now(), present: present);
     base.signaler();
   }
 

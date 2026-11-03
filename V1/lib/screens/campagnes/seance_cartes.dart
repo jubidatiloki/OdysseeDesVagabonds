@@ -56,6 +56,7 @@ class ListeCartes extends StatelessWidget {
             icone: Icons.person_outline,
             titre: m.personnageNom,
             lignes: [m.personnageResume],
+            absent: !s.estPresent(m.uid),
             initiative: s.etat.enCombat ? m.initiative : null,
             ressources: [
               if (s.ressourcesDe(m.uid) case final r?) ...[
@@ -113,6 +114,7 @@ class _Carte extends StatelessWidget {
     this.lignes = const [],
     this.ressources = const [],
     this.initiative,
+    this.absent = false,
     this.actif = false,
     this.onRetirer,
     this.cleRetirer,
@@ -129,6 +131,9 @@ class _Carte extends StatelessWidget {
 
   /// Initiative, affichée en combat.
   final int? initiative;
+
+  /// Joueur pas connecté ou pas dans la séance.
+  final bool absent;
   final VoidCallback onTap;
 
   /// C'est son tour.
@@ -214,6 +219,16 @@ class _Carte extends StatelessWidget {
                   ],
                 ),
               ),
+              if (absent)
+                Tooltip(
+                  message: 'Pas connecté ou pas dans la séance',
+                  child: Icon(
+                    key: Key('$cle-absent'),
+                    Icons.person_off_outlined,
+                    size: 18,
+                    color: scheme.error,
+                  ),
+                ),
               if (actif) const Icon(Icons.play_arrow, color: OdvCouleurs.or),
               if (onRetirer != null)
                 IconButton(

@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.27.0',
+    date: '04/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : icône sur la carte d\'un joueur pas connecté ou pas '
+            'dans la séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.26.0',
     date: '04/11/2026',
     changements: [

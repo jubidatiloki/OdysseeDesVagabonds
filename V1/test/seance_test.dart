@@ -421,6 +421,14 @@ void main() {
     });
   });
 
+  test('présence : absent sans nouvelle depuis 2 minutes', () {
+    final t = DateTime(2026, 11, 4, 12);
+    final p = PresenceSeance(vu: t);
+    expect(p.estLa(t.add(const Duration(seconds: 100))), isTrue);
+    expect(p.estLa(t.add(const Duration(minutes: 3))), isFalse);
+    expect(PresenceSeance(vu: t, present: false).estLa(t), isFalse);
+  });
+
   test('taille des portions : le total reste 100 %, 15 % au moins', () {
     var r = ajusterPortions(0.22, 0.26, changee: 0, valeur: 0.3);
     expect(r.gauche, closeTo(0.3, 0.001));
@@ -699,6 +707,34 @@ void main() {
       expect(find.text('7/10'), findsOneWidget);
       await tester.pumpAndSettle();
       expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
+    });
+
+    testWidgets('présence : icône sur la carte du joueur absent',
+        (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      expect(find.byKey(const Key('carte-j1-absent')), findsOneWidget);
+      await ServiceCampagnesMemoire(x.base, 'j1')
+          .seance
+          .signalerPresence(x.campagne, present: true);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('carte-j1-absent')), findsNothing);
+      expect(find.byKey(const Key('carte-j2-absent')), findsOneWidget);
+      await ServiceCampagnesMemoire(x.base, 'j1')
+          .seance
+          .signalerPresence(x.campagne, present: false);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('carte-j1-absent')), findsOneWidget);
+    });
+
+    testWidgets('présence : le joueur se signale, et part en quittant',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      final presences = x.base.parties[x.campagne.id]!.presences;
+      expect(presences['j1']?.present, isTrue);
+      expect(find.byKey(const Key('carte-j1-absent')), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+      expect(presences['j1']?.present, isFalse);
     });
 
     testWidgets('PJ : sa fiche complète au centre et ses attaques',

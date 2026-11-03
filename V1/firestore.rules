@@ -13,6 +13,7 @@ rules_version = '2';
 //   ressources/{uid} : PV, PM, PE (selon les paramètres de la campagne)
 //   jets/{j} : lisibles par leurs seuls « lecteurs »
 //   degats/{d} : dégâts à appliquer, lus par leur destinataire
+//   presences/{uid} : dernier signal de chaque joueur
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
@@ -192,6 +193,13 @@ service cloud.firestore {
           && (mjDe(id) || membreDe(id));
         allow delete: if connecte()
           && (resource.data.destinataire == soi() || mjDe(id));
+      }
+
+      // Présence : écrite par le joueur, lue par la table.
+      match /presences/{joueur} {
+        allow read: if connecte() && (mjDe(id) || membreDe(id));
+        allow create, update: if connecte() && joueur == soi() && membreDe(id);
+        allow delete: if connecte() && mjDe(id);
       }
 
       // Notes personnelles d'une séance : le joueur seulement.

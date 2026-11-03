@@ -13,6 +13,7 @@ import 'seance.dart';
 /// - `ressources/{uid}` : PV, PM, PE (selon les paramètres de la campagne) ;
 /// - `jets/{j}` : jets de dés, lisibles par leurs seuls `lecteurs` ;
 /// - `degats/{d}` : dégâts à appliquer, lus par leur `destinataire` ;
+/// - `presences/{uid}` : dernier signal de chaque joueur ;
 /// - `notesJoueurs/{uid}/seances/{n}` : notes personnelles du joueur.
 class FirestoreServiceSeance implements ServiceSeance {
   FirestoreServiceSeance(this.uid, [FirebaseFirestore? base])
@@ -191,6 +192,18 @@ class FirestoreServiceSeance implements ServiceSeance {
   @override
   Future<void> lancer(Campagne c, JetSeance jet) =>
       _jets(c).add(jet.versJson());
+
+  @override
+  Stream<Map<String, PresenceSeance>> ecouterPresences(Campagne c) =>
+      _campagne(c).collection('presences').snapshots().map((s) => {
+            for (final d in s.docs) d.id: PresenceSeance.depuisJson(d.data()),
+          });
+
+  @override
+  Future<void> signalerPresence(Campagne c, {required bool present}) =>
+      _campagne(c).collection('presences').doc(uid).set(
+            PresenceSeance(vu: DateTime.now(), present: present).versJson(),
+          );
 
   @override
   Future<void> envoyerDegats(Campagne c, DegatsSeance degats) =>
