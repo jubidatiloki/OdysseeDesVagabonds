@@ -1,6 +1,7 @@
 import 'carac.dart';
 import 'classe.dart';
 import 'effet.dart';
+import 'univers.dart';
 import 'voie.dart';
 
 class Passif {
@@ -111,6 +112,7 @@ class Race {
     this.restrictions = '',
     this.description = '',
     this.profil = ProfilClasse.hybride,
+    this.univers = kUniversParDefaut,
   });
 
   final String id;
@@ -146,6 +148,9 @@ class Race {
 
   /// Orientation : physique, magique ou hybride (affichage).
   final ProfilClasse profil;
+
+  /// Univers de la race (id, voir `Univers`).
+  final String univers;
 
   bool get aDesOrigines => origines.isNotEmpty;
   bool get aUnChoixDePassif => optionsPassif.isNotEmpty;
@@ -193,5 +198,6 @@ class Race {
         profil: ProfilClasse.depuisCode(
           j['profil'] as String? ?? 'hybride',
         ),
+        univers: universDepuisJson(j['univers']),
       );
 }

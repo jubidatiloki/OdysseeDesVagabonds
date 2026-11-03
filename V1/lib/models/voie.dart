@@ -1,5 +1,6 @@
 import 'effet.dart';
 import 'type_sort.dart';
+import 'univers.dart';
 
 /// Un jet de dés proposé par une compétence ou un passif sur la page
 /// Lancer de dé (« Griffes et crocs : 1d6 + FOR »). JSON :
@@ -861,11 +862,15 @@ class Voie {
     required this.id,
     required this.nom,
     this.competences = const [],
+    this.univers = kUniversParDefaut,
   });
 
   final String id;
   final String nom;
   final List<Competence> competences;
+
+  /// Univers de la voie (id, voir `Univers`).
+  final String univers;
 
   /// Nom court : « Voie de la brute » → « Brute ».
   String get nomCourt {
@@ -891,6 +896,7 @@ class Voie {
             .map((e) => Competence.depuisJson(e as Map<String, dynamic>))
             .toList()
           ..sort((a, b) => a.rang.compareTo(b.rang)),
+        univers: universDepuisJson(j['univers']),
       );
 }
 

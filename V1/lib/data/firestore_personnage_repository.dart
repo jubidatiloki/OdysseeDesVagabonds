@@ -11,6 +11,7 @@ import 'personnage_repository.dart';
 /// - `proprietaire` : uid du compte qui l'a créée ;
 /// - `partageAvec` : uids qui peuvent la lire (vide pour l'instant) ;
 /// - `nom`, `modifieLe` (texte ISO) : pour lister et trier ;
+/// - `univers` : id de l'univers de la fiche (filtrage futur) ;
 /// - `fiche` : la fiche complète, même JSON que l'export (`versJson()`),
 ///   en texte (Firestore refuse les listes de listes).
 /// Les règles de sécurité (`firestore.rules`) limitent l'accès au
@@ -35,6 +36,7 @@ class FirestorePersonnageRepository implements DepotEnLigne {
         'proprietaire': uid,
         'partageAvec': <String>[],
         'nom': p.nom,
+        'univers': p.univers,
         'modifieLe': p.modifieLe.toIso8601String(),
         'schema': Personnage.versionSchema,
         'fiche': jsonEncode(p.versJson()),

@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.20.0',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Univers : personnages, classes, races et voies rattachés au '
+            "médiéval fantastique, en vue d'autres univers."
+      ),
+    ],
+  ),
+  (
     version: '0.19.2',
     date: '03/11/2026',
     changements: [

@@ -1,3 +1,4 @@
+import 'univers.dart';
 import 'voie.dart';
 
 /// Modification d'un dé (vie ou mana) par la classe :
@@ -56,6 +57,7 @@ class Classe {
     this.description = '',
     this.originePouvoir = '',
     this.profil = ProfilClasse.physique,
+    this.univers = kUniversParDefaut,
   });
 
   final String id;
@@ -84,6 +86,9 @@ class Classe {
   /// Physique, lanceur de sorts ou hybride (affichage).
   final ProfilClasse profil;
 
+  /// Univers de la classe (id, voir `Univers`).
+  final String univers;
+
   Voie? voie(String id) {
     for (final v in voies) {
       if (v.id == id) return v;
@@ -109,5 +114,6 @@ class Classe {
           j['profil'] as String?,
           lanceur: j['lanceurDeSorts'] as bool? ?? false,
         ),
+        univers: universDepuisJson(j['univers']),
       );
 }

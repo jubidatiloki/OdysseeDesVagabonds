@@ -4,6 +4,7 @@ import 'aptitude.dart';
 import 'carac.dart';
 import 'historique.dart';
 import 'objet.dart';
+import 'univers.dart';
 
 enum Sexe {
   homme('Homme'),
@@ -33,6 +34,7 @@ class Personnage {
     this.origineId,
     this.optionPassifId,
     required this.classeId,
+    this.univers = kUniversParDefaut,
     this.niveau = 1,
     Map<Carac, int>? caracBase,
     List<int>? jetsDeVie,
@@ -76,7 +78,7 @@ class Personnage {
         modifieLe = modifieLe ?? DateTime.now();
 
   /// Version du format de sauvegarde (pour migrer les anciennes données).
-  static const int versionSchema = 8;
+  static const int versionSchema = 9;
 
   final String id;
   String nom;
@@ -91,6 +93,10 @@ class Personnage {
   String? optionPassifId;
 
   String classeId;
+
+  /// Univers du personnage (id, voir `Univers`) : fixé à la création,
+  /// comme sa race et sa classe. Schéma 9 ; avant : univers par défaut.
+  final String univers;
   int niveau;
 
   /// Valeurs après répartition des points de création, AVANT les
@@ -277,6 +283,7 @@ class Personnage {
         'origineId': origineId,
         'optionPassifId': optionPassifId,
         'classeId': classeId,
+        'univers': univers,
         'niveau': niveau,
         'caracBase': caracMapVersJson(caracBase),
         'jetsDeVie': jetsDeVie,
@@ -315,6 +322,7 @@ class Personnage {
       origineId: j['origineId'] as String?,
       optionPassifId: j['optionPassifId'] as String?,
       classeId: j['classeId'] as String,
+      univers: universDepuisJson(j['univers']),
       niveau: (j['niveau'] as num?)?.toInt() ?? 1,
       caracBase: base,
       jetsDeVie: (j['jetsDeVie'] as List<dynamic>? ?? const [])
