@@ -596,6 +596,7 @@ class OngletFiche extends StatelessWidget {
             acquise: true,
             mention: mention(c),
             choixFaits: fiche.personnage.choix,
+            sortsEnEndurance: fiche.sortsEnEndurance,
           ),
         );
       }

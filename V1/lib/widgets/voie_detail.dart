@@ -20,9 +20,13 @@ class LigneCompetence extends StatelessWidget {
     this.mention,
     this.action,
     this.choixFaits,
+    this.sortsEnEndurance = false,
   });
 
   final Competence competence;
+
+  /// Personnage d'une classe sans mana : coût des sorts en PE.
+  final bool sortsEnEndurance;
 
   /// Choix du personnage : seules les invocations de l'option choisie
   /// (son animal) ont leur bouton « Statistiques » ; `null` : toutes.
@@ -110,7 +114,7 @@ class LigneCompetence extends StatelessWidget {
                 if (FicheCalculee.coutSort(c) != null ||
                     c.endurance.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  LibellesSort(c),
+                  LibellesSort(c, enEndurance: sortsEnEndurance),
                 ],
                 if (c.effet.isNotEmpty) ...[
                   const SizedBox(height: 2),

@@ -85,6 +85,7 @@
 - **Nuit de sommeil** : rend 1 jet de DV + mod(CON) PV, **DM** PM et **DE** PE.
 - **Demi-nuit** : rend 1 jet de DV en PV (sans la CON), **DM ÷ 2** PM et **DE ÷ 2** PE.
 - **Points d'endurance (PE)** : dépensés par les compétences des classes physiques et hybrides (coût indiqué sur la compétence : « Moulinet : 2 PE ») ; impossible d'utiliser la compétence sans assez de PE.
+- **Sorts raciaux d'une classe physique** (sans mana) : payés en **PE**, au même coût (Cri sauvage : 3 PE).
 - Impossible de dépasser son mana maximum (sauf « transfert de mana » du magicien).
 
 ## Combat

@@ -39,7 +39,7 @@
 | Rôdeur | = | ✗ (pas de PM) | = | civiles ; communes ; distance (hors poudre) | cuir max | archer, chasseur, animaux, trappeur | 20/20 |
 | Voleur | = | = | = | civiles ; communes | cuir max | assassin, bretteur, roublard, séducteur | 20/20 |
 
-**DE** (dé d'endurance, règle du 03/11/2026) : classes physiques et hybrides ; coûts en PE indiqués sur les compétences (`"endurance"` dans `classes.json`). Les classes physiques n'ont plus de mana.
+**DE** (dé d'endurance, règle du 03/11/2026) : classes physiques et hybrides ; coûts en PE indiqués sur les compétences (`"endurance"` dans `classes.json`). Les classes physiques n'ont plus de mana. Leurs sorts raciaux se paient en PE.
 
 « Inventaire de base » : bloc présent pour chaque classe mais **vide** ❌.
 

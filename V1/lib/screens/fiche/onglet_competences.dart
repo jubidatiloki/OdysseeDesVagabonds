@@ -100,6 +100,7 @@ class OngletCompetences extends StatelessWidget {
               competence: c.competence,
               acquise: true,
               choixFaits: p.choix,
+              sortsEnEndurance: fiche.sortsEnEndurance,
               mention: c.raciale ? 'Voie raciale · ${c.voie.nom}' : c.voie.nom,
             ),
         const SizedBox(height: 8),

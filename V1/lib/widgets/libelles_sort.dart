@@ -14,9 +14,12 @@ import '../theme.dart';
 /// Données : `reussite`, `degats`, `soin`, `effetApplique` et `mana` (texte du coût, sinon
 /// calculé selon le rang) dans `classes.json` / `races.json`.
 class LibellesSort extends StatelessWidget {
-  const LibellesSort(this.competence, {super.key});
+  const LibellesSort(this.competence, {super.key, this.enEndurance = false});
 
   final Competence competence;
+
+  /// Classe sans mana (physique) : le sort se paie en PE (pastille or).
+  final bool enEndurance;
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +54,21 @@ class LibellesSort extends StatelessWidget {
               infobulle: '${t.libelle} : ${t.definition}',
               couleur: t.couleur(Theme.of(context).brightness),
             ),
-          _Libelle(
-            icone: Icons.water_drop,
-            texte: c.mana.isNotEmpty ? c.mana : '${cout.cout} PM',
-            infobulle: 'Mana dépensé (sort de rang ${cout.rang})',
-            couleur: sombre ? OdvCouleurs.pm : OdvCouleurs.blue,
-          ),
+          if (enEndurance)
+            _Libelle(
+              icone: kIconeEndurance,
+              texte: '${cout.cout} PE',
+              infobulle: "Points d'endurance dépensés (sort de rang "
+                  '${cout.rang}, classe sans mana)',
+              couleur: sombre ? OdvCouleurs.pe : OdvCouleurs.peFonce,
+            )
+          else
+            _Libelle(
+              icone: Icons.water_drop,
+              texte: c.mana.isNotEmpty ? c.mana : '${cout.cout} PM',
+              infobulle: 'Mana dépensé (sort de rang ${cout.rang})',
+              couleur: sombre ? OdvCouleurs.pm : OdvCouleurs.blue,
+            ),
           if (c.reussite case final r?)
             _Libelle(
               icone: Icons.casino_outlined,

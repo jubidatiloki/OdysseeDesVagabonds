@@ -578,18 +578,24 @@ class _DeScreenState extends State<DeScreen> {
     final fiche = _fiche;
     if (fiche == null) return;
     final p = fiche.personnage;
-    final avant = fiche.pmActuels;
+    // Classe sans mana : le sort se paie en PE.
+    final u = fiche.uniteSorts;
+    final avant = fiche.pointsPourSorts;
     final messager = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
     if (avant < cout) {
       messager.showSnackBar(SnackBar(
-        content: Text('Pas assez de mana pour ${sort.nom} : $cout PM '
-            'nécessaires, $avant disponibles.'),
+        content: Text('Pas assez de ${fiche.sortsEnEndurance ? 'PE' : 'mana'} '
+            'pour ${sort.nom} : $cout $u nécessaires, $avant disponibles.'),
       ));
       return;
     }
-    p.pmActuels = avant - cout;
+    if (fiche.sortsEnEndurance) {
+      p.peActuels = avant - cout;
+    } else {
+      p.pmActuels = avant - cout;
+    }
     p.journaliser(
-      'Sort lancé : ${sort.nom} (−$cout PM) · PM : $avant → ${avant - cout}',
+      'Sort lancé : ${sort.nom} (−$cout $u) · $u : $avant → ${avant - cout}',
       categorie: CategorieHistorique.vie,
     );
     // Sort qui active un état (Frappe de ki : dé de mana aux dégâts de
@@ -600,8 +606,8 @@ class _DeScreenState extends State<DeScreen> {
     }
     widget.personnages?.sauvegarder(p);
     messager.showSnackBar(SnackBar(
-      content: Text('${sort.nom} : $cout PM dépensés '
-          '(PM $avant → ${avant - cout}).'),
+      content: Text('${sort.nom} : $cout $u dépensés '
+          '($u $avant → ${avant - cout}).'),
     ));
     // Puis son jet de réussite s'il en a un (les dégâts / l'effet se lancent
     // à part, seulement s'il a touché) ; sinon ses dégâts, soin et jets
@@ -1913,11 +1919,13 @@ class _PanneauPersonnage extends StatelessWidget {
                     cout: s.cout,
                     reussite: f.jetReussite(s.competence),
                     effets: f.jetsEffetSort(s.competence),
-                    manque: f.pmActuels < s.cout,
+                    manque: f.pointsPourSorts < s.cout,
+                    enEndurance: f.sortsEnEndurance,
                     infobulle: '${s.competence.nom} : sort de rang '
-                        '${s.rangSort}, ${s.cout} PM à l\'activation '
-                        '(PM actuels : ${f.pmActuels})',
-                    onLancer: f.pmActuels < s.cout
+                        '${s.rangSort}, ${s.cout} ${f.uniteSorts} à '
+                        "l'activation (${f.uniteSorts} actuels : "
+                        '${f.pointsPourSorts})',
+                    onLancer: f.pointsPourSorts < s.cout
                         ? null
                         : () => onSort(s.competence, s.cout),
                     onEffet: ([v]) => onEffetSort(s.competence, v),
@@ -2581,6 +2589,7 @@ class _CarteSort extends StatelessWidget {
     required this.reussite,
     required this.effets,
     required this.manque,
+    this.enEndurance = false,
     required this.infobulle,
     required this.onLancer,
     required this.onEffet,
@@ -2592,6 +2601,9 @@ class _CarteSort extends StatelessWidget {
   final JetDisponible? reussite;
   final List<JetDisponible> effets;
   final bool manque;
+
+  /// Classe sans mana : coût en PE.
+  final bool enEndurance;
   final String infobulle;
   final VoidCallback? onLancer;
 
@@ -2630,11 +2642,11 @@ class _CarteSort extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        LibellesSort(sort),
+        LibellesSort(sort, enEndurance: enEndurance),
         if (manque) ...[
           const SizedBox(height: 4),
           Text(
-            'mana insuffisant',
+            enEndurance ? 'PE insuffisants' : 'mana insuffisant',
             style: theme.textTheme.labelSmall?.copyWith(
               color: scheme.error,
               fontWeight: FontWeight.w600,

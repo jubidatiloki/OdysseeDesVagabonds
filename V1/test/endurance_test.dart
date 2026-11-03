@@ -23,6 +23,7 @@ import 'package:odyssee_vagabonds/widgets/profil_classe.dart';
 /// compétences ; les lanceurs de sorts n'ont pas d'endurance ; les hybrides
 /// ont les deux.
 void main() {
+  testsSortsEnEndurance();
   List<Map<String, dynamic>> lire(String fichier) => [
         for (final e
             in jsonDecode(File('assets/data/$fichier').readAsStringSync())
@@ -283,5 +284,90 @@ void main() {
     await tester.tap(bouton);
     await tester.pumpAndSettle();
     expect(p.peActuels, 0);
+  });
+}
+
+/// Sorts raciaux d'une classe sans mana : payés en PE (03/11/2026).
+void testsSortsEnEndurance() {
+  final races = {
+    for (final e
+        in jsonDecode(File('assets/data/races.json').readAsStringSync())
+            as List)
+      if (Race.depuisJson(e as Map<String, dynamic>) case final r) r.id: r,
+  };
+  final classes = {
+    for (final e
+        in jsonDecode(File('assets/data/classes.json').readAsStringSync())
+            as List)
+      if (Classe.depuisJson(e as Map<String, dynamic>) case final c) c.id: c,
+  };
+
+  testWidgets('page dé : Cri sauvage d\'un elfe guerrier payé en PE',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final p = Personnage(
+      id: 'e',
+      nom: 'Lyra',
+      raceId: 'elfe-sylvain',
+      classeId: 'guerrier',
+      niveau: 3,
+      jetsDEndurance: [4, 4],
+    );
+    final f = FicheCalculee(
+      personnage: p,
+      race: races['elfe-sylvain']!,
+      classe: classes['guerrier']!,
+    );
+    expect((f.sortsEnEndurance, f.uniteSorts, f.pointsPourSorts),
+        (true, 'PE', 14));
+    final controller =
+        PersonnagesController(EnMemoirePersonnageRepository([p]));
+    await controller.charger();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DeScreen(
+          referentiel: Referentiel(
+            races: [races['elfe-sylvain']!],
+            classes: [classes['guerrier']!],
+          ),
+          personnages: controller,
+          preferences: PreferencesController(
+            personnageActifId: 'e',
+            affichages: {
+              for (final g in GroupeJets.values) g: AffichageGroupe.visible,
+            },
+          ),
+          aleatoire: Random(2),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Sort de rang 2 : 3 PE (pastille or), pas de PM.
+    expect(find.text('3 PE'), findsOneWidget);
+    expect(find.text('3 PM'), findsNothing);
+    final sort = find.text('Cri sauvage');
+    await tester.ensureVisible(sort);
+    await tester.pumpAndSettle();
+    await tester.tap(sort);
+    await tester.pumpAndSettle();
+    expect(p.peActuels, 11);
+    expect(
+      p.historique.map((e) => e.message),
+      contains('Sort lancé : Cri sauvage (−3 PE) · PE : 14 → 11'),
+    );
+  });
+
+  test('hybride et lanceur : sorts toujours payés en PM', () {
+    for (final c in ['barde', 'druide']) {
+      final f = FicheCalculee(
+        personnage:
+            Personnage(id: 'p', nom: 'T', raceId: 'humain', classeId: c),
+        race: races['humain']!,
+        classe: classes[c]!,
+      );
+      expect(f.uniteSorts, 'PM', reason: c);
+    }
   });
 }

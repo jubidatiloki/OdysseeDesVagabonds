@@ -1646,6 +1646,16 @@ class FicheCalculee {
   int peRecuperesNuit({bool demiNuit = false}) =>
       demiNuit ? deEndurance ~/ 2 : deEndurance;
 
+  /// Classe sans mana (physique) : ses sorts (raciaux : Cri sauvage, Visage
+  /// impensable) se paient en PE, au même coût (règle du 03/11/2026).
+  bool get sortsEnEndurance => !classe.aDuMana;
+
+  /// Points disponibles pour lancer un sort : PE ou PM.
+  int get pointsPourSorts => sortsEnEndurance ? peActuels : pmActuels;
+
+  /// « PE » ou « PM » : ressource dépensée par les sorts.
+  String get uniteSorts => sortsEnEndurance ? 'PE' : 'PM';
+
   /// Actions des compétences acquises qui coûtent de l'endurance (page
   /// Lancer de dé) : (libellé, coût, compétence d'origine).
   List<({String libelle, int cout, String origine})> get actionsEndurance => [
