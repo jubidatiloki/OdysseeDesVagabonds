@@ -29,6 +29,37 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.22.0',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Campagnes : parties à plusieurs menées par un maître du jeu '
+            '(compte requis).',
+      ),
+      (
+        type: _a,
+        texte: 'MJ : création en 4 étapes (nom, script importable, notes, '
+            'paramètres) et page à onglets.',
+      ),
+      (
+        type: _a,
+        texte: 'Invitation par code (LOUP-4827) : le joueur choisit son '
+            'personnage, le MJ accepte sa demande.',
+      ),
+      (
+        type: _a,
+        texte: 'Séances : le MJ démarre la séance, les joueurs sont '
+            "avertis dans l'app.",
+      ),
+      (
+        type: _a,
+        texte: 'Fiches des joueurs visibles par le MJ (et entre joueurs '
+            'selon les paramètres).',
+      ),
+    ],
+  ),
+  (
     version: '0.21.3',
     date: '03/11/2026',
     changements: [

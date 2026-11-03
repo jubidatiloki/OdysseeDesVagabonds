@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/compte_screen.dart';
+import '../state/campagnes_controller.dart';
 import '../state/compte_controller.dart';
 import '../state/personnages_controller.dart';
 import '../theme.dart';
@@ -10,6 +11,8 @@ import '../version.dart';
 enum Section {
   personnages('Personnages', Icons.groups_outlined, Icons.groups),
   de('Lancer de dé', Icons.casino_outlined, Icons.casino),
+  // Parties à plusieurs menées par un MJ (compte en ligne).
+  campagnes('Campagnes', Icons.map_outlined, Icons.map),
   // Classes, races, équipements et bestiaire, en onglets.
   glossaire('Glossaire', Icons.auto_stories_outlined, Icons.auto_stories),
   regles('Règles système', Icons.menu_book_outlined, Icons.menu_book),
@@ -38,7 +41,12 @@ class MenuLateral extends StatelessWidget {
     required this.onChoisir,
     this.fixe = false,
     this.compte,
+    this.campagnes,
   });
+
+  /// Campagnes : pastille sur « Campagnes » (séance en cours, demande à
+  /// traiter).
+  final CampagnesController? campagnes;
 
   final Section courante;
   final PersonnagesController controller;
@@ -78,6 +86,23 @@ class MenuLateral extends StatelessWidget {
     );
   }
 
+  /// Icône d'une section ; « Campagnes » : pastille quand une séance est
+  /// en cours ou qu'une demande attend le MJ.
+  Widget _icone(Section s, IconData icone) {
+    final c = campagnes;
+    if (s != Section.campagnes || c == null) return Icon(icone);
+    return ListenableBuilder(
+      listenable: c,
+      builder: (context, _) => Badge(
+        key: const Key('pastille-campagnes'),
+        isLabelVisible: c.seancesEnCours.isNotEmpty ||
+            c.commeMj.any((x) => x.demandes.isNotEmpty),
+        smallSize: 8,
+        child: Icon(icone),
+      ),
+    );
+  }
+
   Widget _menu(BuildContext context) {
     return NavigationDrawer(
       selectedIndex: courante.index,
@@ -97,8 +122,8 @@ class MenuLateral extends StatelessWidget {
               child: Divider(height: 1),
             ),
           NavigationDrawerDestination(
-            icon: Icon(s.icone),
-            selectedIcon: Icon(s.iconeSelectionnee),
+            icon: _icone(s, s.icone),
+            selectedIcon: _icone(s, s.iconeSelectionnee),
             label: Text(s.libelle),
           ),
         ],

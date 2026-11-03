@@ -198,7 +198,8 @@ void main() {
     final p = _p('a', 'Brom', hier);
     final d = FirestorePersonnageRepository.versDocument(p, 'u1');
     expect(d['proprietaire'], 'u1');
-    expect(d['partageAvec'], isEmpty);
+    // Partage géré par les campagnes : jamais écrasé par une sauvegarde.
+    expect(d.containsKey('partageAvec'), isFalse);
     expect(d['nom'], 'Brom');
     final relu = FirestorePersonnageRepository.depuisDocument(d)!;
     expect((relu.id, relu.nom, relu.modifieLe), ('a', 'Brom', hier));

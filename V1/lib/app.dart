@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'data/referentiel.dart';
 import 'screens/racine_screen.dart';
+import 'state/campagnes_controller.dart';
 import 'state/compte_controller.dart';
 import 'state/personnages_controller.dart';
 import 'state/preferences_controller.dart';
@@ -16,10 +17,14 @@ class OdvApp extends StatelessWidget {
     required this.controller,
     PreferencesController? preferences,
     this.compte,
+    this.campagnes,
   }) : preferences = preferences ?? PreferencesController();
 
   /// Compte (sauvegarde en ligne) ; `null` : personnages sur l'appareil.
   final CompteController? compte;
+
+  /// Campagnes (parties à plusieurs) ; `null` : hors ligne.
+  final CampagnesController? campagnes;
 
   final Referentiel referentiel;
   final PersonnagesController controller;
@@ -52,6 +57,7 @@ class OdvApp extends StatelessWidget {
           controller: controller,
           preferences: preferences,
           compte: compte,
+          campagnes: campagnes,
         ),
       ),
     );

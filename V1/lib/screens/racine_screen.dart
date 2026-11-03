@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../data/referentiel.dart';
+import '../models/campagne.dart';
+import '../state/campagnes_controller.dart';
 import '../state/compte_controller.dart';
 import '../state/personnages_controller.dart';
 import '../state/historique_lancers.dart';
@@ -8,6 +12,7 @@ import '../state/preferences_controller.dart';
 import '../widgets/menu_lateral.dart';
 import 'a_propos_screen.dart';
 import 'accueil_screen.dart';
+import 'campagnes/campagnes_screen.dart';
 import 'compte_screen.dart';
 import 'de_screen.dart';
 import 'glossaire_screen.dart';
@@ -24,6 +29,7 @@ class RacineScreen extends StatefulWidget {
     required this.controller,
     required this.preferences,
     this.compte,
+    this.campagnes,
   });
 
   final Referentiel referentiel;
@@ -32,6 +38,9 @@ class RacineScreen extends StatefulWidget {
 
   /// Compte (sauvegarde en ligne) ; `null` : personnages sur l'appareil.
   final CompteController? compte;
+
+  /// Campagnes (parties à plusieurs) ; `null` : « hors ligne ».
+  final CampagnesController? campagnes;
 
   @override
   State<RacineScreen> createState() => _RacineScreenState();
@@ -50,8 +59,39 @@ class _RacineScreenState extends State<RacineScreen> {
   late final CompteController _compte =
       widget.compte ?? CompteController.horsLigne(widget.controller);
 
+  /// Campagnes : celles reçues, ou « hors ligne » (tests, Windows).
+  late final CampagnesController _campagnes =
+      widget.campagnes ?? CampagnesController.horsLigne(_compte);
+  StreamSubscription<Campagne>? _seances;
+
+  late final ContexteCampagnes _contexteCampagnes = ContexteCampagnes(
+    campagnes: _campagnes,
+    personnages: widget.controller,
+    referentiel: widget.referentiel,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // Séance démarrée par un MJ : le joueur est averti où qu'il soit.
+    _seances = _campagnes.nouvellesSeances.listen((c) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(seconds: 10),
+        content: Text('Séance ${c.seance?.numero ?? ''} de « ${c.nom} » : '
+            '${c.mjNom} a démarré la partie.'),
+        action: SnackBarAction(
+          label: 'Rejoindre',
+          onPressed: () => ouvrirSeance(context, _contexteCampagnes, c),
+        ),
+      ));
+    });
+  }
+
   @override
   void dispose() {
+    _seances?.cancel();
+    if (widget.campagnes == null) _campagnes.dispose();
     _lancers.dispose();
     super.dispose();
   }
@@ -77,6 +117,7 @@ class _RacineScreenState extends State<RacineScreen> {
       onChoisir: (s) => setState(() => _section = s),
       fixe: true,
       compte: _compte,
+      campagnes: _campagnes,
     );
     // Menu fixe : les pages n'ont plus de tiroir (ni de bouton ☰).
     final MenuLateral? menu = fixe
@@ -86,6 +127,7 @@ class _RacineScreenState extends State<RacineScreen> {
             controller: widget.controller,
             onChoisir: (s) => setState(() => _section = s),
             compte: _compte,
+            campagnes: _campagnes,
           );
     final ref = widget.referentiel;
     final Widget page = switch (_section) {
@@ -101,6 +143,11 @@ class _RacineScreenState extends State<RacineScreen> {
           personnages: widget.controller,
           preferences: prefs,
           historique: _lancers,
+        ),
+      Section.campagnes => CampagnesScreen(
+          contexte: _contexteCampagnes,
+          menu: menu,
+          onCompte: () => setState(() => _section = Section.compte),
         ),
       Section.glossaire => GlossaireScreen(
           referentiel: ref,

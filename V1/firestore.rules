@@ -3,39 +3,135 @@ rules_version = '2';
 // Règles de sécurité Firestore — L'odyssée des vagabonds.
 // Collection « personnages » : un document par fiche.
 //   proprietaire : uid du compte qui l'a créée (seul à pouvoir la modifier)
-//   partageAvec  : uids qui peuvent la lire (jeu à plusieurs, plus tard)
+//   partageAvec  : uids qui peuvent la lire (MJ et joueurs des campagnes)
+// Collection « campagnes » : parties à plusieurs menées par un MJ.
+//   mj, joueurs, demandes (uids), code, paramètres, séance
+//   prive/mj : script et notes (MJ seulement)
+//   membres/{uid} : joueur, personnage, statut (demande / accepte)
+// Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function connecte() {
+      return request.auth != null;
+    }
+    function soi() {
+      return request.auth.uid;
+    }
+
     match /personnages/{id} {
-      function connecte() {
-        return request.auth != null;
-      }
       function documentValide() {
         let d = request.resource.data;
         return d.proprietaire is string
-          && d.partageAvec is list
+          && (!('partageAvec' in d) || d.partageAvec is list)
           && d.fiche is string
           && d.fiche.size() < 900000;
       }
 
       // Lecture : le propriétaire, ou un joueur avec qui la fiche est partagée.
       allow read: if connecte()
-        && (resource.data.proprietaire == request.auth.uid
-            || request.auth.uid in resource.data.partageAvec);
+        && (resource.data.proprietaire == soi()
+            || soi() in resource.data.get('partageAvec', []));
 
       // Création : seulement à son propre nom.
       allow create: if connecte()
-        && request.resource.data.proprietaire == request.auth.uid
+        && request.resource.data.proprietaire == soi()
         && documentValide();
 
       // Modification : le propriétaire, sans changer de propriétaire.
       allow update: if connecte()
-        && resource.data.proprietaire == request.auth.uid
-        && request.resource.data.proprietaire == request.auth.uid
+        && resource.data.proprietaire == soi()
+        && request.resource.data.proprietaire == soi()
         && documentValide();
 
       allow delete: if connecte()
-        && resource.data.proprietaire == request.auth.uid;
+        && resource.data.proprietaire == soi();
+    }
+
+    match /campagnes/{id} {
+      function estMj() {
+        return resource.data.mj == soi();
+      }
+      function changeSeulement(champs) {
+        return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(champs);
+      }
+      function avant(champ) {
+        return resource.data.get(champ, []).toSet();
+      }
+      function apres(champ) {
+        return request.resource.data.get(champ, []).toSet();
+      }
+
+      // Lecture d'une campagne connue (son id vient d'un code) ; liste :
+      // seulement les siennes (MJ, joueur ou demande en attente).
+      allow get: if connecte();
+      allow list: if connecte()
+        && (resource.data.mj == soi()
+            || soi() in resource.data.joueurs
+            || soi() in resource.data.demandes);
+
+      allow create: if connecte()
+        && request.resource.data.mj == soi()
+        && request.resource.data.nom is string
+        && request.resource.data.joueurs.size() == 0
+        && request.resource.data.demandes.size() == 0;
+
+      // MJ : tout, sauf changer de MJ.
+      allow update: if connecte() && estMj()
+          && request.resource.data.mj == resource.data.mj
+        // Joueur : demander à rejoindre (s'ajouter aux demandes, place libre).
+        || connecte() && !estMj()
+          && changeSeulement(['demandes'])
+          && apres('demandes') == avant('demandes').union([soi()].toSet())
+          && !(soi() in resource.data.joueurs)
+          && resource.data.joueurs.size() < resource.data.joueursMax
+        // Joueur : quitter (se retirer des joueurs et des demandes).
+        || connecte() && !estMj()
+          && changeSeulement(['demandes', 'joueurs'])
+          && apres('demandes') == avant('demandes').difference([soi()].toSet())
+          && apres('joueurs') == avant('joueurs').difference([soi()].toSet());
+
+      allow delete: if connecte() && estMj();
+
+      function mjDe(campagne) {
+        return get(/databases/$(database)/documents/campagnes/$(campagne))
+          .data.mj == soi();
+      }
+      function membreDe(campagne) {
+        return soi() in get(/databases/$(database)/documents/campagnes/$(campagne))
+          .data.joueurs;
+      }
+
+      // Script et notes : le MJ seulement.
+      match /prive/{doc} {
+        allow read, write: if connecte() && mjDe(id);
+      }
+
+      // Membres : le MJ, le joueur lui-même et les autres joueurs acceptés.
+      match /membres/{joueur} {
+        allow read: if connecte()
+          && (joueur == soi() || mjDe(id) || membreDe(id));
+        // Demande : le joueur, à son nom, en attente.
+        allow create: if connecte() && joueur == soi()
+          && request.resource.data.uid == soi()
+          && request.resource.data.statut == 'demande';
+        // Nouvelle demande (autre personnage) : le joueur ; acceptation : MJ.
+        allow update: if connecte()
+          && (joueur == soi() && request.resource.data.statut == 'demande'
+              && request.resource.data.uid == soi()
+            || mjDe(id));
+        allow delete: if connecte() && (joueur == soi() || mjDe(id));
+      }
+    }
+
+    // Codes d'invitation : lus un par un (jamais listés) ; écrits par le MJ.
+    match /codes/{code} {
+      allow get: if connecte();
+      allow create: if connecte()
+        && request.resource.data.mj == soi()
+        && get(/databases/$(database)/documents/campagnes/$(request.resource.data.campagne))
+          .data.mj == soi();
+      allow delete: if connecte() && resource.data.mj == soi();
     }
 
     // Tout le reste est fermé.

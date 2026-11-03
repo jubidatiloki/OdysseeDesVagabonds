@@ -9,13 +9,15 @@ import 'personnage_repository.dart';
 /// collection `personnages` (pas sous l'utilisateur : prépare le partage et
 /// les parties à plusieurs) :
 /// - `proprietaire` : uid du compte qui l'a créée ;
-/// - `partageAvec` : uids qui peuvent la lire (vide pour l'instant) ;
+/// - `partageAvec` : uids qui peuvent la lire (MJ et joueurs des campagnes,
+///   géré par les campagnes : jamais effacé par une sauvegarde, écrite en
+///   fusion) ;
 /// - `nom`, `modifieLe` (texte ISO) : pour lister et trier ;
 /// - `univers` : id de l'univers de la fiche (filtrage futur) ;
 /// - `fiche` : la fiche complète, même JSON que l'export (`versJson()`),
 ///   en texte (Firestore refuse les listes de listes).
 /// Les règles de sécurité (`firestore.rules`) limitent l'accès au
-/// propriétaire (et, plus tard, à `partageAvec`).
+/// propriétaire en écriture, et en lecture à `partageAvec`.
 class FirestorePersonnageRepository implements DepotEnLigne {
   FirestorePersonnageRepository(this.uid, [FirebaseFirestore? base])
       : _base = base ?? FirebaseFirestore.instance;
@@ -34,7 +36,6 @@ class FirestorePersonnageRepository implements DepotEnLigne {
   /// Document Firestore d'une fiche.
   static Map<String, dynamic> versDocument(Personnage p, String uid) => {
         'proprietaire': uid,
-        'partageAvec': <String>[],
         'nom': p.nom,
         'univers': p.univers,
         'modifieLe': p.modifieLe.toIso8601String(),
@@ -66,7 +67,9 @@ class FirestorePersonnageRepository implements DepotEnLigne {
   @override
   Future<void> sauvegarder(Personnage personnage) {
     personnage.modifieLe = DateTime.now();
-    return _collection.doc(personnage.id).set(versDocument(personnage, uid));
+    return _collection
+        .doc(personnage.id)
+        .set(versDocument(personnage, uid), SetOptions(merge: true));
   }
 
   @override
@@ -78,7 +81,8 @@ class FirestorePersonnageRepository implements DepotEnLigne {
     for (var i = 0; i < personnages.length; i += 400) {
       final lot = _base.batch();
       for (final p in personnages.skip(i).take(400)) {
-        lot.set(_collection.doc(p.id), versDocument(p, uid));
+        lot.set(_collection.doc(p.id), versDocument(p, uid),
+            SetOptions(merge: true));
       }
       await lot.commit();
     }

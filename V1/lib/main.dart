@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'data/firebase_compte.dart';
+import 'data/firestore_campagnes.dart';
 import 'data/firestore_personnage_repository.dart';
 import 'data/local_personnage_repository.dart';
 import 'data/referentiel.dart';
 import 'firebase_options.dart';
+import 'state/campagnes_controller.dart';
 import 'state/compte_controller.dart';
 import 'state/personnages_controller.dart';
 import 'state/preferences_controller.dart';
@@ -32,6 +34,7 @@ Future<void> main() async {
   // Compte (Firebase). Sans réseau ou en cas d'erreur : l'app reste
   // utilisable avec les personnages de l'appareil.
   CompteController? compte;
+  CampagnesController? campagnes;
   if (compteEnLignePossible) {
     try {
       await Firebase.initializeApp(
@@ -45,9 +48,14 @@ Future<void> main() async {
         stockage: StockageCompteLocal(),
       );
       await compte.demarrer();
+      campagnes = CampagnesController(
+        compte: compte,
+        service: (u) => FirestoreServiceCampagnes(u.uid),
+      );
     } catch (e) {
       debugPrint('Firebase indisponible : $e');
       compte = null;
+      campagnes = null;
     }
   }
 
@@ -60,6 +68,7 @@ Future<void> main() async {
       controller: controller,
       preferences: preferences,
       compte: compte,
+      campagnes: campagnes,
     ),
   );
 }
