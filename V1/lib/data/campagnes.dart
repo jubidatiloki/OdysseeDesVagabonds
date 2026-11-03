@@ -3,12 +3,17 @@ import 'dart:math';
 
 import '../models/campagne.dart';
 import '../models/personnage.dart';
+import '../models/seance.dart';
+import 'seance.dart';
 
 /// Campagnes en ligne d'un compte (uid). L'interface permet de remplacer
 /// Firestore par une version en mémoire dans les tests.
 abstract class ServiceCampagnes {
   /// Compte connecté.
   String get uid;
+
+  /// Partie en cours (tours, créatures, jets).
+  ServiceSeance get seance;
 
   /// Campagnes où le compte est MJ, joueur ou en attente, en direct.
   Stream<List<Campagne>> ecouter();
@@ -99,6 +104,9 @@ class BaseCampagnesMemoire {
   final Map<String, Map<String, MembreCampagne>> membres = {};
   final Map<String, String> codes = {};
 
+  /// Parties en cours (id de campagne → partie).
+  final Map<String, PartieMemoire> parties = {};
+
   /// Fiches en ligne (id → fiche, propriétaire, partage).
   final Map<String,
           ({Personnage fiche, String proprietaire, List<String> partage})>
@@ -131,6 +139,9 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
   @override
   final String uid;
   final DateTime Function() _horloge;
+
+  @override
+  late final ServiceSeance seance = ServiceSeanceMemoire(base, uid);
 
   Campagne _lire(String id) {
     final c = base.campagnes[id];
@@ -215,6 +226,7 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
     base.campagnes.remove(campagne.id);
     base.prives.remove(campagne.id);
     base.membres.remove(campagne.id);
+    base.parties.remove(campagne.id);
     base.signaler();
   }
 
@@ -317,6 +329,8 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
   Future<void> demarrerSeance(Campagne campagne) async {
     _exigerMj(campagne);
     final c = _lire(campagne.id);
+    // Une séance commence en exploration.
+    base.parties[c.id]?.etat = const EtatJeu();
     _ecrire(c.copie(
       seance: Seance(numero: (c.seance?.numero ?? 0) + 1, debut: _horloge()),
     ));

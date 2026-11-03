@@ -29,6 +29,36 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.23.0',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : tableau de bord en 3 portions (cartes, détail, dés), '
+            'Créatures, Règles système, Paramètres.',
+      ),
+      (
+        type: _a,
+        texte: 'Combat : tours par initiative, passer son tour, tour '
+            'précédent (MJ) ; mode exploration sans tours.',
+      ),
+      (
+        type: _a,
+        texte: 'MJ : créatures ajoutées à la partie, carte ou nom cachés aux '
+            'PJ, suivi de leurs PV.',
+      ),
+      (
+        type: _a,
+        texte: 'Jets de séance : pour tous, pour un seul PJ, cachés aux '
+            'autres ou même à soi (MJ seul).',
+      ),
+      (
+        type: _a,
+        texte: 'PJ : notes personnelles pour la séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.22.0',
     date: '03/11/2026',
     changements: [

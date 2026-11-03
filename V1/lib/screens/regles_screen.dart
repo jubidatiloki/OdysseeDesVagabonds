@@ -7,10 +7,18 @@ import '../widgets/markdown_simple.dart';
 /// Page « Règles système » : les règles du jeu (assets/data/regles_systeme.md),
 /// en sections dépliables, avec une recherche.
 class ReglesScreen extends StatefulWidget {
-  const ReglesScreen({super.key, required this.referentiel, this.menu});
+  const ReglesScreen({
+    super.key,
+    required this.referentiel,
+    this.menu,
+    this.avecBarre = true,
+  });
 
   final Referentiel referentiel;
   final Widget? menu;
+
+  /// Barre de titre (non : onglet de la séance, qui a déjà la sienne).
+  final bool avecBarre;
 
   @override
   State<ReglesScreen> createState() => _ReglesScreenState();
@@ -30,7 +38,8 @@ class _ReglesScreenState extends State<ReglesScreen> {
     ];
     return Scaffold(
       drawer: widget.menu,
-      appBar: AppBar(title: const Text('Règles système')),
+      appBar:
+          widget.avecBarre ? AppBar(title: const Text('Règles système')) : null,
       body: LargeurLimitee(
         max: 900,
         child: _document.sections.isEmpty

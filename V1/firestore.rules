@@ -8,6 +8,11 @@ rules_version = '2';
 //   mj, joueurs, demandes (uids), code, paramètres, séance
 //   prive/mj : script et notes (MJ seulement)
 //   membres/{uid} : joueur, personnage, statut (demande / accepte)
+//   jeu/etat : mode et tours de la séance
+//   creatures/{c} : ce que voient les PJ ; creaturesMj/{c} : MJ seulement
+//   ressources/{uid} : PV, PM, PE (selon les paramètres de la campagne)
+//   jets/{j} : lisibles par leurs seuls « lecteurs »
+//   notesJoueurs/{uid}/seances/{n} : le joueur seulement
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -115,12 +120,69 @@ service cloud.firestore {
         allow create: if connecte() && joueur == soi()
           && request.resource.data.uid == soi()
           && request.resource.data.statut == 'demande';
-        // Nouvelle demande (autre personnage) : le joueur ; acceptation : MJ.
+        // Le joueur : nouvelle demande (autre personnage) ou mise à jour de
+        // son résumé, sans se donner le statut « accepte » ; acceptation : MJ.
         allow update: if connecte()
-          && (joueur == soi() && request.resource.data.statut == 'demande'
-              && request.resource.data.uid == soi()
+          && (joueur == soi() && request.resource.data.uid == soi()
+              && (request.resource.data.statut == 'demande'
+                  || request.resource.data.statut == resource.data.statut)
             || mjDe(id));
         allow delete: if connecte() && (joueur == soi() || mjDe(id));
+      }
+
+      function parametre(campagne, nom) {
+        return get(/databases/$(database)/documents/campagnes/$(campagne))
+          .data.parametres[nom] == true;
+      }
+
+      // Mode et tours : le MJ ; le joueur dont c'est le tour peut le passer.
+      match /jeu/{doc} {
+        allow read: if connecte() && (mjDe(id) || membreDe(id));
+        allow create, delete: if connecte() && mjDe(id);
+        allow update: if connecte()
+          && (mjDe(id)
+            || membreDe(id)
+              && resource.data.ordre[resource.data.index] == soi()
+              && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['index', 'manche']));
+      }
+
+      // Créatures : les PJ ne lisent que les cartes non cachées.
+      match /creatures/{creature} {
+        allow read: if connecte()
+          && (mjDe(id) || membreDe(id) && resource.data.cachee == false);
+        allow write: if connecte() && mjDe(id);
+      }
+
+      // Vrai nom, fiche et PV des créatures : le MJ seulement.
+      match /creaturesMj/{creature} {
+        allow read, write: if connecte() && mjDe(id);
+      }
+
+      // PV, PM, PE : écrits par le joueur, lus selon les paramètres.
+      match /ressources/{joueur} {
+        allow read: if connecte()
+          && (joueur == soi()
+            || mjDe(id) && parametre(id, 'fichesVisiblesMj')
+            || membreDe(id) && parametre(id, 'fichesVisiblesJoueurs'));
+        allow create, update: if connecte() && joueur == soi() && membreDe(id);
+        allow delete: if connecte() && mjDe(id);
+      }
+
+      // Jets : lus par leurs lecteurs ; le MJ en fait toujours partie.
+      match /jets/{jet} {
+        allow read: if connecte() && soi() in resource.data.lecteurs;
+        allow create: if connecte()
+          && request.resource.data.auteur == soi()
+          && (mjDe(id) || membreDe(id))
+          && get(/databases/$(database)/documents/campagnes/$(id)).data.mj
+            in request.resource.data.lecteurs;
+        allow delete: if connecte() && mjDe(id);
+      }
+
+      // Notes personnelles d'une séance : le joueur seulement.
+      match /notesJoueurs/{joueur}/seances/{numero} {
+        allow read, write: if connecte() && joueur == soi();
       }
     }
 

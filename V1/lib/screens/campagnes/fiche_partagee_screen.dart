@@ -29,83 +29,140 @@ class FichePartageeScreen extends StatelessWidget {
   final ContexteCampagnes contexte;
   final MembreCampagne membre;
 
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text(membre.personnageNom)),
+        body: ContenuFichePartagee(contexte: contexte, membre: membre),
+      );
+}
+
+/// Contenu de la fiche partagée (page à part, ou centre de la séance).
+class ContenuFichePartagee extends StatefulWidget {
+  const ContenuFichePartagee({
+    super.key,
+    required this.contexte,
+    required this.membre,
+  });
+
+  final ContexteCampagnes contexte;
+  final MembreCampagne membre;
+
+  @override
+  State<ContenuFichePartagee> createState() => _ContenuFichePartageeState();
+}
+
+class _ContenuFichePartageeState extends State<ContenuFichePartagee> {
+  late final Future<Personnage?> _fiche = _lire();
+
   Future<Personnage?> _lire() async {
     Personnage? p;
-    await contexte.campagnes.agir((s) async {
-      p = await s.lireFiche(membre.personnageId);
+    await widget.contexte.campagnes.agir((s) async {
+      p = await s.lireFiche(widget.membre.personnageId);
     });
     return p;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(membre.personnageNom)),
-      body: FutureBuilder<Personnage?>(
-        future: _lire(),
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final p = snap.data;
-          final ref = contexte.referentiel;
-          final race = p == null ? null : ref.race(p.raceId);
-          final classe = p == null ? null : ref.classe(p.classeId);
-          if (p == null || race == null || classe == null) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: TexteAVenir('Fiche pas encore partagée : elle le sera '
-                    'dès que le joueur ouvrira l\'application.'),
-              ),
-            );
-          }
-          final f = FicheCalculee(personnage: p, race: race, classe: classe);
-          final theme = Theme.of(context);
-          return LargeurLimitee(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Row(
-                  children: [
-                    AvatarPersonnage(nom: p.nom),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            p.nom,
-                            style: styleAmbiance(theme.textTheme.titleLarge),
-                          ),
-                          Text('${race.nom} · ${classe.nom} · niveau '
-                              '${p.niveau} · joueur : ${membre.nom}'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 4,
-                  children: [
-                    _Valeur(Icons.favorite, 'PV ${f.pvActuels}/${f.pvMax}',
-                        OdvCouleurs.pv),
-                    if (classe.aDuMana)
-                      _Valeur(Icons.water_drop, 'PM ${f.pmActuels}/${f.pmMax}',
-                          OdvCouleurs.pm),
-                    if (classe.aDeLEndurance)
-                      _Valeur(kIconeEndurance, 'PE ${f.peActuels}/${f.peMax}',
-                          OdvCouleurs.pe),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                ResumeFiche(fiche: f, avecPvPm: true),
-              ],
+    return FutureBuilder<Personnage?>(
+      future: _fiche,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final p = snap.data;
+        final ref = widget.contexte.referentiel;
+        final race = p == null ? null : ref.race(p.raceId);
+        final classe = p == null ? null : ref.classe(p.classeId);
+        if (p == null || race == null || classe == null) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: TexteAVenir('Fiche pas encore partagée : elle le sera '
+                  'dès que le joueur ouvrira l\'application.'),
             ),
           );
-        },
+        }
+        return ApercuFiche(
+          fiche: FicheCalculee(personnage: p, race: race, classe: classe),
+          joueur: widget.membre.nom,
+        );
+      },
+    );
+  }
+}
+
+/// Fiche en consultation : identité, PV, PM, PE, statistiques.
+class ApercuFiche extends StatelessWidget {
+  const ApercuFiche({
+    super.key,
+    required this.fiche,
+    this.joueur,
+    this.action,
+  });
+
+  final FicheCalculee fiche;
+
+  /// Nom du joueur, s'il ne s'agit pas du sien.
+  final String? joueur;
+
+  /// Bouton sous l'identité (« Ouvrir ma fiche »).
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final f = fiche;
+    final p = f.personnage;
+    final theme = Theme.of(context);
+    return LargeurLimitee(
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
+            children: [
+              AvatarPersonnage(nom: p.nom),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      p.nom,
+                      style: styleAmbiance(theme.textTheme.titleLarge),
+                    ),
+                    Text([
+                      f.race.nom,
+                      f.classe.nom,
+                      'niveau ${p.niveau}',
+                      if (joueur != null) 'joueur : $joueur',
+                    ].join(' · ')),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 16,
+            runSpacing: 4,
+            children: [
+              _Valeur(Icons.favorite, 'PV ${f.pvActuels}/${f.pvMax}',
+                  OdvCouleurs.pv),
+              if (f.classe.aDuMana)
+                _Valeur(Icons.water_drop, 'PM ${f.pmActuels}/${f.pmMax}',
+                    OdvCouleurs.pm),
+              if (f.classe.aDeLEndurance)
+                _Valeur(kIconeEndurance, 'PE ${f.peActuels}/${f.peMax}',
+                    OdvCouleurs.pe),
+            ],
+          ),
+          if (action != null) ...[
+            const SizedBox(height: 12),
+            Align(alignment: Alignment.centerLeft, child: action),
+          ],
+          const SizedBox(height: 16),
+          ResumeFiche(fiche: f, avecPvPm: true),
+        ],
       ),
     );
   }

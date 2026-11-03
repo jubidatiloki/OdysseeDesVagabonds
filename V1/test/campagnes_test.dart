@@ -330,6 +330,7 @@ void main() {
       await tap(tester, find.byKey(const Key('bouton-seance')));
       await tap(tester, find.byKey(const Key('confirmer-seance')));
       expect(base.campagnes[c.id]!.seanceEnCours, isTrue);
+      await tap(tester, find.byKey(const Key('seance-parametres')));
       expect(find.byKey(const Key('etat-seance')), findsOneWidget);
       await tap(tester, find.byKey(const Key('terminer-seance')));
       expect(base.campagnes[c.id]!.seanceEnCours, isFalse);

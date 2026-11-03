@@ -4,8 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/campagne.dart';
 import '../models/personnage.dart';
+import '../models/seance.dart';
 import 'campagnes.dart';
 import 'firestore_personnage_repository.dart';
+import 'firestore_seance.dart';
+import 'seance.dart';
 
 /// Campagnes en ligne (Firestore) :
 /// - `campagnes/{id}` : nom, description, MJ, code, `joueurs` et `demandes`
@@ -21,6 +24,9 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   @override
   final String uid;
   final FirebaseFirestore _base;
+
+  @override
+  late final ServiceSeance seance = FirestoreServiceSeance(uid, _base);
 
   CollectionReference<Map<String, dynamic>> get _campagnes =>
       _base.collection('campagnes');
@@ -124,15 +130,29 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
 
   @override
   Future<void> supprimer(Campagne campagne) async {
-    final membres = await _membres(campagne.id).get();
-    final lot = _base.batch();
-    for (final m in membres.docs) {
-      lot.delete(m.reference);
+    final doc = _campagnes.doc(campagne.id);
+    // Tout ce que la campagne contient (lots de 400 écritures).
+    final refs = <DocumentReference<Map<String, dynamic>>>[
+      _prive(campagne.id),
+      _codes.doc(campagne.code),
+      doc.collection('jeu').doc('etat'),
+    ];
+    for (final q in <Query<Map<String, dynamic>>>[
+      _membres(campagne.id),
+      doc.collection('creatures'),
+      doc.collection('creaturesMj'),
+      doc.collection('ressources'),
+      doc.collection('jets').where('lecteurs', arrayContains: uid),
+    ]) {
+      refs.addAll((await q.get()).docs.map((d) => d.reference));
     }
-    lot
-      ..delete(_prive(campagne.id))
-      ..delete(_codes.doc(campagne.code));
-    await lot.commit();
+    for (var i = 0; i < refs.length; i += 400) {
+      final lot = _base.batch();
+      for (final r in refs.skip(i).take(400)) {
+        lot.delete(r);
+      }
+      await lot.commit();
+    }
     await _campagnes.doc(campagne.id).delete();
   }
 
@@ -238,13 +258,18 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   @override
   Future<void> demarrerSeance(Campagne campagne) async {
     final c = _campagne(await _campagnes.doc(campagne.id).get());
-    await _campagnes.doc(c.id).update({
-      'seance': Seance(
-        numero: (c.seance?.numero ?? 0) + 1,
-        debut: DateTime.now(),
-      ).versJson(),
-      'modifieLe': _maintenant,
-    });
+    // Une séance commence en exploration.
+    final lot = _base.batch()
+      ..update(_campagnes.doc(c.id), {
+        'seance': Seance(
+          numero: (c.seance?.numero ?? 0) + 1,
+          debut: DateTime.now(),
+        ).versJson(),
+        'modifieLe': _maintenant,
+      })
+      ..set(_campagnes.doc(c.id).collection('jeu').doc('etat'),
+          const EtatJeu().versJson());
+    await lot.commit();
   }
 
   @override
