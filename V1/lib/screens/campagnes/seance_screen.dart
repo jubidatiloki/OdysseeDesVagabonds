@@ -92,6 +92,24 @@ class _SeanceScreenState extends State<SeanceScreen>
                 'Séance ${s.numero} · ${c.nom}',
                 overflow: TextOverflow.ellipsis,
               ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: s.estMj
+                      ? FilledButton.icon(
+                          key: const Key('terminer-seance'),
+                          onPressed: () => _terminer(context),
+                          icon: const Icon(Icons.stop_circle_outlined),
+                          label: const Text('Clôturer la séance'),
+                        )
+                      : OutlinedButton.icon(
+                          key: const Key('quitter-seance'),
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.logout),
+                          label: const Text('Quitter la séance'),
+                        ),
+                ),
+              ],
               bottom: TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
@@ -134,6 +152,39 @@ class _SeanceScreenState extends State<SeanceScreen>
         );
       },
     );
+  }
+
+  /// MJ : clôture la séance, après confirmation.
+  Future<void> _terminer(BuildContext context) async {
+    final c = _seance.campagne;
+    if (c == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Clôturer la séance ${_seance.numero} ?'),
+        content: const Text('La séance se termine pour tous les joueurs.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Continuer'),
+          ),
+          FilledButton(
+            key: const Key('confirmer-cloture'),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clôturer'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    final navigator = Navigator.of(context);
+    final erreur =
+        await widget.contexte.campagnes.agir((x) => x.terminerSeance(c));
+    if (erreur == null) {
+      navigator.pop();
+    } else if (context.mounted) {
+      _erreur(context, erreur);
+    }
   }
 
   Widget _corps(BuildContext context) {
@@ -305,7 +356,7 @@ class _BarreTours extends StatelessWidget {
   }
 }
 
-/// Permissions (MJ), graphismes, terminer ou quitter la séance.
+/// Permissions (MJ) et graphismes.
 class _OngletParametres extends StatefulWidget {
   const _OngletParametres({
     required this.seance,
@@ -361,32 +412,6 @@ class _OngletParametresState extends State<_OngletParametres> {
               const Text('Taille de chaque portion, sur grand écran.'),
               _Portions(preferences: widget.preferences),
             ],
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: s.estMj
-                ? FilledButton.icon(
-                    key: const Key('terminer-seance'),
-                    onPressed: () async {
-                      final navigator = Navigator.of(context);
-                      final erreur = await widget.contexte.campagnes
-                          .agir((x) => x.terminerSeance(c));
-                      if (erreur == null) {
-                        navigator.pop();
-                      } else if (context.mounted) {
-                        _erreur(context, erreur);
-                      }
-                    },
-                    icon: const Icon(Icons.stop_circle_outlined),
-                    label: const Text('Terminer la séance'),
-                  )
-                : OutlinedButton.icon(
-                    key: const Key('quitter-seance'),
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Quitter la séance'),
-                  ),
           ),
         ],
       ),

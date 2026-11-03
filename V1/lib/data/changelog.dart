@@ -29,6 +29,31 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.25.0',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Fiche : plus de rectangle gris en revenant sur l\'onglet Fiche '
+            'après avoir défilé.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : bouton pour clôturer ou quitter en haut à droite.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : choix de la cible des attaques et des sorts, notée '
+            'dans l\'historique.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : sorts dans le lancer de dés (coût dépensé, dés '
+            'lancés).',
+      ),
+    ],
+  ),
+  (
     version: '0.24.2',
     date: '03/11/2026',
     changements: [

@@ -191,32 +191,36 @@ class CarteEmprunts extends StatelessWidget {
               Theme(
                 // Pas de filets autour des volets.
                 data: theme.copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  key: Key('emprunts-classe-${classe.key}'),
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: const EdgeInsets.only(bottom: 8),
-                  // Ouvert si une de ses voies est choisie.
-                  initiallyExpanded:
-                      classe.value.any((v) => valeur.containsKey(v.voie.id)),
-                  title: Text(
-                    classe.key,
-                    style: theme.textTheme.titleSmall,
+                // Sa propre place dans PageStorage : voir « Effets reçus ».
+                child: KeyedSubtree(
+                  key: PageStorageKey('bloc-emprunts-${classe.key}'),
+                  child: ExpansionTile(
+                    key: Key('emprunts-classe-${classe.key}'),
+                    tilePadding: EdgeInsets.zero,
+                    childrenPadding: const EdgeInsets.only(bottom: 8),
+                    // Ouvert si une de ses voies est choisie.
+                    initiallyExpanded:
+                        classe.value.any((v) => valeur.containsKey(v.voie.id)),
+                    title: Text(
+                      classe.key,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    subtitle: () {
+                      final n = classe.value
+                          .where((v) => valeur.containsKey(v.voie.id))
+                          .length;
+                      return n == 0
+                          ? null
+                          : Text(
+                              '$n voie${n > 1 ? 's' : ''} choisie${n > 1 ? 's' : ''}',
+                              style: theme.textTheme.labelSmall
+                                  ?.copyWith(color: scheme.primary),
+                            );
+                    }(),
+                    children: [
+                      for (final v in classe.value) _ligneVoie(context, v),
+                    ],
                   ),
-                  subtitle: () {
-                    final n = classe.value
-                        .where((v) => valeur.containsKey(v.voie.id))
-                        .length;
-                    return n == 0
-                        ? null
-                        : Text(
-                            '$n voie${n > 1 ? 's' : ''} choisie${n > 1 ? 's' : ''}',
-                            style: theme.textTheme.labelSmall
-                                ?.copyWith(color: scheme.primary),
-                          );
-                  }(),
-                  children: [
-                    for (final v in classe.value) _ligneVoie(context, v),
-                  ],
                 ),
               ),
           ],

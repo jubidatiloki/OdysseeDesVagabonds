@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/carac.dart';
 import '../../models/seance.dart';
+import '../../models/voie.dart';
 import '../../regles/des.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../state/seance_controller.dart';
@@ -61,6 +62,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   var _modificateur = 0;
   var _visibilite = VisibiliteJet.tous;
   String? _cible;
+
+  /// Cible choisie pour les attaques et les sorts ('soi', '' : aucune).
+  String? _cibleAttaque;
 
   /// Dernier résultat affiché.
   String? _resultat;
@@ -138,12 +142,56 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     return res;
   }
 
+  /// Cible en vigueur : celle choisie, sinon la première autre que soi.
+  String get _cibleEnCours {
+    final ids = _s.cibles.map((c) => c.id);
+    final v = _cibleAttaque;
+    if (v != null && (v == 'soi' || v.isEmpty || ids.contains(v))) return v;
+    return ids.isEmpty ? '' : ids.first;
+  }
+
+  String get _nomCible => _cibleEnCours == 'soi'
+      ? 'soi-même'
+      : _s.nomCible(_cibleEnCours, _visibilite);
+
+  /// Sort : dépense son coût, puis lance ses dés (réussite, effets).
+  Future<void> _lancerSort(
+    FicheCalculee f,
+    ({Competence competence, int rangSort, int cout}) s,
+  ) async {
+    final sort = s.competence;
+    await _s.depenserSort(f, sort.nom, s.cout);
+    final jets = [
+      if (f.jetReussite(sort) case final j?) j,
+      ...f.jetsEffetSort(sort),
+    ].where((j) => lireFormule(j.des) != null).toList();
+    for (final j in jets) {
+      await _lancerFormule(
+        j.libelle,
+        j.des,
+        j.bonus,
+        parAttaquant: true,
+        avecCible: true,
+      );
+    }
+    if (jets.isEmpty) {
+      await _lancer(
+        libelle: sort.nom,
+        jets: const [],
+        modificateur: 0,
+        parAttaquant: true,
+        avecCible: true,
+      );
+    }
+  }
+
   /// Lance une formule (« 1d8 + 1d6 + 2 »).
   Future<void> _lancerFormule(
     String libelle,
     String des,
     int bonus, {
     bool parAttaquant = false,
+    bool avecCible = false,
   }) async {
     final f = lireFormule(des);
     if (f == null) return;
@@ -156,6 +204,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       ],
       modificateur: f.bonus + bonus,
       parAttaquant: parAttaquant,
+      avecCible: avecCible,
     );
   }
 
@@ -164,12 +213,15 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     required List<int> jets,
     required int modificateur,
     bool parAttaquant = false,
+    bool avecCible = false,
   }) async {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
-    final detail = [
-      jets.join(' + '),
-      if (modificateur != 0) formaterModificateur(modificateur),
-    ].join(' ');
+    final detail = jets.isEmpty
+        ? ''
+        : [
+            jets.join(' + '),
+            if (modificateur != 0) formaterModificateur(modificateur),
+          ].join(' ');
     final erreur = await _s.lancer(
       libelle: libelle,
       detail: detail,
@@ -177,6 +229,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       visibilite: _visibilite,
       cible: _cible,
       parAttaquant: parAttaquant,
+      cibleJet: avecCible ? _nomCible : '',
     );
     if (!mounted) return;
     final secret = !_s.estMj && _visibilite == VisibiliteJet.mjSeul;
@@ -184,7 +237,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _resultat = erreur ??
           (secret
               ? 'Jet envoyé au MJ : résultat caché.'
-              : '$libelle : $total ($detail)');
+              : jets.isEmpty
+                  ? '$libelle : lancé'
+                  : '$libelle : $total ($detail)');
     });
   }
 
@@ -289,6 +344,29 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         // Attaques du personnage ou de la créature sélectionnée.
         if (attaques.isNotEmpty) ...[
           const SizedBox(height: 16),
+          InputDecorator(
+            decoration: const InputDecoration(labelText: 'Cible'),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                key: const Key('cible-attaque'),
+                isDense: true,
+                isExpanded: true,
+                value: _cibleEnCours,
+                items: [
+                  for (final c in _s.cibles)
+                    DropdownMenuItem(
+                      value: c.id,
+                      child: Text(c.nom, overflow: TextOverflow.ellipsis),
+                    ),
+                  const DropdownMenuItem(value: 'soi', child: Text('Soi-même')),
+                  const DropdownMenuItem(
+                      value: '', child: Text('Aucune cible')),
+                ],
+                onChanged: (v) => setState(() => _cibleAttaque = v),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Text('Attaques · $nom', style: theme.textTheme.titleSmall),
           const SizedBox(height: 6),
           Wrap(
@@ -306,11 +384,35 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                             a.des,
                             a.bonus,
                             parAttaquant: true,
+                            avecCible: true,
                           ),
                 ),
             ],
           ),
-        ] else if (_s.estMj) ...[
+        ],
+        // Sorts : dépensent leur coût, puis lancent leurs dés.
+        if (fiche != null && fiche.sorts.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Sorts · $nom', style: theme.textTheme.titleSmall),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final (i, s) in fiche.sorts.indexed)
+                ActionChip(
+                  key: Key('sort-seance-$i'),
+                  label: Text(
+                    '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
+                  ),
+                  onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
+                      ? null
+                      : () => _lancerSort(fiche, s),
+                ),
+            ],
+          ),
+        ],
+        if (attaques.isEmpty && _s.estMj) ...[
           const SizedBox(height: 16),
           const Text('Sélectionne un personnage ou une créature pour lancer '
               'ses attaques.'),
@@ -415,11 +517,16 @@ class _Historique extends StatelessWidget {
                   child: const Icon(Icons.visibility_off_outlined, size: 18),
                 ),
           title: Text(
-            '${j.auteurNom} · ${j.libelle}',
+            '${j.auteurNom} · ${j.libelle}'
+            '${j.cible.isEmpty ? '' : ' → ${j.cible}'}',
             overflow: TextOverflow.ellipsis,
           ),
-          subtitle: Text(j.detail, overflow: TextOverflow.ellipsis),
-          trailing: Text('${j.total}', style: theme.textTheme.titleMedium),
+          subtitle: j.detail.isEmpty
+              ? null
+              : Text(j.detail, overflow: TextOverflow.ellipsis),
+          trailing: j.detail.isEmpty
+              ? null
+              : Text('${j.total}', style: theme.textTheme.titleMedium),
         );
       },
     );

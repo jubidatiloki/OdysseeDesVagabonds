@@ -369,34 +369,40 @@ class OngletFiche extends StatelessWidget {
           padding: const EdgeInsets.only(top: 12),
           child: Card(
             margin: EdgeInsets.zero,
-            child: ExpansionTile(
-              key: const Key('effets-recus'),
-              leading: const Icon(Icons.auto_fix_high_outlined),
-              title: const Text('Effets reçus'),
-              subtitle:
-                  const Text('Sorts lancés sur ce personnage par un allié'),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              expandedAlignment: Alignment.centerLeft,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final e in fiche.etatsRecus)
-                      FilterChip(
-                        key: Key('effet-recu-${e.etat.nom}'),
-                        label: Text('${e.etat.nom} (${e.competence.nom})'),
-                        tooltip: e.etat.effets.map((x) => x.libelle).join('\n'),
-                        selected: p.etats.contains(e.etat.nom),
-                        onSelected: (oui) {
-                          basculerEtat(fiche, e.etat, e.competence.nom,
-                              actif: oui);
-                          onModifie();
-                        },
-                      ),
-                  ],
-                ),
-              ],
+            // Sans cette clé, le bloc relirait la position de défilement de
+            // l'onglet comme son état ouvert (fiche grise au retour).
+            child: KeyedSubtree(
+              key: const PageStorageKey('bloc-effets-recus'),
+              child: ExpansionTile(
+                key: const Key('effets-recus'),
+                leading: const Icon(Icons.auto_fix_high_outlined),
+                title: const Text('Effets reçus'),
+                subtitle:
+                    const Text('Sorts lancés sur ce personnage par un allié'),
+                childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                expandedAlignment: Alignment.centerLeft,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final e in fiche.etatsRecus)
+                        FilterChip(
+                          key: Key('effet-recu-${e.etat.nom}'),
+                          label: Text('${e.etat.nom} (${e.competence.nom})'),
+                          tooltip:
+                              e.etat.effets.map((x) => x.libelle).join('\n'),
+                          selected: p.etats.contains(e.etat.nom),
+                          onSelected: (oui) {
+                            basculerEtat(fiche, e.etat, e.competence.nom,
+                                actif: oui);
+                            onModifie();
+                          },
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

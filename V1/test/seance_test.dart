@@ -321,6 +321,12 @@ void main() {
     expect(r?.pmMax, 0);
     expect(p.base.membres[p.campagne.id]!['j1']!.personnageResume,
         'Nain · Guerrier · niveau 1');
+    // Sort d'une classe sans mana : payé en PE sur la fiche du joueur.
+    await s.depenserSort(s.maFiche!, 'Cri sauvage', 3);
+    expect(s.maFiche!.peActuels, 3);
+    // Cibles : pas soi-même ; une carte cachée ne figure pas dans le jet.
+    expect(s.cibles.map((c) => c.id), ['j2']);
+    expect(s.nomCible('j2', VisibiliteJet.tous), 'aria');
     s.dispose();
     campagnes.dispose();
     compte.dispose();
@@ -592,7 +598,8 @@ void main() {
 
       // Nom caché : « Créature inconnue », état sans PV.
       await tap(tester, find.byKey(const Key('carte-b')));
-      expect(find.text(CreatureSeance.nomInconnu), findsNWidgets(2));
+      // Carte, détail et liste des cibles.
+      expect(find.text(CreatureSeance.nomInconnu), findsNWidgets(3));
       expect(find.text('Liche'), findsNothing);
       expect(find.textContaining('PV 3'), findsNothing);
       expect(find.byKey(const Key('creature-etat')), findsOneWidget);
@@ -629,7 +636,9 @@ void main() {
     });
     testWidgets('PJ : sa fiche complète au centre et ses attaques',
         (tester) async {
-      await ouvrir(tester, 'j1', fiches: [_brom()]);
+      final partie = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      JetSeance dernierJet() =>
+          partie.base.parties[partie.campagne.id]!.jets.last;
       await tap(tester, find.byKey(const Key('carte-j1')));
       expect(find.byKey(const Key('vue-fiche')), findsOneWidget);
       await tap(tester, find.byKey(const Key('vue-competences')));
@@ -637,6 +646,15 @@ void main() {
       await tap(tester, find.byKey(const Key('vue-inventaire')));
       expect(find.byKey(const Key('attaque-0')), findsOneWidget);
       expect(find.textContaining('Toucher CaC'), findsOneWidget);
+      // Bouton pour quitter en haut à droite.
+      expect(find.byKey(const Key('quitter-seance')), findsOneWidget);
+      // Attaque : cible par défaut, un autre que soi, notée dans l'historique.
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      final x = dernierJet();
+      expect(x.cible, 'aria');
+      expect(x.auteurNom, 'Brom');
+      await tap(tester, find.byKey(const Key('onglet-historique')));
+      expect(find.textContaining('→ aria'), findsOneWidget);
     });
 
     testWidgets('fiche hors séance : inventaire et compétences verrouillés',

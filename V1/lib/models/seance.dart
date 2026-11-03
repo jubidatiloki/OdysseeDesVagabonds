@@ -370,6 +370,7 @@ class JetSeance {
     required this.seance,
     required this.lecteurs,
     this.visibilite = VisibiliteJet.tous,
+    this.cible = '',
   });
 
   final String id;
@@ -389,6 +390,9 @@ class JetSeance {
   final List<String> lecteurs;
   final VisibiliteJet visibilite;
 
+  /// Cible d'une attaque ou d'un sort (nom affiché) ; vide : aucune.
+  final String cible;
+
   Map<String, dynamic> versJson() => {
         'auteur': auteur,
         'auteurNom': auteurNom,
@@ -399,6 +403,7 @@ class JetSeance {
         'seance': seance,
         'lecteurs': lecteurs,
         'visibilite': visibilite.name,
+        if (cible.isNotEmpty) 'cible': cible,
       };
 
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
@@ -412,6 +417,7 @@ class JetSeance {
         seance: (j['seance'] as num?)?.toInt() ?? 0,
         lecteurs: [for (final u in j['lecteurs'] as List? ?? const []) '$u'],
         visibilite: VisibiliteJet.depuisCode(j['visibilite']),
+        cible: j['cible'] as String? ?? '',
       );
 }
 

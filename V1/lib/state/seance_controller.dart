@@ -7,6 +7,7 @@ import '../data/referentiel.dart';
 import '../data/seance.dart';
 import '../models/campagne.dart';
 import '../models/creature.dart';
+import '../models/historique.dart';
 import '../models/personnage.dart';
 import '../models/seance.dart';
 import '../regles/fiche_calculee.dart';
@@ -402,6 +403,53 @@ class SeanceController extends ChangeNotifier {
     return nom.isEmpty ? (estMj ? 'MJ' : 'Joueur') : nom;
   }
 
+  /// Cibles possibles d'une attaque ou d'un sort : tous les personnages et
+  /// créatures, sauf celui qui agit (par défaut, la première).
+  List<({String id, String nom})> get cibles {
+    final soi = estMj ? creatureChoisie?.id ?? _carte : uid;
+    return [
+      for (final c in _creatures)
+        if (c.id != soi) (id: c.id, nom: c.nom),
+      for (final m in joueurs)
+        if (m.uid != soi) (id: m.uid, nom: m.personnageNom),
+    ];
+  }
+
+  /// Nom de la cible dans un jet : même discrétion que pour le lanceur.
+  String nomCible(String id, VisibiliteJet visibilite) {
+    for (final m in joueurs) {
+      if (m.uid == id) return m.personnageNom;
+    }
+    for (final c in _creatures) {
+      if (c.id != id) continue;
+      if (!estMj || visibilite == VisibiliteJet.mjSeul) return c.nom;
+      return c.cachee ? '' : c.nomPublic;
+    }
+    return '';
+  }
+
+  /// Dépense le coût d'un sort (PM, ou PE pour une classe sans mana) sur la
+  /// fiche de celui qui le lance.
+  Future<void> depenserSort(FicheCalculee f, String nom, int cout) async {
+    final p = f.personnage;
+    final u = f.uniteSorts;
+    final avant = f.pointsPourSorts;
+    if (f.sortsEnEndurance) {
+      p.peActuels = avant - cout;
+    } else {
+      p.pmActuels = avant - cout;
+    }
+    p.journaliser(
+      'Sort lancé : $nom (−$cout $u) · $u : $avant → ${avant - cout}',
+      categorie: CategorieHistorique.vie,
+    );
+    if (p.id == moi?.personnageId) {
+      await personnages.sauvegarder(p);
+    } else {
+      await enregistrerFiche(p);
+    }
+  }
+
   /// Enregistre un jet pour ses lecteurs ; [parAttaquant] : au nom du
   /// personnage ou de la créature qui agit.
   Future<String?> lancer({
@@ -411,6 +459,7 @@ class SeanceController extends ChangeNotifier {
     required VisibiliteJet visibilite,
     String? cible,
     bool parAttaquant = false,
+    String cibleJet = '',
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -429,6 +478,7 @@ class SeanceController extends ChangeNotifier {
             seance: _numero,
             lecteurs: lecteursDuJet(c, visibilite, auteur: uid, cible: cible),
             visibilite: visibilite,
+            cible: cibleJet,
           ),
         ),
       );
