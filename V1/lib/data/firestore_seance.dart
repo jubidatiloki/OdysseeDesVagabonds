@@ -95,7 +95,7 @@ class FirestoreServiceSeance implements ServiceSeance {
   Stream<Map<String, RessourcesPj>> ecouterRessources(Campagne c) {
     final tout = c.estMj(uid)
         ? c.parametres.fichesVisiblesMj
-        : c.parametres.fichesVisiblesJoueurs;
+        : c.parametres.pjVoientRessources;
     if (tout) {
       return _ressources(c).snapshots().map((s) => {
             for (final d in s.docs) d.id: RessourcesPj.depuisJson(d.data()),
@@ -153,7 +153,7 @@ class FirestoreServiceSeance implements ServiceSeance {
   Future<void> ajouterCreature(Campagne c, CreatureSeance creature) async {
     final id = creature.id.isEmpty ? _creatures(c).doc().id : creature.id;
     final lot = _base.batch()
-      ..set(_creatures(c).doc(id), creature.versPublic())
+      ..set(_creatures(c).doc(id), creature.versPublic(c.parametres))
       ..set(_creaturesMj(c).doc(id), creature.versMj());
     await lot.commit();
   }
@@ -161,6 +161,21 @@ class FirestoreServiceSeance implements ServiceSeance {
   @override
   Future<void> modifierCreature(Campagne c, CreatureSeance creature) =>
       ajouterCreature(c, creature);
+
+  /// Réécrit la partie publique des créatures : les permissions ont changé.
+  Future<void> republierCreatures(Campagne c) async {
+    final prives = await _creaturesMj(c).get();
+    final publics = await _creatures(c).get();
+    final parId = {for (final d in publics.docs) d.id: d.data()};
+    final lot = _base.batch();
+    for (final d in prives.docs) {
+      final public = parId[d.id];
+      if (public == null) continue;
+      final x = CreatureSeance.depuisDocuments(d.id, public, d.data());
+      lot.set(_creatures(c).doc(d.id), x.versPublic(c.parametres));
+    }
+    await lot.commit();
+  }
 
   @override
   Future<void> retirerCreature(Campagne c, String creatureId) async {

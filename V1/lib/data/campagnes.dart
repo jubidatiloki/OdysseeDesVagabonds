@@ -67,8 +67,19 @@ abstract class ServiceCampagnes {
   /// n'est pas partagée avec ce compte.
   Future<Personnage?> lireFiche(String personnageId);
 
-  /// Joueur : comptes qui peuvent lire sa fiche (MJ, autres joueurs).
-  Future<void> partagerFiche(String personnageId, List<String> uids);
+  /// Fiche partagée, en direct (`null` si elle n'est pas lisible).
+  Stream<Personnage?> ecouterFiche(String personnageId);
+
+  /// MJ : enregistre une fiche modifiée pendant la séance.
+  Future<void> ecrireFiche(Personnage personnage);
+
+  /// Joueur : comptes qui peuvent lire sa fiche (MJ, autres joueurs) et
+  /// comptes qui peuvent la modifier (MJ).
+  Future<void> partagerFiche(
+    String personnageId,
+    List<String> uids, {
+    List<String> editeurs = const [],
+  });
 }
 
 /// Contrôles communs aux implémentations.
@@ -108,9 +119,14 @@ class BaseCampagnesMemoire {
   final Map<String, PartieMemoire> parties = {};
 
   /// Fiches en ligne (id → fiche, propriétaire, partage).
-  final Map<String,
-          ({Personnage fiche, String proprietaire, List<String> partage})>
-      fiches = {};
+  final Map<
+      String,
+      ({
+        Personnage fiche,
+        String proprietaire,
+        List<String> partage,
+        List<String> editeurs
+      })> fiches = {};
   final _changements = StreamController<void>.broadcast();
   var _compteur = 0;
   final Random aleatoire;
@@ -356,10 +372,41 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
   }
 
   @override
-  Future<void> partagerFiche(String personnageId, List<String> uids) async {
+  Stream<Personnage?> ecouterFiche(String personnageId) async* {
+    yield await lireFiche(personnageId);
+    await for (final _ in base.changements) {
+      yield await lireFiche(personnageId);
+    }
+  }
+
+  @override
+  Future<void> ecrireFiche(Personnage personnage) async {
+    final f = base.fiches[personnage.id];
+    if (f == null || !f.editeurs.contains(uid)) {
+      throw const ErreurCampagne('Cette fiche n\'est pas modifiable.');
+    }
+    base.fiches[personnage.id] = (
+      fiche: personnage,
+      proprietaire: f.proprietaire,
+      partage: f.partage,
+      editeurs: f.editeurs,
+    );
+    base.signaler();
+  }
+
+  @override
+  Future<void> partagerFiche(
+    String personnageId,
+    List<String> uids, {
+    List<String> editeurs = const [],
+  }) async {
     final f = base.fiches[personnageId];
     if (f == null || f.proprietaire != uid) return;
-    base.fiches[personnageId] =
-        (fiche: f.fiche, proprietaire: f.proprietaire, partage: uids);
+    base.fiches[personnageId] = (
+      fiche: f.fiche,
+      proprietaire: f.proprietaire,
+      partage: uids,
+      editeurs: editeurs,
+    );
   }
 }

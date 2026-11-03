@@ -4,6 +4,7 @@ import '../../data/referentiel.dart';
 import '../../models/campagne.dart';
 import '../../state/campagnes_controller.dart';
 import '../../state/personnages_controller.dart';
+import '../../state/preferences_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
 import 'campagne_joueur_screen.dart';
@@ -18,11 +19,15 @@ class ContexteCampagnes {
     required this.campagnes,
     required this.personnages,
     required this.referentiel,
+    this.preferences,
   });
 
   final CampagnesController campagnes;
   final PersonnagesController personnages;
   final Referentiel referentiel;
+
+  /// Taille des portions de la séance.
+  final PreferencesController? preferences;
 }
 
 /// Page « Campagnes » (menu latéral) : parties à plusieurs. Deux entrées :

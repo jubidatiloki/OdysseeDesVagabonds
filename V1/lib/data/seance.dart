@@ -99,7 +99,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
   @override
   Stream<List<CreatureSeance>> ecouterCreatures(Campagne c) => _suivre(() => [
         for (final x in _partie(c).creatures.values)
-          if (c.estMj(uid)) x else if (!x.cachee) x.pourJoueur(),
+          if (c.estMj(uid)) x else if (!x.cachee) x.pourJoueur(c.parametres),
       ]);
 
   @override
@@ -107,7 +107,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
       _suivre(() {
         final tout = c.estMj(uid)
             ? c.parametres.fichesVisiblesMj
-            : c.parametres.fichesVisiblesJoueurs;
+            : c.parametres.pjVoientRessources;
         return {
           for (final e in _partie(c).ressources.entries)
             if (tout || e.key == uid) e.key: e.value,

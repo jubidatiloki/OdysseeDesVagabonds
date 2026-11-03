@@ -12,6 +12,11 @@ class ParametresCampagne {
     this.niveauDepart = 1,
     this.fichesVisiblesMj = true,
     this.fichesVisiblesJoueurs = false,
+    this.pjInventaireHorsSeance = true,
+    this.pjCompetencesHorsSeance = true,
+    this.pjVoientRessources = false,
+    this.pjVoientPvCreatures = false,
+    this.pjVoientFichesCreatures = false,
   });
 
   /// Nombre maximum de joueurs (1 à 8), MJ non compris.
@@ -26,6 +31,22 @@ class ParametresCampagne {
   /// Les joueurs voient aussi les fiches des autres membres.
   final bool fichesVisiblesJoueurs;
 
+  /// Les PJ peuvent modifier leur inventaire en dehors d'une séance.
+  final bool pjInventaireHorsSeance;
+
+  /// Les PJ peuvent modifier leurs compétences en dehors d'une séance
+  /// (dépenser leurs points, monter de niveau).
+  final bool pjCompetencesHorsSeance;
+
+  /// Les PJ voient les PV, PM et PE des autres PJ.
+  final bool pjVoientRessources;
+
+  /// Les PJ voient les PV des créatures.
+  final bool pjVoientPvCreatures;
+
+  /// Les PJ voient les fiches des créatures (sauf nom caché).
+  final bool pjVoientFichesCreatures;
+
   static const int joueursMaxLimite = 8;
 
   ParametresCampagne copie({
@@ -33,6 +54,11 @@ class ParametresCampagne {
     int? niveauDepart,
     bool? fichesVisiblesMj,
     bool? fichesVisiblesJoueurs,
+    bool? pjInventaireHorsSeance,
+    bool? pjCompetencesHorsSeance,
+    bool? pjVoientRessources,
+    bool? pjVoientPvCreatures,
+    bool? pjVoientFichesCreatures,
   }) =>
       ParametresCampagne(
         joueursMax: joueursMax ?? this.joueursMax,
@@ -40,6 +66,14 @@ class ParametresCampagne {
         fichesVisiblesMj: fichesVisiblesMj ?? this.fichesVisiblesMj,
         fichesVisiblesJoueurs:
             fichesVisiblesJoueurs ?? this.fichesVisiblesJoueurs,
+        pjInventaireHorsSeance:
+            pjInventaireHorsSeance ?? this.pjInventaireHorsSeance,
+        pjCompetencesHorsSeance:
+            pjCompetencesHorsSeance ?? this.pjCompetencesHorsSeance,
+        pjVoientRessources: pjVoientRessources ?? this.pjVoientRessources,
+        pjVoientPvCreatures: pjVoientPvCreatures ?? this.pjVoientPvCreatures,
+        pjVoientFichesCreatures:
+            pjVoientFichesCreatures ?? this.pjVoientFichesCreatures,
       );
 
   Map<String, dynamic> versJson() => {
@@ -47,6 +81,11 @@ class ParametresCampagne {
         'niveauDepart': niveauDepart,
         'fichesVisiblesMj': fichesVisiblesMj,
         'fichesVisiblesJoueurs': fichesVisiblesJoueurs,
+        'pjInventaireHorsSeance': pjInventaireHorsSeance,
+        'pjCompetencesHorsSeance': pjCompetencesHorsSeance,
+        'pjVoientRessources': pjVoientRessources,
+        'pjVoientPvCreatures': pjVoientPvCreatures,
+        'pjVoientFichesCreatures': pjVoientFichesCreatures,
       };
 
   factory ParametresCampagne.depuisJson(Object? j) {
@@ -57,6 +96,11 @@ class ParametresCampagne {
       niveauDepart: ((j['niveauDepart'] as num?)?.toInt() ?? 1).clamp(1, 10),
       fichesVisiblesMj: j['fichesVisiblesMj'] as bool? ?? true,
       fichesVisiblesJoueurs: j['fichesVisiblesJoueurs'] as bool? ?? false,
+      pjInventaireHorsSeance: j['pjInventaireHorsSeance'] as bool? ?? true,
+      pjCompetencesHorsSeance: j['pjCompetencesHorsSeance'] as bool? ?? true,
+      pjVoientRessources: j['pjVoientRessources'] as bool? ?? false,
+      pjVoientPvCreatures: j['pjVoientPvCreatures'] as bool? ?? false,
+      pjVoientFichesCreatures: j['pjVoientFichesCreatures'] as bool? ?? false,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -8,7 +9,6 @@ import '../models/seance.dart';
 import 'campagnes.dart';
 import 'firestore_personnage_repository.dart';
 import 'firestore_seance.dart';
-import 'seance.dart';
 
 /// Campagnes en ligne (Firestore) :
 /// - `campagnes/{id}` : nom, description, MJ, code, `joueurs` et `demandes`
@@ -26,7 +26,7 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   final FirebaseFirestore _base;
 
   @override
-  late final ServiceSeance seance = FirestoreServiceSeance(uid, _base);
+  late final FirestoreServiceSeance seance = FirestoreServiceSeance(uid, _base);
 
   CollectionReference<Map<String, dynamic>> get _campagnes =>
       _base.collection('campagnes');
@@ -119,14 +119,17 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   }
 
   @override
-  Future<void> modifier(Campagne campagne) =>
-      _campagnes.doc(campagne.id).update({
-        'nom': ReglesCampagne.verifierNom(campagne.nom),
-        'description': campagne.description.trim(),
-        'joueursMax': campagne.parametres.joueursMax,
-        'parametres': campagne.parametres.versJson(),
-        'modifieLe': _maintenant,
-      });
+  Future<void> modifier(Campagne campagne) async {
+    await _campagnes.doc(campagne.id).update({
+      'nom': ReglesCampagne.verifierNom(campagne.nom),
+      'description': campagne.description.trim(),
+      'joueursMax': campagne.parametres.joueursMax,
+      'parametres': campagne.parametres.versJson(),
+      'modifieLe': _maintenant,
+    });
+    // Les permissions décident de ce que les PJ lisent des créatures.
+    await seance.republierCreatures(campagne);
+  }
 
   @override
   Future<void> supprimer(Campagne campagne) async {
@@ -297,8 +300,38 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   }
 
   @override
-  Future<void> partagerFiche(String personnageId, List<String> uids) => _base
-      .collection(FirestorePersonnageRepository.collection)
-      .doc(personnageId)
-      .update({'partageAvec': uids});
+  Stream<Personnage?> ecouterFiche(String personnageId) => _base
+          .collection(FirestorePersonnageRepository.collection)
+          .doc(personnageId)
+          .snapshots()
+          .map((d) {
+        final data = d.data();
+        return data == null
+            ? null
+            : FirestorePersonnageRepository.depuisDocument(data);
+      });
+
+  @override
+  Future<void> ecrireFiche(Personnage personnage) {
+    personnage.modifieLe = DateTime.now();
+    return _base
+        .collection(FirestorePersonnageRepository.collection)
+        .doc(personnage.id)
+        .update({
+      'nom': personnage.nom,
+      'modifieLe': personnage.modifieLe.toIso8601String(),
+      'fiche': jsonEncode(personnage.versJson()),
+    });
+  }
+
+  @override
+  Future<void> partagerFiche(
+    String personnageId,
+    List<String> uids, {
+    List<String> editeurs = const [],
+  }) =>
+      _base
+          .collection(FirestorePersonnageRepository.collection)
+          .doc(personnageId)
+          .update({'partageAvec': uids, 'modifiablePar': editeurs});
 }

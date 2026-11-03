@@ -19,6 +19,16 @@ class PersonnagesController extends ChangeNotifier {
   /// lancer si la méthode de sauvegarde le prévoit).
   Future<void> Function()? apresLancer;
 
+  /// Ce que les campagnes interdisent de modifier sur une fiche en dehors
+  /// d'une séance (`true` : verrouillé). Fourni par les campagnes.
+  ({bool inventaire, bool competences}) Function(String id)? restrictions;
+
+  ({bool inventaire, bool competences}) restrictionsDe(String id) =>
+      restrictions?.call(id) ?? (inventaire: false, competences: false);
+
+  /// Les verrous ont changé : les écrans se redessinent.
+  void signalerRestrictions() => notifyListeners();
+
   /// Stockage utilisé (sur l'appareil, ou en ligne avec un compte).
   PersonnageRepository get repository => _repository;
 

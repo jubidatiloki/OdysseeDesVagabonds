@@ -7,6 +7,7 @@ import '../data/referentiel.dart';
 import '../data/seance.dart';
 import '../models/campagne.dart';
 import '../models/creature.dart';
+import '../models/personnage.dart';
 import '../models/seance.dart';
 import '../regles/fiche_calculee.dart';
 import 'campagnes_controller.dart';
@@ -38,14 +39,15 @@ class SeanceController extends ChangeNotifier {
           notifyListeners();
         }, onError: (Object _) {}));
     suivre(seance.ecouterEtat(c), (v) => _etat = v);
-    suivre(seance.ecouterCreatures(c), (v) => _creatures = v);
-    suivre(seance.ecouterRessources(c), (v) => _ressources = v);
     suivre(seance.ecouterJets(c, _numero), (v) => _jets = v);
     suivre(s.ecouterMembres(c.id), (v) {
       _membres = v;
+      _suivreFiches();
       unawaited(_publier());
+      unawaited(_ajusterOrdre());
     });
-    campagnes.addListener(notifyListeners);
+    _suivreSelonPermissions();
+    campagnes.addListener(_campagneChangee);
     personnages.addListener(_personnagesChanges);
     unawaited(_chargerTexte());
   }
@@ -67,6 +69,17 @@ class SeanceController extends ChangeNotifier {
   RessourcesPj? _publiees;
   int? _initiativePubliee;
   String? _resumePublie;
+  StreamSubscription<void>? _creaturesFlux;
+  StreamSubscription<void>? _ressourcesFlux;
+  String _permissions = '';
+
+  /// Fiches des autres joueurs, en direct (id de fiche → fiche).
+  final Map<String, StreamSubscription<void>> _fichesFlux = {};
+  final Map<String, Personnage> _fiches = {};
+
+  /// MJ : fiches modifiées, envoyées au plus toutes les 5 secondes.
+  final Map<String, Personnage> _aEcrire = {};
+  Timer? _minuterieFiches;
 
   ServiceCampagnes? get _service => campagnes.serviceActuel;
   Campagne? get campagne => campagnes.parId(campagneId);
@@ -99,6 +112,49 @@ class SeanceController extends ChangeNotifier {
     final classe = p == null ? null : referentiel.classe(p.classeId);
     if (p == null || race == null || classe == null) return null;
     return FicheCalculee(personnage: p, race: race, classe: classe);
+  }
+
+  /// Fiche d'un joueur, si ce compte peut la lire.
+  FicheCalculee? ficheDe(String joueur) {
+    if (joueur == uid) return maFiche;
+    for (final m in _membres) {
+      if (m.uid != joueur) continue;
+      final p = _fiches[m.personnageId];
+      final race = p == null ? null : referentiel.race(p.raceId);
+      final classe = p == null ? null : referentiel.classe(p.classeId);
+      if (p == null || race == null || classe == null) return null;
+      return FicheCalculee(personnage: p, race: race, classe: classe);
+    }
+    return null;
+  }
+
+  /// Fiche du bestiaire d'une créature de la partie.
+  Creature? ficheCreature(CreatureSeance c) {
+    for (final x in referentiel.creatures) {
+      if (x.id == c.creatureId) return x;
+    }
+    return null;
+  }
+
+  /// Créature sélectionnée, s'il y en a une.
+  CreatureSeance? get creatureChoisie {
+    for (final c in _creatures) {
+      if (c.id == _carte) return c;
+    }
+    return null;
+  }
+
+  /// Qui attaque dans le lancer de dés : le PJ pour lui-même ; le MJ pour le
+  /// personnage ou la créature sélectionnés.
+  ({FicheCalculee? fiche, Creature? creature, String nom}) get attaquant {
+    if (!estMj) {
+      final f = maFiche;
+      return (fiche: f, creature: null, nom: f?.personnage.nom ?? '');
+    }
+    final c = creatureChoisie;
+    if (c != null) return (fiche: null, creature: ficheCreature(c), nom: c.nom);
+    final f = ficheDe(_carte);
+    return (fiche: f, creature: null, nom: f?.personnage.nom ?? '');
   }
 
   /// Carte sélectionnée : script, notes, uid d'un joueur ou id de créature.
@@ -142,6 +198,98 @@ class SeanceController extends ChangeNotifier {
     }
     return 'MJ';
   }
+
+  void _campagneChangee() {
+    _suivreSelonPermissions();
+    notifyListeners();
+  }
+
+  /// Ce que ce compte reçoit dépend des permissions : créatures, ressources
+  /// et fiches sont relues quand elles changent.
+  void _suivreSelonPermissions() {
+    final c = campagne;
+    final s = _service;
+    if (c == null || s == null) return;
+    final cle = '${c.parametres.versJson()}';
+    if (cle == _permissions) return;
+    _permissions = cle;
+    _creaturesFlux?.cancel();
+    _ressourcesFlux?.cancel();
+    _creaturesFlux = s.seance.ecouterCreatures(c).listen((v) {
+      _creatures = v;
+      notifyListeners();
+    }, onError: (Object _) {});
+    _ressourcesFlux = s.seance.ecouterRessources(c).listen((v) {
+      _ressources = v;
+      notifyListeners();
+    }, onError: (Object _) {});
+    _suivreFiches();
+  }
+
+  /// Suit les fiches des autres joueurs que ce compte peut lire.
+  void _suivreFiches() {
+    final c = campagne;
+    final s = _service;
+    if (c == null || s == null) return;
+    final visibles = estMj
+        ? c.parametres.fichesVisiblesMj
+        : c.parametres.fichesVisiblesJoueurs;
+    final ids = {
+      if (visibles)
+        for (final m in joueurs)
+          if (m.uid != uid) m.personnageId,
+    };
+    for (final id in _fichesFlux.keys.toList()) {
+      if (ids.contains(id)) continue;
+      _fichesFlux.remove(id)?.cancel();
+      _fiches.remove(id);
+    }
+    for (final id in ids) {
+      _fichesFlux[id] ??= s.ecouterFiche(id).listen((p) {
+        // Une modification du MJ en attente garde la main.
+        if (_aEcrire.containsKey(id)) return;
+        if (p == null) {
+          _fiches.remove(id);
+        } else {
+          _fiches[id] = p;
+        }
+        notifyListeners();
+      }, onError: (Object _) {});
+    }
+  }
+
+  /// MJ : une initiative a changé (joueur arrivé) : ordre recalculé.
+  Future<void> _ajusterOrdre() async {
+    if (!estMj || !_etat.enCombat) return;
+    final ordre = ordreCombat(joueurs, _creatures);
+    if (listEquals(ordre, _etat.ordre)) return;
+    await _agir((s, c) => s.changerOrdre(c, ordre));
+  }
+
+  /// MJ : enregistre une fiche modifiée ; la première écriture part tout de
+  /// suite, les suivantes sont regroupées toutes les 5 secondes.
+  Future<void> enregistrerFiche(Personnage p) async {
+    _aEcrire[p.id] = p;
+    notifyListeners();
+    if (_minuterieFiches == null) await _ecrireFiches();
+  }
+
+  Future<void> _ecrireFiches() async {
+    if (_aEcrire.isEmpty) return;
+    final lot = _aEcrire.values.toList();
+    _aEcrire.clear();
+    _minuterieFiches = Timer(const Duration(seconds: 5), () {
+      _minuterieFiches = null;
+      unawaited(_ecrireFiches());
+    });
+    for (final p in lot) {
+      await campagnes.agir((s) => s.ecrireFiche(p));
+    }
+  }
+
+  /// MJ : enregistre les paramètres et permissions de la campagne.
+  Future<String?> enregistrerParametres(ParametresCampagne p) => _agir(
+      (s, c) => campagnes.serviceActuel!.modifier(c.copie(parametres: p)));
 
   void _personnagesChanges() {
     unawaited(_publier());
@@ -286,7 +434,17 @@ class SeanceController extends ChangeNotifier {
     for (final a in _abonnements) {
       a.cancel();
     }
-    campagnes.removeListener(notifyListeners);
+    _creaturesFlux?.cancel();
+    _ressourcesFlux?.cancel();
+    for (final a in _fichesFlux.values) {
+      a.cancel();
+    }
+    _minuterieFiches?.cancel();
+    // Modifications du MJ pas encore envoyées.
+    for (final p in _aEcrire.values) {
+      unawaited(campagnes.agir((s) => s.ecrireFiche(p)));
+    }
+    campagnes.removeListener(_campagneChangee);
     personnages.removeListener(_personnagesChanges);
     super.dispose();
   }

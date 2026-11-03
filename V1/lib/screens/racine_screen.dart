@@ -68,6 +68,7 @@ class _RacineScreenState extends State<RacineScreen> {
     campagnes: _campagnes,
     personnages: widget.controller,
     referentiel: widget.referentiel,
+    preferences: widget.preferences,
   );
 
   @override

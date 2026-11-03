@@ -2,19 +2,22 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../models/seance.dart';
+import '../../state/preferences_controller.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
 import '../regles_screen.dart';
 import 'campagnes_screen.dart';
+import 'creation_campagne_screen.dart';
 import 'seance_cartes.dart';
 import 'seance_creatures.dart';
 import 'seance_des.dart';
 
-/// Interface de jeu d'une séance. En haut, la navigation : Tableau de bord,
-/// Créatures (MJ seulement), Règles système, Paramètres. Le tableau de bord
-/// a trois portions : les cartes à gauche, le détail de la carte au centre,
-/// les dés et l'historique à droite (trois vues sur téléphone).
+/// Interface de jeu d'une séance. Les cartes (à gauche) et les dés (à droite)
+/// restent visibles ; la navigation du haut change le centre : Tableau de
+/// bord, Créatures (MJ seulement), Règles système, Paramètres. Sur téléphone,
+/// trois vues : Cartes, Détail, Dés.
 class SeanceScreen extends StatefulWidget {
   const SeanceScreen({
     super.key,
@@ -36,16 +39,30 @@ class SeanceScreen extends StatefulWidget {
   State<SeanceScreen> createState() => _SeanceScreenState();
 }
 
-class _SeanceScreenState extends State<SeanceScreen> {
-  late final SeanceController _seance = SeanceController(
-    campagnes: widget.contexte.campagnes,
-    personnages: widget.contexte.personnages,
-    referentiel: widget.contexte.referentiel,
-    campagneId: widget.campagneId,
-  );
+class _SeanceScreenState extends State<SeanceScreen>
+    with SingleTickerProviderStateMixin {
+  late final SeanceController _seance;
+  late final TabController _vues;
+
+  /// Taille des portions : préférences de l'appareil.
+  late final PreferencesController _preferences =
+      widget.contexte.preferences ?? PreferencesController();
+
+  @override
+  void initState() {
+    super.initState();
+    _vues = TabController(length: 3, vsync: this);
+    _seance = SeanceController(
+      campagnes: widget.contexte.campagnes,
+      personnages: widget.contexte.personnages,
+      referentiel: widget.contexte.referentiel,
+      campagneId: widget.campagneId,
+    );
+  }
 
   @override
   void dispose() {
+    _vues.dispose();
     _seance.dispose();
     super.dispose();
   }
@@ -53,7 +70,7 @@ class _SeanceScreenState extends State<SeanceScreen> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _seance,
+      listenable: Listenable.merge([_seance, _preferences]),
       builder: (context, _) {
         final s = _seance;
         final c = s.campagne;
@@ -81,6 +98,8 @@ class _SeanceScreenState extends State<SeanceScreen> {
                 labelStyle: styleOnglet,
                 unselectedLabelStyle: styleOnglet,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 20),
+                // Téléphone : le contenu de l'onglet est dans la vue Détail.
+                onTap: (_) => _vues.animateTo(1),
                 tabs: [
                   const Tab(
                     key: Key('seance-tableau'),
@@ -110,22 +129,83 @@ class _SeanceScreenState extends State<SeanceScreen> {
                 ],
               ),
             ),
-            body: TabBarView(
-              children: [
-                _TableauDeBord(
-                  seance: s,
-                  contexte: widget.contexte,
-                  aleatoire: widget.aleatoire,
-                ),
-                if (s.estMj) OngletCreatures(seance: s),
-                ReglesScreen(
-                  referentiel: widget.contexte.referentiel,
-                  avecBarre: false,
-                ),
-                _OngletParametres(seance: s, contexte: widget.contexte),
-              ],
-            ),
+            body: Builder(builder: _corps),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _corps(BuildContext context) {
+    final s = _seance;
+    final onglets = DefaultTabController.of(context);
+    // Une carte choisie ramène au tableau de bord, qui affiche son détail.
+    void carteChoisie() {
+      onglets.animateTo(0);
+      _vues.animateTo(1);
+    }
+
+    final cartes = ListeCartes(seance: s, onChoisie: carteChoisie);
+    final centre = TabBarView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        DetailCarte(seance: s, contexte: widget.contexte),
+        if (s.estMj) OngletCreatures(seance: s),
+        ReglesScreen(
+          referentiel: widget.contexte.referentiel,
+          avecBarre: false,
+        ),
+        _OngletParametres(
+          seance: s,
+          contexte: widget.contexte,
+          preferences: _preferences,
+        ),
+      ],
+    );
+    final des = PanneauDes(seance: s, aleatoire: widget.aleatoire);
+    return LayoutBuilder(
+      builder: (context, contraintes) {
+        final large = contraintes.maxWidth >= SeanceScreen.largeurTroisPortions;
+        final g = _preferences.portionGauche;
+        final d = _preferences.portionDroite;
+        int flex(double v) => (v * 1000).round();
+        return Column(
+          children: [
+            _BarreTours(seance: s),
+            const Divider(height: 1),
+            Expanded(
+              child: large
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(flex: flex(g), child: cartes),
+                        const VerticalDivider(width: 1),
+                        Expanded(flex: flex(1 - g - d), child: centre),
+                        const VerticalDivider(width: 1),
+                        Expanded(flex: flex(d), child: des),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        TabBar(
+                          controller: _vues,
+                          tabs: const [
+                            Tab(key: Key('vue-cartes'), text: 'Cartes'),
+                            Tab(key: Key('vue-detail'), text: 'Détail'),
+                            Tab(key: Key('vue-des'), text: 'Dés'),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: _vues,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [cartes, centre, des],
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ],
         );
       },
     );
@@ -225,111 +305,29 @@ class _BarreTours extends StatelessWidget {
   }
 }
 
-/// Les trois portions, côte à côte ou en trois vues sur téléphone.
-class _TableauDeBord extends StatefulWidget {
-  const _TableauDeBord({
+/// Permissions (MJ), graphismes, terminer ou quitter la séance.
+class _OngletParametres extends StatefulWidget {
+  const _OngletParametres({
     required this.seance,
     required this.contexte,
-    this.aleatoire,
+    required this.preferences,
   });
 
   final SeanceController seance;
   final ContexteCampagnes contexte;
-  final Random? aleatoire;
+  final PreferencesController preferences;
 
   @override
-  State<_TableauDeBord> createState() => _TableauDeBordState();
+  State<_OngletParametres> createState() => _OngletParametresState();
 }
 
-class _TableauDeBordState extends State<_TableauDeBord>
-    with SingleTickerProviderStateMixin {
-  late final TabController _vues;
-
-  @override
-  void initState() {
-    super.initState();
-    _vues = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _vues.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = widget.seance;
-    return LayoutBuilder(
-      builder: (context, contraintes) {
-        final large = contraintes.maxWidth >= SeanceScreen.largeurTroisPortions;
-        final detail = DetailCarte(seance: s, contexte: widget.contexte);
-        final des = PanneauDes(seance: s, aleatoire: widget.aleatoire);
-        return Column(
-          children: [
-            _BarreTours(seance: s),
-            const Divider(height: 1),
-            Expanded(
-              child: large
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(
-                          width: 280,
-                          child: ListeCartes(seance: s),
-                        ),
-                        const VerticalDivider(width: 1),
-                        Expanded(child: detail),
-                        const VerticalDivider(width: 1),
-                        SizedBox(width: 340, child: des),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        TabBar(
-                          controller: _vues,
-                          tabs: const [
-                            Tab(key: Key('vue-cartes'), text: 'Cartes'),
-                            Tab(key: Key('vue-detail'), text: 'Détail'),
-                            Tab(key: Key('vue-des'), text: 'Dés'),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            controller: _vues,
-                            children: [
-                              ListeCartes(
-                                seance: s,
-                                onChoisie: () => _vues.animateTo(1),
-                              ),
-                              detail,
-                              des,
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// État de la séance ; terminer (MJ) ou quitter (PJ).
-class _OngletParametres extends StatelessWidget {
-  const _OngletParametres({required this.seance, required this.contexte});
-
-  final SeanceController seance;
-  final ContexteCampagnes contexte;
-
+class _OngletParametresState extends State<_OngletParametres> {
   static String _heure(DateTime d) => '${d.hour.toString().padLeft(2, '0')}:'
       '${d.minute.toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
-    final s = seance;
+    final s = widget.seance;
     final c = s.campagne;
     if (c == null) return const SizedBox.shrink();
     final theme = Theme.of(context);
@@ -344,7 +342,27 @@ class _OngletParametres extends StatelessWidget {
             key: const Key('etat-seance'),
           ),
           Text('Mode : ${s.etat.mode.libelle.toLowerCase()}.'),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          if (s.estMj)
+            BlocConsultation(
+              titre: 'Permissions',
+              icone: Icons.lock_open_outlined,
+              children: [
+                FormulairePermissions(
+                  valeur: c.parametres,
+                  onChange: (p) => _suivre(context, s.enregistrerParametres(p)),
+                ),
+              ],
+            ),
+          BlocConsultation(
+            titre: 'Graphismes',
+            icone: Icons.view_column_outlined,
+            children: [
+              const Text('Taille de chaque portion, sur grand écran.'),
+              _Portions(preferences: widget.preferences),
+            ],
+          ),
+          const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerLeft,
             child: s.estMj
@@ -352,7 +370,7 @@ class _OngletParametres extends StatelessWidget {
                     key: const Key('terminer-seance'),
                     onPressed: () async {
                       final navigator = Navigator.of(context);
-                      final erreur = await contexte.campagnes
+                      final erreur = await widget.contexte.campagnes
                           .agir((x) => x.terminerSeance(c));
                       if (erreur == null) {
                         navigator.pop();
@@ -372,6 +390,63 @@ class _OngletParametres extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Trois curseurs : le menu gauche, le corps central, le menu droite.
+class _Portions extends StatelessWidget {
+  const _Portions({required this.preferences});
+
+  final PreferencesController preferences;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = preferences;
+    final g = p.portionGauche;
+    final d = p.portionDroite;
+    Widget curseur(String cle, String libelle, int portion, double valeur) =>
+        Row(
+          children: [
+            SizedBox(
+              width: 120,
+              child: Text(libelle, overflow: TextOverflow.ellipsis),
+            ),
+            Expanded(
+              child: Slider(
+                key: Key(cle),
+                min: kPortionMin,
+                max: 1 - 2 * kPortionMin,
+                value: valeur.clamp(kPortionMin, 1 - 2 * kPortionMin),
+                onChanged: (v) {
+                  final n = ajusterPortions(g, d, changee: portion, valeur: v);
+                  p.changerPortions(n.gauche, n.droite);
+                },
+              ),
+            ),
+            SizedBox(
+              width: 44,
+              child: Text(
+                '${(valeur * 100).round()} %',
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        );
+    return Column(
+      children: [
+        curseur('portion-gauche', 'Menu gauche', 0, g),
+        curseur('portion-centre', 'Corps central', 1, 1 - g - d),
+        curseur('portion-droite', 'Menu droite', 2, d),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            key: const Key('portions-defaut'),
+            onPressed: () => p.changerPortions(0.22, 0.26),
+            child: const Text('Tailles par défaut'),
+          ),
+        ),
+      ],
     );
   }
 }

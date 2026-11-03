@@ -16,6 +16,7 @@ import 'compte_controller.dart';
 class CampagnesController extends ChangeNotifier {
   CampagnesController({required this.compte, required this.service}) {
     compte.addListener(_suivreCompte);
+    compte.personnages.restrictions = restrictionsDe;
     _suivreCompte();
   }
 
@@ -44,6 +45,9 @@ class CampagnesController extends ChangeNotifier {
   /// Fiches partagées pour les campagnes (id de fiche → uids), pour ne
   /// réécrire que ce qui change.
   final Map<String, List<String>> _partages = {};
+
+  /// Campagnes où chaque fiche du joueur est engagée (joueur accepté).
+  Map<String, List<Campagne>> _engagees = const {};
 
   ServiceCampagnes? get serviceActuel => _service;
   String? get uid => _service?.uid;
@@ -89,6 +93,7 @@ class CampagnesController extends ChangeNotifier {
     _campagnes = const [];
     _seancesVues.clear();
     _partages.clear();
+    _engagees = const {};
     _charge = false;
     _service = u == null ? null : service(u);
     final s = _service;
@@ -117,12 +122,28 @@ class CampagnesController extends ChangeNotifier {
     unawaited(_mettreAJourPartages());
   }
 
-  /// Joueur : MJ (et autres joueurs selon les paramètres) peuvent lire la
-  /// fiche engagée dans chaque campagne.
+  /// Ce que les permissions verrouillent sur une fiche : seulement en
+  /// dehors d'une séance, pour une fiche engagée dans une campagne.
+  ({bool inventaire, bool competences}) restrictionsDe(String id) {
+    final liste = [
+      for (final c in _engagees[id] ?? const <Campagne>[])
+        if (!c.seanceEnCours) c,
+    ];
+    return (
+      inventaire: liste.any((c) => !c.parametres.pjInventaireHorsSeance),
+      competences: liste.any((c) => !c.parametres.pjCompetencesHorsSeance),
+    );
+  }
+
+  /// Joueur : le MJ (et les autres joueurs selon les paramètres) peuvent
+  /// lire la fiche engagée dans chaque campagne ; le MJ peut la modifier
+  /// une fois le joueur accepté.
   Future<void> _mettreAJourPartages() async {
     final s = _service;
     if (s == null) return;
     final voulu = <String, Set<String>>{};
+    final editeurs = <String, Set<String>>{};
+    final engagees = <String, List<Campagne>>{};
     for (final c in commeJoueur) {
       final membres = await s.ecouterMembres(c.id).first;
       MembreCampagne? moi;
@@ -130,23 +151,31 @@ class CampagnesController extends ChangeNotifier {
         if (m.uid == s.uid) moi = m;
       }
       if (moi == null || moi.personnageId.isEmpty) continue;
+      final accepte = moi.statut == StatutMembre.accepte;
       final lecteurs = voulu.putIfAbsent(moi.personnageId, () => {});
-      if (c.parametres.fichesVisiblesMj) lecteurs.add(c.mj);
-      if (c.parametres.fichesVisiblesJoueurs &&
-          moi.statut == StatutMembre.accepte) {
+      if (c.parametres.fichesVisiblesMj) {
+        lecteurs.add(c.mj);
+        if (accepte) editeurs.putIfAbsent(moi.personnageId, () => {}).add(c.mj);
+      }
+      if (c.parametres.fichesVisiblesJoueurs && accepte) {
         lecteurs.addAll(c.joueurs.where((u) => u != s.uid));
       }
+      if (accepte) engagees.putIfAbsent(moi.personnageId, () => []).add(c);
     }
+    _engagees = engagees;
+    compte.personnages.signalerRestrictions();
     // Fiches qui ne sont plus engagées : plus partagées.
     for (final id in _partages.keys) {
       voulu.putIfAbsent(id, () => {});
     }
     for (final e in voulu.entries) {
       final liste = e.value.toList()..sort();
-      if (listEquals(_partages[e.key], liste)) continue;
+      final ed = (editeurs[e.key] ?? const <String>{}).toList()..sort();
+      final cle = [...liste, '|', ...ed];
+      if (listEquals(_partages[e.key], cle)) continue;
       try {
-        await s.partagerFiche(e.key, liste);
-        _partages[e.key] = liste;
+        await s.partagerFiche(e.key, liste, editeurs: ed);
+        _partages[e.key] = cle;
       } catch (_) {
         // Réessayé au prochain changement.
       }
@@ -171,6 +200,7 @@ class CampagnesController extends ChangeNotifier {
   @override
   void dispose() {
     compte.removeListener(_suivreCompte);
+    compte.personnages.restrictions = null;
     _ecoute?.cancel();
     _nouvellesSeances.close();
     super.dispose();

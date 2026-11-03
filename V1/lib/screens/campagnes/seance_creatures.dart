@@ -2,30 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../../models/creature.dart';
 import '../../state/seance_controller.dart';
-import '../../widgets/consultation.dart';
+import '../bestiaire_screen.dart';
 
-/// Onglet Créatures (MJ) : le bestiaire, pour ajouter une créature à la
-/// partie ; elle s'affiche à gauche, sous les PJ.
-class OngletCreatures extends StatefulWidget {
+/// Onglet Créatures (MJ), au centre : le bestiaire du Glossaire, avec tout le
+/// détail ; une créature ajoutée s'affiche à gauche, sous les PJ.
+class OngletCreatures extends StatelessWidget {
   const OngletCreatures({super.key, required this.seance});
 
   final SeanceController seance;
 
-  @override
-  State<OngletCreatures> createState() => _OngletCreaturesState();
-}
-
-class _OngletCreaturesState extends State<OngletCreatures> {
-  String _recherche = '';
-
-  Future<void> _ajouter(Creature creature) async {
+  Future<void> _ajouter(BuildContext context, Creature creature) async {
+    final messager = ScaffoldMessenger.of(context);
     final choix = await showDialog<({bool cachee, bool nomCache})>(
       context: context,
       builder: (context) => _DialogueAjout(creature: creature),
     );
-    if (choix == null || !mounted) return;
-    final messager = ScaffoldMessenger.of(context);
-    final erreur = await widget.seance.ajouterCreature(
+    if (choix == null) return;
+    final erreur = await seance.ajouterCreature(
       creature,
       cachee: choix.cachee,
       nomCache: choix.nomCache,
@@ -37,40 +30,17 @@ class _OngletCreaturesState extends State<OngletCreatures> {
 
   @override
   Widget build(BuildContext context) {
-    final liste = [
-      for (final c in widget.seance.referentiel.creatures)
-        if (correspond(c.texteRecherche, _recherche)) c,
-    ];
-    return LargeurLimitee(
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ChampRecherche(
-            indice: 'Rechercher une créature',
-            onChanged: (t) => setState(() => _recherche = t),
-          ),
-          const SizedBox(height: 12),
-          if (liste.isEmpty)
-            const Center(child: TexteAVenir('Aucune créature ne correspond.')),
-          for (final c in liste)
-            Card(
-              margin: const EdgeInsets.only(bottom: 6),
-              child: ListTile(
-                title: Text(c.nom, overflow: TextOverflow.ellipsis),
-                subtitle: Text([
-                  c.famille,
-                  if (c.pv != null) '${c.pv} PV',
-                  if (c.initiative != null) 'init. ${c.initiative}',
-                ].join(' · ')),
-                trailing: IconButton(
-                  key: Key('ajouter-${c.id}'),
-                  tooltip: 'Ajouter à la partie',
-                  onPressed: () => _ajouter(c),
-                  icon: const Icon(Icons.add_circle_outline),
-                ),
-              ),
-            ),
-        ],
+    return BestiaireScreen(
+      referentiel: seance.referentiel,
+      dansSeance: true,
+      action: (c) => Align(
+        alignment: Alignment.centerLeft,
+        child: FilledButton.icon(
+          key: Key('ajouter-${c.id}'),
+          onPressed: () => _ajouter(context, c),
+          icon: const Icon(Icons.add),
+          label: const Text('Ajouter à la partie'),
+        ),
       ),
     );
   }

@@ -42,11 +42,14 @@ service cloud.firestore {
         && request.resource.data.proprietaire == soi()
         && documentValide();
 
-      // Modification : le propriétaire, sans changer de propriétaire.
-      allow update: if connecte()
-        && resource.data.proprietaire == soi()
-        && request.resource.data.proprietaire == soi()
-        && documentValide();
+      // Modification : le propriétaire, sans changer de propriétaire ; le MJ
+      // de la campagne (« modifiablePar ») : le contenu de la fiche seulement.
+      allow update: if connecte() && documentValide()
+        && (resource.data.proprietaire == soi()
+              && request.resource.data.proprietaire == soi()
+            || soi() in resource.data.get('modifiablePar', [])
+              && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['nom', 'modifieLe', 'fiche']));
 
       allow delete: if connecte()
         && resource.data.proprietaire == soi();
@@ -132,7 +135,7 @@ service cloud.firestore {
 
       function parametre(campagne, nom) {
         return get(/databases/$(database)/documents/campagnes/$(campagne))
-          .data.parametres[nom] == true;
+          .data.parametres.get(nom, false) == true;
       }
 
       // Mode et tours : le MJ ; le joueur dont c'est le tour peut le passer.
@@ -164,7 +167,7 @@ service cloud.firestore {
         allow read: if connecte()
           && (joueur == soi()
             || mjDe(id) && parametre(id, 'fichesVisiblesMj')
-            || membreDe(id) && parametre(id, 'fichesVisiblesJoueurs'));
+            || membreDe(id) && parametre(id, 'pjVoientRessources'));
         allow create, update: if connecte() && joueur == soi() && membreDe(id);
         allow delete: if connecte() && mjDe(id);
       }

@@ -22,6 +22,7 @@ class ListeDetail<T> extends StatefulWidget {
     this.vide,
     this.largeurMin = 900,
     this.largeurListe = 360,
+    this.detailEnPlace = false,
   });
 
   final List<T> elements;
@@ -45,6 +46,10 @@ class ListeDetail<T> extends StatefulWidget {
 
   final double largeurMin;
   final double largeurListe;
+
+  /// Écran étroit : le détail remplace la liste sur place, au lieu d'ouvrir
+  /// une nouvelle page (centre de la séance : les côtés restent visibles).
+  final bool detailEnPlace;
 
   @override
   State<ListeDetail<T>> createState() => _ListeDetailState<T>();
@@ -130,8 +135,9 @@ class _ListeDetailState<T> extends State<ListeDetail<T>> {
               Icons.chevron_right,
               color: choisi ? OdvCouleurs.accent : null,
             ),
-            onTap: () =>
-                grand ? setState(() => _choix = e) : _ouvrirPage(context, e),
+            onTap: () => grand || widget.detailEnPlace
+                ? setState(() => _choix = e)
+                : _ouvrirPage(context, e),
           ),
         );
       },
@@ -144,6 +150,19 @@ class _ListeDetailState<T> extends State<ListeDetail<T>> {
       builder: (context, contraintes) {
         final grand = contraintes.maxWidth >= widget.largeurMin;
         if (!grand) {
+          final choisi = _choix;
+          if (widget.detailEnPlace && choisi != null) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _EnteteDetail(
+                  titre: widget.nom(choisi),
+                  onFermer: () => setState(() => _choix = null),
+                ),
+                Expanded(child: widget.detail(choisi)),
+              ],
+            );
+          }
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(

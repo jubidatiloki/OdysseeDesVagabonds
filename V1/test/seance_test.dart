@@ -15,6 +15,7 @@ import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/models/seance.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/seance_screen.dart';
+import 'package:odyssee_vagabonds/screens/fiche_screen.dart';
 import 'package:odyssee_vagabonds/state/campagnes_controller.dart';
 import 'package:odyssee_vagabonds/state/compte_controller.dart';
 import 'package:odyssee_vagabonds/state/personnages_controller.dart';
@@ -65,6 +66,9 @@ const _loup = Creature(
   description: 'Un grand loup gris.',
   initiative: 14,
   pv: 12,
+  attaques: [
+    AttaqueCreature(nom: 'Morsure', toucher: '1d20 +2', degats: '1d6 +1'),
+  ],
 );
 
 const _referentiel = Referentiel(
@@ -191,8 +195,10 @@ void main() {
       // Partie publique en ligne : ni vrai nom, ni PV.
       const liche = CreatureSeance(
           id: 'b', nom: 'Liche', nomCache: true, pv: 40, pvMax: 40);
-      expect(liche.versPublic()['nom'], CreatureSeance.nomInconnu);
-      expect(liche.versPublic().containsKey('pv'), isFalse);
+      expect(liche.versPublic(const ParametresCampagne())['nom'],
+          CreatureSeance.nomInconnu);
+      expect(liche.versPublic(const ParametresCampagne()).containsKey('pv'),
+          isFalse);
       await expectLater(
           j1.retirerCreature(c, 'a'), throwsA(isA<ErreurCampagne>()));
     });
@@ -260,7 +266,7 @@ void main() {
       final p = await _partie(
         parametres: const ParametresCampagne(
           fichesVisiblesMj: false,
-          fichesVisiblesJoueurs: true,
+          pjVoientRessources: true,
         ),
       );
       await publier(p.base, p.campagne);
@@ -319,6 +325,100 @@ void main() {
     campagnes.dispose();
     compte.dispose();
     personnages.dispose();
+  });
+  group('permissions', () {
+    test('créatures : PV et fiche selon les permissions, nom caché prioritaire',
+        () {
+      const loup = CreatureSeance(
+        id: 'a',
+        nom: 'Loup',
+        creatureId: 'loup',
+        pv: 8,
+        pvMax: 12,
+      );
+      const rien = ParametresCampagne();
+      const tout = ParametresCampagne(
+        pjVoientPvCreatures: true,
+        pjVoientFichesCreatures: true,
+      );
+      expect(loup.pourJoueur(rien).pv, isNull);
+      expect(loup.pourJoueur(rien).creatureId, isEmpty);
+      expect(loup.pourJoueur(tout).pv, 8);
+      expect(loup.pourJoueur(tout).creatureId, 'loup');
+      expect(loup.versPublic(rien).containsKey('pv'), isFalse);
+      expect(loup.versPublic(tout)['pv'], 8);
+      // Nom caché : la fiche le révélerait.
+      final cache = loup.copie(nomCache: true);
+      expect(cache.pourJoueur(tout).creatureId, isEmpty);
+      expect(cache.versPublic(tout).containsKey('creatureId'), isFalse);
+    });
+
+    test('inventaire et compétences verrouillés hors séance seulement',
+        () async {
+      final p = await _partie(
+        parametres: const ParametresCampagne(
+          pjInventaireHorsSeance: false,
+          pjCompetencesHorsSeance: false,
+        ),
+      );
+      final personnages = PersonnagesController(
+        EnMemoirePersonnageRepository([_brom()]),
+      );
+      await personnages.charger();
+      final compte = CompteController(
+        service: _Compte(const Utilisateur(uid: 'j1')),
+        personnages: personnages,
+        local: personnages.repository,
+        depotEnLigne: (_) => EnMemoireDepotEnLigne([_brom()]),
+      );
+      await compte.demarrer();
+      final campagnes = CampagnesController(
+        compte: compte,
+        service: (u) => ServiceCampagnesMemoire(p.base, u.uid),
+      );
+      await pumpEventQueue();
+      // Séance en cours : rien de verrouillé.
+      expect(personnages.restrictionsDe('brom').inventaire, isFalse);
+      await ServiceCampagnesMemoire(p.base, 'mj')
+          .terminerSeance(p.base.campagnes[p.campagne.id]!);
+      await pumpEventQueue();
+      expect(personnages.restrictionsDe('brom').inventaire, isTrue);
+      expect(personnages.restrictionsDe('brom').competences, isTrue);
+      expect(personnages.restrictionsDe('autre').inventaire, isFalse);
+      campagnes.dispose();
+      compte.dispose();
+      personnages.dispose();
+    });
+
+    test('le MJ modifie une fiche que le joueur lui a ouverte', () async {
+      final p = await _partie();
+      final brom = _brom();
+      p.base.fiches['brom'] = (
+        fiche: brom,
+        proprietaire: 'j1',
+        partage: ['mj'],
+        editeurs: <String>[],
+      );
+      final mj = ServiceCampagnesMemoire(p.base, 'mj');
+      await expectLater(mj.ecrireFiche(brom), throwsA(isA<ErreurCampagne>()));
+      await ServiceCampagnesMemoire(p.base, 'j1')
+          .partagerFiche('brom', ['mj'], editeurs: ['mj']);
+      await mj.ecrireFiche(brom..pvActuels = 3);
+      expect(p.base.fiches['brom']!.fiche.pvActuels, 3);
+      expect(p.base.fiches['brom']!.proprietaire, 'j1');
+    });
+  });
+
+  test('taille des portions : le total reste 100 %, 15 % au moins', () {
+    var r = ajusterPortions(0.22, 0.26, changee: 0, valeur: 0.3);
+    expect(r.gauche, closeTo(0.3, 0.001));
+    expect(1 - r.gauche - r.droite, greaterThanOrEqualTo(kPortionMin));
+    r = ajusterPortions(0.22, 0.26, changee: 1, valeur: 0.7);
+    expect(r.gauche, closeTo(0.15, 0.001));
+    expect(r.droite, closeTo(0.15, 0.001));
+    r = ajusterPortions(0.22, 0.26, changee: 2, valeur: 0.05);
+    expect(r.droite, kPortionMin);
+    expect(r.gauche + (1 - r.gauche - r.droite) + r.droite, closeTo(1, 0.001));
   });
 
   group('écran', () {
@@ -381,6 +481,11 @@ void main() {
 
       // Onglet Créatures : ajout avec le nom caché.
       await tap(tester, find.byKey(const Key('seance-creatures')));
+      // Le bestiaire s'ouvre au centre : cartes et dés restent visibles.
+      expect(find.byKey(const Key('liste-cartes')), findsOneWidget);
+      expect(find.byKey(const Key('lancer-seance')), findsOneWidget);
+      await tap(tester, find.text('Loup'));
+      expect(find.text('Un grand loup gris.'), findsOneWidget);
       await tap(tester, find.byKey(const Key('ajouter-loup')));
       await tap(tester, find.byKey(const Key('ajout-nom-cache')));
       await tap(tester, find.byKey(const Key('confirmer-ajout')));
@@ -400,8 +505,17 @@ void main() {
       await tap(tester, find.byKey(const Key('creature-pv-moins')));
       expect(partie.creatures[loup.id]!.pv, 11);
 
+      // Créature sélectionnée : ses attaques dans le lancer de dés.
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      expect(partie.jets.single.libelle, 'Loup · Morsure · toucher');
+      await tap(tester, find.byKey(const Key('attaque-1')));
+      expect(partie.jets.last.libelle, 'Loup · Morsure · dégâts');
+
       // Combat : le loup (14) passe avant les PJ (0), retour possible.
       await tap(tester, find.byKey(const Key('basculer-mode')));
+      // En combat, l'initiative s'affiche sur les cartes.
+      expect(find.byKey(Key('carte-${loup.id}-initiative')), findsOneWidget);
+      expect(find.byKey(const Key('carte-j1-initiative')), findsOneWidget);
       expect(partie.etat.enCombat, isTrue);
       expect(partie.etat.actif, loup.id);
       await tap(tester, find.byKey(const Key('passer-tour')));
@@ -501,6 +615,53 @@ void main() {
             .widget<FilledButton>(find.byKey(const Key('passer-tour')))
             .onPressed,
         isNull,
+      );
+    });
+    testWidgets('PJ : sa fiche complète au centre et ses attaques',
+        (tester) async {
+      await ouvrir(tester, 'j1', fiches: [_brom()]);
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      expect(find.byKey(const Key('vue-fiche')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('vue-competences')));
+      expect(find.byKey(const Key('points-disponibles')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('vue-inventaire')));
+      expect(find.byKey(const Key('attaque-0')), findsOneWidget);
+      expect(find.textContaining('Toucher CaC'), findsOneWidget);
+    });
+
+    testWidgets('fiche hors séance : inventaire et compétences verrouillés',
+        (tester) async {
+      tester.view.physicalSize = const Size(1200, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final personnages = PersonnagesController(
+        EnMemoirePersonnageRepository([_brom()]),
+      )..restrictions = (_) => (inventaire: true, competences: true);
+      await personnages.charger();
+      await tester.pumpWidget(MaterialApp(
+        home: FicheScreen(
+          personnageId: 'brom',
+          referentiel: _referentiel,
+          controller: personnages,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('bouton-monter-niveau')), findsNothing);
+      await tap(tester, find.text('Compétences').first);
+      expect(find.byKey(const Key('competences-verrouillees')), findsOneWidget);
+      expect(find.byKey(const Key('depenser-points')), findsNothing);
+      await tap(tester, find.text('Inventaire').first);
+      expect(find.byKey(const Key('inventaire-lecture')), findsOneWidget);
+    });
+
+    testWidgets('MJ : permissions et taille des portions', (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      await tap(tester, find.byKey(const Key('seance-parametres')));
+      expect(find.byKey(const Key('portion-centre')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('pj-voient-pv-creatures')));
+      expect(
+        x.base.campagnes[x.campagne.id]!.parametres.pjVoientPvCreatures,
+        isTrue,
       );
     });
 

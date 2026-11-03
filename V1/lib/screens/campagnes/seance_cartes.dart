@@ -6,8 +6,9 @@ import '../../models/seance.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
+import '../../widgets/profil_classe.dart';
 import '../bestiaire_screen.dart';
-import '../fiche_screen.dart';
+import '../fiche/vues_fiche.dart';
 import 'campagnes_screen.dart';
 import 'fiche_partagee_screen.dart';
 
@@ -54,9 +55,14 @@ class ListeCartes extends StatelessWidget {
             actif: s.etat.actif == m.uid,
             icone: Icons.person_outline,
             titre: m.personnageNom,
-            lignes: [
-              m.personnageResume,
-              if (s.ressources[m.uid] case final r?) _texteRessources(r),
+            lignes: [m.personnageResume],
+            initiative: s.etat.enCombat ? m.initiative : null,
+            ressources: [
+              if (s.ressources[m.uid] case final r?) ...[
+                _Ressource.vie(context, r.pv, r.pvMax),
+                if (r.pmMax > 0) _Ressource.mana(context, r.pm, r.pmMax),
+                if (r.peMax > 0) _Ressource.endurance(context, r.pe, r.peMax),
+              ],
             ],
             onTap: () => _choisir(m.uid),
           ),
@@ -67,11 +73,13 @@ class ListeCartes extends StatelessWidget {
             actif: s.etat.actif == c.id,
             icone: Icons.pets_outlined,
             titre: c.nom,
+            initiative: s.etat.enCombat ? c.initiative : null,
+            ressources: [
+              if (c.pv != null)
+                _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+            ],
             lignes: [
-              if (s.estMj && c.pv != null)
-                'PV ${c.pv}/${c.pvMax}'
-              else
-                c.etat.libelle,
+              if (c.pv == null) c.etat.libelle,
               if (s.estMj && c.cachee)
                 'Carte cachée aux PJ'
               else if (s.estMj && c.nomCache)
@@ -93,12 +101,6 @@ class ListeCartes extends StatelessWidget {
       ],
     );
   }
-
-  static String _texteRessources(RessourcesPj r) => [
-        'PV ${r.pv}/${r.pvMax}',
-        if (r.pmMax > 0) 'PM ${r.pm}/${r.pmMax}',
-        if (r.peMax > 0) 'PE ${r.pe}/${r.peMax}',
-      ].join(' · ');
 }
 
 class _Carte extends StatelessWidget {
@@ -109,6 +111,8 @@ class _Carte extends StatelessWidget {
     required this.titre,
     required this.onTap,
     this.lignes = const [],
+    this.ressources = const [],
+    this.initiative,
     this.actif = false,
     this.onRetirer,
     this.cleRetirer,
@@ -119,6 +123,12 @@ class _Carte extends StatelessWidget {
   final IconData icone;
   final String titre;
   final List<String> lignes;
+
+  /// PV, PM, PE avec leurs icônes et couleurs.
+  final List<Widget> ressources;
+
+  /// Initiative, affichée en combat.
+  final int? initiative;
   final VoidCallback onTap;
 
   /// C'est son tour.
@@ -169,6 +179,35 @@ class _Carte extends StatelessWidget {
                         style: theme.textTheme.bodySmall
                             ?.copyWith(color: scheme.onSurfaceVariant),
                       ),
+                    if (ressources.isNotEmpty || initiative != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Wrap(
+                          spacing: 8,
+                          children: [
+                            ...ressources,
+                            if (initiative != null)
+                              Tooltip(
+                                message: 'Initiative',
+                                child: Row(
+                                  key: Key('$cle-initiative'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.bolt,
+                                      size: 14,
+                                      color: scheme.primary,
+                                    ),
+                                    Text(
+                                      '$initiative',
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -210,7 +249,7 @@ class DetailCarte extends StatelessWidget {
       if (c.id == id) {
         return s.estMj
             ? _CreatureMj(key: ValueKey(c.id), seance: s, creature: c)
-            : _CreaturePj(creature: c);
+            : _CreaturePj(creature: c, fiche: s.ficheCreature(c));
       }
     }
     return const Center(child: TexteAVenir('Choisis une carte.'));
@@ -218,36 +257,32 @@ class DetailCarte extends StatelessWidget {
 
   Widget _detailPj(BuildContext context, MembreCampagne m) {
     final s = seance;
-    final c = s.campagne;
-    if (m.uid == s.uid) {
-      final f = s.maFiche;
-      if (f != null) {
-        return ApercuFiche(
+    final ref = contexte.referentiel;
+    final f = s.ficheDe(m.uid);
+    if (f != null) {
+      // Sa propre fiche, ou le MJ : fiche complète et modifiable.
+      if (m.uid == s.uid) {
+        return FicheComplete(
+          key: ValueKey(m.uid),
           fiche: f,
-          action: OutlinedButton.icon(
-            key: const Key('ouvrir-ma-fiche'),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => FicheScreen(
-                personnageId: f.personnage.id,
-                referentiel: contexte.referentiel,
-                controller: contexte.personnages,
-              ),
-            )),
-            icon: const Icon(Icons.open_in_new),
-            label: const Text('Ouvrir ma fiche'),
-          ),
+          referentiel: ref,
+          controller: contexte.personnages,
+          onModifie: () => contexte.personnages.sauvegarder(f.personnage),
         );
       }
-    }
-    final visible = s.estMj
-        ? c?.parametres.fichesVisiblesMj ?? false
-        : c?.parametres.fichesVisiblesJoueurs ?? false;
-    if (visible) {
-      return ContenuFichePartagee(
-        // Relue quand ses PV, PM ou PE changent.
-        key: ValueKey((m.uid, s.ressources[m.uid])),
-        contexte: contexte,
-        membre: m,
+      if (s.estMj) {
+        return FicheComplete(
+          key: ValueKey(m.uid),
+          fiche: f,
+          referentiel: ref,
+          onModifie: () => s.enregistrerFiche(f.personnage),
+        );
+      }
+      return FicheLecture(
+        key: ValueKey(m.uid),
+        fiche: f,
+        referentiel: ref,
+        joueur: m.nom,
       );
     }
     return Center(
@@ -265,6 +300,50 @@ class DetailCarte extends StatelessWidget {
       ),
     );
   }
+}
+
+/// PV, PM ou PE sur une carte : icône et valeur de la couleur de la ressource.
+class _Ressource extends StatelessWidget {
+  const _Ressource(this.icone, this.texte, this.couleur);
+
+  factory _Ressource.vie(BuildContext context, int v, int max) => _Ressource(
+        Icons.favorite,
+        '$v/$max',
+        couleurVie(Theme.of(context).brightness),
+      );
+
+  factory _Ressource.mana(BuildContext context, int v, int max) => _Ressource(
+        Icons.water_drop,
+        '$v/$max',
+        couleurMana(Theme.of(context).brightness),
+      );
+
+  factory _Ressource.endurance(BuildContext context, int v, int max) =>
+      _Ressource(
+        kIconeEndurance,
+        '$v/$max',
+        couleurEndurance(Theme.of(context).brightness),
+      );
+
+  final IconData icone;
+  final String texte;
+  final Color couleur;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icone, size: 14, color: couleur),
+          const SizedBox(width: 2),
+          Text(
+            texte,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: couleur,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+      );
 }
 
 /// Script (MJ) ou notes de séance (PJ), enregistrés au bouton.
@@ -352,18 +431,11 @@ class _CreatureMj extends StatelessWidget {
   final SeanceController seance;
   final CreatureSeance creature;
 
-  Creature? get _fiche {
-    for (final x in seance.referentiel.creatures) {
-      if (x.id == creature.creatureId) return x;
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = creature;
     final s = seance;
-    final fiche = _fiche;
+    final fiche = s.ficheCreature(c);
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -438,13 +510,37 @@ class _CreatureMj extends StatelessWidget {
 
 /// Créature côté PJ : nom affiché, description et état approximatif.
 class _CreaturePj extends StatelessWidget {
-  const _CreaturePj({required this.creature});
+  const _CreaturePj({required this.creature, this.fiche});
 
   final CreatureSeance creature;
+
+  /// Fiche du bestiaire, si le MJ la montre aux PJ.
+  final Creature? fiche;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final f = fiche;
+    if (f != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Text(
+              [
+                creature.nom,
+                creature.pv != null
+                    ? 'PV ${creature.pv}/${creature.pvMax}'
+                    : creature.etat.libelle,
+              ].join(' · '),
+              style: styleAmbiance(theme.textTheme.titleLarge),
+            ),
+          ),
+          Expanded(child: CreatureDetail(creature: f)),
+        ],
+      );
+    }
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -455,6 +551,9 @@ class _CreaturePj extends StatelessWidget {
           key: const Key('creature-etat'),
           style: theme.textTheme.titleSmall,
         ),
+        if (creature.pv != null)
+          Text('PV ${creature.pv}/${creature.pvMax}',
+              key: const Key('creature-pv')),
         const SizedBox(height: 12),
         if (creature.description.isNotEmpty) Text(creature.description),
       ],

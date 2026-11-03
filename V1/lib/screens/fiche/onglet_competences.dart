@@ -15,7 +15,15 @@ class OngletCompetences extends StatelessWidget {
     required this.fiche,
     required this.referentiel,
     this.controller,
+    this.verrouille = false,
+    this.avecPassif = false,
   });
+
+  /// Dépense des points interdite hors séance (permission du MJ).
+  final bool verrouille;
+
+  /// Affiche le passif de race (consultation d'une fiche partagée).
+  final bool avecPassif;
 
   final FicheCalculee fiche;
   final Referentiel referentiel;
@@ -66,7 +74,16 @@ class OngletCompetences extends StatelessWidget {
             ],
           ),
         ),
-        if (disponibles > 0 && controller != null)
+        if (verrouille)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'Le MJ ne permet pas de modifier les compétences en dehors '
+              'd\'une séance.',
+              key: Key('competences-verrouillees'),
+            ),
+          ),
+        if (disponibles > 0 && controller != null && !verrouille)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Align(
@@ -89,6 +106,13 @@ class OngletCompetences extends StatelessWidget {
               ),
             ),
           ),
+        if (avecPassif)
+          if (fiche.race.passif case final passif?) ...[
+            const SizedBox(height: 16),
+            Text(passif.nom, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(passif.description),
+          ],
         const SizedBox(height: 16),
         Text('Compétences', style: theme.textTheme.titleMedium),
         const SizedBox(height: 4),

@@ -7,11 +7,7 @@ import '../regles/montee_niveau.dart';
 import '../state/personnages_controller.dart';
 import '../theme.dart';
 import 'fiche/formulaire_identite.dart';
-import 'fiche/onglet_competences.dart';
-import 'fiche/onglet_fiche.dart';
-import 'fiche/onglet_historique.dart';
-import 'fiche/onglet_inventaire.dart';
-import 'fiche/onglet_notes.dart';
+import 'fiche/vues_fiche.dart';
 import 'import_export.dart';
 import 'montee_niveau_screen.dart';
 
@@ -96,7 +92,9 @@ class FicheScreen extends StatelessWidget {
         }
         final fiche = FicheCalculee(personnage: p, race: race, classe: classe);
         Future<void> enregistrer() => controller.sauvegarder(p);
-        final monterNiveau = MonteeNiveau.possible(p)
+        // Permissions de la campagne, en dehors d'une séance.
+        final verrous = controller.restrictionsDe(p.id);
+        final monterNiveau = MonteeNiveau.possible(p) && !verrous.competences
             ? () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => MonteeNiveauScreen(
@@ -216,70 +214,18 @@ class FicheScreen extends StatelessWidget {
               ),
             ),
             body: TabBarView(
-              children: [
-                // La fiche utilise toute la largeur (deux colonnes sur
-                // grand écran, trois sur très grand écran) ; les autres
-                // onglets restent centrés.
-                _Largeur(
-                  max: 1700,
-                  child: OngletFiche(
-                    fiche: fiche,
-                    onModifie: enregistrer,
-                    equipements: referentiel.equipements,
-                    onModifierIdentite: () async {
-                      if (await FormulaireIdentite.ouvrir(context, p)) {
-                        await enregistrer();
-                      }
-                    },
-                  ),
-                ),
-                _Largeur(
-                  child: OngletCompetences(
-                    fiche: fiche,
-                    referentiel: referentiel,
-                    controller: controller,
-                  ),
-                ),
-                _Largeur(
-                  child: OngletInventaire(
-                    personnage: p,
-                    onModifie: enregistrer,
-                    equipements: referentiel.equipements,
-                    deuxArmesDeuxMains: fiche.deuxArmesDeuxMains,
-                    fabrications: fiche.fabrications,
-                    usagesRestants: {
-                      for (final u in fiche.usages) u.cle: u.restants,
-                    },
-                    bidouillage: fiche.bidouillage,
-                  ),
-                ),
-                _Largeur(
-                  child: OngletNotes(personnage: p, onModifie: enregistrer),
-                ),
-                _Largeur(child: OngletHistorique(personnage: p)),
-              ],
+              children: vuesFiche(
+                context,
+                fiche: fiche,
+                referentiel: referentiel,
+                onModifie: enregistrer,
+                controller: controller,
+                verrous: verrous,
+              ),
             ),
           ),
         );
       },
-    );
-  }
-}
-
-/// Centre un onglet et limite sa largeur sur grand écran.
-class _Largeur extends StatelessWidget {
-  const _Largeur({required this.child, this.max = 760});
-
-  final Widget child;
-  final double max;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: max),
-        child: child,
-      ),
     );
   }
 }

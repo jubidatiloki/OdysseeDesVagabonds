@@ -14,9 +14,21 @@ import '../widgets/voie_detail.dart';
 /// Page « Bestiaire » : toutes les créatures, avec recherche et filtres
 /// (famille, taille).
 class BestiaireScreen extends StatefulWidget {
-  const BestiaireScreen({super.key, required this.referentiel});
+  const BestiaireScreen({
+    super.key,
+    required this.referentiel,
+    this.action,
+    this.dansSeance = false,
+  });
 
   final Referentiel referentiel;
+
+  /// Bouton au-dessus du détail d'une créature (séance : l'ajouter).
+  final Widget Function(Creature)? action;
+
+  /// Au centre de la séance : le détail remplace la liste, sur place.
+  final bool dansSeance;
+
   @override
   State<BestiaireScreen> createState() => _BestiaireScreenState();
 }
@@ -50,7 +62,20 @@ class _BestiaireScreenState extends State<BestiaireScreen> {
         contenu: (c) => InfosCreature(c),
         couleurAvatar: (c) =>
             styleFamille(c.famille, Theme.of(context).brightness).couleur,
-        detail: (c) => CreatureDetail(creature: c),
+        largeurMin: widget.dansSeance ? double.infinity : 900,
+        detailEnPlace: widget.dansSeance,
+        detail: (c) => widget.action == null
+            ? CreatureDetail(creature: c)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: widget.action!(c),
+                  ),
+                  Expanded(child: CreatureDetail(creature: c)),
+                ],
+              ),
         entete: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

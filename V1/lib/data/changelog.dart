@@ -29,6 +29,41 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.24.0',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Séance : les onglets s\'ouvrent au centre, cartes et dés '
+            'restent visibles ; Créatures = bestiaire complet.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : fiche complète au centre (compétences, sorts, '
+            'inventaire, points restants).',
+      ),
+      (
+        type: _a,
+        texte: 'MJ : modifier la fiche et l\'inventaire d\'un personnage '
+            'pendant la séance.',
+      ),
+      (
+        type: _a,
+        texte: 'Dés : jets d\'attaque du personnage ou de la créature '
+            'sélectionnée.',
+      ),
+      (
+        type: _m,
+        texte: 'Cartes : PV, PM et PE avec icônes et couleurs, initiative '
+            'en combat.',
+      ),
+      (
+        type: _a,
+        texte: 'Paramètres : permissions des PJ et taille de chaque portion.',
+      ),
+    ],
+  ),
+  (
     version: '0.23.0',
     date: '03/11/2026',
     changements: [

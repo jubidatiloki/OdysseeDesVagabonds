@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../data/referentiel.dart';
 import '../../models/campagne.dart';
 import '../../models/personnage.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/resume_fiche.dart';
+import '../fiche/onglet_competences.dart';
+import '../fiche/vues_fiche.dart';
 import 'campagnes_screen.dart';
 
 /// Ouvre la fiche (lecture seule) du personnage d'un membre.
@@ -83,11 +86,59 @@ class _ContenuFichePartageeState extends State<ContenuFichePartagee> {
             ),
           );
         }
-        return ApercuFiche(
+        return FicheLecture(
           fiche: FicheCalculee(personnage: p, race: race, classe: classe),
+          referentiel: ref,
           joueur: widget.membre.nom,
         );
       },
+    );
+  }
+}
+
+/// Fiche d'un autre joueur, en consultation : statistiques, compétences
+/// (sorts, passifs, actifs, points restants) et inventaire.
+class FicheLecture extends StatelessWidget {
+  const FicheLecture({
+    super.key,
+    required this.fiche,
+    required this.referentiel,
+    this.joueur,
+  });
+
+  final FicheCalculee fiche;
+  final Referentiel referentiel;
+  final String? joueur;
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          const TabBar(
+            tabs: [
+              Tab(key: Key('lecture-fiche'), text: 'Fiche'),
+              Tab(key: Key('lecture-competences'), text: 'Compétences'),
+              Tab(key: Key('lecture-inventaire'), text: 'Inventaire'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                ApercuFiche(fiche: fiche, joueur: joueur),
+                OngletCompetences(
+                  fiche: fiche,
+                  referentiel: referentiel,
+                  avecPassif: true,
+                ),
+                InventaireLecture(personnage: fiche.personnage),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -199,19 +199,26 @@ class CreatureSeance {
     );
   }
 
-  /// Ce qu'un PJ a le droit de savoir.
-  CreatureSeance pourJoueur() => CreatureSeance(
+  /// Ce qu'un PJ a le droit de savoir, selon les permissions : la fiche
+  /// révélerait le nom, elle reste cachée avec lui.
+  CreatureSeance pourJoueur(ParametresCampagne p) => CreatureSeance(
         id: id,
         nom: nomPublic,
+        creatureId: p.pjVoientFichesCreatures && !nomCache ? creatureId : '',
         description: description,
         initiative: initiative,
+        pv: p.pjVoientPvCreatures ? pv : null,
+        pvMax: p.pjVoientPvCreatures ? pvMax : null,
         etat: etat,
         nomCache: nomCache,
       );
 
   /// Partie lisible par les PJ (si la carte n'est pas cachée).
-  Map<String, dynamic> versPublic() => {
+  Map<String, dynamic> versPublic(ParametresCampagne p) => {
         'nom': nomPublic,
+        if (p.pjVoientFichesCreatures && !nomCache) 'creatureId': creatureId,
+        if (p.pjVoientPvCreatures && pv != null) 'pv': pv,
+        if (p.pjVoientPvCreatures && pvMax != null) 'pvMax': pvMax,
         'description': description,
         'initiative': initiative,
         'etat': etat.name,
@@ -236,11 +243,11 @@ class CreatureSeance {
       CreatureSeance(
         id: id,
         nom: (mj?['nom'] ?? public['nom']) as String? ?? nomInconnu,
-        creatureId: mj?['creatureId'] as String? ?? '',
+        creatureId: (mj ?? public)['creatureId'] as String? ?? '',
         description: public['description'] as String? ?? '',
         initiative: (public['initiative'] as num?)?.toInt() ?? 0,
-        pv: (mj?['pv'] as num?)?.toInt(),
-        pvMax: (mj?['pvMax'] as num?)?.toInt(),
+        pv: ((mj ?? public)['pv'] as num?)?.toInt(),
+        pvMax: ((mj ?? public)['pvMax'] as num?)?.toInt(),
         etat: EtatCreature.depuisCode(public['etat']),
         cachee: public['cachee'] as bool? ?? false,
         nomCache: public['nomCache'] as bool? ?? false,
@@ -406,4 +413,29 @@ class JetSeance {
         lecteurs: [for (final u in j['lecteurs'] as List? ?? const []) '$u'],
         visibilite: VisibiliteJet.depuisCode(j['visibilite']),
       );
+}
+
+/// Taille des trois portions de la séance (fractions de la largeur) : chaque
+/// portion garde au moins [kPortionMin]. La portion [changee] (0 gauche,
+/// 1 centre, 2 droite) prend la valeur voulue, les deux autres se partagent
+/// le reste en gardant leur proportion.
+const double kPortionMin = 0.15;
+
+({double gauche, double droite}) ajusterPortions(
+  double gauche,
+  double droite, {
+  required int changee,
+  required double valeur,
+}) {
+  final parts = [gauche, 1 - gauche - droite, droite];
+  final v = valeur.clamp(kPortionMin, 1 - 2 * kPortionMin);
+  final autres = [0, 1, 2].where((i) => i != changee).toList();
+  final somme = parts[autres[0]] + parts[autres[1]];
+  final reste = 1 - v;
+  var a = somme <= 0 ? reste / 2 : reste * parts[autres[0]] / somme;
+  a = a.clamp(kPortionMin, reste - kPortionMin);
+  parts[changee] = v;
+  parts[autres[0]] = a;
+  parts[autres[1]] = reste - a;
+  return (gauche: parts[0], droite: parts[2]);
 }

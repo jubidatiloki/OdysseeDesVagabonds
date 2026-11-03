@@ -142,7 +142,11 @@ class PreferencesController extends ChangeNotifier {
     int deDefaut = 20,
     Map<GroupeJets, AffichageGroupe> affichages = const {},
     Map<GroupeJets, bool> derniersOuverts = const {},
-  })  : _deDefaut = facesDesLibres.contains(deDefaut) ? deDefaut : 20,
+    double portionGauche = 0.22,
+    double portionDroite = 0.26,
+  })  : _portionGauche = portionGauche,
+        _portionDroite = portionDroite,
+        _deDefaut = facesDesLibres.contains(deDefaut) ? deDefaut : 20,
         _affichages = Map.of(affichages),
         _derniersOuverts = Map.of(derniersOuverts),
         _theme = theme,
@@ -152,6 +156,22 @@ class PreferencesController extends ChangeNotifier {
 
   /// `null` : préférences gardées en mémoire seulement (tests).
   final PreferencesStockage? stockage;
+
+  double _portionGauche;
+  double _portionDroite;
+
+  /// Largeur de la portion de gauche de la séance (fraction de l'écran).
+  double get portionGauche => _portionGauche;
+
+  /// Largeur de la portion de droite de la séance ; le centre a le reste.
+  double get portionDroite => _portionDroite;
+
+  Future<void> changerPortions(double gauche, double droite) async {
+    _portionGauche = gauche;
+    _portionDroite = droite;
+    notifyListeners();
+    await stockage?.enregistrerReglage('seance.portions', '$gauche,$droite');
+  }
 
   ThemeMode _theme;
   ThemeMode get theme => _theme;
@@ -205,6 +225,8 @@ class PreferencesController extends ChangeNotifier {
     var deDefaut = 20;
     final affichages = <GroupeJets, AffichageGroupe>{};
     final ouverts = <GroupeJets, bool>{};
+    var portionGauche = 0.22;
+    var portionDroite = 0.26;
     try {
       theme = await stockage.lireTheme();
       menuEpingle = await stockage.lireMenuEpingle();
@@ -212,6 +234,12 @@ class PreferencesController extends ChangeNotifier {
       animations = await stockage.lireAnimations();
       deDefaut =
           int.tryParse(await stockage.lireReglage('de.defaut') ?? '') ?? 20;
+      final portions =
+          (await stockage.lireReglage('seance.portions'))?.split(',');
+      if (portions?.length == 2) {
+        portionGauche = double.tryParse(portions![0]) ?? portionGauche;
+        portionDroite = double.tryParse(portions[1]) ?? portionDroite;
+      }
       for (final g in GroupeJets.values) {
         affichages[g] = AffichageGroupe.depuisCode(
             await stockage.lireReglage(_cleAffichage(g)));
@@ -230,6 +258,8 @@ class PreferencesController extends ChangeNotifier {
       deDefaut: deDefaut,
       affichages: affichages,
       derniersOuverts: ouverts,
+      portionGauche: portionGauche,
+      portionDroite: portionDroite,
     );
   }
 

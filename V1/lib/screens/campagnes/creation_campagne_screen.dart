@@ -357,14 +357,72 @@ class FormulaireParametres extends StatelessWidget {
           value: p.fichesVisiblesMj,
           onChanged: (v) => onChange(p.copie(fichesVisiblesMj: v)),
         ),
+        FormulairePermissions(valeur: p, onChange: onChange),
+      ],
+    );
+  }
+}
+
+/// Ce que les PJ ont le droit de faire et de voir.
+class FormulairePermissions extends StatelessWidget {
+  const FormulairePermissions({
+    super.key,
+    required this.valeur,
+    required this.onChange,
+  });
+
+  final ParametresCampagne valeur;
+  final ValueChanged<ParametresCampagne> onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = valeur;
+    Widget ligne(String cle, String titre, bool v,
+            ParametresCampagne Function(bool) change) =>
         SwitchListTile(
-          key: const Key('fiches-visibles-joueurs'),
+          key: Key(cle),
           contentPadding: EdgeInsets.zero,
-          title: const Text('Fiches visibles entre joueurs'),
-          subtitle: const Text('Chaque joueur voit aussi les personnages '
-              'des autres.'),
-          value: p.fichesVisiblesJoueurs,
-          onChanged: (v) => onChange(p.copie(fichesVisiblesJoueurs: v)),
+          title: Text(titre),
+          value: v,
+          onChanged: (x) => onChange(change(x)),
+        );
+    return Column(
+      children: [
+        ligne(
+          'pj-inventaire-hors-seance',
+          "Les PJ modifient l'inventaire en dehors d'une séance",
+          p.pjInventaireHorsSeance,
+          (v) => p.copie(pjInventaireHorsSeance: v),
+        ),
+        ligne(
+          'pj-competences-hors-seance',
+          "Les PJ modifient leurs compétences en dehors d'une séance",
+          p.pjCompetencesHorsSeance,
+          (v) => p.copie(pjCompetencesHorsSeance: v),
+        ),
+        ligne(
+          'pj-voient-ressources',
+          'Les PJ voient leurs PV, PM et PE entre eux',
+          p.pjVoientRessources,
+          (v) => p.copie(pjVoientRessources: v),
+        ),
+        ligne(
+          'fiches-visibles-joueurs',
+          'Les PJ voient leurs fiches de personnage entre eux',
+          p.fichesVisiblesJoueurs,
+          (v) => p.copie(fichesVisiblesJoueurs: v),
+        ),
+        ligne(
+          'pj-voient-pv-creatures',
+          'Les PJ voient les PV des créatures',
+          p.pjVoientPvCreatures,
+          (v) => p.copie(pjVoientPvCreatures: v),
+        ),
+        ligne(
+          'pj-voient-fiches-creatures',
+          'Les PJ voient les fiches des créatures',
+          p.pjVoientFichesCreatures,
+          (v) => p.copie(pjVoientFichesCreatures: v),
         ),
       ],
     );

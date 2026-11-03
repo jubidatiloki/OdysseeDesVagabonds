@@ -208,7 +208,8 @@ void main() {
     test('MJ / joueur, séance signalée, fiche partagée avec le MJ', () async {
       final base = BaseCampagnesMemoire(Random(5));
       final brom = _brom();
-      base.fiches['brom'] = (fiche: brom, proprietaire: 'j1', partage: []);
+      base.fiches['brom'] =
+          (fiche: brom, proprietaire: 'j1', partage: [], editeurs: []);
       final mj =
           await _connecter(base, const Utilisateur(uid: 'mj', nom: 'Ben'));
       final j = await _connecter(base, const Utilisateur(uid: 'j1', nom: 'Léa'),

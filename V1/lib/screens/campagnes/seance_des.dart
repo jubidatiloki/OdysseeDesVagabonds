@@ -8,6 +8,7 @@ import '../../regles/des.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../state/seance_controller.dart';
 import '../../widgets/consultation.dart';
+import '../de_screen.dart';
 
 /// Portion de droite : onglets Lancer de dés et Historique.
 class PanneauDes extends StatelessWidget {
@@ -85,16 +86,78 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         _ => v.libelle,
       };
 
+  /// Attaques de qui agit : toucher et dégâts du personnage, ou de la
+  /// créature sélectionnée (MJ).
+  List<({String libelle, String des, int bonus})> _attaques() {
+    final a = _s.attaquant;
+    final res = <({String libelle, String des, int bonus})>[];
+    void ajouter(String libelle, String des, int bonus) {
+      if (lireFormule(des) != null) {
+        res.add((libelle: libelle, des: des, bonus: bonus));
+      }
+    }
+
+    if (a.creature case final c?) {
+      for (final x in c.attaques) {
+        ajouter('${x.nom} · toucher', x.toucher, 0);
+        ajouter('${x.nom} · dégâts', x.degats, 0);
+      }
+    }
+    if (a.fiche case final f?) {
+      ajouter('Toucher CaC', '1d20', f.toucherCac);
+      ajouter('Toucher distance', '1d20', f.toucherDistance);
+      ajouter('Toucher magie', '1d20', f.toucherMagie);
+      for (final d in [f.detailDegatsCac, f.detailDegatsDistance]) {
+        for (final arme in d.armes) {
+          ajouter('Dégâts · ${arme.nom}', d.des(arme), d.bonusAvec(arme));
+        }
+        if (d.mainsNues) {
+          ajouter('Dégâts · Mains nues', d.desMainsNuesAvec, d.bonusMainsNues);
+        }
+      }
+      // Attaques de compétence (Brutalité, Moulinet…).
+      for (final j in f.jetsCompetences) {
+        final x = j.attaque;
+        if (x == null) continue;
+        final arme = f.armeAttaque(x);
+        if (arme == null && !x.sansArme) continue;
+        ajouter(
+          j.libelle,
+          j.des.isEmpty ? '1d20' : j.des,
+          (x.distance == true ? f.toucherDistance : f.toucherCac) +
+              (x.toucher ?? 0),
+        );
+        final g = degatsAttaque(f, j, x.sansArme ? null : arme);
+        ajouter(
+          'Dégâts · ${j.libelle}',
+          g.des,
+          g.bonus + g.fixes.fold(0, (s, b) => s + b.valeur),
+        );
+      }
+    }
+    return res;
+  }
+
+  /// Lance une formule (« 1d8 + 1d6 + 2 »).
+  Future<void> _lancerFormule(String libelle, String des, int bonus) async {
+    final f = lireFormule(des);
+    if (f == null) return;
+    await _lancer(
+      libelle: libelle,
+      jets: [
+        for (final g in f.groupes)
+          for (var i = 0; i < g.nombre; i++)
+            lancerDe(g.faces, aleatoire: widget.aleatoire),
+      ],
+      modificateur: f.bonus + bonus,
+    );
+  }
+
   Future<void> _lancer({
     required String libelle,
-    required int nombre,
-    required int faces,
+    required List<int> jets,
     required int modificateur,
   }) async {
-    final jets = [
-      for (var i = 0; i < nombre; i++)
-        lancerDe(faces, aleatoire: widget.aleatoire),
-    ];
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
     final detail = [
       jets.join(' + '),
@@ -121,7 +184,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     final theme = Theme.of(context);
-    final fiche = _s.maFiche;
+    final attaquant = _s.attaquant;
+    final fiche = attaquant.fiche;
+    final nom = attaquant.nom;
+    final attaques = _attaques();
     final pasDeCible = _visibilite == VisibiliteJet.unJoueur && _cible == null;
     return ListView(
       padding: const EdgeInsets.all(12),
@@ -196,11 +262,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           key: const Key('lancer-seance'),
           onPressed: pasDeCible
               ? null
-              : () => _lancer(
-                    libelle: '${_nombre}d$_de',
-                    nombre: _nombre,
-                    faces: _de,
-                    modificateur: _modificateur,
+              : () => _lancerFormule(
+                    '${_nombre}d$_de',
+                    '${_nombre}d$_de',
+                    _modificateur,
                   ),
           icon: const Icon(Icons.casino_outlined),
           label: const Text('Lancer'),
@@ -212,6 +277,34 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             key: const Key('resultat-seance'),
             style: theme.textTheme.titleMedium,
           ),
+        ],
+        // Attaques du personnage ou de la créature sélectionnée.
+        if (attaques.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Attaques · $nom', style: theme.textTheme.titleSmall),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final (i, a) in attaques.indexed)
+                ActionChip(
+                  key: Key('attaque-$i'),
+                  label: Text('${a.libelle} : ${formaterJet(a.des, a.bonus)}'),
+                  onPressed: pasDeCible
+                      ? null
+                      : () => _lancerFormule(
+                            '$nom · ${a.libelle}',
+                            a.des,
+                            a.bonus,
+                          ),
+                ),
+            ],
+          ),
+        ] else if (_s.estMj) ...[
+          const SizedBox(height: 16),
+          const Text('Sélectionne un personnage ou une créature pour lancer '
+              'ses attaques.'),
         ],
         // Tests de caractéristique du personnage du joueur.
         if (fiche != null) ...[
@@ -230,11 +323,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   ),
                   onPressed: pasDeCible
                       ? null
-                      : () => _lancer(
-                            libelle: 'Test de ${c.abrev}',
-                            nombre: 1,
-                            faces: 20,
-                            modificateur: fiche.mod(c),
+                      : () => _lancerFormule(
+                            '$nom · test de ${c.abrev}',
+                            '1d20',
+                            fiche.mod(c),
                           ),
                 ),
             ],
