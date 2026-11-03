@@ -189,12 +189,12 @@ void main() {
     );
   });
 
-  testWidgets('statistiques : en-tête DV / DM / CHAN, combat, personnage',
+  testWidgets('statistiques : en-tête DV / DE / CHAN, combat, personnage',
       (tester) async {
     await _ouvrir(tester, const Size(1400, 2000));
     Offset pos(String cle) => tester.getTopLeft(find.byKey(Key(cle)));
 
-    // En-tête : dé de vie, dé de mana, chance sur une ligne ; trèfle à
+    // En-tête : dé de vie, dé d'endurance, chance sur une ligne ; trèfle à
     // quatre feuilles en filigrane de la chance
     expect(
       find.descendant(
@@ -203,7 +203,9 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(pos('stat-dm').dy, closeTo(pos('stat-dv').dy, 1));
+    expect(find.byKey(const Key('stat-dm')),
+        findsNothing); // guerrier : pas de mana
+    expect(pos('stat-de').dy, closeTo(pos('stat-dv').dy, 1));
     expect(pos('carac-CHAN').dy, closeTo(pos('stat-dv').dy, 1));
     // Défensif : CA (l'esquive est un jet), RD physique, RD magique sur une ligne,
     // puis RD feu, glace, foudre (refonte du 29/10/2026)

@@ -63,16 +63,15 @@ void main() {
     });
     final v = Voie.depuisJson({'id': 'v', 'univers': 'space-opera'});
     expect([c.univers, r.univers, v.univers], everyElement('space-opera'));
-    expect(Referentiel(races: [r], classes: [c]).classesDe('space-opera'),
-        [c]);
+    expect(Referentiel(races: [r], classes: [c]).classesDe('space-opera'), [c]);
   });
 
   test('personnage : univers sauvegardé, anciennes fiches par défaut', () {
-    final p = Personnage(
-        id: 'p', nom: 'Brom', raceId: 'nain', classeId: 'guerrier');
+    final p =
+        Personnage(id: 'p', nom: 'Brom', raceId: 'nain', classeId: 'guerrier');
     expect(p.univers, kUniversParDefaut);
     final json = p.versJson();
-    expect(json['schema'], 9);
+    expect(json['schema'], Personnage.versionSchema);
     expect(json['univers'], kUniversParDefaut);
     expect(Personnage.depuisJson({...json, 'univers': 'space-opera'}).univers,
         'space-opera');

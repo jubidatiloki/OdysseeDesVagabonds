@@ -26,12 +26,20 @@ class EtapeClasse extends StatelessWidget {
   String _des(Classe c) {
     final r = race;
     if (r == null) {
-      return 'Dé de vie ${c.modifDeVie.symbole} · '
-          'Dé de mana ${c.modifDeMana.symbole}';
+      return [
+        'Dé de vie ${c.modifDeVie.symbole}',
+        if (c.aDuMana) 'Dé de mana ${c.modifDeMana.symbole}',
+        if (c.aDeLEndurance) "Dé d'endurance ${c.modifDeEndurance.symbole}",
+      ].join(' · ');
     }
     final dv = ajusterDe(r.deVie, c.modifDeVie);
     final dm = ajusterDe(r.deMana, c.modifDeMana);
-    return 'Dé de vie d$dv · Dé de mana d$dm';
+    final de = ajusterDe(r.deEndurance, c.modifDeEndurance);
+    return [
+      'Dé de vie d$dv',
+      if (c.aDuMana) 'Dé de mana d$dm',
+      if (c.aDeLEndurance) "Dé d'endurance d$de",
+    ].join(' · ');
   }
 
   @override

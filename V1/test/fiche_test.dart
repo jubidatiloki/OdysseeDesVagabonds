@@ -107,11 +107,13 @@ void main() {
     expect(_texte(tester, 'pv-actuel'), '13');
   });
 
-  testWidgets('PV / PM : icônes, boutons colorés, commentaire', (tester) async {
+  testWidgets('PV / PE : icônes, boutons colorés, commentaire', (tester) async {
     final controller = await _ouvrirFiche(tester);
     final p = controller.personnages.single;
     expect(find.byKey(const Key('pv-icone')), findsOneWidget);
-    expect(find.byKey(const Key('pm-icone')), findsOneWidget);
+    expect(find.byKey(const Key('pe-icone')), findsOneWidget);
+    // Guerrier (classe physique) : pas de jauge de mana.
+    expect(find.byKey(const Key('pm-icone')), findsNothing);
     // −1 en rouge, +1 en vert (PV) : couleurs différentes.
     final moins = tester.widget<IconButton>(find.byKey(const Key('pv-moins')));
     final plus = tester.widget<IconButton>(find.byKey(const Key('pv-plus')));

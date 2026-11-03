@@ -9,6 +9,7 @@
 - **Avantage** : on lance 2 dés, on garde le meilleur. **Désavantage** : 2 dés, on garde le pire.
 - **Toutes les races et classes sont compatibles entre elles.** Les couleurs du schéma (physique / magique / hybride) ne servent qu'à indiquer la proportion magie / non-magie.
 - **Dés de vie (DV) et de mana (DM)** : fixés par la race, puis modifiés par la classe (`+` = dé supérieur, `-` = dé inférieur, `=` = inchangé). **Dé minimum : d4.** Exemple de la source : draconien (DV 8 / DM 4) + magicien (DV `-`, DM `+`) → DV 6 / DM 6.
+- **Dé d'endurance (DE)** (03/11/2026) : fixé par la race (d8 demi-orque, draconien, nain ; d4 gnome ; d6 sinon), inchangé par la classe. Classes physiques : PE sans PM ; lanceurs de sorts : PM sans PE ; hybrides : PM + PE.
 - **Niveaux** : de 1 à 10 (la table de points de compétence s'arrête au niveau 10).
 - **Langues** : un personnage ne parle que la langue de sa race (sauf humain, et demi-elfe d'origine humaine). 🟡
 - **Lire/écrire** : non « inné » si INT < 10.
@@ -40,6 +41,7 @@ Page STATS : les stats principales sont les entrées de la matrice du §2.4.
 |---|---|
 | **PV** (points de vie) | Initial = DV max + DV lancé. À 0 PV → évanouissement 1d6 heures. PV < −DV (en négatif) → mort. Gain par niveau : DV (+ bonus CON). |
 | **PM** (points de mana) | Initial = DM max. Régénération = DM PM par nuit de sommeil (÷2 pour une demi-nuit). |
+| **PE** (points d'endurance) | Initial = DE max ; + 1 jet de DE par niveau. Régénération = DE PE par nuit de sommeil (÷2 pour une demi-nuit). Dépensés par les compétences. |
 | **ESQ** (esquive) | **jet** `1d20 + mod DEX (dans la limite de l'armure) + bonus d'esquive` (refonte du 29/10/2026) ; une seule esquive, pas de valeur fixe. |
 | **INIT** (initiative) | `valeur de DEX + bonus d'initiative (compétences, équipement, autres)` (règle du 31/10/2026) : une valeur, **pas de jet**, pas de limite de DEX liée à l'armure. |
 | **CA** (classe d'armure) | `10 + CA d'armure + mod DEX (dans la limite de l'armure) + compétences` (refonte du 29/10/2026). Armures : tissu +0 (sans limite), cuir +1 (DEX max +3), cotte de mailles +3 (DEX max +2), plaques +6 (DEX max +1) ; casque et bouclier sans limite de DEX. |

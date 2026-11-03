@@ -668,6 +668,22 @@ class _DeScreenState extends State<DeScreen> {
     widget.personnages?.sauvegarder(p);
   }
 
+  /// Action de compétence payée en endurance (Moulinet : 2 PE) : les PE
+  /// sont retirés et l'action inscrite dans l'historique.
+  void _depenserEndurance(({String libelle, int cout, String origine}) a) {
+    final fiche = _fiche;
+    if (fiche == null) return;
+    final avant = fiche.peActuels;
+    if (avant < a.cout) return;
+    final p = fiche.personnage..peActuels = avant - a.cout;
+    p.journaliser(
+      '${a.libelle} (−${a.cout} PE) · PE : $avant → ${p.peActuels}',
+      categorie: CategorieHistorique.vie,
+    );
+    setState(() {});
+    widget.personnages?.sauvegarder(p);
+  }
+
   /// Nouveau combat : les utilisations « par combat » sont rendues.
   void _nouveauCombat() => _rendre('combat', 'Nouveau combat');
 
@@ -782,6 +798,7 @@ class _DeScreenState extends State<DeScreen> {
             avecSituations: !situationsAGauche,
             onUtiliser: _utiliser,
             onNouvelleAventure: _nouvelleAventure,
+            onEndurance: _depenserEndurance,
             onNouveauCombat: _nouveauCombat,
             onNouveauJour: _nouveauJour,
             replies: _replies,
@@ -1487,6 +1504,7 @@ class _PanneauPersonnage extends StatelessWidget {
     required this.onReplier,
     this.onUtiliser,
     this.onNouvelleAventure,
+    this.onEndurance,
     this.onNouveauCombat,
     this.onNouveauJour,
   });
@@ -1498,6 +1516,9 @@ class _PanneauPersonnage extends StatelessWidget {
   /// Capacité limitée utilisée (clé, détail) ; nouvelle aventure.
   final void Function(String cle, String detail)? onUtiliser;
   final VoidCallback? onNouvelleAventure;
+
+  /// Action payée en endurance (PE retirés).
+  final ValueChanged<({String libelle, int cout, String origine})>? onEndurance;
 
   /// Groupes repliés (« connaissances », « aptitudes ») et bascule.
   final Set<String> replies;
@@ -1666,8 +1687,15 @@ class _PanneauPersonnage extends StatelessWidget {
             children: [
               _Info(Icons.favorite, 'PV ${f.pvActuels}/${f.pvMax}',
                   OdvCouleurs.pv),
-              _Info(Icons.water_drop, 'PM ${f.pmActuels}/${f.pmMax}',
-                  OdvCouleurs.pm),
+              if (f.classe.aDuMana)
+                _Info(Icons.water_drop, 'PM ${f.pmActuels}/${f.pmMax}',
+                    OdvCouleurs.pm),
+              if (f.classe.aDeLEndurance)
+                KeyedSubtree(
+                  key: const Key('pe-actuels'),
+                  child: _Info(kIconeEndurance, 'PE ${f.peActuels}/${f.peMax}',
+                      OdvCouleurs.pe),
+                ),
               _Info(
                 Icons.shield_outlined,
                 [
@@ -2052,6 +2080,29 @@ class _PanneauPersonnage extends StatelessWidget {
                           ? null
                           : () => onLancerCompetence(j),
                     ),
+              ],
+            ),
+          ],
+          // Actions payées en endurance (classes physiques et hybrides).
+          if (f.actionsEndurance.isNotEmpty) ...[
+            const _Titre('Endurance', kIconeEndurance),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final (i, a) in f.actionsEndurance.indexed)
+                  _BoutonJet(
+                    key: Key('endurance-$i'),
+                    libelle: a.libelle,
+                    valeur: '−${a.cout} PE',
+                    large: true,
+                    precision: f.peActuels < a.cout ? 'PE insuffisants' : '',
+                    infobulle: '${a.origine} : ${a.cout} PE dépensés '
+                        '(PE actuels : ${f.peActuels})',
+                    onTap: f.peActuels < a.cout || onEndurance == null
+                        ? null
+                        : () => onEndurance!(a),
+                  ),
               ],
             ),
           ],

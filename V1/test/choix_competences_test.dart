@@ -41,12 +41,30 @@ const _guerrier = Classe(
   modifDeMana: ModifDe.egal,
 );
 
+const _mage = Classe(
+  id: 'm',
+  nom: 'Mage',
+  modifDeVie: ModifDe.egal,
+  modifDeMana: ModifDe.egal,
+  lanceurDeSorts: true,
+  profil: ProfilClasse.lanceur,
+);
+
+const _barde = Classe(
+  id: 'b',
+  nom: 'Barde',
+  modifDeVie: ModifDe.egal,
+  modifDeMana: ModifDe.egal,
+  profil: ProfilClasse.hybride,
+);
+
 FicheCalculee _fiche(
   Race r, {
   required int niveau,
   String? passif,
   String? origine,
   Map<String, String> choix = const {},
+  Classe classe = _guerrier,
 }) =>
     FicheCalculee(
       personnage: Personnage(
@@ -61,7 +79,7 @@ FicheCalculee _fiche(
         choix: Map.of(choix),
       ),
       race: r,
-      classe: _guerrier,
+      classe: classe,
     );
 
 void main() {
@@ -314,19 +332,26 @@ void main() {
   });
 
   group('haut-elfe', () {
-    test('Puits d\'arcane : 1d10 PV puis RANG d6 PM', () {
+    test('Puits d\'arcane : selon le profil de la classe', () {
       final h = race('haut-elfe');
-      final puits5 = _fiche(h, niveau: 5)
-          .jetsCompetences
-          .firstWhere((j) => j.libelle.startsWith('Puits'));
-      expect(puits5.des, '1d10');
-      expect(puits5.applique, '-pv');
-      expect(puits5.suite?.des, '3d6');
-      expect(puits5.suite?.applique, '+pm');
-      final puits9 = _fiche(h, niveau: 9)
-          .jetsCompetences
-          .firstWhere((j) => j.libelle.startsWith('Puits'));
-      expect(puits9.suite?.des, '5d6');
+      List<JetDisponible> puits(Classe c, int niveau) =>
+          _fiche(h, niveau: niveau, classe: c)
+              .jetsCompetences
+              .where((j) => j.libelle.startsWith('Puits'))
+              .toList();
+      // Lanceur de sorts : RANG d6 PM, sans perte de PV.
+      final lanceur = puits(_mage, 5).single;
+      expect((lanceur.des, lanceur.applique), ('3d6', '+pm'));
+      expect(lanceur.suite, isNull);
+      expect(puits(_mage, 9).single.des, '5d6');
+      // Classe physique : RANG dés de vie en PV (haut-elfe : d4).
+      final physique = puits(_guerrier, 5).single;
+      expect((physique.des, physique.applique), ('3d4', '+pv'));
+      // Hybride : au choix, PM ou PV.
+      expect(
+        [for (final j in puits(_barde, 5)) (j.des, j.applique)],
+        [('3d6', '+pm'), ('3d4', '+pv')],
+      );
     });
 
     test('Visage impensable : bonus seulement quand l\'apparence est active',
@@ -372,7 +397,7 @@ void main() {
       id: 'h',
       nom: 'Elandril',
       raceId: 'haut-elfe',
-      classeId: 'g',
+      classeId: 'm',
       niveau: 7,
       pmActuels: 2,
     );
@@ -382,7 +407,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
-          referentiel: Referentiel(races: races, classes: const [_guerrier]),
+          referentiel: Referentiel(races: races, classes: const [_mage]),
           personnages: controller,
           preferences: PreferencesController(
             personnageActifId: 'h',
@@ -426,15 +451,15 @@ void main() {
       findsOneWidget,
     );
 
-    // Puits d'arcane : PV perdus puis mana regagné (4d6 au niveau 7)
+    // Puits d'arcane (lanceur de sorts) : mana regagné (4d6 au niveau 7),
+    // sans perte de PV.
     final fiche = FicheCalculee(
       personnage: p,
       race: race('haut-elfe'),
-      classe: _guerrier,
+      classe: _mage,
     );
-    final pvAvant = fiche.pvActuels;
-    await tap(find.text('Puits d\'arcane · PV perdus'));
-    expect(p.pvActuels, lessThan(pvAvant));
+    await tap(find.text('Puits d\'arcane · mana regagné'));
+    expect(p.pvActuels, isNull);
     expect(p.pmActuels, greaterThan(2));
     expect(p.pmActuels, lessThanOrEqualTo(fiche.pmMax));
     expect(
@@ -465,7 +490,7 @@ void main() {
       id: 'e',
       nom: 'Lyra',
       raceId: 'elfe-sylvain',
-      classeId: 'g',
+      classeId: 'm',
       niveau: 5,
     );
     final controller =
@@ -474,7 +499,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
-          referentiel: Referentiel(races: races, classes: const [_guerrier]),
+          referentiel: Referentiel(races: races, classes: const [_mage]),
           personnages: controller,
           preferences: PreferencesController(
             personnageActifId: 'e',
@@ -505,7 +530,7 @@ void main() {
     final pmMax = FicheCalculee(
       personnage: p,
       race: race('elfe-sylvain'),
-      classe: _guerrier,
+      classe: _mage,
     ).pmMax;
     await tap(find.text('Cri sauvage'));
     expect(p.pmActuels, pmMax - 3); // sort de rang 2 : 3 PM

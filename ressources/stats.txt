@@ -7,6 +7,12 @@ Représente le gain de point de vie par montée de niveau, ainsi que la quantit�
 ## Dé de mana (DM)
 Représente le gain de point de mana par montée de niveau
 * Dépend de la race et de la classe du personnage
+* Classes physiques : pas de dé de mana (règle du 03/11/2026)
+
+## Dé d'endurance (DE)
+Représente le gain de point d'endurance par montée de niveau (classes physiques et hybrides)
+* Dépend de la race : d8 (demi-orque, draconien, nain), d4 (gnome), d6 (autres races) ; la classe ne le modifie pas
+* Lanceurs de sorts : pas de dé d'endurance
 
 
 ## Aptitude de combat (AC)
@@ -80,6 +86,17 @@ Représente la quantité de magie possible d’utiliser
 
 ## Points de mana actuels (PM)
 Réprésente la quantité de magie disponible actuellement
+
+
+## Points d'endurance maximum (PE MAX)
+Représente l'effort physique que le personnage peut fournir (classes physiques et hybrides)
+* dépensés par les compétences (coût indiqué sur chaque compétence)
+* régénération: dé d'endurance PE par nuit de sommeil (divisé par 2 si demi-nuit de sommeil)
+* point d'endurance initial = dé d'endurance max ; + 1 jet de DE par niveau
+
+
+## Points d'endurance actuels (PE)
+Représente l'endurance disponible actuellement
 
 
 ## Esquive (Esq)

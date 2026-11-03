@@ -22,6 +22,8 @@ const magicien = Classe(
   nom: 'Magicien',
   modifDeVie: ModifDe.moins,
   modifDeMana: ModifDe.plus,
+  lanceurDeSorts: true,
+  profil: ProfilClasse.lanceur,
 );
 
 void main() {

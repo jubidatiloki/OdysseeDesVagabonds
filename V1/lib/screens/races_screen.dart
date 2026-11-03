@@ -90,6 +90,12 @@ class RaceDetail extends StatelessWidget {
                   faces: r.deMana,
                   nomDe: 'Dé de mana',
                 ),
+                CurseurDe.race(
+                  icone: kIconeEndurance,
+                  couleur: couleurEndurance(Theme.of(context).brightness),
+                  faces: r.deEndurance,
+                  nomDe: "Dé d'endurance",
+                ),
               ],
             ),
             const SizedBox(height: 8),

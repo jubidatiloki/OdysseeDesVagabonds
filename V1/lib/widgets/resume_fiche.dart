@@ -129,25 +129,41 @@ class ResumeFiche extends StatelessWidget {
                   ? 'dont ${formaterModificateur(f.bonusPvCompetences)} comp.'
                   : 'd${f.deVie} + CON',
             ),
-            _CaseValeur(
-              libelle: 'PM max',
-              valeur: '${f.pmMax}',
-              detail: 'd${f.deMana}',
-            ),
+            if (f.classe.aDuMana)
+              _CaseValeur(
+                libelle: 'PM max',
+                valeur: '${f.pmMax}',
+                detail: 'd${f.deMana}',
+              ),
+            if (f.classe.aDeLEndurance)
+              _CaseValeur(
+                key: const Key('stat-pe-max'),
+                libelle: 'PE max',
+                valeur: '${f.peMax}',
+                detail: 'd${f.deEndurance}',
+              ),
           ]),
           const SizedBox(height: 8),
         ],
-        _Rangee([
+        // Hybride : dé de vie, de mana, d'endurance et CHAN sur 4 colonnes.
+        _Rangee(colonnes: f.classe.aDuMana && f.classe.aDeLEndurance ? 4 : 3, [
           _CaseValeur(
             key: const Key('stat-dv'),
             libelle: 'Dé de vie',
             valeur: 'd${f.deVie}',
           ),
-          _CaseValeur(
-            key: const Key('stat-dm'),
-            libelle: 'Dé de mana',
-            valeur: 'd${f.deMana}',
-          ),
+          if (f.classe.aDuMana)
+            _CaseValeur(
+              key: const Key('stat-dm'),
+              libelle: 'Dé de mana',
+              valeur: 'd${f.deMana}',
+            ),
+          if (f.classe.aDeLEndurance)
+            _CaseValeur(
+              key: const Key('stat-de'),
+              libelle: "Dé d'endurance",
+              valeur: 'd${f.deEndurance}',
+            ),
           carac(Carac.chan),
         ]),
         const SizedBox(height: 20),

@@ -14,6 +14,7 @@ import '../regles/montee_niveau.dart';
 import '../regles/progression.dart';
 import '../regles/regles_particulieres.dart';
 import '../state/personnages_controller.dart';
+import '../theme.dart';
 import '../widgets/carte_choix.dart';
 import '../widgets/carte_emprunts.dart';
 import '../widgets/voie_detail.dart';
@@ -44,19 +45,21 @@ class MonteeNiveauScreen extends StatefulWidget {
 
 class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
   static const List<String> _titres = [
-    'Vie et mana',
+    'Vie et ressources',
     'Compétences',
     'Récapitulatif',
   ];
 
   final _jetDv = TextEditingController();
   final _jetDm = TextEditingController();
+  final _jetDe = TextEditingController();
   int _etape = 0;
 
   /// Jets lancés avec le bouton « Lancer » (relances comprises), pour les
   /// inscrire dans l'historique si la montée de niveau est annulée.
   final List<int> _lancersVie = [];
   final List<int> _lancersMana = [];
+  final List<int> _lancersEndurance = [];
   late Map<String, int> _rangsVoies;
 
   /// Rangs d'autres classes choisis (« Polyvalence »).
@@ -73,7 +76,7 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
   int get _nouveauNiveau => _p.niveau + 1;
 
   /// Dés à lancer pour ce niveau (règles particulières comprises).
-  late final ({int deVie, int deMana}) _des =
+  late final ({int deVie, int deMana, int deEndurance}) _des =
       MonteeNiveau.desDuNiveauSuivant(_fiche);
 
   /// Bonus de PV des règles particulières (Force de la nature…).
@@ -89,6 +92,9 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
 
   bool get _vieLancee => _jetsFaits?.vie != null;
   bool get _manaLancee => _jetsFaits?.mana != null;
+  bool get _enduranceLancee => _jetsFaits?.endurance != null;
+  bool get _aDuMana => widget.classe.aDuMana;
+  bool get _aDeLEndurance => widget.classe.aDeLEndurance;
 
   @override
   void initState() {
@@ -99,14 +105,16 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
     final j = _jetsFaits;
     if (j?.vie != null) _jetDv.text = '${j!.vie}';
     if (j?.mana != null) _jetDm.text = '${j!.mana}';
+    if (j?.endurance != null) _jetDe.text = '${j!.endurance}';
   }
 
   /// Garde le jet sur le personnage (sauvegardé tout de suite) : annuler puis
   /// recommencer la montée de niveau ne permet pas de relancer.
-  Future<void> _memoriserJet({int? vie, int? mana}) async {
+  Future<void> _memoriserJet({int? vie, int? mana, int? endurance}) async {
     final j = _jetsFaits ?? JetsMontee(niveau: _nouveauNiveau);
     if (vie != null) j.vie = vie;
     if (mana != null) j.mana = mana;
+    if (endurance != null) j.endurance = endurance;
     setState(() => _p.jetsMontee = j);
     await widget.controller.sauvegarder(_p);
   }
@@ -115,6 +123,7 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
   void dispose() {
     _jetDv.dispose();
     _jetDm.dispose();
+    _jetDe.dispose();
     super.dispose();
   }
 
@@ -126,10 +135,13 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
 
   int? get _jetVie => _lireJet(_jetDv, _des.deVie);
   int? get _jetMana => _lireJet(_jetDm, _des.deMana);
+  int? get _jetEndurance => _lireJet(_jetDe, _des.deEndurance);
 
   bool get _modifie =>
       _lancersVie.isNotEmpty ||
       _lancersMana.isNotEmpty ||
+      _lancersEndurance.isNotEmpty ||
+      _jetDe.text.isNotEmpty ||
       _jetDv.text.isNotEmpty ||
       _jetDm.text.isNotEmpty ||
       _aptitudes.length != _p.aptitudes.length ||
@@ -141,8 +153,11 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
       if (_jetVie == null) {
         return 'Lance ou saisis le dé de vie (1 à ${_des.deVie})';
       }
-      if (_jetMana == null) {
+      if (_aDuMana && _jetMana == null) {
         return 'Lance ou saisis le dé de mana (1 à ${_des.deMana})';
+      }
+      if (_aDeLEndurance && _jetEndurance == null) {
+        return "Lance ou saisis le dé d'endurance (1 à ${_des.deEndurance})";
       }
     }
     if (_etape == _titres.length - 1) {
@@ -256,12 +271,14 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
       race: widget.race,
       classe: widget.classe,
       jetDeVie: _jetVie!,
-      jetDeMana: _jetMana!,
+      jetDeMana: _jetMana,
+      jetDEndurance: _jetEndurance,
       rangsVoies: _rangsVoies,
       aptitudes: _aptitudes,
       catalogueAptitudes: widget.referentiel.aptitudes,
       facesDeVie: _des.deVie,
       facesDeMana: _des.deMana,
+      facesDEndurance: _des.deEndurance,
       choix: _choix,
       catalogueEquipements: widget.referentiel.equipements,
     );
@@ -282,10 +299,12 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
         content: Text(
           _lancersVie.isEmpty &&
                   _lancersMana.isEmpty &&
+                  _lancersEndurance.isEmpty &&
                   _jetVie == null &&
-                  _jetMana == null
+                  _jetMana == null &&
+                  _jetEndurance == null
               ? 'Les choix faits seront perdus.'
-              : 'Les choix faits seront perdus. Les jets de vie et de mana '
+              : 'Les choix faits seront perdus. Les jets de dés '
                   'déjà faits seront inscrits dans l\'historique.',
         ),
         actions: [
@@ -329,7 +348,10 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
 
     final parties = [
       jets('dé de vie', _des.deVie, _lancersVie, _jetVie),
-      jets('dé de mana', _des.deMana, _lancersMana, _jetMana),
+      if (_aDuMana) jets('dé de mana', _des.deMana, _lancersMana, _jetMana),
+      if (_aDeLEndurance)
+        jets("dé d'endurance", _des.deEndurance, _lancersEndurance,
+            _jetEndurance),
     ].whereType<String>().toList();
     if (parties.isEmpty) return null;
     return 'Montée au niveau $_nouveauNiveau annulée après les jets : '
@@ -367,6 +389,8 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
     final gainPv = jv == null ? null : jv + _bonusPv.bonus;
     final pvMaxApres = gainPv == null ? null : _fiche.pvMax + gainPv;
     final pmMaxApres = jm == null ? null : _fiche.pmMax + jm;
+    final je = _jetEndurance;
+    final peMaxApres = je == null ? null : _fiche.peMax + je;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -376,7 +400,7 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Lance les dés (ou saisis le résultat de tes dés). Les PV et PM '
+          'Lance les dés (ou saisis le résultat de tes dés). Les points '
           'actuels augmentent du même gain que les maximums.',
           style: theme.textTheme.bodyMedium,
         ),
@@ -398,24 +422,46 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
                   '${_fiche.pvActuels} → '
                   '${_fiche.personnage.pvActuels == null ? pvMaxApres : _fiche.pvActuels + gainPv!}',
         ),
-        const SizedBox(height: 12),
-        _CarteJet(
-          cle: 'dm',
-          titre: 'Dé de mana',
-          faces: _des.deMana,
-          controleur: _jetDm,
-          onChange: () => setState(() {}),
-          verrouille: _manaLancee,
-          onLancer: (r) {
-            _lancersMana.add(r);
-            _memoriserJet(mana: r);
-          },
-          apercu: pmMaxApres == null
-              ? null
-              : 'PM max : ${_fiche.pmMax} → $pmMaxApres · PM actuels : '
-                  '${_fiche.pmActuels} → '
-                  '${_fiche.personnage.pmActuels == null ? pmMaxApres : _fiche.pmActuels + jm!}',
-        ),
+        if (_aDuMana) ...[
+          const SizedBox(height: 12),
+          _CarteJet(
+            cle: 'dm',
+            titre: 'Dé de mana',
+            faces: _des.deMana,
+            controleur: _jetDm,
+            onChange: () => setState(() {}),
+            verrouille: _manaLancee,
+            onLancer: (r) {
+              _lancersMana.add(r);
+              _memoriserJet(mana: r);
+            },
+            apercu: pmMaxApres == null
+                ? null
+                : 'PM max : ${_fiche.pmMax} → $pmMaxApres · PM actuels : '
+                    '${_fiche.pmActuels} → '
+                    '${_fiche.personnage.pmActuels == null ? pmMaxApres : _fiche.pmActuels + jm!}',
+          ),
+        ],
+        if (_aDeLEndurance) ...[
+          const SizedBox(height: 12),
+          _CarteJet(
+            cle: 'de',
+            titre: "Dé d'endurance",
+            faces: _des.deEndurance,
+            controleur: _jetDe,
+            onChange: () => setState(() {}),
+            verrouille: _enduranceLancee,
+            onLancer: (r) {
+              _lancersEndurance.add(r);
+              _memoriserJet(endurance: r);
+            },
+            apercu: peMaxApres == null
+                ? null
+                : 'PE max : ${_fiche.peMax} → $peMaxApres · PE actuels : '
+                    '${_fiche.peActuels} → '
+                    '${_fiche.personnage.peActuels == null ? peMaxApres : _fiche.peActuels + je!}',
+          ),
+        ],
         if (_bonusPv.regle != null) ...[
           const SizedBox(height: 12),
           _CarteRegle(
@@ -463,7 +509,8 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
   Widget _etapeRecapitulatif() {
     final theme = Theme.of(context);
     final jv = _jetVie!;
-    final jm = _jetMana!;
+    final jm = _jetMana;
+    final je = _jetEndurance;
     final nouvellesCompetences = [
       for (final c in Progression.competencesAcquises(
         niveau: _nouveauNiveau,
@@ -495,10 +542,12 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
       classe: widget.classe,
       jetDeVie: jv,
       jetDeMana: jm,
+      jetDEndurance: je,
       rangsVoies: _rangsVoies,
       aptitudes: _aptitudes,
       facesDeVie: _des.deVie,
       facesDeMana: _des.deMana,
+      facesDEndurance: _des.deEndurance,
       choix: _choix,
     );
     final choixAFaire = _choixAFaire;
@@ -553,12 +602,20 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
               'd${_des.deVie} = $jv'
               '${sim.regle != null && sim.bonusRegle != 0 ? ', ${formaterModificateur(sim.bonusRegle)} ${sim.regle!.nom}' : ''})',
         ),
-        _Info(
-          icone: Icons.water_drop_outlined,
-          texte: 'PM max : ${sim.pmMaxAvant} → ${sim.pmMaxApres} '
-              '(${formaterModificateur(sim.pmMaxApres - sim.pmMaxAvant)} : '
-              'd${_des.deMana} = $jm)',
-        ),
+        if (_aDuMana)
+          _Info(
+            icone: Icons.water_drop_outlined,
+            texte: 'PM max : ${sim.pmMaxAvant} → ${sim.pmMaxApres} '
+                '(${formaterModificateur(sim.pmMaxApres - sim.pmMaxAvant)} : '
+                'd${_des.deMana} = $jm)',
+          ),
+        if (_aDeLEndurance)
+          _Info(
+            icone: kIconeEndurance,
+            texte: 'PE max : ${sim.peMaxAvant} → ${sim.peMaxApres} '
+                '(${formaterModificateur(sim.peMaxApres - sim.peMaxAvant)} : '
+                'd${_des.deEndurance} = $je)',
+          ),
         if (sim.regle != null && sim.bonusRegle != 0)
           _CarteRegle(
             regle: sim.regle!,

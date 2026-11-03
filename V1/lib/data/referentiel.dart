@@ -82,12 +82,16 @@ class Referentiel {
 
   /// Races d'un univers (id, voir `Univers`) : servira au choix de
   /// l'univers à la création ; pour l'instant tout est médiéval fantastique.
-  List<Race> racesDe(String univers) =>
-      [for (final r in races) if (r.univers == univers) r];
+  List<Race> racesDe(String univers) => [
+        for (final r in races)
+          if (r.univers == univers) r
+      ];
 
   /// Classes d'un univers (id, voir `Univers`).
-  List<Classe> classesDe(String univers) =>
-      [for (final c in classes) if (c.univers == univers) c];
+  List<Classe> classesDe(String univers) => [
+        for (final c in classes)
+          if (c.univers == univers) c
+      ];
 
   /// Options de choix avec `reference` (« race-humain/1 ») : reprend le nom,
   /// le type, l'effet, les effets et les jets de la compétence visée (sauf

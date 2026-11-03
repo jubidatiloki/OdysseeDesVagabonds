@@ -1,7 +1,7 @@
 import 'univers.dart';
 import 'voie.dart';
 
-/// Modification d'un dé (vie ou mana) par la classe :
+/// Modification d'un dé (vie, mana ou endurance) par la classe :
 /// `+` dé supérieur, `-` dé inférieur, `=` inchangé.
 enum ModifDe {
   plus('+'),
@@ -49,6 +49,7 @@ class Classe {
     required this.nom,
     required this.modifDeVie,
     required this.modifDeMana,
+    this.modifDeEndurance = ModifDe.egal,
     this.lanceurDeSorts = false,
     this.maitrises = '',
     this.restrictionArmure = '',
@@ -64,6 +65,17 @@ class Classe {
   final String nom;
   final ModifDe modifDeVie;
   final ModifDe modifDeMana;
+
+  /// Modification du dé d'endurance (DE) : classes physiques et hybrides.
+  final ModifDe modifDeEndurance;
+
+  /// Lanceurs de sorts et hybrides : dé de mana et points de mana (PM).
+  /// Les classes physiques n'en ont pas (règle du 03/11/2026).
+  bool get aDuMana => lanceurDeSorts || profil != ProfilClasse.physique;
+
+  /// Classes physiques et hybrides : dé d'endurance et points d'endurance
+  /// (PE), dépensés par leurs compétences. Les lanceurs n'en ont pas.
+  bool get aDeLEndurance => !lanceurDeSorts && profil != ProfilClasse.lanceur;
 
   /// Druide, magicien, nécromancien, prêtre : lancent des sorts avec mana
   /// et peuvent subir l'overdose magique.
@@ -101,6 +113,8 @@ class Classe {
         nom: j['nom'] as String,
         modifDeVie: ModifDe.depuisSymbole(j['modifDeVie'] as String?),
         modifDeMana: ModifDe.depuisSymbole(j['modifDeMana'] as String?),
+        modifDeEndurance:
+            ModifDe.depuisSymbole(j['modifDeEndurance'] as String?),
         lanceurDeSorts: j['lanceurDeSorts'] as bool? ?? false,
         maitrises: j['maitrises'] as String? ?? '',
         restrictionArmure: j['restrictionArmure'] as String? ?? '',

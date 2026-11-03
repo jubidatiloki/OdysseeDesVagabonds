@@ -50,7 +50,8 @@ class EtapeRace extends StatelessWidget {
         final choisie = r.id == race?.id;
         return CarteSelection(
           titre: r.nom,
-          sousTitre: 'Dé de vie d${r.deVie} · Dé de mana d${r.deMana}',
+          sousTitre: 'Dé de vie d${r.deVie} · Dé de mana d${r.deMana} · '
+              "Dé d'endurance d${r.deEndurance}",
           selectionne: choisie,
           onTap: () => onRace(r),
           contenu: Column(

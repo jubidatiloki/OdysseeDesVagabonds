@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/carac.dart';
 import '../../models/equipement.dart';
 import '../../models/historique.dart';
+import '../../models/personnage.dart';
 import '../../models/voie.dart';
 import '../../regles/des.dart';
 import '../../regles/etats.dart';
@@ -80,6 +81,25 @@ class OngletFiche extends StatelessWidget {
     onModifie();
   }
 
+  void _changerPe(int valeur, bool parPas, [String commentaire = '']) {
+    final avant = fiche.peActuels;
+    var v = valeur;
+    if (v > fiche.peMax) v = fiche.peMax;
+    if (v < 0) v = 0;
+    fiche.personnage
+      ..peActuels = v
+      ..journaliserValeur(
+        cle: 'pe',
+        libelle: 'PE',
+        avant: avant,
+        apres: v,
+        categorie: CategorieHistorique.vie,
+        regrouper: parPas,
+        commentaire: commentaire,
+      );
+    onModifie();
+  }
+
   String? get _etatPv {
     final pv = fiche.pvActuels;
     if (pv < -fiche.deVie) return 'Mort';
@@ -100,7 +120,7 @@ class OngletFiche extends StatelessWidget {
               leading: const Icon(Icons.bedtime_outlined),
               title: const Text('Nuit complète'),
               subtitle: Text(
-                '+ 1d${fiche.deVie} + CON PV · + ${fiche.deMana} PM',
+                _texteRepos('+ 1d${fiche.deVie} + CON PV', demiNuit: false),
               ),
             ),
           ),
@@ -111,8 +131,7 @@ class OngletFiche extends StatelessWidget {
               leading: const Icon(Icons.nights_stay_outlined),
               title: const Text('Demi-nuit'),
               subtitle: Text(
-                '+ 1d${fiche.deVie} PV · '
-                '+ ${fiche.pmRecuperesNuit(demiNuit: true)} PM',
+                _texteRepos('+ 1d${fiche.deVie} PV', demiNuit: true),
               ),
             ),
           ),
@@ -124,15 +143,17 @@ class OngletFiche extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     final pvAvant = fiche.pvActuels;
     final pmAvant = fiche.pmActuels;
+    final peAvant = fiche.peActuels;
     String detail;
     if (type == 'nuit') {
       final jet = lancerDe(fiche.deVie);
       final gain = fiche.pvRecuperesNuit(jet);
       p.pvActuels = _borne(pvAvant + gain, _pvMin, fiche.pvMax);
       p.pmActuels = _borne(pmAvant + fiche.pmRecuperesNuit(), 0, fiche.pmMax);
+      p.peActuels = _borne(peAvant + fiche.peRecuperesNuit(), 0, fiche.peMax);
       detail = 'Nuit complète : jet d${fiche.deVie} = $jet, '
           '${formaterModificateur(fiche.mod(Carac.con))} CON → '
-          '+${p.pvActuels! - pvAvant} PV, +${p.pmActuels! - pmAvant} PM.';
+          '+${p.pvActuels! - pvAvant} PV${_gains(p, pmAvant, peAvant)}.';
     } else {
       final jet = lancerDe(fiche.deVie);
       p.pvActuels = _borne(
@@ -145,13 +166,33 @@ class OngletFiche extends StatelessWidget {
         0,
         fiche.pmMax,
       );
+      p.peActuels = _borne(
+        peAvant + fiche.peRecuperesNuit(demiNuit: true),
+        0,
+        fiche.peMax,
+      );
       detail = 'Demi-nuit : jet d${fiche.deVie} = $jet → '
-          '+${p.pvActuels! - pvAvant} PV, +${p.pmActuels! - pmAvant} PM.';
+          '+${p.pvActuels! - pvAvant} PV${_gains(p, pmAvant, peAvant)}.';
     }
     p.journaliser(detail, categorie: CategorieHistorique.vie);
     await onModifie();
     messenger.showSnackBar(SnackBar(content: Text(detail)));
   }
+
+  /// Sous-titre d'un repos : PV, puis PM et PE si la classe en a.
+  String _texteRepos(String pv, {required bool demiNuit}) => [
+        pv,
+        if (fiche.classe.aDuMana)
+          '+ ${fiche.pmRecuperesNuit(demiNuit: demiNuit)} PM',
+        if (fiche.classe.aDeLEndurance)
+          '+ ${fiche.peRecuperesNuit(demiNuit: demiNuit)} PE',
+      ].join(' · ');
+
+  /// « , +3 PM, +4 PE » : gains de mana et d'endurance d'un repos.
+  String _gains(Personnage p, int pmAvant, int peAvant) => [
+        if (fiche.classe.aDuMana) ', +${p.pmActuels! - pmAvant} PM',
+        if (fiche.classe.aDeLEndurance) ', +${p.peActuels! - peAvant} PE',
+      ].join();
 
   static int _borne(int v, int min, int max) =>
       v < min ? min : (v > max ? max : v);
@@ -232,17 +273,53 @@ class OngletFiche extends StatelessWidget {
             iconePlus: Icons.autorenew,
             onChange: _changerPm,
           );
+          final pe = _Jauge(
+            cle: 'pe',
+            titre: "Points d'endurance",
+            actuel: fiche.peActuels,
+            max: fiche.peMax,
+            min: 0,
+            couleur: kCouleurPe,
+            icone: kIconeEndurance,
+            libelleMoins: 'Dépenser',
+            libellePlus: 'Récupérer',
+            iconeMoins: Icons.trending_down,
+            iconePlus: Icons.autorenew,
+            onChange: _changerPe,
+          );
+          // Physique : PV + PE ; lanceur : PV + PM ; hybride : les trois.
+          final jauges = [
+            pv,
+            if (fiche.classe.aDuMana) pm,
+            if (fiche.classe.aDeLEndurance) pe,
+          ];
           if (large) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Widget ligne(List<Widget> j) => Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: j[0]),
+                    const SizedBox(width: 12),
+                    Expanded(child: j.length > 1 ? j[1] : const SizedBox()),
+                  ],
+                );
+            return Column(
               children: [
-                Expanded(child: pv),
-                const SizedBox(width: 12),
-                Expanded(child: pm),
+                ligne(jauges.sublist(0, 2)),
+                if (jauges.length > 2) ...[
+                  const SizedBox(height: 12),
+                  ligne(jauges.sublist(2)),
+                ],
               ],
             );
           }
-          return Column(children: [pv, const SizedBox(height: 12), pm]);
+          return Column(
+            children: [
+              for (final (i, j) in jauges.indexed) ...[
+                if (i > 0) const SizedBox(height: 12),
+                j,
+              ],
+            ],
+          );
         },
       ),
       const SizedBox(height: 8),
@@ -460,6 +537,8 @@ class OngletFiche extends StatelessWidget {
         choix: c.choix,
         selonPassif: c.selonPassif,
         selonOrigine: c.selonOrigine,
+        selonProfil: c.selonProfil,
+        endurance: c.endurance,
         etat: c.etat,
         objets: c.objets,
         aussi: c.aussi,

@@ -101,6 +101,7 @@ class Race {
     required this.nom,
     required this.deVie,
     required this.deMana,
+    this.deEndurance = 6,
     this.modificateurs = const {},
     this.passif,
     this.origines = const [],
@@ -123,6 +124,9 @@ class Race {
 
   /// Taille du dé de mana, avant modification par la classe.
   final int deMana;
+
+  /// Taille du dé d'endurance, avant modification par la classe.
+  final int deEndurance;
 
   final Map<Carac, int> modificateurs;
   final Passif? passif;
@@ -176,6 +180,7 @@ class Race {
         nom: j['nom'] as String,
         deVie: (j['deVie'] as num).toInt(),
         deMana: (j['deMana'] as num).toInt(),
+        deEndurance: (j['deEndurance'] as num?)?.toInt() ?? 6,
         modificateurs: caracMapDepuisJson(j['modificateurs']),
         passif: Passif.depuisJson(j['passif']),
         origines: (j['origines'] as List<dynamic>? ?? const [])

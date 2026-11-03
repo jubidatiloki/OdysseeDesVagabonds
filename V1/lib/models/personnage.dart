@@ -39,6 +39,7 @@ class Personnage {
     Map<Carac, int>? caracBase,
     List<int>? jetsDeVie,
     List<int>? jetsDeMana,
+    List<int>? jetsDEndurance,
     List<int>? bonusDeVie,
     Map<String, int>? rangsVoies,
     Map<String, int>? emprunts,
@@ -48,6 +49,7 @@ class Personnage {
     List<EvenementHistorique>? historique,
     this.pvActuels,
     this.pmActuels,
+    this.peActuels,
     this.jetsMontee,
     Map<String, String>? choix,
     Set<String>? etats,
@@ -62,6 +64,7 @@ class Personnage {
             {for (final c in Carac.values) c: kValeurCaracParDefaut},
         jetsDeVie = jetsDeVie ?? [],
         jetsDeMana = jetsDeMana ?? [],
+        jetsDEndurance = jetsDEndurance ?? [],
         bonusDeVie = bonusDeVie ?? [],
         rangsVoies = rangsVoies ?? {},
         emprunts = emprunts ?? {},
@@ -78,7 +81,7 @@ class Personnage {
         modifieLe = modifieLe ?? DateTime.now();
 
   /// Version du format de sauvegarde (pour migrer les anciennes données).
-  static const int versionSchema = 9;
+  static const int versionSchema = 10;
 
   final String id;
   String nom;
@@ -109,6 +112,10 @@ class Personnage {
 
   /// Jets de dé de mana obtenus aux montées de niveau (niveau 2, 3…).
   List<int> jetsDeMana;
+
+  /// Jets de dé d'endurance obtenus aux montées de niveau (niveau 2, 3…) :
+  /// classes physiques et hybrides (schéma 10).
+  List<int> jetsDEndurance;
 
   /// Bonus de PV ajoutés à chaque montée de niveau par des règles
   /// particulières (Force de la nature, Style barbaresque…), dans le même
@@ -237,6 +244,9 @@ class Personnage {
   int? pvActuels;
   int? pmActuels;
 
+  /// Points d'endurance actuels (`null` = au maximum).
+  int? peActuels;
+
   /// Jets de vie / mana déjà lancés pour une montée de niveau pas encore
   /// validée : réutilisés si on la recommence (pas de relance possible).
   JetsMontee? jetsMontee;
@@ -288,6 +298,7 @@ class Personnage {
         'caracBase': caracMapVersJson(caracBase),
         'jetsDeVie': jetsDeVie,
         'jetsDeMana': jetsDeMana,
+        if (jetsDEndurance.isNotEmpty) 'jetsDEndurance': jetsDEndurance,
         'bonusDeVie': bonusDeVie,
         'rangsVoies': rangsVoies,
         if (emprunts.isNotEmpty) 'emprunts': emprunts,
@@ -297,6 +308,7 @@ class Personnage {
         'historique': [for (final e in historique) e.versJson()],
         'pvActuels': pvActuels,
         'pmActuels': pmActuels,
+        if (peActuels != null) 'peActuels': peActuels,
         if (jetsMontee != null) 'jetsMontee': jetsMontee!.versJson(),
         if (choix.isNotEmpty) 'choix': choix,
         if (etats.isNotEmpty) 'etats': etats.toList(),
@@ -329,6 +341,9 @@ class Personnage {
           .map((e) => (e as num).toInt())
           .toList(),
       jetsDeMana: (j['jetsDeMana'] as List<dynamic>? ?? const [])
+          .map((e) => (e as num).toInt())
+          .toList(),
+      jetsDEndurance: (j['jetsDEndurance'] as List<dynamic>? ?? const [])
           .map((e) => (e as num).toInt())
           .toList(),
       bonusDeVie: (j['bonusDeVie'] as List<dynamic>? ?? const [])
@@ -379,6 +394,7 @@ class Personnage {
           e.key: '${e.value}',
       },
       pmActuels: (j['pmActuels'] as num?)?.toInt(),
+      peActuels: (j['peActuels'] as num?)?.toInt(),
       description: j['description'] as String? ?? '',
       notes: j['notes'] as String? ?? '',
       creeLe: DateTime.tryParse(j['creeLe'] as String? ?? ''),
@@ -387,19 +403,22 @@ class Personnage {
   }
 }
 
-/// Jets d'une montée de niveau en cours (niveau visé, dé de vie, dé de mana).
+/// Jets d'une montée de niveau en cours (niveau visé, dé de vie, dé de mana, dé
+/// d'endurance).
 class JetsMontee {
-  JetsMontee({required this.niveau, this.vie, this.mana});
+  JetsMontee({required this.niveau, this.vie, this.mana, this.endurance});
 
   /// Niveau visé par ces jets.
   final int niveau;
   int? vie;
   int? mana;
+  int? endurance;
 
   Map<String, dynamic> versJson() => {
         'niveau': niveau,
         if (vie != null) 'vie': vie,
         if (mana != null) 'mana': mana,
+        if (endurance != null) 'endurance': endurance,
       };
 
   static JetsMontee? depuisJson(Object? j) {
@@ -408,6 +427,7 @@ class JetsMontee {
       niveau: (j['niveau'] as num).toInt(),
       vie: (j['vie'] as num?)?.toInt(),
       mana: (j['mana'] as num?)?.toInt(),
+      endurance: (j['endurance'] as num?)?.toInt(),
     );
   }
 }

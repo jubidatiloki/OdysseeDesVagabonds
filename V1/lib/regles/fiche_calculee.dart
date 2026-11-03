@@ -269,6 +269,12 @@ class FicheCalculee {
         classe.modifDeVie,
       );
 
+  /// Dé d'endurance (race ± classe) : classes physiques et hybrides ;
+  /// 0 pour les lanceurs de sorts (pas de PE).
+  int get deEndurance => classe.aDeLEndurance
+      ? ajusterDe(race.deEndurance, classe.modifDeEndurance)
+      : 0;
+
   /// Dé de mana final (Mental d'acier : +1 cran).
   int get deMana {
     var de = deManaDeBase;
@@ -442,6 +448,7 @@ class FicheCalculee {
   /// option choisie, `{cle}` remplacés).
   Competence resoudre(Competence c) => c.pour(
         optionPassifId: personnage.optionPassifId,
+        profil: classe.profil.code,
         origineId: personnage.origineId,
         choixFaits: personnage.choix,
         autresChoix: choixConnus,
@@ -1588,8 +1595,10 @@ class FicheCalculee {
         deManaNouveau: deMana,
       );
 
-  /// PM max = DM max au niveau 1, puis + 1 jet de DM par niveau.
+  /// PM max = DM max au niveau 1, puis + 1 jet de DM par niveau. Classes
+  /// physiques : 0 (pas de mana, règle du 03/11/2026).
   int get pmMax {
+    if (!classe.aDuMana) return 0;
     var total = deMana;
     for (final jet in personnage.jetsDeMana) {
       total += jet;
@@ -1598,7 +1607,24 @@ class FicheCalculee {
   }
 
   int get pvActuels => personnage.pvActuels ?? pvMax;
-  int get pmActuels => personnage.pmActuels ?? pmMax;
+  int get pmActuels => classe.aDuMana ? personnage.pmActuels ?? pmMax : 0;
+
+  /// PE max = DE max au niveau 1, puis + 1 jet de DE par niveau (comme le
+  /// mana). Lanceurs de sorts : 0 (pas d'endurance).
+  int get peMax {
+    if (!classe.aDeLEndurance) return 0;
+    var total = deEndurance;
+    for (final jet in personnage.jetsDEndurance) {
+      total += jet;
+    }
+    // Personnage créé avant l'endurance (03/11/2026) : les jets des niveaux
+    // déjà passés comptent pour la moyenne du dé, arrondie au-dessus.
+    final manquants = personnage.niveau - 1 - personnage.jetsDEndurance.length;
+    if (manquants > 0) total += manquants * (deEndurance ~/ 2 + 1);
+    return total;
+  }
+
+  int get peActuels => classe.aDeLEndurance ? personnage.peActuels ?? peMax : 0;
 
   /// PV rendus par une nuit de sommeil : jet de DV + mod(CON), minimum 0.
   int pvRecuperesNuit(int jetDeVie) {
@@ -1610,8 +1636,28 @@ class FicheCalculee {
   int pvRecuperesDemiNuit(int jetDeVie) => jetDeVie < 0 ? 0 : jetDeVie;
 
   /// PM rendus par une nuit de sommeil : DM (÷2 pour une demi-nuit).
-  int pmRecuperesNuit({bool demiNuit = false}) =>
-      demiNuit ? deMana ~/ 2 : deMana;
+  int pmRecuperesNuit({bool demiNuit = false}) => !classe.aDuMana
+      ? 0
+      : demiNuit
+          ? deMana ~/ 2
+          : deMana;
+
+  /// PE rendus par une nuit de sommeil : DE (÷2 pour une demi-nuit).
+  int peRecuperesNuit({bool demiNuit = false}) =>
+      demiNuit ? deEndurance ~/ 2 : deEndurance;
+
+  /// Actions des compétences acquises qui coûtent de l'endurance (page
+  /// Lancer de dé) : (libellé, coût, compétence d'origine).
+  List<({String libelle, int cout, String origine})> get actionsEndurance => [
+        if (classe.aDeLEndurance)
+          for (final c in competencesAcquises)
+            for (final e in c.competence.endurance)
+              (
+                libelle: e.libelle.isEmpty ? c.competence.nom : e.libelle,
+                cout: e.cout,
+                origine: c.competence.nom,
+              ),
+      ];
 
   // --- Défense -------------------------------------------------------------
 
@@ -1806,8 +1852,11 @@ class FicheCalculee {
 
   /// « 1dDM », « 4dDM » : dés de mana du personnage (Frappe de ki,
   /// Kenn-do-ha) ; le reste du texte est gardé.
-  String avecDeMana(String texte) =>
-      texte.replaceAll(RegExp(r'd\s*DM\b'), 'd$deMana');
+  /// « 3dDV » : dés de vie (Puits d'arcane) ; « 1dDE » : dés d'endurance.
+  String avecDeMana(String texte) => texte
+      .replaceAll(RegExp(r'd\s*DM\b'), 'd$deMana')
+      .replaceAll(RegExp(r'd\s*DV\b'), 'd$deVie')
+      .replaceAll(RegExp(r'd\s*DE\b'), 'd$deEndurance');
 
   /// Arme à poudre (pétoire, pistolet, mousquet, canon…), d'après son nom.
   static bool estArmeAFeu(Objet o) =>

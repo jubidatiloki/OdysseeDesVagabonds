@@ -4,7 +4,9 @@ import '../models/voie.dart';
 import '../regles/fiche_calculee.dart';
 import '../theme.dart';
 
-/// Libellés d'un sort (charte, décision 27) : mana dépensé (goutte, bleu),
+/// Libellés d'un sort (charte, décision 27) : endurance dépensée (coureur,
+/// or, décision 61, aussi pour les compétences qui ne sont pas des sorts),
+/// mana dépensé (goutte, bleu),
 /// jet de réussite s'il en faut un (dé, or),
 /// dégâts infligés s'il y en a (éclair, rouge), soin s'il y en a (cœur,
 /// vert), effet appliqué s'il y en a (baguette magique, violet). Rien si la
@@ -19,65 +21,80 @@ class LibellesSort extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cout = FicheCalculee.coutSort(competence);
-    if (cout == null) return const SizedBox.shrink();
+    if (cout == null && competence.endurance.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final sombre = Theme.of(context).brightness == Brightness.dark;
     final c = competence;
     return Wrap(
       spacing: 6,
       runSpacing: 4,
       children: [
-        // Types du sort (offensif, support…), chacun avec son icône.
-        for (final t in c.typesSort)
+        // Endurance dépensée (classes physiques et hybrides) : coureur, or.
+        for (final (i, e) in c.endurance.indexed)
           _Libelle(
-            key: Key('type-sort-${t.code}'),
-            icone: t.icone,
-            texte: t.libelle,
-            infobulle: '${t.libelle} : ${t.definition}',
-            couleur: t.couleur(Theme.of(context).brightness),
+            key: Key('cout-endurance-$i'),
+            icone: kIconeEndurance,
+            texte: e.libelle.isEmpty
+                ? '${e.cout} PE'
+                : '${e.libelle} : ${e.cout} PE',
+            infobulle: "Points d'endurance dépensés",
+            couleur: sombre ? OdvCouleurs.pe : OdvCouleurs.peFonce,
           ),
-        _Libelle(
-          icone: Icons.water_drop,
-          texte: c.mana.isNotEmpty ? c.mana : '${cout.cout} PM',
-          infobulle: 'Mana dépensé (sort de rang ${cout.rang})',
-          couleur: sombre ? OdvCouleurs.pm : OdvCouleurs.blue,
-        ),
-        if (c.reussite case final r?)
+        if (cout != null) ...[
+          // Types du sort (offensif, support…), chacun avec son icône.
+          for (final t in c.typesSort)
+            _Libelle(
+              key: Key('type-sort-${t.code}'),
+              icone: t.icone,
+              texte: t.libelle,
+              infobulle: '${t.libelle} : ${t.definition}',
+              couleur: t.couleur(Theme.of(context).brightness),
+            ),
           _Libelle(
-            icone: Icons.casino_outlined,
-            texte: [
-              [
-                '1d20',
-                if (r.carac.isNotEmpty) r.carac,
-                if (r.bonus != 0) '${r.bonus}',
-              ].join(' + '),
-              if (r.difficulte != null) 'diff. ${r.difficulte}',
-              if (r.contre.isNotEmpty) 'contre ${r.contre}',
-            ].join(' · '),
-            infobulle: '${r.libelle.isEmpty ? 'Jet de réussite' : r.libelle} '
-                '(dégâts et effet seulement si le sort réussit)',
-            couleur: sombre ? OdvCouleurs.or : const Color(0xFF8A6420),
+            icone: Icons.water_drop,
+            texte: c.mana.isNotEmpty ? c.mana : '${cout.cout} PM',
+            infobulle: 'Mana dépensé (sort de rang ${cout.rang})',
+            couleur: sombre ? OdvCouleurs.pm : OdvCouleurs.blue,
           ),
-        if (c.degats.isNotEmpty)
-          _Libelle(
-            icone: Icons.bolt,
-            texte: c.degats,
-            infobulle: 'Dégâts infligés',
-            couleur: sombre ? OdvCouleurs.physique : OdvCouleurs.darkRed,
-          ),
-        if (c.soin.isNotEmpty)
-          _Libelle(
-            icone: Icons.favorite,
-            texte: c.soin,
-            infobulle: 'Soin prodigué',
-            couleur: sombre ? OdvCouleurs.pv : OdvCouleurs.darkGreen,
-          ),
-        if (c.effetApplique.isNotEmpty)
-          _Libelle(
-            icone: Icons.auto_fix_high,
-            texte: c.effetApplique,
-            infobulle: 'Effet appliqué',
-            couleur: sombre ? OdvCouleurs.hybride : OdvCouleurs.hybrideFonce,
-          ),
+          if (c.reussite case final r?)
+            _Libelle(
+              icone: Icons.casino_outlined,
+              texte: [
+                [
+                  '1d20',
+                  if (r.carac.isNotEmpty) r.carac,
+                  if (r.bonus != 0) '${r.bonus}',
+                ].join(' + '),
+                if (r.difficulte != null) 'diff. ${r.difficulte}',
+                if (r.contre.isNotEmpty) 'contre ${r.contre}',
+              ].join(' · '),
+              infobulle: '${r.libelle.isEmpty ? 'Jet de réussite' : r.libelle} '
+                  '(dégâts et effet seulement si le sort réussit)',
+              couleur: sombre ? OdvCouleurs.or : const Color(0xFF8A6420),
+            ),
+          if (c.degats.isNotEmpty)
+            _Libelle(
+              icone: Icons.bolt,
+              texte: c.degats,
+              infobulle: 'Dégâts infligés',
+              couleur: sombre ? OdvCouleurs.physique : OdvCouleurs.darkRed,
+            ),
+          if (c.soin.isNotEmpty)
+            _Libelle(
+              icone: Icons.favorite,
+              texte: c.soin,
+              infobulle: 'Soin prodigué',
+              couleur: sombre ? OdvCouleurs.pv : OdvCouleurs.darkGreen,
+            ),
+          if (c.effetApplique.isNotEmpty)
+            _Libelle(
+              icone: Icons.auto_fix_high,
+              texte: c.effetApplique,
+              infobulle: 'Effet appliqué',
+              couleur: sombre ? OdvCouleurs.hybride : OdvCouleurs.hybrideFonce,
+            ),
+        ],
       ],
     );
   }

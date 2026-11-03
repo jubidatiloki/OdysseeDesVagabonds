@@ -136,8 +136,8 @@ void main() {
     expect(bouton().onPressed, isNotNull);
     await _tap(tester, suivant);
 
-    // 3. Classe : dés finaux nain + guerrier = d10 / d4 ; fenêtre des voies
-    expect(find.text('Dé de vie d10 · Dé de mana d4'), findsOneWidget);
+    // 3. Classe : dés finaux nain + guerrier = d10 / DE d6 ; fenêtre des voies
+    expect(find.text("Dé de vie d10 · Dé d'endurance d6"), findsOneWidget);
     await _tap(tester, find.text('Guerrier'));
     await _tap(tester, find.byKey(const Key('voies-guerrier')));
     expect(find.text('Voies — Guerrier'), findsOneWidget);

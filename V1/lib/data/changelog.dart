@@ -29,6 +29,42 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.21.0',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: "Endurance : dé d'endurance (DE) et points d'endurance (PE) "
+            'pour les classes physiques et hybrides.',
+      ),
+      (
+        type: _m,
+        texte: 'Classes physiques sans mana, lanceurs de sorts sans endurance '
+            '(croix sur le dé absent) ; hybrides : PM + PE.',
+      ),
+      (
+        type: _a,
+        texte: "Races : dé d'endurance (d8 demi-orque, draconien, nain ; "
+            'd4 gnome ; d6 les autres).',
+      ),
+      (
+        type: _a,
+        texte: 'Coûts en PE de 38 compétences ; section Endurance sur la '
+            'page Lancer de dé.',
+      ),
+      (
+        type: _a,
+        texte: 'Fiche : jauge des PE, repos et montée de niveau avec le dé '
+            "d'endurance.",
+      ),
+      (
+        type: _m,
+        texte: "Puits d'arcane (haut-elfe) selon la classe : PM pour les "
+            'lanceurs, PV pour les physiques, au choix pour les hybrides.',
+      ),
+    ],
+  ),
+  (
     version: '0.20.0',
     date: '03/11/2026',
     changements: [

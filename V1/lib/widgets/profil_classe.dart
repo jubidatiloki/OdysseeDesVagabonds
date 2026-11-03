@@ -71,11 +71,14 @@ String _aideModif(String de, ModifDe m) => switch (m) {
       ModifDe.egal => '$de : celui de la race',
     };
 
-/// Couleur de la vie (cœur) et du mana (goutte), selon le thème.
+/// Couleur de la vie (cœur), du mana (goutte) et de l'endurance (coureur),
+/// selon le thème.
 Color couleurVie(Brightness b) =>
     b == Brightness.dark ? OdvCouleurs.pv : OdvCouleurs.darkGreen;
 Color couleurMana(Brightness b) =>
     b == Brightness.dark ? OdvCouleurs.pm : OdvCouleurs.blue;
+Color couleurEndurance(Brightness b) =>
+    b == Brightness.dark ? OdvCouleurs.pe : OdvCouleurs.peFonce;
 
 /// Jauge à 3 crans d'un dé de vie ou de mana modifié par la classe, remplie
 /// jusqu'au cran atteint : 1 cran = dé inférieur (rouge), 2 crans = dé de la
@@ -89,7 +92,21 @@ class CurseurDe extends StatelessWidget {
     required this.modif,
     required this.nomDe,
     this.faces,
+    this.absent = false,
   });
+
+  /// Ressource que la classe n'a pas (mana d'une classe physique, endurance
+  /// d'un lanceur de sorts) : jauge vide barrée d'une croix.
+  const CurseurDe.absent({
+    super.key,
+    required this.icone,
+    required this.couleur,
+    required this.nomDe,
+  })  : modif = ModifDe.egal,
+        faces = null,
+        absent = true;
+
+  final bool absent;
 
   /// Dé d'une race : place le curseur selon sa taille (d4 bas, d6 milieu,
   /// d8 et plus haut) et affiche le dé (« d8 ») après le curseur.
@@ -122,7 +139,7 @@ class CurseurDe extends StatelessWidget {
   final Color couleur;
   final ModifDe modif;
 
-  /// « Dé de vie » ou « Dé de mana ».
+  /// « Dé de vie », « Dé de mana » ou « Dé d'endurance ».
   final String nomDe;
 
   int get _cran => switch (modif) {
@@ -141,36 +158,60 @@ class CurseurDe extends StatelessWidget {
       ModifDe.egal => sombre ? OdvCouleurs.texteDiscret : OdvCouleurs.grey,
       ModifDe.plus => couleur,
     };
-    final aide = faces == null
-        ? _aideModif(nomDe, modif)
-        : '$nomDe : d$faces (${switch (modif) {
-            ModifDe.moins => 'faible',
-            ModifDe.egal => 'moyen',
-            ModifDe.plus => 'élevé',
-          }})';
+    final ressource = switch (nomDe) {
+      'Dé de vie' => 'vie',
+      'Dé de mana' => 'mana',
+      _ => 'endurance',
+    };
+    final aide = absent
+        ? '$nomDe : aucun (pas de ${ressource == 'mana' ? 'PM' : 'PE'})'
+        : faces == null
+            ? _aideModif(nomDe, modif)
+            : '$nomDe : d$faces (${switch (modif) {
+                ModifDe.moins => 'faible',
+                ModifDe.egal => 'moyen',
+                ModifDe.plus => 'élevé',
+              }})';
+    final barre = sombre ? OdvCouleurs.lightRed : OdvCouleurs.red;
     return Tooltip(
       message: aide,
       child: Semantics(
         label: aide,
         child: Row(
-          key: Key('curseur-${nomDe == 'Dé de vie' ? 'vie' : 'mana'}-'
-              '${modif.name}'),
+          key: Key('curseur-$ressource-${absent ? 'absent' : modif.name}'),
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icone, size: 16, color: couleur),
+            Icon(
+              icone,
+              size: 16,
+              color: absent ? theme.colorScheme.onSurfaceVariant : couleur,
+            ),
             const SizedBox(width: 4),
-            for (var i = 0; i < 3; i++) ...[
-              if (i > 0) const SizedBox(width: 2),
-              Container(
-                width: 12,
-                height: 8,
-                decoration: BoxDecoration(
-                  color:
-                      i <= _cran ? actif : vide, // jauge remplie jusqu'au cran
-                  borderRadius: BorderRadius.circular(2),
+            // Ressource absente : jauge vide, barrée d'une croix.
+            Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < 3; i++) ...[
+                      if (i > 0) const SizedBox(width: 2),
+                      Container(
+                        width: 12,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          // Jauge remplie jusqu'au cran.
+                          color: !absent && i <= _cran ? actif : vide,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ),
-            ],
+                if (absent) Icon(Icons.close, size: 18, color: barre),
+              ],
+            ),
             if (faces != null) ...[
               const SizedBox(width: 6),
               Text(
@@ -188,7 +229,40 @@ class CurseurDe extends StatelessWidget {
   }
 }
 
-/// Résumé d'une classe pour les listes : profil, vie, mana, nombre de voies.
+/// Curseurs du dé de mana et du dé d'endurance d'une classe : barrés d'une
+/// croix quand la classe n'a pas la ressource (physique : pas de PM ;
+/// lanceur de sorts : pas de PE).
+List<Widget> curseursRessources(Classe classe, Brightness b) => [
+      if (classe.aDuMana)
+        CurseurDe(
+          icone: Icons.water_drop,
+          couleur: couleurMana(b),
+          modif: classe.modifDeMana,
+          nomDe: 'Dé de mana',
+        )
+      else
+        CurseurDe.absent(
+          icone: Icons.water_drop,
+          couleur: couleurMana(b),
+          nomDe: 'Dé de mana',
+        ),
+      if (classe.aDeLEndurance)
+        CurseurDe(
+          icone: kIconeEndurance,
+          couleur: couleurEndurance(b),
+          modif: classe.modifDeEndurance,
+          nomDe: "Dé d'endurance",
+        )
+      else
+        CurseurDe.absent(
+          icone: kIconeEndurance,
+          couleur: couleurEndurance(b),
+          nomDe: "Dé d'endurance",
+        ),
+    ];
+
+/// Résumé d'une classe pour les listes : profil, vie, mana, endurance,
+/// nombre de voies.
 class InfosClasse extends StatelessWidget {
   const InfosClasse(this.classe, {super.key});
 
@@ -209,12 +283,7 @@ class InfosClasse extends StatelessWidget {
           modif: classe.modifDeVie,
           nomDe: 'Dé de vie',
         ),
-        CurseurDe(
-          icone: Icons.water_drop,
-          couleur: couleurMana(theme.brightness),
-          modif: classe.modifDeMana,
-          nomDe: 'Dé de mana',
-        ),
+        ...curseursRessources(classe, theme.brightness),
         _Indicateur(
           icone: Icons.auto_stories_outlined,
           couleur: theme.colorScheme.onSurfaceVariant,
@@ -334,6 +403,12 @@ class InfosRace extends StatelessWidget {
           couleur: couleurMana(theme.brightness),
           faces: race.deMana,
           nomDe: 'Dé de mana',
+        ),
+        CurseurDe.race(
+          icone: kIconeEndurance,
+          couleur: couleurEndurance(theme.brightness),
+          faces: race.deEndurance,
+          nomDe: "Dé d'endurance",
         ),
         if (race.aDesOrigines)
           Tooltip(

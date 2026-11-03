@@ -575,7 +575,20 @@ class Competence {
     this.etatsAuChoix = const [],
     this.variantesDegats = const [],
     this.invocations = const [],
+    this.endurance = const [],
+    this.selonProfil = const {},
   });
+
+  /// Coûts en points d'endurance (PE) : un seul (« Moulinet : 2 PE ») ou
+  /// plusieurs actions (chimiste : potion 1 PE, explosif 2 PE). JSON :
+  /// `"endurance": 2` ou `"endurance": [{"libelle": "Fabriquer une potion",
+  /// "cout": 1}]`.
+  final List<CoutEndurance> endurance;
+
+  /// Variantes selon le profil de la classe (`lanceur`, `physique`,
+  /// `hybride`) : Puits d'arcane du haut-elfe. Moins prioritaires que
+  /// [selonPassif] et [selonOrigine].
+  final Map<String, VarianteCompetence> selonProfil;
 
   /// Fiches du bestiaire (ids) des créatures invoquées ou des compagnons
   /// donnés (diablotin, animal de compagnie) : bouton « Statistiques ».
@@ -624,6 +637,8 @@ class Competence {
         etatsAuChoix: etatsAuChoix,
         variantesDegats: variantesDegats,
         invocations: invocations,
+        endurance: endurance,
+        selonProfil: selonProfil,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -700,11 +715,14 @@ class Competence {
   Competence pour({
     String? optionPassifId,
     String? origineId,
+    String? profil,
     Map<String, String> choixFaits = const {},
     Map<String, ChoixCompetence> autresChoix = const {},
     Map<String, String> precisions = const {},
   }) {
-    final v = selonOrigine[origineId] ?? selonPassif[optionPassifId];
+    final v = selonOrigine[origineId] ??
+        selonPassif[optionPassifId] ??
+        selonProfil[profil];
     var t = v?.type ?? type;
     var e = v?.effet ?? effet;
     var ef = <Effet>[...(v?.effets ?? effets)];
@@ -768,6 +786,8 @@ class Competence {
       etatsAuChoix: etatsAuChoix,
       variantesDegats: variantesDegats,
       invocations: invocations,
+      endurance: endurance,
+      selonProfil: selonProfil,
     );
   }
 
@@ -782,6 +802,8 @@ class Competence {
         choix: ChoixCompetence.depuisJson(j['choix']),
         selonPassif: _variantes(j['selonPassif']),
         selonOrigine: _variantes(j['selonOrigine']),
+        selonProfil: _variantes(j['selonProfil']),
+        endurance: CoutEndurance.listeDepuisJson(j['endurance']),
         etat: EtatCompetence.depuisJson(j['etat']),
         etatsAuChoix: [
           for (final e in j['etats'] as List<dynamic>? ?? const [])
@@ -936,5 +958,31 @@ class ReussiteSort {
       contre: '${j['contre'] ?? ''}'.trim(),
       libelle: '${j['libelle'] ?? ''}'.trim(),
     );
+  }
+}
+
+/// Coût en points d'endurance (PE) d'une compétence ou d'une de ses actions
+/// (règle du 03/11/2026 : les classes physiques et hybrides dépensent de
+/// l'endurance). [libelle] vide : le nom de la compétence.
+class CoutEndurance {
+  const CoutEndurance({this.libelle = '', required this.cout});
+
+  final String libelle;
+  final int cout;
+
+  /// `2` → un coût ; `[{"libelle": …, "cout": 1}, …]` → plusieurs.
+  static List<CoutEndurance> listeDepuisJson(Object? j) {
+    if (j is num) return [CoutEndurance(cout: j.toInt())];
+    if (j is! List) return const [];
+    return [
+      for (final e in j)
+        if (e is Map && e['cout'] is num)
+          CoutEndurance(
+            libelle: '${e['libelle'] ?? ''}'.trim(),
+            cout: (e['cout'] as num).toInt(),
+          )
+        else if (e is num)
+          CoutEndurance(cout: e.toInt()),
+    ];
   }
 }

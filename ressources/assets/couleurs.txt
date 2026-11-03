@@ -28,6 +28,8 @@ discreetText,8F8478,hints / disabled;
 accentLight,E59A62,orange text on dark;
 accentTint,3A2A1E,orange tinted background;
 gold,D4A24C,progression / level;
+endurance,D4A24C,endurance points PE (dark theme) - same as gold;
+enduranceDark,8A6420,endurance points PE (light theme);
 onGold,2A1E0A,text on gold;
 hybrid,A48FD0,hybrid class (dark theme);
 hybridDark,6E56A8,hybrid class (light theme);

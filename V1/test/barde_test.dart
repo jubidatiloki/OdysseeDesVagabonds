@@ -301,10 +301,13 @@ void testsAttaqueSautee() {
       ),
     );
     await tester.pumpAndSettle();
-    Finder bouton(String libelle) => find.ancestor(
+    Finder bouton(String libelle) => find
+        .ancestor(
           of: find.text(libelle),
           matching: find.byType(OutlinedButton),
-        );
+        )
+        // Le 2ᵉ « Attaque sautée » est le bouton d'endurance (2 PE).
+        .first;
     expect(
       find.descendant(
         of: bouton('Dégâts · Attaque sautée'),

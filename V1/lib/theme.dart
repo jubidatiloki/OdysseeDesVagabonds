@@ -53,6 +53,8 @@ abstract final class OdvCouleurs {
   // Usages dans le jeu
   static const pv = lightGreen;
   static const pm = lightBlue;
+  static const pe = or; // endurance (classes physiques et hybrides)
+  static const peFonce = Color(0xFF8A6420); // endurance sur fond clair
   static const physique = lightRed;
   static const magique = lightBlue;
   static const hybride = Color(0xFFA48FD0); // violet : mélange rouge + bleu
@@ -63,6 +65,10 @@ abstract final class OdvCouleurs {
 const Color kCouleurOdv = OdvCouleurs.accent;
 const Color kCouleurPv = OdvCouleurs.pv;
 const Color kCouleurPm = OdvCouleurs.pm;
+const Color kCouleurPe = OdvCouleurs.pe;
+
+/// Icône de l'endurance (PE, dé d'endurance) : coureur.
+const IconData kIconeEndurance = Icons.directions_run;
 
 /// Couleur de la jauge PV selon l'état : vert au-dessus de 50 %, or
 /// (ambre) de 25 à 50 %, rouge en dessous.

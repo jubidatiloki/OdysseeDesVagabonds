@@ -12,9 +12,11 @@
 - **Langues** : un personnage ne parle que la langue de sa race (sauf l'humain, et le demi-elfe d'origine humaine).
 - **Lire et écrire** n'est pas inné si l'INT est inférieure à 10.
 
-## Dés de vie et de mana
+## Dés de vie, de mana et d'endurance
 
-- Le **dé de vie (DV)** et le **dé de mana (DM)** sont fixés par la race, puis modifiés par la classe : `+` dé supérieur, `−` dé inférieur, `=` inchangé.
+- Le **dé de vie (DV)**, le **dé de mana (DM)** et le **dé d'endurance (DE)** sont fixés par la race, puis modifiés par la classe : `+` dé supérieur, `−` dé inférieur, `=` inchangé.
+- **Mana ou endurance selon la classe** : les classes **physiques** n'ont pas de mana (ni DM ni PM) mais de l'**endurance** (DE, PE) ; les **lanceurs de sorts** ont du mana mais pas d'endurance ; les **hybrides** ont les deux (PM + PE).
+- DE des races : **d8** pour le demi-orque, le draconien et le nain ; **d4** pour le gnome ; **d6** pour les autres. Aucune classe ne modifie le DE (`=`).
 - Dé minimum : **d4**.
 - Exemple : draconien (DV 8 / DM 4) + magicien (DV −, DM +) → DV 6 / DM 6.
 - À la création, le DV compte pour sa **valeur maximale**. Ensuite (montée de niveau, repos), on **lance** le dé.
@@ -60,6 +62,8 @@
 | PV max (niveaux suivants) | + 1 jet de DV par niveau |
 | PM max (niveau 1) | DM max |
 | PM max (niveaux suivants) | + 1 jet de DM par niveau |
+| PE max (niveau 1) | DE max (classes physiques et hybrides) |
+| PE max (niveaux suivants) | + 1 jet de DE par niveau |
 | Initiative | **valeur** de DEX + bonus d'initiative (pas de jet ; pas de limite liée à l'armure) |
 | Toucher au corps à corps | 1d20 + mod(AdC) + bonus |
 | Toucher à distance | 1d20 + mod(AdT) + bonus |
@@ -75,11 +79,12 @@
 - RD physique, magique, feu, glace, foudre : `0 + compétences + équipement + autres`.
 - Il n'existe **pas de RD chaos** : le chaos ignore toute réduction de dégâts.
 
-## Vie, mana et repos
+## Vie, mana, endurance et repos
 
 - À **0 PV** : évanouissement pendant 1d6 heures. En dessous de **−DV** : mort.
-- **Nuit de sommeil** : rend 1 jet de DV + mod(CON) PV et **DM** PM.
-- **Demi-nuit** : rend 1 jet de DV en PV (sans la CON) et **DM ÷ 2** PM.
+- **Nuit de sommeil** : rend 1 jet de DV + mod(CON) PV, **DM** PM et **DE** PE.
+- **Demi-nuit** : rend 1 jet de DV en PV (sans la CON), **DM ÷ 2** PM et **DE ÷ 2** PE.
+- **Points d'endurance (PE)** : dépensés par les compétences des classes physiques et hybrides (coût indiqué sur la compétence : « Moulinet : 2 PE ») ; impossible d'utiliser la compétence sans assez de PE.
 - Impossible de dépasser son mana maximum (sauf « transfert de mana » du magicien).
 
 ## Combat

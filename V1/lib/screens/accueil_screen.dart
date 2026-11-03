@@ -204,11 +204,20 @@ class AccueilScreen extends StatelessWidget {
                                   texte: 'PV ${fiche.pvActuels}/${fiche.pvMax}',
                                   couleur: OdvCouleurs.pv,
                                 ),
-                                _Ressource(
-                                  icone: Icons.water_drop,
-                                  texte: 'PM ${fiche.pmActuels}/${fiche.pmMax}',
-                                  couleur: OdvCouleurs.pm,
-                                ),
+                                if (fiche.classe.aDuMana)
+                                  _Ressource(
+                                    icone: Icons.water_drop,
+                                    texte:
+                                        'PM ${fiche.pmActuels}/${fiche.pmMax}',
+                                    couleur: OdvCouleurs.pm,
+                                  ),
+                                if (fiche.classe.aDeLEndurance)
+                                  _Ressource(
+                                    icone: kIconeEndurance,
+                                    texte:
+                                        'PE ${fiche.peActuels}/${fiche.peMax}',
+                                    couleur: OdvCouleurs.pe,
+                                  ),
                               ],
                             ),
                           ],

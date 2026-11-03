@@ -24,20 +24,22 @@
 
 ## Tableau récapitulatif
 
-| Classe | DV | DM | Maîtrises d'armes | Restriction d'armure | Voies | Avancement |
-|---|---|---|---|---|---|---|
-| Barbare | + | − | civiles ; mêlée communes (hors poudre) | pas de plaques | brute, athlète, sauvage, berzerker | 20/20 |
-| Barde | = | = | civiles ; 1 main communes | pas de plaques | vagabond, musicien, acrobate, courtisan | 20/20 |
-| Chevalier | + | − | civiles ; mêlée communes (hors poudre) | aucune | noblesse, cavalerie, duel, commandement | 20/20 |
-| Druide | = | + | civiles ; communes | pas de plaques | bestiale, protecteur, nature, végétaux | 20/20 |
-| Guerrier | + | − | civiles ; communes | aucune | bouclier, mêlée, guerre, polyvalence | 20/20 |
-| Ingénieur | + | − | civiles ; mêlée communes ; poudre ; siège | pas de plaques | artillerie, chimiste, tireur, mécanismes | 20/20 |
-| Magicien | − | + | civiles | cuir max | universelle, élément(s), lumière, arcanes | 32/32 |
-| Moine | = | = | civiles ; mêlée communes | cuir max | ki, runes, ninja, poing | 20/20 |
-| Nécromancien | − | + | civiles | cuir max | mort, morts-vivants, invocation, rituels | 16/20 |
-| Prêtre | - | + | civiles ; mêlée communes | cotte de mailles max | soins, paladin, divin, inquisiteur | 20/20 |
-| Rôdeur | = | = | civiles ; communes ; distance (hors poudre) | cuir max | archer, chasseur, animaux, trappeur | 20/20 |
-| Voleur | = | = | civiles ; communes | cuir max | assassin, bretteur, roublard, séducteur | 20/20 |
+| Classe | DV | DM | DE | Maîtrises d'armes | Restriction d'armure | Voies | Avancement |
+|---|---|---|---|---|---|---|---|
+| Barbare | + | ✗ (pas de PM) | = | civiles ; mêlée communes (hors poudre) | pas de plaques | brute, athlète, sauvage, berzerker | 20/20 |
+| Barde | = | = | = | civiles ; 1 main communes | pas de plaques | vagabond, musicien, acrobate, courtisan | 20/20 |
+| Chevalier | + | ✗ (pas de PM) | = | civiles ; mêlée communes (hors poudre) | aucune | noblesse, cavalerie, duel, commandement | 20/20 |
+| Druide | = | + | ✗ (pas de PE) | civiles ; communes | pas de plaques | bestiale, protecteur, nature, végétaux | 20/20 |
+| Guerrier | + | ✗ (pas de PM) | = | civiles ; communes | aucune | bouclier, mêlée, guerre, polyvalence | 20/20 |
+| Ingénieur | + | ✗ (pas de PM) | = | civiles ; mêlée communes ; poudre ; siège | pas de plaques | artillerie, chimiste, tireur, mécanismes | 20/20 |
+| Magicien | − | + | ✗ (pas de PE) | civiles | cuir max | universelle, élément(s), lumière, arcanes | 32/32 |
+| Moine | = | = | = | civiles ; mêlée communes | cuir max | ki, runes, ninja, poing | 20/20 |
+| Nécromancien | − | + | ✗ (pas de PE) | civiles | cuir max | mort, morts-vivants, invocation, rituels | 16/20 |
+| Prêtre | - | + | ✗ (pas de PE) | civiles ; mêlée communes | cotte de mailles max | soins, paladin, divin, inquisiteur | 20/20 |
+| Rôdeur | = | ✗ (pas de PM) | = | civiles ; communes ; distance (hors poudre) | cuir max | archer, chasseur, animaux, trappeur | 20/20 |
+| Voleur | = | = | = | civiles ; communes | cuir max | assassin, bretteur, roublard, séducteur | 20/20 |
+
+**DE** (dé d'endurance, règle du 03/11/2026) : classes physiques et hybrides ; coûts en PE indiqués sur les compétences (`"endurance"` dans `classes.json`). Les classes physiques n'ont plus de mana.
 
 « Inventaire de base » : bloc présent pour chaque classe mais **vide** ❌.
 

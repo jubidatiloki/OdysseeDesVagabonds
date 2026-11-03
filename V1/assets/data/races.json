@@ -6,6 +6,7 @@
 		"langues": ["Elfique"],
 		"deVie": 6,
 		"deMana": 6,
+		"deEndurance": 6,
 		"profil": "hybride",
 		"modificateurs": {},
 		"passif": null,
@@ -179,6 +180,7 @@
 		"langues": ["Guttural (orque)"],
 		"deVie": 8,
 		"deMana": 4,
+		"deEndurance": 8,
 		"profil": "physique",
 		"modificateurs": {
 			"FOR": 3,
@@ -348,6 +350,7 @@
 		"langues": ["Draconique"],
 		"deVie": 8,
 		"deMana": 4,
+		"deEndurance": 8,
 		"profil": "physique",
 		"modificateurs": {
 			"CON": 2,
@@ -522,6 +525,7 @@
 		"langues": ["Elfique"],
 		"deVie": 6,
 		"deMana": 6,
+		"deEndurance": 6,
 		"profil": "hybride",
 		"modificateurs": {
 			"DEX": 1,
@@ -682,6 +686,7 @@
 		"langues": ["Elfique"],
 		"deVie": 4,
 		"deMana": 8,
+		"deEndurance": 6,
 		"profil": "lanceur",
 		"modificateurs": {
 			"DEX": 2,
@@ -777,19 +782,21 @@
 					"rang": 3,
 					"nom": "Puits d'arcane",
 					"type": "actif, compétence",
-					"effet": "1×/jour : perd 1d10 PV pour regagner RANG d6 mana (ne peut dépasser son mana max sans le dépassement de mana du magicien).",
-					"jets": [
-						{
-							"libelle": "Puits d'arcane · PV perdus",
-							"des": "1d10",
-							"applique": "-pv",
-							"suite": {
-								"libelle": "Puits d'arcane · mana regagné",
-								"des": "RANGd6",
-								"applique": "+pm"
-							}
+					"effet": "1×/jour, selon la classe : lanceur de sorts, regagne RANG d6 PM sans perdre de PV ; classe physique, regagne RANG dés de vie en PV ; classe hybride, au choix.",
+					"selonProfil": {
+						"lanceur": {
+							"effet": "1×/jour : regagne RANG d6 PM (ne peut dépasser son mana max sans le dépassement de mana du magicien).",
+							"jets": [{"libelle": "Puits d'arcane · mana regagné", "des": "RANGd6", "applique": "+pm"}]
+						},
+						"physique": {
+							"effet": "1×/jour : regagne RANG dés de vie en PV.",
+							"jets": [{"libelle": "Puits d'arcane · PV regagnés", "des": "RANGdDV", "applique": "+pv"}]
+						},
+						"hybride": {
+							"effet": "1×/jour, au choix : regagne RANG d6 PM (sans dépasser son mana max), ou RANG dés de vie en PV.",
+							"jets": [{"libelle": "Puits d'arcane · mana regagné", "des": "RANGd6", "applique": "+pm"}, {"libelle": "Puits d'arcane · PV regagnés", "des": "RANGdDV", "applique": "+pv"}]
 						}
-					]
+					}
 				},
 				{
 					"rang": 4,
@@ -840,6 +847,7 @@
 		"langues": ["Gnome"],
 		"deVie": 6,
 		"deMana": 6,
+		"deEndurance": 4,
 		"profil": "hybride",
 		"modificateurs": {
 			"SOC": 2,
@@ -1025,6 +1033,7 @@
 		"langues": [],
 		"deVie": 6,
 		"deMana": 6,
+		"deEndurance": 6,
 		"profil": "hybride",
 		"modificateurs": {},
 		"passif": {
@@ -1301,6 +1310,7 @@
 		"langues": ["Nain"],
 		"deVie": 8,
 		"deMana": 4,
+		"deEndurance": 8,
 		"profil": "physique",
 		"modificateurs": {
 			"CON": 2,

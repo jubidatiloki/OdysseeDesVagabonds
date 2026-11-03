@@ -43,7 +43,7 @@ final _guerrier = Classe(
   ],
 );
 
-Personnage _brom({int? pv, int? pm}) => Personnage(
+Personnage _brom({int? pv, int? pe}) => Personnage(
       id: 'brom',
       nom: 'Brom',
       raceId: 'nain',
@@ -51,20 +51,21 @@ Personnage _brom({int? pv, int? pm}) => Personnage(
       rangsVoies: {'g-bouclier': 1},
       aptitudes: [const AptitudeAcquise(id: 'natation')],
       pvActuels: pv,
-      pmActuels: pm,
+      peActuels: pe,
     );
 
 void main() {
   group('règles de montée de niveau', () {
-    test('PV / PM max et actuels augmentent du gain', () {
-      // Nain guerrier : DV d10, DM d4 ; CON 12 → +1 ; PV max 11, PM max 4
-      final p = _brom(pv: 5, pm: 1);
+    test('PV / PE max et actuels augmentent du gain', () {
+      // Nain guerrier : DV d10, DE d6 ; CON 12 → +1 ; PV max 11, PE max 6.
+      // Classe physique : pas de mana (règle du 03/11/2026).
+      final p = _brom(pv: 5, pe: 1);
       final r = MonteeNiveau.appliquer(
         personnage: p,
         race: _nain,
         classe: _guerrier,
         jetDeVie: 3,
-        jetDeMana: 2,
+        jetDEndurance: 2,
         rangsVoies: p.rangsVoies,
         aptitudes: p.aptitudes,
       );
@@ -73,11 +74,16 @@ void main() {
       expect(r.pvMaxAvant, 11);
       expect(f.pvMax, 14);
       expect(p.pvActuels, 8); // 5/11 → 8/14
-      expect(f.pmMax, 6);
-      expect(p.pmActuels, 3); // 1/4 → 3/6
+      expect(f.peMax, 8);
+      expect(p.peActuels, 3); // 1/6 → 3/8
+      expect(f.pmMax, 0);
       expect(r.pointsGagnes, 2);
       expect(p.jetsDeVie, [3]);
-      expect(p.jetsDeMana, [2]);
+      expect(p.jetsDEndurance, [2]);
+      expect(p.jetsDeMana, isEmpty);
+      expect(
+          p.historique.first.message, contains('PE max 6 → 8 (+2 : d6 = 2)'));
+      expect(p.historique.first.message, isNot(contains('PM')));
     });
 
     test('un personnage au maximum reste au maximum', () {
@@ -87,13 +93,13 @@ void main() {
         race: _nain,
         classe: _guerrier,
         jetDeVie: 7,
-        jetDeMana: 4,
+        jetDEndurance: 4,
         rangsVoies: p.rangsVoies,
         aptitudes: p.aptitudes,
       );
       final f = FicheCalculee(personnage: p, race: _nain, classe: _guerrier);
       expect(f.pvActuels, f.pvMax);
-      expect(f.pmActuels, f.pmMax);
+      expect(f.peActuels, f.peMax);
     });
 
     test('nouvelles compétences et rang racial inscrits dans l\'historique',
@@ -104,7 +110,7 @@ void main() {
         race: _nain,
         classe: _guerrier,
         jetDeVie: 5,
-        jetDeMana: 1,
+        jetDEndurance: 1,
         rangsVoies: {'g-bouclier': 2, 'g-melee': 1},
         aptitudes: [
           const AptitudeAcquise(id: 'natation'),
@@ -173,7 +179,7 @@ void main() {
     final suivant = find.byKey(const Key('niveau-suivant'));
     expect(tester.widget<FilledButton>(suivant).onPressed, isNull);
     await tester.enterText(find.byKey(const Key('jet-dv')), '4');
-    await tester.enterText(find.byKey(const Key('jet-dm')), '2');
+    await tester.enterText(find.byKey(const Key('jet-de')), '2');
     await tester.pumpAndSettle();
     expect(find.textContaining('PV actuels : 5 → 9'), findsOneWidget);
     await tap(suivant);
@@ -237,7 +243,7 @@ void main() {
       classeId: 'guerrier',
       niveau: 2,
       jetsDeVie: [3],
-      jetsDeMana: [1],
+      jetsDEndurance: [1],
     );
     final controller =
         PersonnagesController(EnMemoirePersonnageRepository([p]));
@@ -261,7 +267,7 @@ void main() {
     await tap(find.byKey(const Key('bouton-monter-niveau')));
     final suivant = find.byKey(const Key('niveau-suivant'));
     await tester.enterText(find.byKey(const Key('jet-dv')), '4');
-    await tester.enterText(find.byKey(const Key('jet-dm')), '2');
+    await tester.enterText(find.byKey(const Key('jet-de')), '2');
     await tester.pumpAndSettle();
     await tap(suivant); // → compétences
     await tap(suivant); // → récapitulatif
@@ -388,8 +394,8 @@ void main() {
       isNull,
     );
     expect(find.byKey(const Key('jet-definitif-dv')), findsOneWidget);
-    await tap(find.byKey(const Key('lancer-dm')));
-    final jetMana = champ('jet-dm');
+    await tap(find.byKey(const Key('lancer-de')));
+    final jetEndurance = champ('jet-de');
     expect(p.jetsMontee?.niveau, 2);
     await tap(find.byType(BackButton));
     expect(find.text('Annuler la montée de niveau ?'), findsOneWidget);
@@ -402,13 +408,13 @@ void main() {
     expect(entree.message,
         startsWith('Montée au niveau 2 annulée après les jets'));
     expect(entree.message, contains('dé de vie d'));
-    expect(entree.message, contains('dé de mana d'));
+    expect(entree.message, contains("dé d'endurance d"));
 
     // On recommence : les mêmes jets reviennent, toujours verrouillés
     await tap(find.byKey(const Key('bouton-monter-niveau')));
     expect(champ('jet-dv'), jetVie);
-    expect(champ('jet-dm'), jetMana);
+    expect(champ('jet-de'), jetEndurance);
     expect(find.byKey(const Key('jet-definitif-dv')), findsOneWidget);
-    expect(find.byKey(const Key('jet-definitif-dm')), findsOneWidget);
+    expect(find.byKey(const Key('jet-definitif-de')), findsOneWidget);
   });
 }

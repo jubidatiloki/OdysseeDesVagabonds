@@ -19,6 +19,8 @@ class ResultatMonteeNiveau {
     required this.pvMaxApres,
     required this.pmMaxAvant,
     required this.pmMaxApres,
+    this.peMaxAvant = 0,
+    this.peMaxApres = 0,
     required this.pointsGagnes,
     this.bonusRegle = 0,
     this.regle,
@@ -31,6 +33,8 @@ class ResultatMonteeNiveau {
   final int pvMaxApres;
   final int pmMaxAvant;
   final int pmMaxApres;
+  final int peMaxAvant;
+  final int peMaxApres;
   final int pointsGagnes;
 
   /// Bonus ajouté au jet de DV par une règle particulière, et laquelle.
@@ -43,8 +47,9 @@ class ResultatMonteeNiveau {
 
 /// Règles de montée de niveau (AVANCEMENT.md §7) :
 /// - +1 niveau (max 10) ;
-/// - PV max + 1 jet de DV (sans CON), PM max + 1 jet de DM ;
-/// - les PV / PM actuels augmentent du même gain (5/10 PV, +3 → 8/13) ;
+/// - PV max + 1 jet de DV (sans CON), PM max + 1 jet de DM (lanceurs et
+///   hybrides), PE max + 1 jet de DE (physiques et hybrides) ;
+/// - les PV / PM / PE actuels augmentent du même gain (5/10 PV, +3 → 8/13) ;
 /// - points de compétence du nouveau niveau ; rang de voie raciale offert
 ///   aux niveaux impairs ;
 /// - nouvelles compétences / aptitudes choisies (les anciennes sont gardées).
@@ -64,12 +69,14 @@ class MonteeNiveau {
     required Race race,
     required Classe classe,
     required int jetDeVie,
-    required int jetDeMana,
+    int? jetDeMana,
+    int? jetDEndurance,
     required Map<String, int> rangsVoies,
     required List<AptitudeAcquise> aptitudes,
     List<Aptitude> catalogueAptitudes = const [],
     int? facesDeVie,
     int? facesDeMana,
+    int? facesDEndurance,
     Map<String, String> choix = const {},
     List<Equipement> catalogueEquipements = const [],
     DateTime? maintenant,
@@ -79,6 +86,7 @@ class MonteeNiveau {
     final niveauAvant = p.niveau;
     final pvMaxAvant = avant.pvMax;
     final pmMaxAvant = avant.pmMax;
+    final peMaxAvant = avant.peMax;
     final rangsAvant = Map<String, int>.of(p.rangsVoies);
     final aptitudesAvant = List<AptitudeAcquise>.of(p.aptitudes);
     final reglesAvant = {
@@ -93,7 +101,6 @@ class MonteeNiveau {
     p
       ..niveau = niveauAvant + 1
       ..jetsDeVie.add(jetDeVie)
-      ..jetsDeMana.add(jetDeMana)
       ..bonusDeVie.add(bonus.bonus)
       ..rangsVoies = Map.of(rangsVoies)
       ..aptitudes = List.of(aptitudes)
@@ -101,10 +108,13 @@ class MonteeNiveau {
       ..jetsMontee = null
       // Choix des nouvelles compétences (avant le calcul : « +2 INT »…).
       ..choix.addAll(choix);
+    if (classe.aDuMana) p.jetsDeMana.add(jetDeMana ?? 0);
+    if (classe.aDeLEndurance) p.jetsDEndurance.add(jetDEndurance ?? 0);
 
     final apres = FicheCalculee(personnage: p, race: race, classe: classe);
     final gainPv = apres.pvMax - pvMaxAvant;
     final gainPm = apres.pmMax - pmMaxAvant;
+    final gainPe = apres.peMax - peMaxAvant;
     // `null` = au maximum : reste au maximum. Sinon on ajoute le gain.
     if (p.pvActuels != null) {
       final pv = p.pvActuels! + gainPv;
@@ -113,6 +123,10 @@ class MonteeNiveau {
     if (p.pmActuels != null) {
       final pm = p.pmActuels! + gainPm;
       p.pmActuels = pm > apres.pmMax ? apres.pmMax : pm;
+    }
+    if (p.peActuels != null) {
+      final pe = p.peActuels! + gainPe;
+      p.peActuels = pe > apres.peMax ? apres.peMax : pe;
     }
 
     final points = pointsGagnes(p.niveau);
@@ -138,8 +152,16 @@ class MonteeNiveau {
       'Niveau $niveauAvant → ${p.niveau} : '
       'PV max $pvMaxAvant → ${apres.pvMax} '
       '(${avecSigne(gainPv)} : ${detailPv.join(' ; ')}), '
-      'PM max $pmMaxAvant → ${apres.pmMax} '
-      '(${avecSigne(gainPm)} : d${facesDeMana ?? apres.deMana} = $jetDeMana), '
+      '${[
+        if (classe.aDuMana)
+          'PM max $pmMaxAvant → ${apres.pmMax} '
+              '(${avecSigne(gainPm)} : d${facesDeMana ?? apres.deMana} = '
+              '${jetDeMana ?? 0})',
+        if (classe.aDeLEndurance)
+          'PE max $peMaxAvant → ${apres.peMax} '
+              '(${avecSigne(gainPe)} : d${facesDEndurance ?? apres.deEndurance} = '
+              '${jetDEndurance ?? 0})',
+      ].join(', ')}, '
       '+$points point${points > 1 ? 's' : ''} de compétence',
       categorie: CategorieHistorique.niveau,
       maintenant: maintenant,
@@ -191,6 +213,8 @@ class MonteeNiveau {
       pvMaxApres: apres.pvMax,
       pmMaxAvant: pmMaxAvant,
       pmMaxApres: apres.pmMax,
+      peMaxAvant: peMaxAvant,
+      peMaxApres: apres.peMax,
       pointsGagnes: points,
       bonusRegle: bonus.bonus,
       regle: bonus.regle,
@@ -326,7 +350,8 @@ class MonteeNiveau {
   /// Dés à lancer pour passer au niveau suivant : ceux du nouveau niveau
   /// (ex. Vitalité elfique, obtenue au niveau 9, s'applique au jet du
   /// niveau 9).
-  static ({int deVie, int deMana}) desDuNiveauSuivant(FicheCalculee fiche) {
+  static ({int deVie, int deMana, int deEndurance}) desDuNiveauSuivant(
+      FicheCalculee fiche) {
     final copie = Personnage.depuisJson(fiche.personnage.versJson())
       ..niveau = fiche.personnage.niveau + 1;
     final f = FicheCalculee(
@@ -334,6 +359,6 @@ class MonteeNiveau {
       race: fiche.race,
       classe: fiche.classe,
     );
-    return (deVie: f.deVie, deMana: f.deMana);
+    return (deVie: f.deVie, deMana: f.deMana, deEndurance: f.deEndurance);
   }
 }

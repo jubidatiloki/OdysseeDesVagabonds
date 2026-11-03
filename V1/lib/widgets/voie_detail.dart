@@ -106,8 +106,9 @@ class LigneCompetence extends StatelessWidget {
                       ),
                   ],
                 ),
-                // Sort : mana, dégâts, effet appliqué.
-                if (FicheCalculee.coutSort(c) != null) ...[
+                // Sort : mana, dégâts, effet appliqué ; endurance dépensée.
+                if (FicheCalculee.coutSort(c) != null ||
+                    c.endurance.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   LibellesSort(c),
                 ],

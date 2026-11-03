@@ -3,7 +3,7 @@
     "id": "barbare",
     "nom": "Barbare",
     "modifDeVie": "+",
-    "modifDeMana": "-",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; mêlée communes (hors poudre).",
@@ -79,6 +79,7 @@
           },
           {
             "rang": 2,
+            "endurance": 2,
             "nom": "Moulinet (niveau 1)",
             "type": "actif complexe, compétence",
             "effet": "Avec une arme à 2 mains, fend l'air devant lui : jet d'attaque et dégâts au CaC, répétable sur la cible suivante avec −1 DM à chaque fois (jusqu'à ce qu'il arrête) ; −2 CA (une seule fois) jusqu'au prochain tour.",
@@ -165,6 +166,7 @@
           },
           {
             "rang": 2,
+            "endurance": 2,
             "nom": "Charge bestiale",
             "type": "actif, compétence",
             "effet": "Une arme dans chaque main ou une à 2 mains ; charge de 20 m en criant : 1ʳᵉ attaque +3 AdC et +1d6 DMG."
@@ -209,6 +211,7 @@
         "competences": [
           {
             "rang": 1,
+            "endurance": 1,
             "nom": "Rage berzerker (niveau 1)",
             "type": "gratuit, compétence, 1×/jour",
             "effet": "Durée 1D4 + CON tours. + : +1d6 à tous ses jets de dégâts ; insensible aux entraves non magiques (désarmement, assommement, mise au sol…). − : −3 CA ; −2 à tous ses jets d'attaque ; ne distingue pas amis et ennemis (attaque le plus proche) ; sortir de la rage avant la fin : test de CON diff. 15.",
@@ -228,6 +231,7 @@
           },
           {
             "rang": 2,
+            "endurance": 1,
             "nom": "Frénésie (niveau 1)",
             "type": "actif complexe, compétence",
             "effet": "Attaque frénétique au CaC : dégâts de l'arme + 1D6 ; si ce D6 fait 6, rajoute un autre 1D6.",
@@ -299,6 +303,7 @@
     "nom": "Barde",
     "modifDeVie": "=",
     "modifDeMana": "=",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "hybride",
     "maitrises": "Armes civiles ; 1 main communes.",
@@ -394,6 +399,7 @@
           },
           {
             "rang": 2,
+            "endurance": 2,
             "nom": "Musique vivifiante",
             "type": "actif complexe",
             "effet": "En combat : test de DEX de prestation musicale, diff. 10 ; si réussite : +2 aux jets d'attaque des alliés à portée d'écoute jusqu'à la fin du combat.",
@@ -450,6 +456,7 @@
           },
           {
             "rang": 2,
+            "endurance": 2,
             "nom": "Attaque sautée",
             "type": "actif, compétence",
             "effet": "+3 AdC et +1d6 DMG, mais ne peut pas se déplacer au tour suivant ; si l'attaque échoue, test de DEX diff. 10 pour ne pas tomber.",
@@ -506,6 +513,7 @@
           },
           {
             "rang": 2,
+            "endurance": 1,
             "nom": "Mot d'esprit",
             "type": "actif, compétence",
             "effet": "Raillerie sur une cible humanoïde qui comprend sa langue : la cible fait un test d'INT diff. 10 + RANG ; en cas d'échec, −2 à ses tests d'attaque jusqu'à la fin de son prochain tour.",
@@ -548,7 +556,7 @@
     "id": "chevalier",
     "nom": "Chevalier",
     "modifDeVie": "+",
-    "modifDeMana": "-",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; mêlée communes (hors poudre).",
@@ -786,6 +794,7 @@
           },
           {
             "rang": 2,
+            "endurance": 2,
             "nom": "Charge",
             "type": "actif",
             "effet": "Monté, après au moins 10 m en ligne droite : +2 AdC et +1d6 DMG (+2d6 à la lance), puis −2 CA jusqu'au prochain tour.",
@@ -868,6 +877,7 @@
           },
           {
             "rang": 3,
+            "endurance": 1,
             "nom": "Feinte",
             "type": "action complexe",
             "effet": "Attaque normale ; au tour suivant, attaque normale à +5 et +2D6 DMG. Après la feinte, activer « Feinte préparée » ; annulée après les dégâts suivants.",
@@ -928,6 +938,7 @@
           },
           {
             "rang": 3,
+            "endurance": 2,
             "nom": "Cri de ralliement",
             "type": "actif",
             "effet": "1×/combat : les alliés à portée de voix sont libérés de la peur non magique, gagnent +2 CA jusqu'à la fin du tour et 1d4 + SOC PV temporaires.",
@@ -940,6 +951,7 @@
           },
           {
             "rang": 4,
+            "endurance": 1,
             "nom": "Ordres tactiques",
             "type": "action de mouvement",
             "effet": "1×/tour, un allié qui l'entend peut faire immédiatement une action de mouvement. À la place, 2×/combat : cet allié fait une attaque avec un d12.",
@@ -1366,7 +1378,7 @@
     "id": "guerrier",
     "nom": "Guerrier",
     "modifDeVie": "+",
-    "modifDeMana": "-",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; communes.",
@@ -1387,6 +1399,7 @@
           },
           {
             "rang": 2,
+            "endurance": 1,
             "nom": "À couvert",
             "type": "actif",
             "effet": "Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA.",
@@ -1455,6 +1468,7 @@
           },
           {
             "rang": 2,
+            "endurance": 1,
             "nom": "Frappe de précision",
             "type": "actif",
             "effet": "Attaque avec un d12 ; si touche, +2D6 DMG.",
@@ -1464,6 +1478,7 @@
           },
           {
             "rang": 3,
+            "endurance": 2,
             "nom": "Coup de boucher",
             "type": "action complexe",
             "effet": "Attaque brutale : DMG ÷2 (arrondi à l'inférieur), mais sur un d6 de 5-6 le membre est tranché/entaillé (lâche l'arme).",
@@ -1655,7 +1670,7 @@
     "id": "ingenieur",
     "nom": "Ingénieur",
     "modifDeVie": "+",
-    "modifDeMana": "-",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; mêlée communes ; poudre ; siège.",
@@ -1701,6 +1716,7 @@
           },
           {
             "rang": 4,
+            "endurance": 1,
             "nom": "Médecin de campagne",
             "type": "complexe",
             "effet": "Stabilise une personne blessée physiquement et lui rend 4D4 PV.",
@@ -1728,6 +1744,7 @@
         "competences": [
           {
             "rang": 1,
+            "endurance": [{"libelle": "Fabriquer une potion", "cout": 1}],
             "nom": "Chimiste en herbe",
             "type": "passif",
             "effet": "+2/rang pour fabriquer poudre ou potions (jets d'Alchimie) ; max RANG×2 potions/jour, 10 min chacune. Débloque : potion de santé.",
@@ -1753,6 +1770,7 @@
           },
           {
             "rang": 3,
+            "endurance": [{"libelle": "Fabriquer un projectile explosif", "cout": 2}],
             "nom": "Projectile explosif",
             "type": "actif",
             "effet": "Petit projectile explosant sur 3-4 m : 2D6 DMG ; fabrication 1 h ; test d'attaque/lancer de DEX. Débloque : potion de poison.",
@@ -1767,6 +1785,7 @@
           },
           {
             "rang": 4,
+            "endurance": [{"libelle": "Fabriquer une charge d'explosif", "cout": 2}],
             "nom": "Démolisseur",
             "type": "actif",
             "effet": "Charge d'explosif perçant mur, structure ou coffre ; pose 2 tours, fabrication 3 h. Débloque : potion de réussite.",
@@ -1876,6 +1895,7 @@
           },
           {
             "rang": 3,
+            "endurance": [{"libelle": "Fabriquer un automate", "cout": 1}],
             "nom": "Automate",
             "invocations": ["petit-automate"],
             "type": "soutien",
@@ -1886,6 +1906,7 @@
           },
           {
             "rang": 4,
+            "endurance": [{"libelle": "Modifier une arme", "cout": 1}],
             "nom": "Bidouillage",
             "type": "soutien",
             "effet": "Améliore une arme à poudre (≈ 10 pa de pièces), une seule amélioration par arme (remplaçable, 10 pa à chaque fois) : crosse modifiée +3 AdT ; canon vissé +1D6 DMG ; ou chargeur +2 balles sans recharger (augmente d'autant les réactions de « tenir en joue »).",
@@ -1895,6 +1916,7 @@
           },
           {
             "rang": 5,
+            "endurance": [{"libelle": "Fabriquer un golem", "cout": 3}],
             "nom": "Golem",
             "invocations": ["golem-ingenieur"],
             "type": "soutien",
@@ -2405,6 +2427,7 @@
     "nom": "Moine",
     "modifDeVie": "=",
     "modifDeMana": "=",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "hybride",
     "maitrises": "Armes civiles ; mêlée communes.",
@@ -2429,6 +2452,7 @@
           },
           {
             "rang": 2,
+            "endurance": 1,
             "nom": "Méditation",
             "type": "complexe",
             "effet": "Médite une petite heure pour regagner 1 DM de mana.",
@@ -2446,6 +2470,7 @@
           },
           {
             "rang": 4,
+            "endurance": 2,
             "nom": "Kenn-do-ha",
             "type": "complexe, sort",
             "typesSort": ["offensif"],
@@ -2516,6 +2541,7 @@
           },
           {
             "rang": 5,
+            "endurance": [{"libelle": "Activer la rune du berzerker", "cout": 1}],
             "nom": "Rune du berzerker (épaules)",
             "type": "actif",
             "effet": "1 attaque supplémentaire par tour, mais −3 CA tant qu'active (avec la rune de défense : +2 CA, soit −1 CA).",
@@ -2578,6 +2604,7 @@
           },
           {
             "rang": 5,
+            "endurance": 2,
             "nom": "Assaillant fantôme",
             "type": "actif",
             "effet": "2×/combat, attaque presque intangible traversant résistances et armure ; jusqu'à 2 shurikens par tour ; plus de contrecoup d'esquive.",
@@ -2605,6 +2632,7 @@
           },
           {
             "rang": 2,
+            "endurance": 2,
             "nom": "Déferlement de coups",
             "type": "complexe",
             "effet": "RANG coups de poing sur une cible (FOR non appliquée, 1 jet d'attaque par coup) : 1d6 chacun.",
@@ -2614,6 +2642,7 @@
           },
           {
             "rang": 3,
+            "endurance": 2,
             "nom": "Uppercut",
             "type": "actif",
             "effet": "2D6 + FOR×2.",
@@ -2623,6 +2652,7 @@
           },
           {
             "rang": 4,
+            "endurance": 1,
             "nom": "Lutte",
             "type": "actif",
             "effet": "Attrape et immobilise : attaque +5 ; chaque tour, test de FOR +5 contre le test de FOR de la cible.",
@@ -3224,7 +3254,7 @@
     "id": "rodeur",
     "nom": "Rôdeur",
     "modifDeVie": "=",
-    "modifDeMana": "=",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; communes ; distance (hors poudre).",
@@ -3254,6 +3284,7 @@
           },
           {
             "rang": 3,
+            "endurance": 1,
             "nom": "Fuite stratégique",
             "type": "gratuit",
             "effet": "1×/combat, action de mouvement supplémentaire pour fuir.",
@@ -3263,6 +3294,7 @@
           },
           {
             "rang": 4,
+            "endurance": 2,
             "nom": "Flèches multiples",
             "type": "complexe",
             "effet": "Au choix : 3 flèches sur 3 cibles différentes, ou 2 flèches sur la même cible.",
@@ -3457,9 +3489,10 @@
           },
           {
             "rang": 2,
+            "endurance": [{"libelle": "Poser un piège en combat", "cout": 1}],
             "nom": "Piège",
             "type": "actif",
-            "effet": "Pose un collet ou un piège à mâchoires (1 min hors combat, ou action complexe). La victime fait un test de PER diff. 10 + RANG pour le repérer ; sinon 1d6 + RANG DMG et immobilisée (test de FOR diff. 12 pour se libérer). Max RANG pièges posés.",
+            "effet": "Pose un collet ou un piège à mâchoires (1 min hors combat, ou action complexe). Coût : 1 PE en combat, 0 PE hors combat. La victime fait un test de PER diff. 10 + RANG pour le repérer ; sinon 1d6 + RANG DMG et immobilisée (test de FOR diff. 12 pour se libérer). Max RANG pièges posés.",
             "effets": [
               {"type": "texte", "effet": "Repérer le piège : test de PER diff. 10 + RANG ; se libérer : test de FOR diff. 12. Pièges posés : RANG au maximum."}
             ],
@@ -3510,6 +3543,7 @@
     "nom": "Voleur",
     "modifDeVie": "=",
     "modifDeMana": "=",
+    "modifDeEndurance": "=",
     "lanceurDeSorts": false,
     "profil": "hybride",
     "maitrises": "Armes civiles ; communes.",
@@ -3536,6 +3570,7 @@
           },
           {
             "rang": 3,
+            "endurance": 2,
             "nom": "Coupe-jarret",
             "type": "action",
             "effet": "Attaque d12 : la cible n'a pas d'action de mouvement au prochain tour (à faire 2× sur un quadrupède ou une grande créature+).",
@@ -3559,6 +3594,7 @@
           },
           {
             "rang": 5,
+            "endurance": 3,
             "nom": "Dague de verre pourpre",
             "type": "complexe",
             "effet": "Au prix de 5 DV, imprègne une dague de son envie de tuer (maniable seulement par son créateur, sinon elle se brise) : +5 AdC ; se brise dans la cible et les éclats gagnent son cœur : 1 DMG chaos au 1ᵉʳ tour, doublé chaque tour jusqu'à l'arrêt du cœur. Seuls un prêtre et un ingénieur combinés peuvent l'arrêter ; la cible reste soignable.",
@@ -3587,6 +3623,7 @@
           },
           {
             "rang": 2,
+            "endurance": 1,
             "nom": "Riposte",
             "type": "passif",
             "effet": "Après une attaque ratée contre le voleur : attaque gratuite avec un d12, 1×/tour.",
@@ -3608,6 +3645,7 @@
           },
           {
             "rang": 4,
+            "endurance": 1,
             "nom": "Désarmement",
             "type": "actif + renforcement",
             "effet": "Attaque d12 contre l'arme de la cible ; si elle touche, test de DEX du voleur contre FOR ou DEX de la cible : l'arme est projetée à 1d6 m. Riposte désormais avec un d20.",
@@ -3622,6 +3660,7 @@
           },
           {
             "rang": 5,
+            "endurance": 3,
             "nom": "Botte secrète",
             "type": "complexe",
             "effet": "+2 DEX. 1×/combat, attaque inesquivable : +5 AdC et +3d6 DMG ; sur un critique, la cible perd son prochain tour.",
@@ -3661,6 +3700,7 @@
           },
           {
             "rang": 3,
+            "endurance": 1,
             "nom": "Sprint",
             "type": "gratuit",
             "effet": "1×/combat, au choix : +1 action de mouvement ce tour, ou +2 actions de mouvement (mais aucune au tour suivant).",
@@ -3718,6 +3758,7 @@
           },
           {
             "rang": 3,
+            "endurance": 1,
             "nom": "Distraction charnelle",
             "type": "action",
             "effet": "Sur cible humanoïde. Combat (1×/combat/cible, action de mouvement, compétence) : test d'INT de la cible diff. 10 + RANG, échec = perd son tour. Hors combat (1×/cible) : test d'INT diff. 10 + RANG ; échec = +5 SOC du voleur contre son admirateur ; réussite = nouveau test pour comprendre la manœuvre, si réussi : −5 SOC et −5 MEN du voleur contre cette personne.",

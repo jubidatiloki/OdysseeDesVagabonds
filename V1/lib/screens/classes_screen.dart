@@ -33,7 +33,8 @@ class ClassesScreen extends StatelessWidget {
               nom: (c) => c.nom,
               sousTitre: (c) => '${c.profil.libelle} · '
                   'Vie ${c.modifDeVie.symbole} · '
-                  'Mana ${c.modifDeMana.symbole} · '
+                  '${c.aDuMana ? 'Mana ${c.modifDeMana.symbole}' : 'Sans mana'} · '
+                  '${c.aDeLEndurance ? 'Endurance ${c.modifDeEndurance.symbole}' : 'Sans endurance'} · '
                   '${c.voies.length} voies',
               contenu: (c) => InfosClasse(c),
               couleurAvatar: (c) =>
@@ -111,13 +112,16 @@ class ClasseDetail extends StatelessWidget {
               texte: 'Dé de vie ${_texteModif(c.modifDeVie)}',
             ),
             _LigneDe(
-              curseur: CurseurDe(
-                icone: Icons.water_drop,
-                couleur: couleurMana(Theme.of(context).brightness),
-                modif: c.modifDeMana,
-                nomDe: 'Dé de mana',
-              ),
-              texte: 'Dé de mana ${_texteModif(c.modifDeMana)}',
+              curseur: curseursRessources(c, Theme.of(context).brightness)[0],
+              texte: c.aDuMana
+                  ? 'Dé de mana ${_texteModif(c.modifDeMana)}'
+                  : 'Pas de dé de mana : pas de PM',
+            ),
+            _LigneDe(
+              curseur: curseursRessources(c, Theme.of(context).brightness)[1],
+              texte: c.aDeLEndurance
+                  ? "Dé d'endurance ${_texteModif(c.modifDeEndurance)}"
+                  : "Pas de dé d'endurance : pas de PE",
             ),
             LigneDetail(
               libelle: 'Overdose magique',

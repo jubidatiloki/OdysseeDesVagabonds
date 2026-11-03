@@ -24,7 +24,7 @@ Application Flutter (mobile Android + web + Windows) de création et de gestion 
 
 ## Architecture (`V1/lib/`)
 - `main.dart` → `app.dart` (`OdvApp` : thème, préférences) → `screens/racine_screen.dart` (menu latéral, section affichée).
-- `models/` : `personnage.dart` (schéma JSON v9, historique), `race.dart`, `classe.dart` (`ProfilClasse`), `voie.dart` (`Competence` avec `effets`), `effet.dart` (effets détaillés : bonus / test / renforcement / maîtrise), `equipement.dart`, `creature.dart`, `carac.dart`, `univers.dart` (univers de jeu, médiéval fantastique par défaut), `objet.dart`, `historique.dart`, `aptitude.dart`.
+- `models/` : `personnage.dart` (schéma JSON v10, historique), `race.dart`, `classe.dart` (`ProfilClasse`, `aDuMana` / `aDeLEndurance`), `voie.dart` (`Competence` avec `effets`), `effet.dart` (effets détaillés : bonus / test / renforcement / maîtrise), `equipement.dart`, `creature.dart`, `carac.dart`, `univers.dart` (univers de jeu, médiéval fantastique par défaut), `objet.dart`, `historique.dart`, `aptitude.dart`.
 - `regles/` : **toutes les formules** dans `fiche_calculee.dart` (`FicheCalculee`, bonus d'effets, `ameliorationDe`), `progression.dart`, `montee_niveau.dart`, `regles_particulieres.dart`, `inventaire.dart`, `des.dart`.
 - `data/` : `referentiel.dart` (charge `assets/data/*.json` + `regles_systeme.md`), stockage local `shared_preferences` (`local_personnage_repository.dart`), import/export.
 - `state/` : `PersonnagesController` (`utiliser` : stockage appareil ou en ligne), `CompteController` (connexion, envoi des fiches de l'appareil), `PreferencesController` (thème, sombre par défaut).
