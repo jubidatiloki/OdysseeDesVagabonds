@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
@@ -41,9 +42,14 @@ class SeanceController extends ChangeNotifier {
         }, onError: (Object _) {}));
     suivre(seance.ecouterEtat(c), (v) => _etat = v);
     suivre(seance.ecouterJets(c, _numero), (v) => _jets = v);
+    suivre(seance.ecouterDegats(c), (v) {
+      _degats = v;
+      _traiterDegats();
+    });
     suivre(s.ecouterMembres(c.id), (v) {
       _membres = v;
       _suivreFiches();
+      _traiterDegats();
       unawaited(_publier());
       unawaited(_ajusterOrdre());
     });
@@ -70,6 +76,11 @@ class SeanceController extends ChangeNotifier {
   RessourcesPj? _publiees;
   int? _initiativePubliee;
   String? _resumePublie;
+
+  /// Dégâts reçus, traités un par un (deux coups ne s'écrasent pas).
+  List<DegatsSeance> _degats = const [];
+  final Set<String> _degatsPris = {};
+  Future<void> _fileDegats = Future.value();
   StreamSubscription<void>? _creaturesFlux;
   StreamSubscription<void>? _ressourcesFlux;
   String _permissions = '';
@@ -320,7 +331,7 @@ class SeanceController extends ChangeNotifier {
     _publiees = r;
     _resumePublie = resume;
     _initiativePubliee = f.initiative;
-    await campagnes.agir(
+    final erreur = await campagnes.agir(
       (x) => x.seance.publierPersonnage(
         c,
         r,
@@ -328,6 +339,8 @@ class SeanceController extends ChangeNotifier {
         initiative: f.initiative,
       ),
     );
+    // Échec : réessayé au prochain changement.
+    if (erreur != null) _publiees = null;
   }
 
   /// Action sur la partie ; renvoie l'erreur en français, ou `null`.
@@ -403,16 +416,94 @@ class SeanceController extends ChangeNotifier {
     return nom.isEmpty ? (estMj ? 'MJ' : 'Joueur') : nom;
   }
 
-  /// Cibles possibles d'une attaque ou d'un sort : tous les personnages et
-  /// créatures, sauf celui qui agit (par défaut, la première).
+  /// Celui qui agit dans le lancer de dés : joueur (uid) ou créature (id).
+  String get idAttaquant => estMj ? creatureChoisie?.id ?? _carte : uid;
+
+  /// Cibles possibles d'une attaque ou d'un sort, sauf celui qui agit. La
+  /// première sert de cible par défaut : une créature pour un PJ, un PJ pour
+  /// une créature.
   List<({String id, String nom})> get cibles {
-    final soi = estMj ? creatureChoisie?.id ?? _carte : uid;
-    return [
+    final soi = idAttaquant;
+    final lesCreatures = [
       for (final c in _creatures)
         if (c.id != soi) (id: c.id, nom: c.nom),
+    ];
+    final lesJoueurs = [
       for (final m in joueurs)
         if (m.uid != soi) (id: m.uid, nom: m.personnageNom),
     ];
+    return estMj && creatureChoisie != null
+        ? [...lesJoueurs, ...lesCreatures]
+        : [...lesCreatures, ...lesJoueurs];
+  }
+
+  /// PV, PM, PE d'une carte, à jour : la fiche suivie en direct quand ce
+  /// compte y a droit, sinon ce que le joueur a publié.
+  RessourcesPj? ressourcesDe(String joueur) {
+    final f = joueur == uid || estMj ? ficheDe(joueur) : null;
+    if (f == null) return _ressources[joueur];
+    return RessourcesPj(
+      pv: f.pvActuels,
+      pvMax: f.pvMax,
+      pm: f.pmActuels,
+      pmMax: f.pmMax,
+      pe: f.peActuels,
+      peMax: f.peMax,
+    );
+  }
+
+  /// Envoie des dégâts à la cible : retirés de ses PV par le joueur (sa
+  /// fiche) ou par le MJ (créature). Sans tenir compte des résistances.
+  Future<String?> infligerDegats(String cible, int montant, String source) {
+    return _agir((s, c) async {
+      if (montant <= 0 || cible.isEmpty) return;
+      await s.envoyerDegats(
+        c,
+        DegatsSeance(
+          cible: cible,
+          destinataire: joueurs.any((m) => m.uid == cible) ? cible : c.mj,
+          auteur: uid,
+          montant: montant,
+          source: source,
+        ),
+      );
+    });
+  }
+
+  void _traiterDegats() {
+    for (final d in _degats) {
+      // Sa fiche doit être chargée pour lui retirer des PV.
+      if (d.cible == uid && maFiche == null) continue;
+      if (!_degatsPris.add(d.id)) continue;
+      _fileDegats = _fileDegats.then((_) => _appliquerDegats(d));
+    }
+  }
+
+  Future<void> _appliquerDegats(DegatsSeance d) async {
+    await _agir((s, c) async {
+      if (!await s.prendreDegats(c, d.id)) return;
+      if (d.cible == uid) {
+        final f = maFiche;
+        if (f == null) return;
+        final p = f.personnage;
+        final avant = f.pvActuels;
+        final apres = math.max(avant - d.montant, -f.deVie - 1);
+        p
+          ..pvActuels = apres
+          ..journaliser(
+            '${d.source} : −${d.montant} PV · PV : $avant → $apres',
+            categorie: CategorieHistorique.vie,
+          );
+        await personnages.sauvegarder(p);
+        return;
+      }
+      final liste = await s.ecouterCreatures(c).first;
+      for (final x in liste) {
+        final pv = x.pv;
+        if (x.id != d.cible || pv == null) continue;
+        await s.modifierCreature(c, x.copie(pv: math.max(0, pv - d.montant)));
+      }
+    });
   }
 
   /// Nom de la cible dans un jet : même discrétion que pour le lanceur.

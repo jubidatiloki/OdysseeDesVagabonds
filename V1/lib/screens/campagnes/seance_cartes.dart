@@ -58,7 +58,7 @@ class ListeCartes extends StatelessWidget {
             lignes: [m.personnageResume],
             initiative: s.etat.enCombat ? m.initiative : null,
             ressources: [
-              if (s.ressources[m.uid] case final r?) ...[
+              if (s.ressourcesDe(m.uid) case final r?) ...[
                 _Ressource.vie(context, r.pv, r.pvMax),
                 if (r.pmMax > 0) _Ressource.mana(context, r.pm, r.pmMax),
                 if (r.peMax > 0) _Ressource.endurance(context, r.pe, r.peMax),

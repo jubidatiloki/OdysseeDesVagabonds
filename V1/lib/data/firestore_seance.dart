@@ -12,6 +12,7 @@ import 'seance.dart';
 /// - `creaturesMj/{c}` : vrai nom, fiche et PV (MJ seulement) ;
 /// - `ressources/{uid}` : PV, PM, PE (selon les paramètres de la campagne) ;
 /// - `jets/{j}` : jets de dés, lisibles par leurs seuls `lecteurs` ;
+/// - `degats/{d}` : dégâts à appliquer, lus par leur `destinataire` ;
 /// - `notesJoueurs/{uid}/seances/{n}` : notes personnelles du joueur.
 class FirestoreServiceSeance implements ServiceSeance {
   FirestoreServiceSeance(this.uid, [FirebaseFirestore? base])
@@ -33,6 +34,8 @@ class FirestoreServiceSeance implements ServiceSeance {
       _campagne(c).collection('ressources');
   CollectionReference<Map<String, dynamic>> _jets(Campagne c) =>
       _campagne(c).collection('jets');
+  CollectionReference<Map<String, dynamic>> _degats(Campagne c) =>
+      _campagne(c).collection('degats');
   DocumentReference<Map<String, dynamic>> _note(Campagne c, int numero) =>
       _campagne(c)
           .collection('notesJoueurs')
@@ -188,6 +191,25 @@ class FirestoreServiceSeance implements ServiceSeance {
   @override
   Future<void> lancer(Campagne c, JetSeance jet) =>
       _jets(c).add(jet.versJson());
+
+  @override
+  Future<void> envoyerDegats(Campagne c, DegatsSeance degats) =>
+      _degats(c).add(degats.versJson());
+
+  @override
+  Stream<List<DegatsSeance>> ecouterDegats(Campagne c) =>
+      _degats(c).where('destinataire', isEqualTo: uid).snapshots().map((s) => [
+            for (final d in s.docs) DegatsSeance.depuisJson(d.id, d.data()),
+          ]);
+
+  @override
+  Future<bool> prendreDegats(Campagne c, String id) =>
+      _base.runTransaction((t) async {
+        final ref = _degats(c).doc(id);
+        if (!(await t.get(ref)).exists) return false;
+        t.delete(ref);
+        return true;
+      });
 
   @override
   Future<void> publierPersonnage(

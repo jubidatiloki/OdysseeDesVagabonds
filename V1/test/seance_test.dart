@@ -327,6 +327,12 @@ void main() {
     // Cibles : pas soi-même ; une carte cachée ne figure pas dans le jet.
     expect(s.cibles.map((c) => c.id), ['j2']);
     expect(s.nomCible('j2', VisibiliteJet.tous), 'aria');
+    // Une créature arrive : cible par défaut d'un PJ.
+    await ServiceCampagnesMemoire(p.base, 'mj')
+        .seance
+        .ajouterCreature(p.campagne, _creature('rat', 3));
+    await pumpEventQueue();
+    expect(s.cibles.first.id, 'rat');
     s.dispose();
     campagnes.dispose();
     compte.dispose();
@@ -634,6 +640,67 @@ void main() {
         isNull,
       );
     });
+    testWidgets('dégâts : retirés des PV de la créature ciblée',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) =>
+            ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
+                  c,
+                  const CreatureSeance(
+                    id: 'l',
+                    nom: 'Loup',
+                    creatureId: 'loup',
+                    pv: 12,
+                    pvMax: 12,
+                  ),
+                ),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      // Créature sélectionnée : sa cible par défaut est le premier PJ.
+      await tap(tester, find.byKey(const Key('carte-l')));
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      expect(partie.jets.last.cible, 'brom');
+      // Un joueur frappe le loup : le MJ applique les dégâts.
+      await ServiceCampagnesMemoire(x.base, 'j1').seance.envoyerDegats(
+            x.campagne,
+            const DegatsSeance(
+              cible: 'l',
+              destinataire: 'mj',
+              auteur: 'j1',
+              montant: 5,
+              source: 'Brom · Dégâts',
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(partie.creatures['l']!.pv, 7);
+      expect(partie.degats, isEmpty);
+      expect(find.text('7/12'), findsOneWidget);
+    });
+
+    testWidgets('dégâts reçus : retirés de la fiche du joueur, carte à jour',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      expect(find.text('6/6'), findsOneWidget); // PE
+      await ServiceCampagnesMemoire(x.base, 'mj').seance.envoyerDegats(
+            x.campagne,
+            const DegatsSeance(
+              cible: 'j1',
+              destinataire: 'j1',
+              auteur: 'mj',
+              montant: 3,
+              source: 'Loup · Morsure · dégâts',
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(x.base.parties[x.campagne.id]!.degats, isEmpty);
+      // Nain guerrier : 10 PV − 3, sur la carte comme pour les autres.
+      expect(find.text('7/10'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
+    });
+
     testWidgets('PJ : sa fiche complète au centre et ses attaques',
         (tester) async {
       final partie = await ouvrir(tester, 'j1', fiches: [_brom()]);

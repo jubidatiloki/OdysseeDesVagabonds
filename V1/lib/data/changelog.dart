@@ -29,6 +29,25 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.26.0',
+    date: '04/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : les dégâts lancés sont retirés des PV de la cible.',
+      ),
+      (
+        type: _m,
+        texte: 'Cible par défaut : la première créature pour un PJ, le '
+            'premier PJ pour une créature.',
+      ),
+      (
+        type: _c,
+        texte: 'Cartes de la séance : PV, PM et PE à jour en direct.',
+      ),
+    ],
+  ),
+  (
     version: '0.25.0',
     date: '03/11/2026',
     changements: [

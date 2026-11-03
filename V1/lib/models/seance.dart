@@ -445,3 +445,47 @@ const double kPortionMin = 0.15;
   parts[autres[1]] = reste - a;
   return (gauche: parts[0], droite: parts[2]);
 }
+
+/// Dégâts à appliquer, en attente chez celui qui peut les écrire : le joueur
+/// pour sa propre fiche, le MJ pour une créature.
+class DegatsSeance {
+  const DegatsSeance({
+    this.id = '',
+    required this.cible,
+    required this.destinataire,
+    required this.auteur,
+    required this.montant,
+    required this.source,
+  });
+
+  final String id;
+
+  /// uid du joueur, ou id de la créature.
+  final String cible;
+
+  /// Compte qui applique les dégâts.
+  final String destinataire;
+  final String auteur;
+  final int montant;
+
+  /// « Loup · Morsure · dégâts ».
+  final String source;
+
+  Map<String, dynamic> versJson() => {
+        'cible': cible,
+        'destinataire': destinataire,
+        'auteur': auteur,
+        'montant': montant,
+        'source': source,
+      };
+
+  factory DegatsSeance.depuisJson(String id, Map<String, dynamic> j) =>
+      DegatsSeance(
+        id: id,
+        cible: j['cible'] as String? ?? '',
+        destinataire: j['destinataire'] as String? ?? '',
+        auteur: j['auteur'] as String? ?? '',
+        montant: (j['montant'] as num?)?.toInt() ?? 0,
+        source: j['source'] as String? ?? '',
+      );
+}

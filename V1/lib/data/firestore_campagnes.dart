@@ -146,6 +146,7 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       doc.collection('creaturesMj'),
       doc.collection('ressources'),
       doc.collection('jets').where('lecteurs', arrayContains: uid),
+      doc.collection('degats').where('destinataire', isEqualTo: uid),
     ]) {
       refs.addAll((await q.get()).docs.map((d) => d.reference));
     }

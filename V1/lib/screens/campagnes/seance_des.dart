@@ -92,12 +92,17 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
 
   /// Attaques de qui agit : toucher et dégâts du personnage, ou de la
   /// créature sélectionnée (MJ).
-  List<({String libelle, String des, int bonus})> _attaques() {
+  List<({String libelle, String des, int bonus, bool degats})> _attaques() {
     final a = _s.attaquant;
-    final res = <({String libelle, String des, int bonus})>[];
+    final res = <({String libelle, String des, int bonus, bool degats})>[];
     void ajouter(String libelle, String des, int bonus) {
       if (lireFormule(des) != null) {
-        res.add((libelle: libelle, des: des, bonus: bonus));
+        res.add((
+          libelle: libelle,
+          des: des,
+          bonus: bonus,
+          degats: _estDegats(libelle),
+        ));
       }
     }
 
@@ -142,6 +147,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     return res;
   }
 
+  /// Jet de dégâts : son total est retiré des PV de la cible.
+  static bool _estDegats(String libelle) =>
+      libelle.toLowerCase().contains('dégâts');
+
   /// Cible en vigueur : celle choisie, sinon la première autre que soi.
   String get _cibleEnCours {
     final ids = _s.cibles.map((c) => c.id);
@@ -172,6 +181,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         j.bonus,
         parAttaquant: true,
         avecCible: true,
+        degats: j.applique.isEmpty && _estDegats(j.libelle),
       );
     }
     if (jets.isEmpty) {
@@ -192,6 +202,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     int bonus, {
     bool parAttaquant = false,
     bool avecCible = false,
+    bool degats = false,
   }) async {
     final f = lireFormule(des);
     if (f == null) return;
@@ -205,6 +216,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       modificateur: f.bonus + bonus,
       parAttaquant: parAttaquant,
       avecCible: avecCible,
+      degats: degats,
     );
   }
 
@@ -214,6 +226,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     required int modificateur,
     bool parAttaquant = false,
     bool avecCible = false,
+    bool degats = false,
   }) async {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
     final detail = jets.isEmpty
@@ -231,6 +244,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       parAttaquant: parAttaquant,
       cibleJet: avecCible ? _nomCible : '',
     );
+    if (erreur == null && degats) {
+      final cible = _cibleEnCours == 'soi' ? _s.idAttaquant : _cibleEnCours;
+      await _s.infligerDegats(cible, total, '${_s.attaquant.nom} · $libelle');
+    }
     if (!mounted) return;
     final secret = !_s.estMj && _visibilite == VisibiliteJet.mjSeul;
     setState(() {
@@ -385,6 +402,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                             a.bonus,
                             parAttaquant: true,
                             avecCible: true,
+                            degats: a.degats,
                           ),
                 ),
             ],

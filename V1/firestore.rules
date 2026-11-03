@@ -12,6 +12,7 @@ rules_version = '2';
 //   creatures/{c} : ce que voient les PJ ; creaturesMj/{c} : MJ seulement
 //   ressources/{uid} : PV, PM, PE (selon les paramètres de la campagne)
 //   jets/{j} : lisibles par leurs seuls « lecteurs »
+//   degats/{d} : dégâts à appliquer, lus par leur destinataire
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
@@ -181,6 +182,16 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/campagnes/$(id)).data.mj
             in request.resource.data.lecteurs;
         allow delete: if connecte() && mjDe(id);
+      }
+
+      // Dégâts à appliquer : lus et pris par leur destinataire.
+      match /degats/{degat} {
+        allow read: if connecte() && resource.data.destinataire == soi();
+        allow create: if connecte()
+          && request.resource.data.auteur == soi()
+          && (mjDe(id) || membreDe(id));
+        allow delete: if connecte()
+          && (resource.data.destinataire == soi() || mjDe(id));
       }
 
       // Notes personnelles d'une séance : le joueur seulement.

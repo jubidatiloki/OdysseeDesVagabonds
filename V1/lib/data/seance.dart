@@ -44,6 +44,12 @@ abstract class ServiceSeance {
   /// Enregistre un jet (lisible par ses seuls lecteurs).
   Future<void> lancer(Campagne c, JetSeance jet);
 
+  /// Dégâts à appliquer : envoyés à leur destinataire, qui les suit et les
+  /// prend une seule fois (`false` : déjà pris).
+  Future<void> envoyerDegats(Campagne c, DegatsSeance degats);
+  Stream<List<DegatsSeance>> ecouterDegats(Campagne c);
+  Future<bool> prendreDegats(Campagne c, String id);
+
   /// Joueur : publie ses PV, PM, PE, le résumé et l'initiative du personnage.
   Future<void> publierPersonnage(
     Campagne c,
@@ -63,6 +69,7 @@ class PartieMemoire {
   final Map<String, CreatureSeance> creatures = {};
   final Map<String, RessourcesPj> ressources = {};
   final List<JetSeance> jets = [];
+  final List<DegatsSeance> degats = [];
 
   /// « uid/numéro » → texte.
   final Map<String, String> notes = {};
@@ -195,6 +202,33 @@ class ServiceSeanceMemoire implements ServiceSeance {
   Future<void> lancer(Campagne c, JetSeance jet) async {
     _partie(c).jets.add(jet);
     base.signaler();
+  }
+
+  @override
+  Future<void> envoyerDegats(Campagne c, DegatsSeance degats) async {
+    _partie(c).degats.add(DegatsSeance(
+          id: base.nouvelId(),
+          cible: degats.cible,
+          destinataire: degats.destinataire,
+          auteur: degats.auteur,
+          montant: degats.montant,
+          source: degats.source,
+        ));
+    base.signaler();
+  }
+
+  @override
+  Stream<List<DegatsSeance>> ecouterDegats(Campagne c) => _suivre(() => [
+        for (final d in _partie(c).degats)
+          if (d.destinataire == uid) d,
+      ]);
+
+  @override
+  Future<bool> prendreDegats(Campagne c, String id) async {
+    final liste = _partie(c).degats;
+    final avant = liste.length;
+    liste.removeWhere((d) => d.id == id);
+    return liste.length < avant;
   }
 
   @override
