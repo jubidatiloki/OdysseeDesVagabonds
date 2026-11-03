@@ -4,7 +4,7 @@
 /// MAJEUR.MINEUR.CORRECTIF : MAJEUR 0 pendant la phase 1 (V1) ; MINEUR +1
 /// pour un lot de nouveautés ; CORRECTIF +1 pour des corrections seules.
 /// Chaque changement de version est noté dans le journal d'AVANCEMENT.md.
-const String kVersionApp = '0.21.2';
+const String kVersionApp = '0.21.3';
 
 /// Date de cette version (jj/mm/aaaa).
 const String kDateVersion = '03/11/2026';

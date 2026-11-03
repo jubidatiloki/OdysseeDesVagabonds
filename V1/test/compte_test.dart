@@ -67,6 +67,7 @@ Personnage _p(String id, String nom, DateTime modifie) => Personnage(
     );
 
 void main() {
+  testsDelaiEnvoi();
   final hier = DateTime(2026, 11, 1);
   final aujourdhui = DateTime(2026, 11, 2);
 
@@ -361,5 +362,103 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
     });
+  });
+}
+
+/// Stockage en ligne qui compte les écritures (appels à Firestore).
+class _DepotCompte extends EnMemoireDepotEnLigne {
+  final List<List<String>> ecritures = [];
+
+  @override
+  Future<void> importer(List<Personnage> personnages) async {
+    ecritures.add([for (final p in personnages) p.nom]);
+    await super.importer(personnages);
+  }
+}
+
+/// Envois automatiques espacés d'au moins 5 s (03/11/2026) : moins
+/// d'écritures Firestore.
+void testsDelaiEnvoi() {
+  Personnage fiche(String id, String nom) =>
+      Personnage(id: id, nom: nom, raceId: 'nain', classeId: 'guerrier');
+
+  test('1ʳᵉ écriture immédiate, les suivantes regroupées après le délai',
+      () async {
+    final distant = _DepotCompte();
+    var maintenant = DateTime(2026, 11, 3, 12);
+    final depot = DepotDiffere(
+      distant,
+      envoiImmediat: () => true,
+      stockage: StockageCompteMemoire(),
+      cle: 'attente',
+      delai: const Duration(milliseconds: 80),
+      horloge: () => maintenant,
+    );
+    final brom = fiche('b', 'Brom');
+    await depot.sauvegarder(brom);
+    expect(distant.ecritures, [
+      ['Brom'],
+    ]);
+    // Dans le délai : rien ne part, les modifications attendent.
+    await depot.sauvegarder(brom..nom = 'Brom II');
+    await depot.sauvegarder(fiche('a', 'Aria'));
+    await depot.sauvegarder(brom..nom = 'Brom III');
+    expect(distant.ecritures, hasLength(1));
+    expect(depot.nbEnAttente, 2);
+    expect(depot.envoiPlanifie, isTrue);
+    // Fin du délai : un seul envoi, dernière version de chaque fiche.
+    maintenant = maintenant.add(const Duration(milliseconds: 80));
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    expect(distant.ecritures, hasLength(2));
+    expect(distant.ecritures.last, unorderedEquals(['Brom III', 'Aria']));
+    expect(depot.nbEnAttente, 0);
+    expect(depot.envoiPlanifie, isFalse);
+    // Délai écoulé depuis le dernier envoi : de nouveau immédiat.
+    maintenant = maintenant.add(const Duration(seconds: 1));
+    await depot.sauvegarder(fiche('c', 'Cid'));
+    expect(distant.ecritures, hasLength(3));
+    depot.fermer();
+  });
+
+  test('délai par défaut : 5 secondes ; envoi manuel sans attendre', () async {
+    final distant = _DepotCompte();
+    final depot = DepotDiffere(
+      distant,
+      envoiImmediat: () => true,
+      stockage: StockageCompteMemoire(),
+      cle: 'attente',
+    );
+    expect(depot.delai, const Duration(seconds: 5));
+    await depot.sauvegarder(fiche('b', 'Brom'));
+    await depot.sauvegarder(fiche('a', 'Aria'));
+    expect(depot.envoiPlanifie, isTrue);
+    // « Synchroniser maintenant » : part tout de suite, l'attente est annulée.
+    expect(await depot.envoyer(), 1);
+    expect(distant.ecritures, hasLength(2));
+    expect(depot.envoiPlanifie, isFalse);
+    depot.fermer();
+  });
+
+  test('envoi différé en échec : signalé, modifications gardées', () async {
+    final distant = _DepotCompte();
+    var maintenant = DateTime(2026, 11, 3, 12);
+    Object? erreur;
+    final depot = DepotDiffere(
+      distant,
+      envoiImmediat: () => true,
+      stockage: StockageCompteMemoire(),
+      cle: 'attente',
+      delai: const Duration(milliseconds: 50),
+      horloge: () => maintenant,
+      surErreur: (e) => erreur = e,
+    );
+    await depot.sauvegarder(fiche('b', 'Brom'));
+    distant.enPanne = true;
+    await depot.sauvegarder(fiche('a', 'Aria'));
+    maintenant = maintenant.add(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    expect(erreur, isNotNull);
+    expect(depot.nbEnAttente, 1);
+    depot.fermer();
   });
 }

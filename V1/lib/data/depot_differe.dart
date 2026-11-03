@@ -10,6 +10,11 @@ import 'personnage_repository.dart';
 /// sur l'appareil (elles survivent à la fermeture de l'app) et ne partent
 /// qu'à [envoyer] (prochain lancer de dé, bouton « Synchroniser
 /// maintenant »). En attendant, la liste montre la version de l'appareil.
+///
+/// Envois automatiques espacés d'au moins [delai] (5 s) pour limiter les
+/// écritures Firestore : le premier part tout de suite, les modifications
+/// suivantes sont regroupées (dernière version de chaque fiche) et partent
+/// à la fin du délai.
 class DepotDiffere implements DepotEnLigne {
   DepotDiffere(
     this.distant, {
@@ -18,7 +23,10 @@ class DepotDiffere implements DepotEnLigne {
     required this.cle,
     this.surEnvoi,
     this.surAttente,
-  });
+    this.surErreur,
+    this.delai = const Duration(seconds: 5),
+    DateTime Function()? horloge,
+  }) : _horloge = horloge ?? DateTime.now;
 
   final DepotEnLigne distant;
 
@@ -35,6 +43,18 @@ class DepotDiffere implements DepotEnLigne {
   /// Appelé quand le nombre de modifications en attente change.
   final void Function()? surAttente;
 
+  /// Appelé quand un envoi différé (fin du délai) échoue.
+  final void Function(Object erreur)? surErreur;
+
+  /// Délai minimum entre deux envois automatiques.
+  final Duration delai;
+  final DateTime Function() _horloge;
+  DateTime? _dernierEnvoi;
+  Timer? _minuterie;
+
+  /// Un envoi attend-il la fin du délai ?
+  bool get envoiPlanifie => _minuterie != null;
+
   /// Fiches modifiées en attente d'envoi (`null` : fiche supprimée).
   final Map<String, Personnage?> _attente = {};
   final _changements = StreamController<void>.broadcast();
@@ -44,6 +64,7 @@ class DepotDiffere implements DepotEnLigne {
   /// Relit les modifications en attente gardées sur l'appareil.
   Future<void> charger() async {
     _attente.clear();
+    _versions.clear();
     final brut = await stockage.lire(cle);
     if (brut == null || brut.isEmpty) return;
     try {
@@ -52,6 +73,7 @@ class DepotDiffere implements DepotEnLigne {
         _attente[e.key] = e.value == null
             ? null
             : Personnage.depuisJson(e.value as Map<String, dynamic>);
+        _versions[e.key] = 1;
       }
     } catch (_) {
       // Illisible : ignoré (la version en ligne reste).
@@ -109,50 +131,89 @@ class DepotDiffere implements DepotEnLigne {
   @override
   Future<void> sauvegarder(Personnage personnage) async {
     personnage.modifieLe = DateTime.now();
-    if (envoiImmediat()) {
-      await distant.importer([personnage]);
-      if (_attente.remove(personnage.id) != null) await _garder();
-      surEnvoi?.call();
-    } else {
-      _attente[personnage.id] = personnage;
-      await _garder();
-    }
+    _mettreEnAttente(personnage.id, personnage);
+    await _garder();
+    if (envoiImmediat()) await planifierEnvoi();
   }
 
   @override
   Future<void> supprimer(String id) async {
-    if (envoiImmediat()) {
-      await distant.supprimer(id);
-      if (_attente.containsKey(id)) {
-        _attente.remove(id);
-        await _garder();
-      }
-      surEnvoi?.call();
-    } else {
-      _attente[id] = null;
-      await _garder();
+    _mettreEnAttente(id, null);
+    await _garder();
+    if (envoiImmediat()) await planifierEnvoi();
+  }
+
+  /// Numéro de version de chaque modification en attente : une fiche
+  /// modifiée pendant un envoi reste en attente pour l'envoi suivant.
+  final Map<String, int> _versions = {};
+
+  void _mettreEnAttente(String id, Personnage? p) {
+    _attente[id] = p;
+    _versions[id] = (_versions[id] ?? 0) + 1;
+  }
+
+  /// Envoi automatique au plus tôt : tout de suite si le dernier envoi date
+  /// d'au moins [delai], sinon à la fin du délai (les modifications d'ici
+  /// là partent ensemble). Un envoi immédiat qui échoue lève l'erreur ; un
+  /// envoi différé la signale à [surErreur].
+  Future<void> planifierEnvoi() async {
+    if (_minuterie != null || _attente.isEmpty) return;
+    final dernier = _dernierEnvoi;
+    final reste = dernier == null
+        ? Duration.zero
+        : delai - _horloge().difference(dernier);
+    if (reste <= Duration.zero) {
+      await envoyer();
+      return;
     }
+    _minuterie = Timer(reste, () async {
+      _minuterie = null;
+      try {
+        await envoyer();
+      } catch (e) {
+        surErreur?.call(e);
+      }
+    });
+  }
+
+  /// Arrête l'envoi différé (déconnexion) ; les modifications restent
+  /// gardées sur l'appareil.
+  void fermer() {
+    _minuterie?.cancel();
+    _minuterie = null;
   }
 
   /// Envoie les modifications en attente ; renvoie leur nombre. Sans rien
   /// en attente : relit le compte (vérifie la connexion).
   Future<int> envoyer() async {
-    final n = _attente.length;
+    _minuterie?.cancel();
+    _minuterie = null;
+    _dernierEnvoi = _horloge();
+    final envoi = Map<String, Personnage?>.of(_attente);
+    final versions = Map<String, int>.of(_versions);
+    final n = envoi.length;
     if (n == 0) {
       await distant.tous();
     } else {
       final fiches = [
-        for (final p in _attente.values)
+        for (final p in envoi.values)
           if (p != null) p,
       ];
       if (fiches.isNotEmpty) await distant.importer(fiches);
-      for (final e in _attente.entries) {
+      for (final e in envoi.entries) {
         if (e.value == null) await distant.supprimer(e.key);
       }
-      _attente.clear();
+      // Ce qui a été modifié pendant l'envoi reste en attente.
+      for (final id in envoi.keys) {
+        if (_versions[id] == versions[id]) {
+          _attente.remove(id);
+          _versions.remove(id);
+        }
+      }
       await _garder();
     }
     surEnvoi?.call();
+    if (_attente.isNotEmpty && envoiImmediat()) await planifierEnvoi();
     return n;
   }
 
@@ -163,6 +224,8 @@ class DepotDiffere implements DepotEnLigne {
   @override
   Future<void> toutSupprimer() async {
     _attente.clear();
+    _versions.clear();
+    fermer();
     await _garder();
     await distant.toutSupprimer();
   }

@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.21.3',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Synchronisation : envois automatiques espacés de 5 secondes, '
+            'modifications regroupées entre deux envois.',
+      ),
+    ],
+  ),
+  (
     version: '0.21.2',
     date: '03/11/2026',
     changements: [

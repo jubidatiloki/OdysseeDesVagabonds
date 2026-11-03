@@ -110,9 +110,10 @@ class CompteController extends ChangeNotifier {
   Future<void> demarrer() async {
     await _lireReglages();
     // Lancer de dé du personnage actif : envoi si la méthode le prévoit.
+    // Envoi espacé d'au moins 5 s (DepotDiffere.delai).
     personnages.apresLancer = () async {
       if (_automatique && _aChaqueLancer && nbEnAttente > 0) {
-        await synchroniser();
+        await _envoiAutomatique();
       }
     };
     _ecoute = service.changements.listen(_changement);
@@ -123,6 +124,7 @@ class CompteController extends ChangeNotifier {
     if (u?.uid == _utilisateur?.uid) return;
     _utilisateur = u;
     if (u == null) {
+      _depot?.fermer();
       _depot = null;
       _etat = EtatSynchro.surAppareil;
       notifyListeners();
@@ -136,11 +138,14 @@ class CompteController extends ChangeNotifier {
       cle: 'attente.${u.uid}',
       surEnvoi: _marquerSynchro,
       surAttente: notifyListeners,
+      surErreur: (_) => _erreurEnvoi(),
     );
     await depot.charger();
     _depot = depot;
     await envoyerFichesLocales();
     await personnages.utiliser(depot);
+    // Modifications restées en attente (app fermée avant l'envoi).
+    if (envoiImmediat && nbEnAttente > 0) await _envoiAutomatique();
   }
 
   /// Envoie en ligne les fiches restées sur l'appareil (créées sans compte)
@@ -189,6 +194,22 @@ class CompteController extends ChangeNotifier {
       await local.supprimer(p.id);
     }
     return aEnvoyer.length;
+  }
+
+  /// Envoi automatique, espacé d'au moins 5 s du précédent ; en cas
+  /// d'échec, les modifications restent en attente.
+  Future<void> _envoiAutomatique() async {
+    try {
+      await _depot?.planifierEnvoi();
+    } catch (_) {
+      _erreurEnvoi();
+    }
+  }
+
+  void _erreurEnvoi() {
+    _message = 'Synchronisation impossible (connexion internet ?) : les '
+        'modifications restent en attente sur cet appareil.';
+    notifyListeners();
   }
 
   /// Envoie maintenant les modifications en attente (bouton « Synchroniser
@@ -268,6 +289,7 @@ class CompteController extends ChangeNotifier {
   @override
   void dispose() {
     _ecoute?.cancel();
+    _depot?.fermer();
     super.dispose();
   }
 }
