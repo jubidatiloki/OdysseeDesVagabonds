@@ -20,6 +20,12 @@ Pour transferer un personnage d'un ordinateur a un autre :
 fiche du personnage > menu (3 points) > Exporter, puis sur l'autre
 ordinateur : Personnages > icone d'import (dossier) > choisir le fichier.
 
+Compte en ligne
+---------------
+Page Compte : se connecter (e-mail ou Google) pour retrouver ses personnages
+sur tous ses appareils et jouer aux campagnes. Il faut une connexion internet.
+Sans compte, les personnages restent dans ce navigateur.
+
 Configuration requise
 ---------------------
 Windows 10 ou 11, un navigateur recent (Chrome, Edge, Firefox).

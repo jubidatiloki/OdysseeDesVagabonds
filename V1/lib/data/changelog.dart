@@ -29,6 +29,16 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.24.2',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Version web des releases : la connexion au compte fonctionne.',
+      ),
+    ],
+  ),
+  (
     version: '0.24.1',
     date: '03/11/2026',
     changements: [

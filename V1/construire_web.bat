@@ -15,8 +15,17 @@ set "ZIP=odyssee_vagabonds_web_%VERSION%.zip"
 echo Construction de la version web %VERSION% en cours (1 a 3 minutes)...
 echo === Construction web %VERSION% %date% %time% === > "%LOG%"
 call flutter pub get >> "%LOG%" 2>&1
+rem Fichiers generes de la derniere construction : ils peuvent etre perimes
+rem (liste des modules web) et faire disparaitre Firebase de la version web.
+if exist ".dart_tool\flutter_build" rmdir /s /q ".dart_tool\flutter_build"
 call flutter build web --release --no-web-resources-cdn >> "%LOG%" 2>&1
 if errorlevel 1 goto echec
+rem Sans Firebase, la connexion au compte serait impossible.
+findstr /m "firebasejs" "build\web\main.dart.js" >nul
+if errorlevel 1 (
+  echo FIREBASE ABSENT DE LA VERSION WEB >> "%LOG%"
+  goto echec
+)
 
 if exist "%SORTIE%\web" rmdir /s /q "%SORTIE%\web"
 mkdir "%SORTIE%\web\site"
