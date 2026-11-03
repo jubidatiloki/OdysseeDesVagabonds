@@ -11,7 +11,7 @@ Représente le gain de point de mana par montée de niveau
 
 ## Dé d'endurance (DE)
 Représente le gain de point d'endurance par montée de niveau (classes physiques et hybrides)
-* Dépend de la race : d8 (demi-orque, draconien, nain), d4 (gnome), d6 (autres races) ; la classe ne le modifie pas
+* Dépend de la race : d4 (gnome), d6 (autres races) ; la classe ne le modifie pas
 * Lanceurs de sorts : pas de dé d'endurance
 
 

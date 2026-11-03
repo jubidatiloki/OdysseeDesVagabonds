@@ -9,7 +9,7 @@
 - **Avantage** : on lance 2 dés, on garde le meilleur. **Désavantage** : 2 dés, on garde le pire.
 - **Toutes les races et classes sont compatibles entre elles.** Les couleurs du schéma (physique / magique / hybride) ne servent qu'à indiquer la proportion magie / non-magie.
 - **Dés de vie (DV) et de mana (DM)** : fixés par la race, puis modifiés par la classe (`+` = dé supérieur, `-` = dé inférieur, `=` = inchangé). **Dé minimum : d4.** Exemple de la source : draconien (DV 8 / DM 4) + magicien (DV `-`, DM `+`) → DV 6 / DM 6.
-- **Dé d'endurance (DE)** (03/11/2026) : fixé par la race (d8 demi-orque, draconien, nain ; d4 gnome ; d6 sinon), inchangé par la classe. Classes physiques : PE sans PM ; lanceurs de sorts : PM sans PE ; hybrides : PM + PE.
+- **Dé d'endurance (DE)** (03/11/2026) : fixé par la race (d4 gnome ; d6 sinon), inchangé par la classe. Classes physiques : PE sans PM ; lanceurs de sorts : PM sans PE ; hybrides : PM + PE.
 - **Niveaux** : de 1 à 10 (la table de points de compétence s'arrête au niveau 10).
 - **Langues** : un personnage ne parle que la langue de sa race (sauf humain, et demi-elfe d'origine humaine). 🟡
 - **Lire/écrire** : non « inné » si INT < 10.

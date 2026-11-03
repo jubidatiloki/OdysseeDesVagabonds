@@ -41,18 +41,18 @@ void main() {
       .expand((v) => v.competences)
       .firstWhere((c) => c.nom == nom);
 
-  test('races : DE 8 (demi-orque, draconien, nain), 4 (gnome), 6 sinon', () {
+  test('races : DE 4 (gnome), 6 pour les autres', () {
     expect({
       for (final r in races.values) r.id: r.deEndurance
     }, {
       'demi-elfe': 6,
-      'demi-orque': 8,
-      'draconien': 8,
+      'demi-orque': 6,
+      'draconien': 6,
       'elfe-sylvain': 6,
       'haut-elfe': 6,
       'gnome': 4,
       'humain': 6,
-      'nain': 8,
+      'nain': 6,
     });
   });
 
@@ -133,19 +133,19 @@ void main() {
 
   test('fiche : PE comme le mana (DE max au niveau 1, repos)', () {
     final g = fiche('nain', 'guerrier');
-    expect((g.deEndurance, g.peMax, g.peActuels), (8, 8, 8));
+    expect((g.deEndurance, g.peMax, g.peActuels), (6, 6, 6));
     expect((g.pmMax, g.pmActuels), (0, 0));
-    expect(g.peRecuperesNuit(), 8);
-    expect(g.peRecuperesNuit(demiNuit: true), 4);
+    expect(g.peRecuperesNuit(), 6);
+    expect(g.peRecuperesNuit(demiNuit: true), 3);
     expect(g.pmRecuperesNuit(), 0);
     // Jets de DE des montées de niveau ajoutés au maximum.
     g.personnage
       ..niveau = 3
       ..jetsDEndurance = [3, 7];
-    expect(g.peMax, 18);
+    expect(g.peMax, 16);
     // Ancien personnage sans jets de DE : moyenne du dé, arrondie au-dessus.
     g.personnage.jetsDEndurance = [];
-    expect(g.peMax, 8 + 2 * 5);
+    expect(g.peMax, 6 + 2 * 4);
 
     final m = fiche('haut-elfe', 'magicien');
     expect((m.deEndurance, m.peMax), (0, 0));

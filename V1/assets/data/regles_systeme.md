@@ -16,7 +16,7 @@
 
 - Le **dé de vie (DV)**, le **dé de mana (DM)** et le **dé d'endurance (DE)** sont fixés par la race, puis modifiés par la classe : `+` dé supérieur, `−` dé inférieur, `=` inchangé.
 - **Mana ou endurance selon la classe** : les classes **physiques** n'ont pas de mana (ni DM ni PM) mais de l'**endurance** (DE, PE) ; les **lanceurs de sorts** ont du mana mais pas d'endurance ; les **hybrides** ont les deux (PM + PE).
-- DE des races : **d8** pour le demi-orque, le draconien et le nain ; **d4** pour le gnome ; **d6** pour les autres. Aucune classe ne modifie le DE (`=`).
+- DE des races : **d4** pour le gnome ; **d6** pour toutes les autres. Aucune classe ne modifie le DE (`=`).
 - Dé minimum : **d4**.
 - Exemple : draconien (DV 8 / DM 4) + magicien (DV −, DM +) → DV 6 / DM 6.
 - À la création, le DV compte pour sa **valeur maximale**. Ensuite (montée de niveau, repos), on **lance** le dé.

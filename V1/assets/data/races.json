@@ -180,7 +180,7 @@
 		"langues": ["Guttural (orque)"],
 		"deVie": 8,
 		"deMana": 4,
-		"deEndurance": 8,
+		"deEndurance": 6,
 		"profil": "physique",
 		"modificateurs": {
 			"FOR": 3,
@@ -350,7 +350,7 @@
 		"langues": ["Draconique"],
 		"deVie": 8,
 		"deMana": 4,
-		"deEndurance": 8,
+		"deEndurance": 6,
 		"profil": "physique",
 		"modificateurs": {
 			"CON": 2,
@@ -1310,7 +1310,7 @@
 		"langues": ["Nain"],
 		"deVie": 8,
 		"deMana": 4,
-		"deEndurance": 8,
+		"deEndurance": 6,
 		"profil": "physique",
 		"modificateurs": {
 			"CON": 2,

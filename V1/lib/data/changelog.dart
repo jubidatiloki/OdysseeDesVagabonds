@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.21.2',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte:
+            "Dé d'endurance du demi-orque, du draconien et du nain : d8 → d6.",
+      ),
+    ],
+  ),
+  (
     version: '0.21.1',
     date: '03/11/2026',
     changements: [
