@@ -89,6 +89,8 @@ void main() {
     expect(couvert.caCac, base.caCac + 3);
     expect(couvert.caDistance, base.caDistance + 3);
     expect(couvert.caMagie, base.caMagie + 3);
+    // +3 CA (toutes attaques, équilibrage du 03/11/2026).
+    expect(couvert.classeArmure, base.classeArmure + 3);
     final egide = _fiche(rangs: {'guerrier-bouclier': 5}, etats: {'À couvert'});
     // L'état du rang 5 remplace celui du rang 2 (pas de cumul).
     expect(egide.caCac, base.caCac + 5);

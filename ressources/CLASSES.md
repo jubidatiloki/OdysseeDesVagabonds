@@ -33,9 +33,9 @@
 | Guerrier | + | − | civiles ; communes | aucune | bouclier, mêlée, guerre, polyvalence | 20/20 |
 | Ingénieur | + | − | civiles ; mêlée communes ; poudre ; siège | pas de plaques | artillerie, chimiste, tireur, mécanismes | 20/20 |
 | Magicien | − | + | civiles | cuir max | universelle, élément(s), lumière, arcanes | 32/32 |
-| Moine | + | = | civiles ; mêlée communes | cuir max | ki, runes, ninja, poing | 20/20 |
+| Moine | = | = | civiles ; mêlée communes | cuir max | ki, runes, ninja, poing | 20/20 |
 | Nécromancien | − | + | civiles | cuir max | mort, morts-vivants, invocation, rituels | 16/20 |
-| Prêtre | = | + | civiles ; mêlée communes | cotte de mailles max | soins, paladin, divin, inquisiteur | 20/20 |
+| Prêtre | - | + | civiles ; mêlée communes | cotte de mailles max | soins, paladin, divin, inquisiteur | 20/20 |
 | Rôdeur | = | = | civiles ; communes ; distance (hors poudre) | cuir max | archer, chasseur, animaux, trappeur | 20/20 |
 | Voleur | = | = | civiles ; communes | cuir max | assassin, bretteur, roublard, séducteur | 20/20 |
 
@@ -156,7 +156,7 @@ Maîtrises : armes de mêlée civiles et communes (hors poudre). Restriction : a
 | 2 | Ouverture *(passif)* | +2 en attaque pour toucher une cible en armure. |
 | 3 | Feinte *(action complexe)* | Attaque normale ; au tour suivant, attaque normale à +5 et +2D6 DMG. |
 | 4 | Dehors les importuns ! *(passif + renforcement)* | Contre des groupes de petite/minuscule taille ou de niveau < moitié du sien : +2D6 DMG et +5 CA. Renforcement : ouverture → +4. |
-| 5 | Duelliste *(passif)* | En 1 contre 1 clairement identifié : +3 CA CaC, +3 CA DIST, +3 AdC, +1d6 DMG au CaC. |
+| 5 | Duelliste *(passif)* | En 1 contre 1 clairement identifié : +3 CA, +3 AdC, +1d6 DMG au CaC. |
 
 ### Voie du commandement
 | Rang | Compétence | Effet |
@@ -219,7 +219,7 @@ Maîtrises : armes civiles, armes communes. Restriction : aucune. (Posture class
 | Rang | Compétence | Effet |
 |---|---|---|
 | 1 | Formation *(passif)* | Le bouclier n'applique pas d'encombrement de CA. |
-| 2 | À couvert *(actif)* | Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA CaC, DIST, MAG et ELEM. |
+| 2 | À couvert *(actif)* | Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA. |
 | 3 | Protection *(renforcement)* | S'il ne s'est pas déplacé, fait profiter un allié de sa défense pour intercepter un coup à sa place. |
 | 4 | 🆕 Rempart arcanique *(passif)* | Avec un bouclier équipé : +2 CA MAG et +2 CA ELEM. 1×/combat, bloque entièrement un sort d'attaque de rang ≤ 2 visant le guerrier (jet d'AdC contre le jet d'AdM du lanceur). |
 | 5 | Égide *(passif + renforcement)* | 🆕 +2 CON. « À couvert » → +5, et les alliés au contact derrière lui gagnent +3. « Protection » utilisable même après un déplacement, jusqu'à 2×/tour. |
@@ -373,7 +373,7 @@ Le magicien a une voie universelle et des **voies élémentaires** (« Voie de [
 
 ---
 
-## Moine — *Dé de vie +, dé de mana =*
+## Moine — *Dé de vie =, dé de mana =*
 
 Maîtrises : armes civiles, mêlée communes. Restriction : armure de cuir max.
 
@@ -461,7 +461,7 @@ Rituels hors combat.
 
 ---
 
-## Prêtre — *Dé de vie =, dé de mana +*
+## Prêtre — *Dé de vie −, dé de mana +*
 
 Maîtrises : armes civiles, mêlée communes. Restriction : cotte de mailles max. Origine : divinité et croyance.
 
@@ -562,7 +562,7 @@ Maîtrises : armes civiles, communes. Restriction : armure de cuir max. Origine 
 | Rang | Compétence | Effet |
 |---|---|---|
 | 1 | 🆕 Escrime *(passif)* | +1 AdC/rang avec une arme légère à une main (rapière, dague, épée courte), si la main secondaire est libre ou tient une dague. |
-| 2 | 🆕 Riposte *(passif)* | Après une esquive réussie contre une attaque de CaC : attaque gratuite avec un d12, 1×/tour. |
+| 2 | 🆕 Riposte *(passif)* | Après une attaque ratée contre le voleur : attaque gratuite avec un d12, 1×/tour. |
 | 3 | Appui solide *(renforcement)* | +1 esquive par tour ; pas de contrecoup d'esquive si l'esquive réussit. |
 | 4 | 🆕 Désarmement *(actif + renforcement)* | Attaque d12 contre l'arme de la cible ; si elle touche, test de DEX du voleur contre FOR ou DEX de la cible : l'arme est projetée à 1d6 m. Riposte désormais avec un d20. |
 | 5 | Botte secrète *(complexe)* | 🆕 +2 DEX. 1×/combat, attaque inesquivable : +5 AdC et +3d6 DMG ; sur un critique, la cible perd son prochain tour. |

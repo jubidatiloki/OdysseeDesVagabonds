@@ -967,7 +967,7 @@ void main() {
     expect(profil('barbare'), ProfilClasse.physique);
     expect(profil('barde'), ProfilClasse.hybride);
     expect(profil('druide'), ProfilClasse.lanceur);
-    expect(profil('pretre'), ProfilClasse.hybride);
+    expect(profil('pretre'), ProfilClasse.lanceur); // depuis le 03/11/2026
     expect(profil('rodeur'), ProfilClasse.physique);
   });
 

@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.19.2',
+    date: '03/11/2026',
+    changements: [
+      (type: _m, texte: "Moine : dé de vie inchangé (au lieu d'augmenté)."),
+      (
+        type: _m,
+        texte:
+            "Prêtre : lanceur de sorts (au lieu d'hybride), dé de vie diminué."
+      ),
+      (
+        type: _m,
+        texte:
+            'Chevalier, Duelliste et guerrier, À couvert : un seul bonus de CA (+3, +5 avec Égide).'
+      ),
+      (
+        type: _m,
+        texte: 'Voleur, Riposte : après une attaque ratée contre le voleur.'
+      ),
+    ],
+  ),
+  (
     version: '0.19.1',
     date: '02/11/2026',
     changements: [

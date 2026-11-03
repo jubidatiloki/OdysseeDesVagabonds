@@ -895,12 +895,11 @@
             "rang": 5,
             "nom": "Duelliste",
             "type": "passif",
-            "effet": "En 1 contre 1 clairement identifié : +3 CA CaC, +3 CA DIST, +3 AdC, +1d6 DMG au CaC.",
+            "effet": "En 1 contre 1 clairement identifié : +3 CA, +3 AdC, +1d6 DMG au CaC.",
             "effets": [
               {"type": "test", "categorie": "ADC", "valeur": "3", "condition": "en 1 contre 1"},
               {"type": "degats", "valeur": "1d6", "si": "situation", "condition": "en 1 contre 1"},
-              {"type": "ca", "categorie": "CaC", "valeur": "3", "si": "situation", "condition": "en 1 contre 1"},
-              {"type": "ca", "categorie": "DIST", "valeur": "3", "si": "situation", "condition": "en 1 contre 1"}
+              {"type": "ca", "valeur": "3", "si": "situation", "condition": "en 1 contre 1"}
             ]
           }
         ]
@@ -1390,14 +1389,11 @@
             "rang": 2,
             "nom": "À couvert",
             "type": "actif",
-            "effet": "Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA CaC, DIST, MAG et ELEM.",
+            "effet": "Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA.",
             "etat": {
               "nom": "À couvert",
               "effets": [
-                {"type": "ca", "categorie": "CaC", "valeur": "3"},
-                {"type": "ca", "categorie": "DIST", "valeur": "3"},
-                {"type": "ca", "categorie": "MAG", "valeur": "3"},
-                {"type": "texte", "effet": "+3 CA ELEM."}
+                {"type": "ca", "valeur": "3"}
               ]
             }
           },
@@ -1431,16 +1427,14 @@
             "effet": "+2 CON. « À couvert » → +5, et les alliés au contact derrière lui gagnent +3. « Protection » utilisable même après un déplacement, jusqu'à 2×/tour.",
             "effets": [
               {"type": "bonus", "categorie": "CON", "valeur": "2"},
-              {"type": "renforcement", "nom": "À couvert", "effet": "+5 CA CaC, DIST, MAG et ELEM ; les alliés au contact derrière lui gagnent +3."},
+              {"type": "renforcement", "nom": "À couvert", "effet": "+5 CA ; les alliés au contact derrière lui gagnent +3."},
               {"type": "renforcement", "nom": "Protection", "effet": "Utilisable même après un déplacement, jusqu'à 2×/tour."}
             ],
             "etat": {
               "nom": "À couvert",
               "effets": [
-                {"type": "ca", "categorie": "CaC", "valeur": "5"},
-                {"type": "ca", "categorie": "DIST", "valeur": "5"},
-                {"type": "ca", "categorie": "MAG", "valeur": "5"},
-                {"type": "texte", "effet": "+5 CA ELEM ; alliés au contact derrière lui : +3."}
+                {"type": "ca", "valeur": "5"},
+                {"type": "texte", "effet": "Alliés au contact derrière lui : +3 CA."}
               ]
             }
           }
@@ -2409,7 +2403,7 @@
   {
     "id": "moine",
     "nom": "Moine",
-    "modifDeVie": "+",
+    "modifDeVie": "=",
     "modifDeMana": "=",
     "lanceurDeSorts": false,
     "profil": "hybride",
@@ -2951,10 +2945,10 @@
   {
     "id": "pretre",
     "nom": "Prêtre",
-    "modifDeVie": "=",
+    "modifDeVie": "-",
     "modifDeMana": "+",
     "lanceurDeSorts": true,
-    "profil": "hybride",
+    "profil": "lanceur",
     "maitrises": "Armes civiles ; mêlée communes.",
     "restrictionArmure": "Cotte de mailles maximum.",
     "voies": [
@@ -3595,9 +3589,9 @@
             "rang": 2,
             "nom": "Riposte",
             "type": "passif",
-            "effet": "Après une esquive réussie contre une attaque de CaC : attaque gratuite avec un d12, 1×/tour.",
+            "effet": "Après une attaque ratée contre le voleur : attaque gratuite avec un d12, 1×/tour.",
             "effets": [
-              {"type": "texte", "effet": "Après une esquive réussie contre une attaque au CaC, 1 fois par tour."}
+              {"type": "texte", "effet": "Après une attaque ratée contre le voleur, 1 fois par tour."}
             ],
             "jets": [
               {"libelle": "Riposte", "des": "1d12", "carac": "ADC", "attaque": {}}
