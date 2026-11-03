@@ -389,20 +389,39 @@ class SeanceController extends ChangeNotifier {
         if (_carte == creature.id) _carte = kCarteScript;
       });
 
-  /// Enregistre un jet pour ses lecteurs.
+  /// Nom affiché pour un jet de qui agit (attaque, test) : le personnage ou
+  /// la créature. Un jet que voient les PJ ne révèle ni un nom caché, ni une
+  /// créature dont la carte est cachée.
+  String nomDuJet(VisibiliteJet visibilite) {
+    final c = creatureChoisie;
+    if (estMj && c != null) {
+      if (visibilite == VisibiliteJet.mjSeul) return c.nom;
+      return c.cachee ? 'MJ' : c.nomPublic;
+    }
+    final nom = attaquant.nom;
+    return nom.isEmpty ? (estMj ? 'MJ' : 'Joueur') : nom;
+  }
+
+  /// Enregistre un jet pour ses lecteurs ; [parAttaquant] : au nom du
+  /// personnage ou de la créature qui agit.
   Future<String?> lancer({
     required String libelle,
     required String detail,
     required int total,
     required VisibiliteJet visibilite,
     String? cible,
+    bool parAttaquant = false,
   }) =>
       _agir(
         (s, c) => s.lancer(
           c,
           JetSeance(
             auteur: uid,
-            auteurNom: estMj ? 'MJ' : moi?.personnageNom ?? 'Joueur',
+            auteurNom: parAttaquant
+                ? nomDuJet(visibilite)
+                : estMj
+                    ? 'MJ'
+                    : moi?.personnageNom ?? 'Joueur',
             libelle: libelle,
             detail: detail,
             total: total,

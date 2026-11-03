@@ -141,6 +141,9 @@ class _Carte extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Card(
+      key: actif ? Key('$cle-tour') : null,
+      // C'est son tour : carte teintée d'or, elle ressort des autres.
+      color: actif ? OdvCouleurs.or.withValues(alpha: 0.3) : null,
       margin: const EdgeInsets.only(bottom: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),

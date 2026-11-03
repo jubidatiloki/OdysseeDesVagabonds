@@ -29,6 +29,21 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.24.1',
+    date: '03/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Séance : la carte de celui dont c\'est le tour ressort en or.',
+      ),
+      (
+        type: _m,
+        texte: 'Historique : jets au nom de la créature ou du personnage, '
+            'sans révéler un nom caché.',
+      ),
+    ],
+  ),
+  (
     version: '0.24.0',
     date: '03/11/2026',
     changements: [

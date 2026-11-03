@@ -139,7 +139,12 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   }
 
   /// Lance une formule (« 1d8 + 1d6 + 2 »).
-  Future<void> _lancerFormule(String libelle, String des, int bonus) async {
+  Future<void> _lancerFormule(
+    String libelle,
+    String des,
+    int bonus, {
+    bool parAttaquant = false,
+  }) async {
     final f = lireFormule(des);
     if (f == null) return;
     await _lancer(
@@ -150,6 +155,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             lancerDe(g.faces, aleatoire: widget.aleatoire),
       ],
       modificateur: f.bonus + bonus,
+      parAttaquant: parAttaquant,
     );
   }
 
@@ -157,6 +163,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     required String libelle,
     required List<int> jets,
     required int modificateur,
+    bool parAttaquant = false,
   }) async {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
     final detail = [
@@ -169,6 +176,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       total: total,
       visibilite: _visibilite,
       cible: _cible,
+      parAttaquant: parAttaquant,
     );
     if (!mounted) return;
     final secret = !_s.estMj && _visibilite == VisibiliteJet.mjSeul;
@@ -294,9 +302,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   onPressed: pasDeCible
                       ? null
                       : () => _lancerFormule(
-                            '$nom · ${a.libelle}',
+                            a.libelle,
                             a.des,
                             a.bonus,
+                            parAttaquant: true,
                           ),
                 ),
             ],
@@ -324,9 +333,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   onPressed: pasDeCible
                       ? null
                       : () => _lancerFormule(
-                            '$nom · test de ${c.abrev}',
+                            'Test de ${c.abrev}',
                             '1d20',
                             fiche.mod(c),
+                            parAttaquant: true,
                           ),
                 ),
             ],

@@ -507,9 +507,16 @@ void main() {
 
       // Créature sélectionnée : ses attaques dans le lancer de dés.
       await tap(tester, find.byKey(const Key('attaque-0')));
-      expect(partie.jets.single.libelle, 'Loup · Morsure · toucher');
+      expect(partie.jets.single.libelle, 'Morsure · toucher');
+      // Jet visible des PJ et nom caché : le vrai nom n'y figure pas.
+      expect(partie.jets.single.auteurNom, CreatureSeance.nomInconnu);
       await tap(tester, find.byKey(const Key('attaque-1')));
-      expect(partie.jets.last.libelle, 'Loup · Morsure · dégâts');
+      expect(partie.jets.last.libelle, 'Morsure · dégâts');
+      // Nom montré aux PJ : la créature dans l'historique, pas « MJ ».
+      await tap(tester, find.byKey(const Key('creature-nom-cache')));
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      expect(partie.jets.last.auteurNom, 'Loup');
+      await tap(tester, find.byKey(const Key('creature-nom-cache')));
 
       // Combat : le loup (14) passe avant les PJ (0), retour possible.
       await tap(tester, find.byKey(const Key('basculer-mode')));
@@ -518,6 +525,9 @@ void main() {
       expect(find.byKey(const Key('carte-j1-initiative')), findsOneWidget);
       expect(partie.etat.enCombat, isTrue);
       expect(partie.etat.actif, loup.id);
+      // La carte de celui qui joue ressort en couleur.
+      expect(find.byKey(Key('carte-${loup.id}-tour')), findsOneWidget);
+      expect(find.byKey(const Key('carte-j1-tour')), findsNothing);
       await tap(tester, find.byKey(const Key('passer-tour')));
       expect(partie.etat.index, 1);
       await tap(tester, find.byKey(const Key('tour-precedent')));
