@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
+/// Sous ce widget, les [ListeDetail] affichent le détail sur place (centre de
+/// la séance : le Glossaire ne couvre pas les côtés).
+class DetailSurPlace extends InheritedWidget {
+  const DetailSurPlace({super.key, required super.child});
+
+  static bool actif(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<DetailSurPlace>() != null;
+
+  @override
+  bool updateShouldNotify(DetailSurPlace oldWidget) => false;
+}
+
 /// Liste + détail (pages Classes, Races…).
 ///
 /// - **Grand écran** (≥ [largeurMin]) : au départ, la liste est centrée ;
@@ -60,6 +72,8 @@ class _ListeDetailState<T> extends State<ListeDetail<T>> {
   static const _largeurListeSeule = 760.0;
 
   T? _choix;
+
+  bool get _surPlace => widget.detailEnPlace || DetailSurPlace.actif(context);
 
   void _ouvrirPage(BuildContext context, T e) {
     Navigator.of(context).push(
@@ -135,7 +149,7 @@ class _ListeDetailState<T> extends State<ListeDetail<T>> {
               Icons.chevron_right,
               color: choisi ? OdvCouleurs.accent : null,
             ),
-            onTap: () => grand || widget.detailEnPlace
+            onTap: () => grand || _surPlace
                 ? setState(() => _choix = e)
                 : _ouvrirPage(context, e),
           ),
@@ -148,10 +162,11 @@ class _ListeDetailState<T> extends State<ListeDetail<T>> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, contraintes) {
-        final grand = contraintes.maxWidth >= widget.largeurMin;
+        final grand = !DetailSurPlace.actif(context) &&
+            contraintes.maxWidth >= widget.largeurMin;
         if (!grand) {
           final choisi = _choix;
-          if (widget.detailEnPlace && choisi != null) {
+          if (_surPlace && choisi != null) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

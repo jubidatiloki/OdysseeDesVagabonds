@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/referentiel.dart';
 import '../regles/index_competences.dart';
+import '../widgets/liste_detail.dart';
 import 'aptitudes_glossaire_screen.dart';
 import 'bestiaire_screen.dart';
 import 'competences_glossaire_screen.dart';
@@ -46,7 +47,11 @@ class GlossaireScreen extends StatefulWidget {
     this.menu,
     this.onglet = OngletGlossaire.classes,
     this.onOnglet,
+    this.dansSeance = false,
   });
+
+  /// Au centre de la séance : pas de barre de titre, détail sur place.
+  final bool dansSeance;
 
   final Referentiel referentiel;
 
@@ -89,6 +94,55 @@ class _GlossaireScreenState extends State<GlossaireScreen>
     final theme = Theme.of(context);
     final ref = widget.referentiel;
     final courant = OngletGlossaire.values[_onglets.index];
+    final onglets = TabBar(
+      controller: _onglets,
+      // Grand écran : onglets groupés au centre, au-dessus du contenu
+      // (lui aussi centré) ; téléphone : 6 onglets qui défilent.
+      isScrollable: true,
+      tabAlignment:
+          !widget.dansSeance && MediaQuery.sizeOf(context).width >= 900
+              ? TabAlignment.center
+              : TabAlignment.start,
+      labelPadding:
+          !widget.dansSeance && MediaQuery.sizeOf(context).width >= 900
+              ? const EdgeInsets.symmetric(horizontal: 28)
+              : const EdgeInsets.symmetric(horizontal: 14),
+      labelStyle: const TextStyle(fontWeight: FontWeight.w700),
+      tabs: [
+        for (final o in OngletGlossaire.values)
+          Tab(
+            key: Key('onglet-glossaire-${o.name}'),
+            height: 60,
+            icon: Badge(
+              label: Text('${o.nombre(ref)}'),
+              backgroundColor: theme.colorScheme.secondaryContainer,
+              textColor: theme.colorScheme.onSecondaryContainer,
+              offset: const Offset(14, -6),
+              child: Icon(o.icone),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(o.libelle),
+            ),
+          ),
+      ],
+    );
+    final contenu = TabBarView(
+      controller: _onglets,
+      children: [
+        ClassesScreen(referentiel: ref),
+        RacesScreen(referentiel: ref),
+        CompetencesGlossaireScreen(referentiel: ref),
+        AptitudesGlossaireScreen(referentiel: ref),
+        EquipementsScreen(referentiel: ref),
+        BestiaireScreen(referentiel: ref),
+      ],
+    );
+    if (widget.dansSeance) {
+      return DetailSurPlace(
+        child: Column(children: [onglets, Expanded(child: contenu)]),
+      );
+    }
     return Scaffold(
       drawer: widget.menu,
       appBar: AppBar(
@@ -107,49 +161,9 @@ class _GlossaireScreenState extends State<GlossaireScreen>
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        bottom: TabBar(
-          controller: _onglets,
-          // Grand écran : onglets groupés au centre, au-dessus du contenu
-          // (lui aussi centré) ; téléphone : 6 onglets qui défilent.
-          isScrollable: true,
-          tabAlignment: MediaQuery.sizeOf(context).width >= 900
-              ? TabAlignment.center
-              : TabAlignment.start,
-          labelPadding: MediaQuery.sizeOf(context).width >= 900
-              ? const EdgeInsets.symmetric(horizontal: 28)
-              : const EdgeInsets.symmetric(horizontal: 14),
-          labelStyle: const TextStyle(fontWeight: FontWeight.w700),
-          tabs: [
-            for (final o in OngletGlossaire.values)
-              Tab(
-                key: Key('onglet-glossaire-${o.name}'),
-                height: 60,
-                icon: Badge(
-                  label: Text('${o.nombre(ref)}'),
-                  backgroundColor: theme.colorScheme.secondaryContainer,
-                  textColor: theme.colorScheme.onSecondaryContainer,
-                  offset: const Offset(14, -6),
-                  child: Icon(o.icone),
-                ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(o.libelle),
-                ),
-              ),
-          ],
-        ),
+        bottom: onglets,
       ),
-      body: TabBarView(
-        controller: _onglets,
-        children: [
-          ClassesScreen(referentiel: ref),
-          RacesScreen(referentiel: ref),
-          CompetencesGlossaireScreen(referentiel: ref),
-          AptitudesGlossaireScreen(referentiel: ref),
-          EquipementsScreen(referentiel: ref),
-          BestiaireScreen(referentiel: ref),
-        ],
-      ),
+      body: contenu,
     );
   }
 }

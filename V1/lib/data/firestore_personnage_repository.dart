@@ -59,10 +59,20 @@ class FirestorePersonnageRepository implements DepotEnLigne {
       ];
 
   @override
-  Future<List<Personnage>> tous() async => _lire(await _miens.get());
+  Future<List<Personnage>> tous() async {
+    final s = await _miens.get();
+    // Hors connexion, un cache vide ne veut pas dire « aucune fiche ».
+    if (s.metadata.isFromCache && s.docs.isEmpty) {
+      throw StateError('pas de connexion');
+    }
+    return _lire(s);
+  }
 
   @override
-  Stream<List<Personnage>> ecouter() => _miens.snapshots().map(_lire);
+  Stream<List<Personnage>> ecouter() => _miens
+      .snapshots()
+      .where((s) => !(s.metadata.isFromCache && s.docs.isEmpty))
+      .map(_lire);
 
   @override
   Future<void> sauvegarder(Personnage personnage) {

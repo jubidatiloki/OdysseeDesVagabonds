@@ -27,7 +27,18 @@ class CompteScreen extends StatelessWidget {
             children: [
               _EtatCompte(compte: compte),
               const SizedBox(height: 12),
-              if (!compte.service.disponible)
+              if (compte.etat == EtatSynchro.horsConnexion)
+                const BlocConsultation(
+                  titre: 'Hors connexion',
+                  icone: Icons.wifi_off,
+                  children: [
+                    Text('Pas d\'internet : tes personnages restent '
+                        'utilisables. Tes modifications sont gardées sur cet '
+                        'appareil et partiront sur ton compte au prochain '
+                        'lancement avec internet.'),
+                  ],
+                )
+              else if (!compte.service.disponible)
                 const BlocConsultation(
                   titre: 'Compte indisponible',
                   icone: Icons.cloud_off_outlined,
@@ -67,7 +78,9 @@ class _EtatCompte extends StatelessWidget {
         leading: Icon(iconeSynchro(compte.etat), size: 32),
         title: Text(compte.etat.libelle),
         subtitle: Text([
-          if (u == null)
+          if (compte.etat == EtatSynchro.horsConnexion)
+            'Tes personnages sont sur cet appareil en attendant internet.'
+          else if (u == null)
             'Sans compte, tes personnages sont gardés sur cet appareil '
                 'seulement. Crée un compte (ou connecte-toi) pour les '
                 'sauvegarder en ligne et les retrouver sur tes autres '
@@ -91,6 +104,7 @@ IconData iconeSynchro(EtatSynchro e) => switch (e) {
       EtatSynchro.envoi => Icons.cloud_sync_outlined,
       EtatSynchro.synchronise => Icons.cloud_done_outlined,
       EtatSynchro.enAttente => Icons.cloud_upload_outlined,
+      EtatSynchro.horsConnexion => Icons.wifi_off,
       EtatSynchro.erreur => Icons.cloud_off_outlined,
     };
 

@@ -1346,6 +1346,15 @@ class FicheCalculee {
         _ => false,
       };
 
+  /// Réduction de dégâts contre un type (le chaos ignore toute RD).
+  int rdContre(String type) {
+    if (type == 'chaos') return 0;
+    for (final r in resistances) {
+      if (r.type == type) return r.total;
+    }
+    return 0;
+  }
+
   /// Résistances aux dégâts (effets `bonus` de catégorie « RD feu »,
   /// « RD phy »…), additionnées par type (physique, magique, feu, glace,
   /// foudre…) avec leurs sources ; types triés dans un ordre fixe.

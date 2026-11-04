@@ -544,6 +544,7 @@ class OngletFiche extends StatelessWidget {
         selonPassif: c.selonPassif,
         selonOrigine: c.selonOrigine,
         selonProfil: c.selonProfil,
+        typeDegats: c.typeDegats,
         endurance: c.endurance,
         etat: c.etat,
         objets: c.objets,

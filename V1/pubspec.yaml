@@ -2,7 +2,7 @@ name: odyssee_vagabonds
 description: "L'odyssée des vagabonds — création et gestion de personnages de jeu de rôle."
 publish_to: 'none'
 
-version: 0.27.0+39
+version: 0.28.0+40
 
 environment:
   sdk: ^3.5.0
@@ -35,6 +35,13 @@ flutter:
   # Police d'ambiance de la charte graphique (titres). Licence : OFL
   # (assets/fonts/Cinzel-OFL.txt).
   fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
     - family: Cinzel
       fonts:
         - asset: assets/fonts/Cinzel-Regular.ttf

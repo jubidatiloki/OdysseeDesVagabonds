@@ -25,6 +25,8 @@ class DepotDiffere implements DepotEnLigne {
     this.surAttente,
     this.surErreur,
     this.delai = const Duration(seconds: 5),
+    this.attenteReseau = const Duration(seconds: 3),
+    this.cleMiroir,
     DateTime Function()? horloge,
   }) : _horloge = horloge ?? DateTime.now;
 
@@ -48,6 +50,14 @@ class DepotDiffere implements DepotEnLigne {
 
   /// Délai minimum entre deux envois automatiques.
   final Duration delai;
+
+  /// Sans réponse du réseau passé ce délai, on n'attend plus : l'application
+  /// reste utilisable, l'envoi continue dès que la connexion revient.
+  final Duration attenteReseau;
+
+  /// Clé de la copie des fiches gardée sur l'appareil (hors connexion).
+  final String? cleMiroir;
+  Future<int>? _envoiEnCours;
   final DateTime Function() _horloge;
   DateTime? _dernierEnvoi;
   Timer? _minuterie;
@@ -101,8 +111,50 @@ class DepotDiffere implements DepotEnLigne {
           if (p != null) p,
       ];
 
+  /// Garde une copie des fiches du compte, pour démarrer sans internet.
+  Future<void> _garderMiroir(List<Personnage> liste) async {
+    final cle = cleMiroir;
+    if (cle == null) return;
+    try {
+      await stockage.ecrire(
+        cle,
+        jsonEncode([for (final p in liste) p.versJson()]),
+      );
+    } catch (_) {
+      // Plus de place sur l'appareil : la copie précédente reste.
+    }
+  }
+
+  /// Fiches en ligne ; sans réponse du réseau, la copie de l'appareil.
   @override
-  Future<List<Personnage>> tous() async => _fusion(await distant.tous());
+  Future<List<Personnage>> tous() async {
+    try {
+      final liste = await distant.tous().timeout(attenteReseau);
+      await _garderMiroir(liste);
+      return _fusion(liste);
+    } catch (_) {
+      final cle = cleMiroir;
+      if (cle == null) rethrow;
+      return _fusion(await lireMiroir(stockage, cle));
+    }
+  }
+
+  /// Copie des fiches gardée sur l'appareil.
+  static Future<List<Personnage>> lireMiroir(
+    StockageCompte stockage,
+    String cle,
+  ) async {
+    final brut = await stockage.lire(cle);
+    if (brut == null) return const [];
+    try {
+      return [
+        for (final j in jsonDecode(brut) as List)
+          Personnage.depuisJson(j as Map<String, dynamic>),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  }
 
   @override
   Stream<List<Personnage>> ecouter() {
@@ -114,6 +166,7 @@ class DepotDiffere implements DepotEnLigne {
       onListen: () {
         enLigne = distant.ecouter().listen((l) {
           dernier = l;
+          unawaited(_garderMiroir(l));
           sortie.add(_fusion(l));
         }, onError: sortie.addError);
         attente = _changements.stream.listen((_) {
@@ -157,13 +210,22 @@ class DepotDiffere implements DepotEnLigne {
   /// là partent ensemble). Un envoi immédiat qui échoue lève l'erreur ; un
   /// envoi différé la signale à [surErreur].
   Future<void> planifierEnvoi() async {
-    if (_minuterie != null || _attente.isEmpty) return;
+    if (_minuterie != null || _envoiEnCours != null || _attente.isEmpty) {
+      return;
+    }
     final dernier = _dernierEnvoi;
     final reste = dernier == null
         ? Duration.zero
         : delai - _horloge().difference(dernier);
     if (reste <= Duration.zero) {
-      await envoyer();
+      // Hors connexion, l'envoi attend le réseau : pas l'application.
+      final envoi = envoyer().whenComplete(() {
+        _envoiEnCours = null;
+        // Modifié pendant l'envoi : repart au prochain créneau.
+        if (_attente.isNotEmpty && envoiImmediat()) unawaited(planifierEnvoi());
+      });
+      _envoiEnCours = envoi;
+      await envoi.timeout(attenteReseau, onTimeout: () => 0);
       return;
     }
     _minuterie = Timer(reste, () async {
@@ -229,4 +291,32 @@ class DepotDiffere implements DepotEnLigne {
     await _garder();
     await distant.toutSupprimer();
   }
+}
+
+/// Fiches du compte quand Firebase ne répond pas du tout (web sans internet) :
+/// la copie gardée sur l'appareil. Rien ne part en ligne ; les modifications
+/// attendent dans [DepotDiffere] le prochain démarrage connecté.
+class MiroirLocal implements DepotEnLigne {
+  MiroirLocal(this.stockage, this.cle);
+
+  final StockageCompte stockage;
+  final String cle;
+
+  @override
+  Future<List<Personnage>> tous() => DepotDiffere.lireMiroir(stockage, cle);
+
+  @override
+  Stream<List<Personnage>> ecouter() => Stream.fromFuture(tous());
+
+  @override
+  Future<void> sauvegarder(Personnage personnage) async {}
+
+  @override
+  Future<void> supprimer(String id) async {}
+
+  @override
+  Future<void> importer(List<Personnage> personnages) async {}
+
+  @override
+  Future<void> toutSupprimer() async {}
 }

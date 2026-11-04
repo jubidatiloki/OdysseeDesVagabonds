@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/campagne.dart';
 import '../../widgets/consultation.dart';
 import 'campagnes_screen.dart';
+import 'creation_campagne_screen.dart';
 import 'fiche_partagee_screen.dart';
 import 'rejoindre_campagne_screen.dart';
 
@@ -145,6 +146,11 @@ class CampagneJoueurScreen extends StatelessWidget {
                           Text(c.description),
                         ],
                       ],
+                    ),
+                    BlocConsultation(
+                      titre: 'Paramètres de la campagne',
+                      icone: Icons.tune,
+                      children: [ResumeParametres(c.parametres)],
                     ),
                     BlocConsultation(
                       titre: 'Mon personnage',

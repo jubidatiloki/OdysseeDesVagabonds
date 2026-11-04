@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../models/campagne.dart';
 import '../../widgets/consultation.dart';
 import 'campagnes_screen.dart';
 import 'creation_campagne_screen.dart';
 import 'fiche_partagee_screen.dart';
+import 'seance_recaps.dart';
 
 /// Page d'une campagne pour son MJ : joueurs et invitations, script, notes,
 /// paramètres ; démarrer ou reprendre une séance.
@@ -69,7 +71,7 @@ class CampagneMjScreen extends StatelessWidget {
           );
         }
         return DefaultTabController(
-          length: 4,
+          length: 5,
           child: Scaffold(
             appBar: AppBar(
               title: Text(c.nom, overflow: TextOverflow.ellipsis),
@@ -111,6 +113,11 @@ class CampagneMjScreen extends StatelessWidget {
                     text: 'Notes',
                   ),
                   const Tab(
+                    key: Key('onglet-seances'),
+                    icon: Icon(Icons.event_note_outlined),
+                    text: 'Séances',
+                  ),
+                  const Tab(
                     key: Key('onglet-parametres'),
                     icon: Icon(Icons.tune),
                     text: 'Paramètres',
@@ -131,6 +138,7 @@ class CampagneMjScreen extends StatelessWidget {
                   campagne: c,
                   script: false,
                 ),
+                OngletRecaps(contexte: contexte, campagne: c),
                 _OngletParametres(contexte: contexte, campagne: c),
               ],
             ),
@@ -190,10 +198,15 @@ class _OngletJoueurs extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        key: const Key('partager-code'),
-                        tooltip: 'Copier le message d\'invitation',
-                        onPressed: () => afficherInvitation(context, c),
-                        icon: const Icon(Icons.share_outlined),
+                        key: const Key('copier-code'),
+                        tooltip: 'Copier le code',
+                        onPressed: () async {
+                          await Clipboard.setData(ClipboardData(text: c.code));
+                          if (context.mounted) {
+                            _message(context, 'Code copié : ${c.code}');
+                          }
+                        },
+                        icon: const Icon(Icons.copy),
                       ),
                       IconButton(
                         key: const Key('nouveau-code'),

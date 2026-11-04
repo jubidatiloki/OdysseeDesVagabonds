@@ -150,8 +150,7 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
                 children: [
                   Text('MJ : ${c.mjNom}'),
                   Text('${c.joueurs.length}/${c.parametres.joueursMax} '
-                      'joueurs · niveau de départ conseillé : '
-                      '${c.parametres.niveauDepart}'),
+                      'joueurs'),
                   if (c.description.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(c.description),
@@ -174,12 +173,7 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
                           key: Key('choisir-${p.id}'),
                           value: p.id,
                           title: Text(p.nom),
-                          subtitle: Text([
-                            resumePersonnage(widget.contexte, p),
-                            if (p.niveau != c.parametres.niveauDepart)
-                              'conseillé : niveau '
-                                  '${c.parametres.niveauDepart}',
-                          ].join(' · ')),
+                          subtitle: Text(resumePersonnage(widget.contexte, p)),
                         ),
                     ],
                   ),

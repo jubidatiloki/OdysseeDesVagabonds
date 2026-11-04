@@ -577,7 +577,12 @@ class Competence {
     this.invocations = const [],
     this.endurance = const [],
     this.selonProfil = const {},
+    this.typeDegats = '',
   });
+
+  /// Type de dégâts d'un sort ou d'une attaque (feu, glace, foudre, magique,
+  /// chaos, physique) ; vide : physique.
+  final String typeDegats;
 
   /// Coûts en points d'endurance (PE) : un seul (« Moulinet : 2 PE ») ou
   /// plusieurs actions (chimiste : potion 1 PE, explosif 2 PE). JSON :
@@ -639,6 +644,7 @@ class Competence {
         invocations: invocations,
         endurance: endurance,
         selonProfil: selonProfil,
+        typeDegats: typeDegats,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -788,6 +794,7 @@ class Competence {
       invocations: invocations,
       endurance: endurance,
       selonProfil: selonProfil,
+      typeDegats: typeDegats,
     );
   }
 
@@ -803,6 +810,7 @@ class Competence {
         selonPassif: _variantes(j['selonPassif']),
         selonOrigine: _variantes(j['selonOrigine']),
         selonProfil: _variantes(j['selonProfil']),
+        typeDegats: j['typeDegats'] as String? ?? '',
         endurance: CoutEndurance.listeDepuisJson(j['endurance']),
         etat: EtatCompetence.depuisJson(j['etat']),
         etatsAuChoix: [

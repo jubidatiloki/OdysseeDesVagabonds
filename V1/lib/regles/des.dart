@@ -330,3 +330,19 @@ class ResultatLancer {
     );
   }
 }
+
+/// Type de dégâts écrit dans un texte (« 3d6 feu », « 1d4 mag ») ; physique
+/// par défaut. Types comparés à la réduction de dégâts ; le chaos l'ignore.
+String typeDegatsDepuis(String texte) {
+  final t = texte.toLowerCase();
+  for (final (mot, type) in const [
+    ('chaos', 'chaos'),
+    ('feu', 'feu'),
+    ('glace', 'glace'),
+    ('foudre', 'foudre'),
+    ('mag', 'magique'),
+  ]) {
+    if (RegExp('\\b$mot').hasMatch(t)) return type;
+  }
+  return 'physique';
+}

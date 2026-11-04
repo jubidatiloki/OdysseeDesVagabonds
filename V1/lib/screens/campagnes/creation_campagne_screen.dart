@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../models/campagne.dart';
 import '../../widgets/consultation.dart';
@@ -10,7 +9,8 @@ import 'campagne_mj_screen.dart';
 import 'campagnes_screen.dart';
 
 /// Création d'une campagne en 4 étapes : nom et présentation, script,
-/// notes, paramètres. À la fin, le code d'invitation à envoyer aux joueurs.
+/// notes, paramètres. La page de la campagne affiche ensuite le code
+/// d'invitation à envoyer aux joueurs.
 class CreationCampagneScreen extends StatefulWidget {
   const CreationCampagneScreen({super.key, required this.contexte});
 
@@ -70,9 +70,7 @@ class _CreationCampagneState extends State<CreationCampagneScreen> {
     });
     final campagne = creee;
     if (erreur != null || campagne == null) return;
-    final navigator = Navigator.of(context);
-    await afficherInvitation(context, campagne, creation: true);
-    navigator.pushReplacement(MaterialPageRoute(
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => CampagneMjScreen(
         contexte: widget.contexte,
         campagneId: campagne.id,
@@ -284,7 +282,7 @@ class EditeurTexteCampagne extends StatelessWidget {
   }
 }
 
-/// Paramètres d'une campagne : joueurs, niveau, fiches visibles.
+/// Paramètres d'une campagne : joueurs, fiches visibles.
 class FormulaireParametres extends StatelessWidget {
   const FormulaireParametres({
     super.key,
@@ -339,14 +337,6 @@ class FormulaireParametres extends StatelessWidget {
           min: 1,
           max: ParametresCampagne.joueursMaxLimite,
           change: (v) => onChange(p.copie(joueursMax: v)),
-        ),
-        compteur(
-          cle: 'niveau-depart',
-          libelle: 'Niveau de départ conseillé',
-          v: p.niveauDepart,
-          min: 1,
-          max: 10,
-          change: (v) => onChange(p.copie(niveauDepart: v)),
         ),
         SwitchListTile(
           key: const Key('fiches-visibles-mj'),
@@ -429,66 +419,38 @@ class FormulairePermissions extends StatelessWidget {
   }
 }
 
-/// Message prêt à envoyer aux joueurs (copié avec le code).
-String messageInvitation(Campagne c) =>
-    'Rejoins ma campagne « ${c.nom} » dans L\'odyssée des vagabonds : '
-    'menu Campagnes → En tant que joueur → Rejoindre une campagne, '
-    'code ${c.code}';
+/// Paramètres de la campagne, en consultation (joueurs).
+class ResumeParametres extends StatelessWidget {
+  const ResumeParametres(this.parametres, {super.key});
 
-/// Fenêtre du code d'invitation (après la création, ou « Inviter »).
-Future<void> afficherInvitation(
-  BuildContext context,
-  Campagne c, {
-  bool creation = false,
-}) =>
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        final theme = Theme.of(context);
-        return AlertDialog(
-          title: Text(creation ? 'Campagne créée !' : 'Inviter des joueurs'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Envoie ce code à tes joueurs : ils le saisissent '
-                  'dans Campagnes → En tant que joueur, choisissent leur '
-                  'personnage, et tu acceptes leur demande.'),
-              const SizedBox(height: 16),
-              Center(
-                child: SelectableText(
-                  c.code,
-                  key: const Key('code-invitation'),
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
+  final ParametresCampagne parametres;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = parametres;
+    String oui(bool v) => v ? 'oui' : 'non';
+    return Column(
+      key: const Key('resume-parametres'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final l in [
+          'Joueurs au maximum : ${p.joueursMax}',
+          'Fiches visibles par le MJ : ${oui(p.fichesVisiblesMj)}',
+          'Inventaire modifiable hors séance : '
+              '${oui(p.pjInventaireHorsSeance)}',
+          'Compétences modifiables hors séance : '
+              '${oui(p.pjCompetencesHorsSeance)}',
+          'PV, PM et PE visibles entre PJ : ${oui(p.pjVoientRessources)}',
+          'Fiches visibles entre PJ : ${oui(p.fichesVisiblesJoueurs)}',
+          'PV des créatures visibles : ${oui(p.pjVoientPvCreatures)}',
+          'Fiches des créatures visibles : '
+              '${oui(p.pjVoientFichesCreatures)}',
+        ])
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(l),
           ),
-          actions: [
-            TextButton.icon(
-              key: const Key('copier-invitation'),
-              onPressed: () async {
-                final messager = ScaffoldMessenger.of(context);
-                await Clipboard.setData(
-                    ClipboardData(text: messageInvitation(c)));
-                messager.showSnackBar(const SnackBar(
-                  content: Text('Message d\'invitation copié : colle-le '
-                      'dans ta messagerie.'),
-                ));
-              },
-              icon: const Icon(Icons.copy),
-              label: const Text('Copier le message'),
-            ),
-            FilledButton(
-              key: const Key('fermer-invitation'),
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+      ],
     );
+  }
+}

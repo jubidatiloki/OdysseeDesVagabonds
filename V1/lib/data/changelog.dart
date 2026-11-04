@@ -29,6 +29,56 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.28.0',
+    date: '04/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Hors connexion : personnages, dés et glossaire utilisables '
+            'sans internet (campagnes en ligne seulement).',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : onglets Glossaire et Séances précédentes pour le MJ.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : messagerie privée entre le MJ et chaque PJ.',
+      ),
+      (
+        type: _a,
+        texte: 'Dégâts : type précisé (physique par défaut), RD de la cible '
+            'retirée.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : liseré rouge en combat, vert en exploration.',
+      ),
+      (
+        type: _m,
+        texte: 'Taille des menus de la séance : Étroit, Normal ou Large.',
+      ),
+      (
+        type: _m,
+        texte: 'Hors séance : inventaire et compétences restent consultables '
+            'si le MJ verrouille les modifications.',
+      ),
+      (
+        type: _m,
+        texte: 'Campagnes : menu latéral gardé, paramètres visibles des PJ, '
+            'bouton pour copier le code, niveau de départ retiré.',
+      ),
+      (
+        type: _m,
+        texte: 'Inventaire : Plastron 0/1, Casque 0/1, Bijoux 0/2.',
+      ),
+      (
+        type: _c,
+        texte: 'Le message de séance se ferme quand on rejoint la séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.27.0',
     date: '04/11/2026',
     changements: [

@@ -20,6 +20,7 @@ class OngletInventaire extends StatelessWidget {
     required this.personnage,
     required this.onModifie,
     this.equipements = const [],
+    this.verrouille = false,
     this.deuxArmesDeuxMains = false,
     this.fabrications = const [],
     this.usagesRestants = const {},
@@ -34,6 +35,10 @@ class OngletInventaire extends StatelessWidget {
 
   /// Armement barbare : deux armes en main, même à deux mains.
   final bool deuxArmesDeuxMains;
+
+  /// Hors séance, si le MJ l'interdit : on voit tout et on peut équiper,
+  /// mais ni l'argent ni la liste des objets ne changent.
+  final bool verrouille;
 
   /// Objets que les compétences permettent de fabriquer (Assaut : bélier,
   /// échelle) : bouton « Fabriquer » (ajoutés au sac).
@@ -421,24 +426,37 @@ class OngletInventaire extends StatelessWidget {
       key: const PageStorageKey('onglet-inventaire'),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
-        _CarteBourse(
-          bourse: personnage.bourse,
-          onModifier: () => _modifierBourse(context),
-          onAjuster: (piece, delta) => _ajusterPiece(context, piece, delta),
-          onRecevoir: () => _transaction(context, recevoir: true),
-          onPayer: () => _transaction(context, recevoir: false),
-        ),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          key: const Key('ajouter-objet'),
-          onPressed: () => _ajouter(context),
-          icon: const Icon(Icons.add),
-          label: const Text('Ajouter un objet'),
-        ),
+        if (verrouille) ...[
+          const Text(
+            'Le MJ ne permet pas d\'ajouter ou de retirer de l\'argent ou des '
+            'objets en dehors d\'une séance.',
+            key: Key('inventaire-verrouille'),
+          ),
+          const SizedBox(height: 12),
+          Text('Bourse : ${personnage.bourse.texte}'),
+        ] else ...[
+          _CarteBourse(
+            bourse: personnage.bourse,
+            onModifier: () => _modifierBourse(context),
+            onAjuster: (piece, delta) => _ajusterPiece(context, piece, delta),
+            onRecevoir: () => _transaction(context, recevoir: true),
+            onPayer: () => _transaction(context, recevoir: false),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            key: const Key('ajouter-objet'),
+            onPressed: () => _ajouter(context),
+            icon: const Icon(Icons.add),
+            label: const Text('Ajouter un objet'),
+          ),
+        ],
         const SizedBox(height: 20),
         _TitreSection(
           titre: 'Équipement porté',
-          detail: 'Armure 1 · Casque 1 · Bijoux 2 · '
+          detail:
+              'Plastron ${ReglesInventaire.nombreEquipes(_inventaire, CategorieObjet.armure)}/1 · '
+              'Casque ${ReglesInventaire.nombreEquipes(_inventaire, CategorieObjet.casque)}/1 · '
+              'Bijoux ${ReglesInventaire.nombreEquipes(_inventaire, CategorieObjet.accessoire)}/2 · '
               '${deuxArmesDeuxMains ? 'Armes en main ${ReglesInventaire.enMain(_inventaire).length}/2' : 'Mains ${ReglesInventaire.mainsOccupees(_inventaire)}/${ReglesInventaire.mainsMax}'}',
         ),
         if (portes.isEmpty)
@@ -455,7 +473,7 @@ class OngletInventaire extends StatelessWidget {
         else
           for (final o in sac) _ligne(context, o),
         // Fabrication (Assaut du barbare : bélier, échelle).
-        if (fabrications.isNotEmpty) ...[
+        if (fabrications.isNotEmpty && !verrouille) ...[
           const SizedBox(height: 20),
           const _TitreSection(
             titre: 'Fabrication',
@@ -522,7 +540,7 @@ class OngletInventaire extends StatelessWidget {
           o.equipe ? scheme.primaryContainer : scheme.surfaceContainerHighest,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => _modifier(context, o),
+        onTap: verrouille ? null : () => _modifier(context, o),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
           child: Row(
@@ -616,7 +634,7 @@ class OngletInventaire extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (consommable)
+              if (consommable && !verrouille)
                 IconButton(
                   key: Key('utiliser-${o.id}'),
                   tooltip: 'Utiliser (−1)',
@@ -634,41 +652,42 @@ class OngletInventaire extends StatelessWidget {
                   icon: const Icon(Icons.radio_button_unchecked),
                   selectedIcon: const Icon(Icons.check_circle),
                 ),
-              PopupMenuButton<String>(
-                key: Key('menu-objet-${o.id}'),
-                tooltip: 'Actions',
-                onSelected: (action) {
-                  switch (action) {
-                    case 'modifier':
-                      _modifier(context, o);
-                    case 'plus':
-                      _changerQuantite(context, o, 1);
-                    case 'moins':
-                      _changerQuantite(context, o, -1);
-                    case 'supprimer':
-                      _supprimer(context, o);
-                    case 'bidouiller':
-                      _bidouiller(context, o);
-                  }
-                },
-                itemBuilder: (context) => [
-                  if (bidouillage && FicheCalculee.estArmeAFeu(o))
+              if (!verrouille)
+                PopupMenuButton<String>(
+                  key: Key('menu-objet-${o.id}'),
+                  tooltip: 'Actions',
+                  onSelected: (action) {
+                    switch (action) {
+                      case 'modifier':
+                        _modifier(context, o);
+                      case 'plus':
+                        _changerQuantite(context, o, 1);
+                      case 'moins':
+                        _changerQuantite(context, o, -1);
+                      case 'supprimer':
+                        _supprimer(context, o);
+                      case 'bidouiller':
+                        _bidouiller(context, o);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    if (bidouillage && FicheCalculee.estArmeAFeu(o))
+                      const PopupMenuItem(
+                        value: 'bidouiller',
+                        child: Text('Bidouiller (10 pa)'),
+                      ),
                     const PopupMenuItem(
-                      value: 'bidouiller',
-                      child: Text('Bidouiller (10 pa)'),
+                        value: 'modifier', child: Text('Modifier')),
+                    const PopupMenuItem(
+                        value: 'plus', child: Text('Quantité +1')),
+                    const PopupMenuItem(
+                        value: 'moins', child: Text('Quantité −1')),
+                    const PopupMenuItem(
+                      value: 'supprimer',
+                      child: Text('Supprimer'),
                     ),
-                  const PopupMenuItem(
-                      value: 'modifier', child: Text('Modifier')),
-                  const PopupMenuItem(
-                      value: 'plus', child: Text('Quantité +1')),
-                  const PopupMenuItem(
-                      value: 'moins', child: Text('Quantité −1')),
-                  const PopupMenuItem(
-                    value: 'supprimer',
-                    child: Text('Supprimer'),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
         ),

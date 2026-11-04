@@ -52,23 +52,18 @@ List<Widget> vuesFiche(
       ),
     ),
     _Largeur(
-      child: verrous.inventaire
-          ? InventaireLecture(
-              personnage: p,
-              message: 'Le MJ ne permet pas de modifier l\'inventaire en '
-                  'dehors d\'une séance.',
-            )
-          : OngletInventaire(
-              personnage: p,
-              onModifie: onModifie,
-              equipements: referentiel.equipements,
-              deuxArmesDeuxMains: fiche.deuxArmesDeuxMains,
-              fabrications: fiche.fabrications,
-              usagesRestants: {
-                for (final u in fiche.usages) u.cle: u.restants,
-              },
-              bidouillage: fiche.bidouillage,
-            ),
+      child: OngletInventaire(
+        personnage: p,
+        verrouille: verrous.inventaire,
+        onModifie: onModifie,
+        equipements: referentiel.equipements,
+        deuxArmesDeuxMains: fiche.deuxArmesDeuxMains,
+        fabrications: fiche.fabrications,
+        usagesRestants: {
+          for (final u in fiche.usages) u.cle: u.restants,
+        },
+        bidouillage: fiche.bidouillage,
+      ),
     ),
     _Largeur(child: OngletNotes(personnage: p, onModifie: onModifie)),
     _Largeur(child: OngletHistorique(personnage: p)),

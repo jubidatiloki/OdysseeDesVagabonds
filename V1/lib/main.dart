@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +38,13 @@ Future<void> main() async {
   CampagnesController? campagnes;
   if (compteEnLignePossible) {
     try {
+      // Sans internet sur le web, Firebase ne se charge pas : on n'attend pas.
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
-      );
+      ).timeout(const Duration(seconds: 8));
+      // Fiches lisibles et modifiables hors connexion.
+      FirebaseFirestore.instance.settings =
+          const Settings(persistenceEnabled: true);
       compte = CompteController(
         service: FirebaseServiceCompte(),
         personnages: controller,
@@ -54,7 +59,10 @@ Future<void> main() async {
       );
     } catch (e) {
       debugPrint('Firebase indisponible : $e');
-      compte = null;
+      compte = await CompteController.horsConnexion(
+        controller,
+        StockageCompteLocal(),
+      );
       campagnes = null;
     }
   }

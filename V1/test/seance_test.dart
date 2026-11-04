@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -10,9 +12,12 @@ import 'package:odyssee_vagabonds/data/seance.dart';
 import 'package:odyssee_vagabonds/models/campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
+import 'package:odyssee_vagabonds/models/effet.dart';
 import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/models/seance.dart';
+import 'package:odyssee_vagabonds/regles/des.dart';
+import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/seance_screen.dart';
 import 'package:odyssee_vagabonds/screens/fiche_screen.dart';
@@ -338,6 +343,81 @@ void main() {
     compte.dispose();
     personnages.dispose();
   });
+  test('messages : conversation privée entre le MJ et un joueur', () async {
+    final p = await _partie();
+    final c = p.campagne;
+    final mj = ServiceCampagnesMemoire(p.base, 'mj').seance;
+    final j1 = ServiceCampagnesMemoire(p.base, 'j1').seance;
+    final j2 = ServiceCampagnesMemoire(p.base, 'j2').seance;
+    await j1.envoyerMessage(
+      c,
+      MessageSeance(
+        de: 'j1',
+        joueur: 'j1',
+        mj: 'mj',
+        texte: 'Je trahis le groupe',
+        date: DateTime(2026, 11, 4),
+      ),
+    );
+    expect(await mj.ecouterMessages(c).first, hasLength(1));
+    expect(await j1.ecouterMessages(c).first, hasLength(1));
+    expect(await j2.ecouterMessages(c).first, isEmpty);
+    expect(
+      MessageSeance.depuisJson(
+              'x', (await j1.ecouterMessages(c).first).single.versJson())
+          .texte,
+      'Je trahis le groupe',
+    );
+  });
+
+  group('types de dégâts', () {
+    test('physique par défaut, sinon le type écrit', () {
+      expect(typeDegatsDepuis('1d6 +2'), 'physique');
+      expect(typeDegatsDepuis('3d6 feu (à qui le traverse)'), 'feu');
+      expect(typeDegatsDepuis('5d6 mag'), 'magique');
+      expect(typeDegatsDepuis('1d8 chaos (×2 contre morts-vivants)'), 'chaos');
+    });
+
+    test('tous les sorts à dégâts ont un type', () {
+      final classes = jsonDecode(
+        File('assets/data/classes.json').readAsStringSync(),
+      ) as List;
+      var n = 0;
+      for (final c in classes.map((e) => Classe.depuisJson(e))) {
+        for (final k in c.voies.expand((v) => v.competences)) {
+          if (k.degats.isEmpty) continue;
+          n++;
+          expect(k.typeDegats, isNotEmpty, reason: k.nom);
+        }
+      }
+      expect(n, 17);
+    });
+
+    test('RD selon le type, le chaos l\'ignore', () {
+      final race = Race(
+        id: 'r',
+        nom: 'R',
+        deVie: 8,
+        deMana: 4,
+        passif: Passif(
+          nom: 'Écailles',
+          description: '',
+          effets: Effet.listeDepuisJson([
+            {'type': 'bonus', 'categorie': 'RD feu', 'valeur': '2'},
+          ]),
+        ),
+      );
+      final f = FicheCalculee(
+        personnage: _brom(),
+        race: race,
+        classe: _guerrier,
+      );
+      expect(f.rdContre('feu'), 2);
+      expect(f.rdContre('physique'), 0);
+      expect(f.rdContre('chaos'), 0);
+    });
+  });
+
   group('permissions', () {
     test('créatures : PV et fiche selon les permissions, nom caché prioritaire',
         () {
@@ -427,18 +507,6 @@ void main() {
     expect(p.estLa(t.add(const Duration(seconds: 100))), isTrue);
     expect(p.estLa(t.add(const Duration(minutes: 3))), isFalse);
     expect(PresenceSeance(vu: t, present: false).estLa(t), isFalse);
-  });
-
-  test('taille des portions : le total reste 100 %, 15 % au moins', () {
-    var r = ajusterPortions(0.22, 0.26, changee: 0, valeur: 0.3);
-    expect(r.gauche, closeTo(0.3, 0.001));
-    expect(1 - r.gauche - r.droite, greaterThanOrEqualTo(kPortionMin));
-    r = ajusterPortions(0.22, 0.26, changee: 1, valeur: 0.7);
-    expect(r.gauche, closeTo(0.15, 0.001));
-    expect(r.droite, closeTo(0.15, 0.001));
-    r = ajusterPortions(0.22, 0.26, changee: 2, valeur: 0.05);
-    expect(r.droite, kPortionMin);
-    expect(r.gauche + (1 - r.gauche - r.droite) + r.droite, closeTo(1, 0.001));
   });
 
   group('écran', () {
@@ -687,6 +755,40 @@ void main() {
       expect(find.text('7/12'), findsOneWidget);
     });
 
+    testWidgets('MJ : Glossaire, Séances précédentes, cadre de mode',
+        (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      expect(find.byKey(const Key('cadre-exploration')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('basculer-mode')));
+      expect(find.byKey(const Key('cadre-combat')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('seance-glossaire')));
+      expect(find.byKey(const Key('onglet-glossaire-classes')), findsOneWidget);
+      // Cartes et dés restent visibles.
+      expect(find.byKey(const Key('liste-cartes')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('seance-recaps')));
+      await tester.enterText(
+          find.byKey(const Key('recap-1')), 'La brume est tombée.');
+      await tap(tester, find.byKey(const Key('enregistrer-recap-1')));
+      expect(x.base.recaps[x.campagne.id]![1], 'La brume est tombée.');
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('messagerie : le PJ écrit au MJ, paramètres en consultation',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      await tap(tester, find.byKey(const Key('onglet-messages')));
+      await tester.enterText(
+          find.byKey(const Key('message-texte')), 'Bonjour MJ');
+      await tap(tester, find.byKey(const Key('message-envoyer')));
+      final m = x.base.parties[x.campagne.id]!.messages.single;
+      expect((m.de, m.joueur, m.mj), ('j1', 'j1', 'mj'));
+      expect(find.text('Bonjour MJ'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('seance-parametres')));
+      expect(find.byKey(const Key('resume-parametres')), findsOneWidget);
+      expect(find.byKey(const Key('pj-voient-ressources')), findsNothing);
+    });
+
     testWidgets('dégâts reçus : retirés de la fiche du joueur, carte à jour',
         (tester) async {
       final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
@@ -782,13 +884,15 @@ void main() {
       expect(find.byKey(const Key('competences-verrouillees')), findsOneWidget);
       expect(find.byKey(const Key('depenser-points')), findsNothing);
       await tap(tester, find.text('Inventaire').first);
-      expect(find.byKey(const Key('inventaire-lecture')), findsOneWidget);
+      expect(find.byKey(const Key('inventaire-verrouille')), findsOneWidget);
+      expect(find.textContaining('Plastron 0/1'), findsOneWidget);
+      expect(find.byKey(const Key('ajouter-objet')), findsNothing);
     });
 
     testWidgets('MJ : permissions et taille des portions', (tester) async {
       final x = await ouvrir(tester, 'mj');
       await tap(tester, find.byKey(const Key('seance-parametres')));
-      expect(find.byKey(const Key('portion-centre')), findsOneWidget);
+      expect(find.byKey(const Key('portion-gauche')), findsOneWidget);
       await tap(tester, find.byKey(const Key('pj-voient-pv-creatures')));
       expect(
         x.base.campagnes[x.campagne.id]!.parametres.pjVoientPvCreatures,

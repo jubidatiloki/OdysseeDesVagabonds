@@ -77,6 +77,7 @@
 ### Réductions de dégâts
 
 - RD physique, magique, feu, glace, foudre : `0 + compétences + équipement + autres`.
+- Tout dégât est **physique** sauf indication contraire ; la RD du type de dégâts se retire du total (minimum 0).
 - Il n'existe **pas de RD chaos** : le chaos ignore toute réduction de dégâts.
 
 ## Vie, mana, endurance et repos

@@ -14,6 +14,7 @@ rules_version = '2';
 //   jets/{j} : lisibles par leurs seuls « lecteurs »
 //   degats/{d} : dégâts à appliquer, lus par leur destinataire
 //   presences/{uid} : dernier signal de chaque joueur
+//   messages/{m} : messages privés MJ - joueur
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
@@ -193,6 +194,19 @@ service cloud.firestore {
           && (mjDe(id) || membreDe(id));
         allow delete: if connecte()
           && (resource.data.destinataire == soi() || mjDe(id));
+      }
+
+      // Messages privés entre le MJ et un joueur.
+      match /messages/{message} {
+        allow read: if connecte() && soi() in resource.data.participants;
+        allow create: if connecte()
+          && request.resource.data.de == soi()
+          && soi() in request.resource.data.participants
+          && (mjDe(id)
+              && request.resource.data.mj == soi()
+            || membreDe(id)
+              && request.resource.data.joueur == soi());
+        allow delete: if connecte() && mjDe(id);
       }
 
       // Présence : écrite par le joueur, lue par la table.

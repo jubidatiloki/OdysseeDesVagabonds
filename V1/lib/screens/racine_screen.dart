@@ -49,6 +49,9 @@ class RacineScreen extends StatefulWidget {
 class _RacineScreenState extends State<RacineScreen> {
   Section _section = Section.personnages;
 
+  /// Pages de la section Campagnes.
+  final _navCampagnes = GlobalKey<NavigatorState>();
+
   /// Onglet du Glossaire retenu quand on change de page.
   OngletGlossaire _ongletGlossaire = OngletGlossaire.classes;
 
@@ -145,10 +148,16 @@ class _RacineScreenState extends State<RacineScreen> {
           preferences: prefs,
           historique: _lancers,
         ),
-      Section.campagnes => CampagnesScreen(
-          contexte: _contexteCampagnes,
-          menu: menu,
-          onCompte: () => setState(() => _section = Section.compte),
+      // Navigateur interne : les pages de campagne gardent le menu latéral.
+      Section.campagnes => Navigator(
+          key: _navCampagnes,
+          onGenerateRoute: (_) => MaterialPageRoute(
+            builder: (_) => CampagnesScreen(
+              contexte: _contexteCampagnes,
+              menu: menu,
+              onCompte: () => setState(() => _section = Section.compte),
+            ),
+          ),
         ),
       Section.glossaire => GlossaireScreen(
           referentiel: ref,
@@ -168,7 +177,13 @@ class _RacineScreenState extends State<RacineScreen> {
     return PopScope(
       canPop: _section == Section.personnages,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) setState(() => _section = Section.personnages);
+        if (didPop) return;
+        final nav = _navCampagnes.currentState;
+        if (_section == Section.campagnes && (nav?.canPop() ?? false)) {
+          nav!.pop();
+        } else {
+          setState(() => _section = Section.personnages);
+        }
       },
       child: fixe
           ? Row(

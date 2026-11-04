@@ -421,31 +421,6 @@ class JetSeance {
       );
 }
 
-/// Taille des trois portions de la séance (fractions de la largeur) : chaque
-/// portion garde au moins [kPortionMin]. La portion [changee] (0 gauche,
-/// 1 centre, 2 droite) prend la valeur voulue, les deux autres se partagent
-/// le reste en gardant leur proportion.
-const double kPortionMin = 0.15;
-
-({double gauche, double droite}) ajusterPortions(
-  double gauche,
-  double droite, {
-  required int changee,
-  required double valeur,
-}) {
-  final parts = [gauche, 1 - gauche - droite, droite];
-  final v = valeur.clamp(kPortionMin, 1 - 2 * kPortionMin);
-  final autres = [0, 1, 2].where((i) => i != changee).toList();
-  final somme = parts[autres[0]] + parts[autres[1]];
-  final reste = 1 - v;
-  var a = somme <= 0 ? reste / 2 : reste * parts[autres[0]] / somme;
-  a = a.clamp(kPortionMin, reste - kPortionMin);
-  parts[changee] = v;
-  parts[autres[0]] = a;
-  parts[autres[1]] = reste - a;
-  return (gauche: parts[0], droite: parts[2]);
-}
-
 /// Dégâts à appliquer, en attente chez celui qui peut les écrire : le joueur
 /// pour sa propre fiche, le MJ pour une créature.
 class DegatsSeance {
@@ -456,6 +431,7 @@ class DegatsSeance {
     required this.auteur,
     required this.montant,
     required this.source,
+    this.type = 'physique',
   });
 
   final String id;
@@ -471,12 +447,16 @@ class DegatsSeance {
   /// « Loup · Morsure · dégâts ».
   final String source;
 
+  /// Type de dégâts, comparé à la RD de la cible.
+  final String type;
+
   Map<String, dynamic> versJson() => {
         'cible': cible,
         'destinataire': destinataire,
         'auteur': auteur,
         'montant': montant,
         'source': source,
+        'type': type,
       };
 
   factory DegatsSeance.depuisJson(String id, Map<String, dynamic> j) =>
@@ -487,6 +467,7 @@ class DegatsSeance {
         auteur: j['auteur'] as String? ?? '',
         montant: (j['montant'] as num?)?.toInt() ?? 0,
         source: j['source'] as String? ?? '',
+        type: j['type'] as String? ?? 'physique',
       );
 }
 
@@ -516,5 +497,49 @@ class PresenceSeance {
   factory PresenceSeance.depuisJson(Map<String, dynamic> j) => PresenceSeance(
         vu: DateTime.tryParse('${j['vu']}') ?? DateTime(2026),
         present: j['present'] as bool? ?? false,
+      );
+}
+
+/// Message privé entre le MJ et un joueur.
+class MessageSeance {
+  const MessageSeance({
+    this.id = '',
+    required this.de,
+    required this.joueur,
+    required this.mj,
+    required this.texte,
+    required this.date,
+  });
+
+  final String id;
+
+  /// Compte qui écrit.
+  final String de;
+
+  /// Joueur de la conversation.
+  final String joueur;
+
+  /// MJ de la campagne.
+  final String mj;
+  final String texte;
+  final DateTime date;
+
+  Map<String, dynamic> versJson() => {
+        'de': de,
+        'joueur': joueur,
+        'mj': mj,
+        'participants': [mj, joueur],
+        'texte': texte,
+        'date': date.toIso8601String(),
+      };
+
+  factory MessageSeance.depuisJson(String id, Map<String, dynamic> j) =>
+      MessageSeance(
+        id: id,
+        de: j['de'] as String? ?? '',
+        joueur: j['joueur'] as String? ?? '',
+        mj: j['mj'] as String? ?? '',
+        texte: j['texte'] as String? ?? '',
+        date: DateTime.tryParse('${j['date']}') ?? DateTime(2026),
       );
 }

@@ -22,6 +22,10 @@ enum EtatSynchro {
   /// au lancer de dé ou manuelle).
   enAttente('Modifications en attente'),
 
+  /// Compte sans internet : copie des fiches sur l'appareil, envoyées au
+  /// prochain démarrage connecté.
+  horsConnexion('Hors connexion'),
+
   /// Connecté, mais des fiches de l'appareil n'ont pas pu être envoyées.
   erreur('Erreur de synchronisation');
 
@@ -42,6 +46,39 @@ class CompteController extends ChangeNotifier {
     required this.depotEnLigne,
     StockageCompte? stockage,
   }) : stockage = stockage ?? StockageCompteMemoire();
+
+  static const _cleDernierCompte = 'dernierCompte';
+  static String _cleMiroir(String uid) => 'miroir.$uid';
+
+  /// Firebase ne répond pas (web sans internet) : reprend le dernier compte
+  /// depuis la copie de l'appareil ; sinon, fiches de l'appareil.
+  static Future<CompteController> horsConnexion(
+    PersonnagesController personnages,
+    StockageCompte stockage,
+  ) async {
+    final compte = CompteController(
+      service: const AucunCompte(),
+      personnages: personnages,
+      local: personnages.repository,
+      depotEnLigne: (_) => throw UnsupportedError('hors connexion'),
+      stockage: stockage,
+    );
+    final uid = await stockage.lire(_cleDernierCompte);
+    if (uid == null) return compte;
+    final depot = DepotDiffere(
+      MiroirLocal(stockage, _cleMiroir(uid)),
+      envoiImmediat: () => false,
+      stockage: stockage,
+      cle: 'attente.$uid',
+      surAttente: compte.notifyListeners,
+    );
+    await depot.charger();
+    compte
+      .._depot = depot
+      .._etat = EtatSynchro.horsConnexion;
+    await personnages.utiliser(depot);
+    return compte;
+  }
 
   /// Sans compte possible (Windows, tests) : tout reste sur l'appareil.
   factory CompteController.horsLigne(PersonnagesController personnages) =>
@@ -126,6 +163,8 @@ class CompteController extends ChangeNotifier {
     if (u == null) {
       _depot?.fermer();
       _depot = null;
+      // Déconnexion volontaire : plus de copie à reprendre hors connexion.
+      await stockage.ecrire(_cleDernierCompte, null);
       _etat = EtatSynchro.surAppareil;
       notifyListeners();
       await personnages.utiliser(local);
@@ -139,7 +178,9 @@ class CompteController extends ChangeNotifier {
       surEnvoi: _marquerSynchro,
       surAttente: notifyListeners,
       surErreur: (_) => _erreurEnvoi(),
+      cleMiroir: _cleMiroir(u.uid),
     );
+    await stockage.ecrire(_cleDernierCompte, u.uid);
     await depot.charger();
     _depot = depot;
     await envoyerFichesLocales();
@@ -219,7 +260,7 @@ class CompteController extends ChangeNotifier {
     final depot = _depot;
     if (depot == null) return null;
     try {
-      final n = await depot.envoyer();
+      final n = await depot.envoyer().timeout(const Duration(seconds: 10));
       _etat = EtatSynchro.synchronise;
       _message = null;
       notifyListeners();

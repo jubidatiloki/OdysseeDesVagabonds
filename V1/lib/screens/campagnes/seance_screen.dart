@@ -2,17 +2,18 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../models/seance.dart';
 import '../../state/preferences_controller.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
+import '../glossaire_screen.dart';
 import '../regles_screen.dart';
 import 'campagnes_screen.dart';
 import 'creation_campagne_screen.dart';
 import 'seance_cartes.dart';
 import 'seance_creatures.dart';
 import 'seance_des.dart';
+import 'seance_recaps.dart';
 
 /// Interface de jeu d'une séance. Les cartes (à gauche) et les dés (à droite)
 /// restent visibles ; la navigation du haut change le centre : Tableau de
@@ -85,7 +86,7 @@ class _SeanceScreenState extends State<SeanceScreen>
         const styleOnglet =
             TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
         return DefaultTabController(
-          length: s.estMj ? 4 : 3,
+          length: s.estMj ? 6 : 3,
           child: Scaffold(
             appBar: AppBar(
               title: Text(
@@ -131,6 +132,20 @@ class _SeanceScreenState extends State<SeanceScreen>
                       height: 76,
                       icon: Icon(Icons.pets_outlined, size: 28),
                       text: 'Créatures',
+                    ),
+                  if (s.estMj)
+                    const Tab(
+                      key: Key('seance-glossaire'),
+                      height: 76,
+                      icon: Icon(Icons.auto_stories_outlined, size: 28),
+                      text: 'Glossaire',
+                    ),
+                  if (s.estMj)
+                    const Tab(
+                      key: Key('seance-recaps'),
+                      height: 76,
+                      icon: Icon(Icons.event_note_outlined, size: 28),
+                      text: 'Séances précédentes',
                     ),
                   const Tab(
                     key: Key('seance-regles'),
@@ -202,6 +217,13 @@ class _SeanceScreenState extends State<SeanceScreen>
       children: [
         DetailCarte(seance: s, contexte: widget.contexte),
         if (s.estMj) OngletCreatures(seance: s),
+        if (s.estMj)
+          GlossaireScreen(
+            referentiel: widget.contexte.referentiel,
+            dansSeance: true,
+          ),
+        if (s.estMj && s.campagne != null)
+          OngletRecaps(contexte: widget.contexte, campagne: s.campagne!),
         ReglesScreen(
           referentiel: widget.contexte.referentiel,
           avecBarre: false,
@@ -220,43 +242,56 @@ class _SeanceScreenState extends State<SeanceScreen>
         final g = _preferences.portionGauche;
         final d = _preferences.portionDroite;
         int flex(double v) => (v * 1000).round();
-        return Column(
-          children: [
-            _BarreTours(seance: s),
-            const Divider(height: 1),
-            Expanded(
-              child: large
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(flex: flex(g), child: cartes),
-                        const VerticalDivider(width: 1),
-                        Expanded(flex: flex(1 - g - d), child: centre),
-                        const VerticalDivider(width: 1),
-                        Expanded(flex: flex(d), child: des),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        TabBar(
-                          controller: _vues,
-                          tabs: const [
-                            Tab(key: Key('vue-cartes'), text: 'Cartes'),
-                            Tab(key: Key('vue-detail'), text: 'Détail'),
-                            Tab(key: Key('vue-des'), text: 'Dés'),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            controller: _vues,
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: [cartes, centre, des],
-                          ),
-                        ),
-                      ],
-                    ),
+        return DecoratedBox(
+          key: Key('cadre-${s.etat.mode.name}'),
+          position: DecorationPosition.foreground,
+          // Liseré léger : rouge en combat, vert en exploration.
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: s.etat.enCombat
+                  ? OdvCouleurs.red.withValues(alpha: 0.8)
+                  : OdvCouleurs.green.withValues(alpha: 0.6),
+              width: 3,
             ),
-          ],
+          ),
+          child: Column(
+            children: [
+              _BarreTours(seance: s),
+              const Divider(height: 1),
+              Expanded(
+                child: large
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(flex: flex(g), child: cartes),
+                          const VerticalDivider(width: 1),
+                          Expanded(flex: flex(1 - g - d), child: centre),
+                          const VerticalDivider(width: 1),
+                          Expanded(flex: flex(d), child: des),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          TabBar(
+                            controller: _vues,
+                            tabs: const [
+                              Tab(key: Key('vue-cartes'), text: 'Cartes'),
+                              Tab(key: Key('vue-detail'), text: 'Détail'),
+                              Tab(key: Key('vue-des'), text: 'Dés'),
+                            ],
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              controller: _vues,
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: [cartes, centre, des],
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -405,11 +440,19 @@ class _OngletParametresState extends State<_OngletParametres> {
                 ),
               ],
             ),
+          if (!s.estMj)
+            BlocConsultation(
+              titre: 'Paramètres de la campagne',
+              icone: Icons.tune,
+              children: [ResumeParametres(c.parametres)],
+            ),
           BlocConsultation(
             titre: 'Graphismes',
             icone: Icons.view_column_outlined,
             children: [
-              const Text('Taille de chaque portion, sur grand écran.'),
+              const Text(
+                  'Largeur des menus, sur grand écran ; le corps central '
+                  'prend le reste.'),
               _Portions(preferences: widget.preferences),
             ],
           ),
@@ -419,58 +462,64 @@ class _OngletParametresState extends State<_OngletParametres> {
   }
 }
 
-/// Trois curseurs : le menu gauche, le corps central, le menu droite.
+/// Largeur des menus : trois tailles chacun, le corps central prend le reste.
+/// Rien ne bouge tant qu'on n'a pas choisi.
 class _Portions extends StatelessWidget {
   const _Portions({required this.preferences});
 
   final PreferencesController preferences;
 
+  static const _gauche = [0.18, 0.22, 0.30];
+  static const _droite = [0.22, 0.26, 0.34];
+  static const _libelles = ['Étroit', 'Normal', 'Large'];
+
   @override
   Widget build(BuildContext context) {
     final p = preferences;
-    final g = p.portionGauche;
-    final d = p.portionDroite;
-    Widget curseur(String cle, String libelle, int portion, double valeur) =>
-        Row(
-          children: [
-            SizedBox(
-              width: 120,
-              child: Text(libelle, overflow: TextOverflow.ellipsis),
-            ),
-            Expanded(
-              child: Slider(
+    int proche(List<double> tailles, double v) {
+      var meilleur = 0;
+      for (var i = 1; i < tailles.length; i++) {
+        if ((tailles[i] - v).abs() < (tailles[meilleur] - v).abs()) {
+          meilleur = i;
+        }
+      }
+      return meilleur;
+    }
+
+    Widget choix(
+      String cle,
+      String titre,
+      List<double> tailles,
+      double valeur,
+      void Function(double) change,
+    ) =>
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(titre),
+              const SizedBox(height: 4),
+              SegmentedButton<int>(
                 key: Key(cle),
-                min: kPortionMin,
-                max: 1 - 2 * kPortionMin,
-                value: valeur.clamp(kPortionMin, 1 - 2 * kPortionMin),
-                onChanged: (v) {
-                  final n = ajusterPortions(g, d, changee: portion, valeur: v);
-                  p.changerPortions(n.gauche, n.droite);
-                },
+                showSelectedIcon: false,
+                segments: [
+                  for (final (i, l) in _libelles.indexed)
+                    ButtonSegment(value: i, label: Text(l)),
+                ],
+                selected: {proche(tailles, valeur)},
+                onSelectionChanged: (s) => change(tailles[s.first]),
               ),
-            ),
-            SizedBox(
-              width: 44,
-              child: Text(
-                '${(valeur * 100).round()} %',
-                textAlign: TextAlign.end,
-              ),
-            ),
-          ],
+            ],
+          ),
         );
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        curseur('portion-gauche', 'Menu gauche', 0, g),
-        curseur('portion-centre', 'Corps central', 1, 1 - g - d),
-        curseur('portion-droite', 'Menu droite', 2, d),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            key: const Key('portions-defaut'),
-            onPressed: () => p.changerPortions(0.22, 0.26),
-            child: const Text('Tailles par défaut'),
-          ),
-        ),
+        choix('portion-gauche', 'Menu gauche', _gauche, p.portionGauche,
+            (v) => p.changerPortions(v, p.portionDroite)),
+        choix('portion-droite', 'Menu droite', _droite, p.portionDroite,
+            (v) => p.changerPortions(p.portionGauche, v)),
       ],
     );
   }

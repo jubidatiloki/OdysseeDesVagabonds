@@ -43,6 +43,7 @@ class SeanceController extends ChangeNotifier {
     suivre(seance.ecouterEtat(c), (v) => _etat = v);
     suivre(seance.ecouterJets(c, _numero), (v) => _jets = v);
     suivre(seance.ecouterPresences(c), (v) => _presences = v);
+    suivre(seance.ecouterMessages(c), (v) => _messages = v);
     // Joueur : signale sa présence ; tous : les absents sont réévalués.
     _signalerPresence(true);
     _minuteriePresence = Timer.periodic(PresenceSeance.intervalle, (_) {
@@ -84,6 +85,8 @@ class SeanceController extends ChangeNotifier {
   int? _initiativePubliee;
   String? _resumePublie;
   Map<String, PresenceSeance> _presences = const {};
+  List<MessageSeance> _messages = const [];
+  int _lus = 0;
   Timer? _minuteriePresence;
 
   /// Dégâts reçus, traités un par un (deux coups ne s'écrasent pas).
@@ -218,6 +221,44 @@ class SeanceController extends ChangeNotifier {
       if (x.id == a) return x.nom;
     }
     return 'MJ';
+  }
+
+  /// Conversation privée avec un joueur (MJ), ou avec le MJ (joueur).
+  List<MessageSeance> messagesAvec(String joueur) => [
+        for (final m in _messages)
+          if (m.joueur == joueur) m,
+      ];
+
+  /// Messages reçus pas encore lus (onglet Messages pas ouvert).
+  int get nonLus {
+    final recus = _messages.where((m) => m.de != uid).length;
+    return recus > _lus ? recus - _lus : 0;
+  }
+
+  /// Le joueur ou le MJ regarde ses messages.
+  void marquerMessagesLus() {
+    final recus = _messages.where((m) => m.de != uid).length;
+    if (recus == _lus) return;
+    _lus = recus;
+    notifyListeners();
+  }
+
+  /// Envoie un message privé ; [joueur] : le joueur de la conversation.
+  Future<String?> envoyerMessage(String joueur, String texte) {
+    return _agir((s, c) async {
+      final t = texte.trim();
+      if (t.isEmpty) return;
+      await s.envoyerMessage(
+        c,
+        MessageSeance(
+          de: uid,
+          joueur: joueur,
+          mj: c.mj,
+          texte: t,
+          date: DateTime.now(),
+        ),
+      );
+    });
   }
 
   void _signalerPresence(bool present) {
@@ -471,8 +512,13 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Envoie des dégâts à la cible : retirés de ses PV par le joueur (sa
-  /// fiche) ou par le MJ (créature). Sans tenir compte des résistances.
-  Future<String?> infligerDegats(String cible, int montant, String source) {
+  /// fiche, après sa RD) ou par le MJ (créature : pas de RD au bestiaire).
+  Future<String?> infligerDegats(
+    String cible,
+    int montant,
+    String source, {
+    String type = 'physique',
+  }) {
     return _agir((s, c) async {
       if (montant <= 0 || cible.isEmpty) return;
       await s.envoyerDegats(
@@ -483,6 +529,7 @@ class SeanceController extends ChangeNotifier {
           auteur: uid,
           montant: montant,
           source: source,
+          type: type,
         ),
       );
     });
@@ -505,11 +552,14 @@ class SeanceController extends ChangeNotifier {
         if (f == null) return;
         final p = f.personnage;
         final avant = f.pvActuels;
-        final apres = math.max(avant - d.montant, -f.deVie - 1);
+        final rd = f.rdContre(d.type);
+        final net = math.max(0, d.montant - rd);
+        final apres = math.max(avant - net, -f.deVie - 1);
         p
           ..pvActuels = apres
           ..journaliser(
-            '${d.source} : −${d.montant} PV · PV : $avant → $apres',
+            '${d.source} (${d.type}) : −$net PV'
+            '${rd > 0 ? ' (RD $rd sur ${d.montant})' : ''} · PV : $avant → $apres',
             categorie: CategorieHistorique.vie,
           );
         await personnages.sauvegarder(p);

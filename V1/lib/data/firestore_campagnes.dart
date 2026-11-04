@@ -137,6 +137,7 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
     // Tout ce que la campagne contient (lots de 400 écritures).
     final refs = <DocumentReference<Map<String, dynamic>>>[
       _prive(campagne.id),
+      _recaps(campagne.id),
       _codes.doc(campagne.code),
       doc.collection('jeu').doc('etat'),
     ];
@@ -146,6 +147,7 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       doc.collection('creaturesMj'),
       doc.collection('ressources'),
       doc.collection('presences'),
+      doc.collection('messages').where('participants', arrayContains: uid),
       doc.collection('jets').where('lecteurs', arrayContains: uid),
       doc.collection('degats').where('destinataire', isEqualTo: uid),
     ]) {
@@ -168,6 +170,22 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   @override
   Future<void> ecrirePrive(String campagneId, PriveCampagne prive) =>
       _prive(campagneId).set(prive.versJson());
+
+  DocumentReference<Map<String, dynamic>> _recaps(String id) =>
+      _campagnes.doc(id).collection('prive').doc('recaps');
+
+  @override
+  Future<Map<int, String>> lireRecaps(String campagneId) async {
+    final d = (await _recaps(campagneId).get()).data() ?? const {};
+    return {
+      for (final e in d.entries)
+        if (int.tryParse(e.key) case final n?) n: '${e.value}',
+    };
+  }
+
+  @override
+  Future<void> ecrireRecap(String campagneId, int numero, String texte) =>
+      _recaps(campagneId).set({'$numero': texte}, SetOptions(merge: true));
 
   @override
   Future<String> nouveauCode(Campagne campagne) async {

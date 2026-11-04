@@ -321,9 +321,9 @@ void main() {
       expect(c.nom, 'Les ombres de Valfroid');
       expect(c.parametres.joueursMax, 3);
       expect(base.prives[c.id]!.script, 'Acte I : la brume');
-      // Code d'invitation à envoyer, puis la page de la campagne.
+      // Directement la page de la campagne, avec le code à copier.
       expect(find.text(c.code), findsOneWidget);
-      await tap(tester, find.byKey(const Key('fermer-invitation')));
+      expect(find.byKey(const Key('copier-code')), findsOneWidget);
       expect(find.byKey(const Key('code-campagne')), findsOneWidget);
       expect(find.byKey(const Key('onglet-script')), findsOneWidget);
 
@@ -336,6 +336,42 @@ void main() {
       await tap(tester, find.byKey(const Key('terminer-seance')));
       await tap(tester, find.byKey(const Key('confirmer-cloture')));
       expect(base.campagnes[c.id]!.seanceEnCours, isFalse);
+    });
+
+    testWidgets('rejoindre la séance ferme le message d\'avertissement',
+        (tester) async {
+      final base = BaseCampagnesMemoire(Random(6));
+      final mj = ServiceCampagnesMemoire(base, 'mj');
+      final c = await mj.creer(nom: 'Valfroid', mjNom: 'Ben');
+      await mj.demarrerSeance(c);
+      final x = await ouvrir(tester, base, const Utilisateur(uid: 'j1'));
+      final contexte = ContexteCampagnes(
+        campagnes: x.campagnes,
+        personnages: x.personnages,
+        referentiel: const Referentiel(races: [_nain], classes: [_guerrier]),
+      );
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Séance démarrée')),
+                );
+              },
+              onLongPress: () =>
+                  ouvrirSeance(context, contexte, base.campagnes[c.id]!),
+              child: const Text('action'),
+            ),
+          ),
+        ),
+      ));
+      await tester.tap(find.text('action'));
+      await tester.pumpAndSettle();
+      expect(find.text('Séance démarrée'), findsOneWidget);
+      await tester.longPress(find.text('action'));
+      await tester.pumpAndSettle();
+      expect(find.text('Séance démarrée'), findsNothing);
     });
 
     testWidgets('joueur : code, personnage, demande envoyée', (tester) async {

@@ -188,7 +188,8 @@ class CampagnesController extends ChangeNotifier {
     final s = _service;
     if (s == null) return 'Connecte-toi pour jouer en campagne.';
     try {
-      await action(s);
+      // Sans internet, une écriture attendrait sans fin.
+      await action(s).timeout(const Duration(seconds: 12));
       return null;
     } on ErreurCampagne catch (e) {
       return e.message;

@@ -9,7 +9,6 @@ import 'dart:math';
 class ParametresCampagne {
   const ParametresCampagne({
     this.joueursMax = 5,
-    this.niveauDepart = 1,
     this.fichesVisiblesMj = true,
     this.fichesVisiblesJoueurs = false,
     this.pjInventaireHorsSeance = true,
@@ -21,9 +20,6 @@ class ParametresCampagne {
 
   /// Nombre maximum de joueurs (1 à 8), MJ non compris.
   final int joueursMax;
-
-  /// Niveau de départ conseillé des personnages (1 à 10).
-  final int niveauDepart;
 
   /// Le MJ peut consulter la fiche du personnage de chaque joueur.
   final bool fichesVisiblesMj;
@@ -51,7 +47,6 @@ class ParametresCampagne {
 
   ParametresCampagne copie({
     int? joueursMax,
-    int? niveauDepart,
     bool? fichesVisiblesMj,
     bool? fichesVisiblesJoueurs,
     bool? pjInventaireHorsSeance,
@@ -62,7 +57,6 @@ class ParametresCampagne {
   }) =>
       ParametresCampagne(
         joueursMax: joueursMax ?? this.joueursMax,
-        niveauDepart: niveauDepart ?? this.niveauDepart,
         fichesVisiblesMj: fichesVisiblesMj ?? this.fichesVisiblesMj,
         fichesVisiblesJoueurs:
             fichesVisiblesJoueurs ?? this.fichesVisiblesJoueurs,
@@ -78,7 +72,6 @@ class ParametresCampagne {
 
   Map<String, dynamic> versJson() => {
         'joueursMax': joueursMax,
-        'niveauDepart': niveauDepart,
         'fichesVisiblesMj': fichesVisiblesMj,
         'fichesVisiblesJoueurs': fichesVisiblesJoueurs,
         'pjInventaireHorsSeance': pjInventaireHorsSeance,
@@ -93,7 +86,6 @@ class ParametresCampagne {
     return ParametresCampagne(
       joueursMax:
           ((j['joueursMax'] as num?)?.toInt() ?? 5).clamp(1, joueursMaxLimite),
-      niveauDepart: ((j['niveauDepart'] as num?)?.toInt() ?? 1).clamp(1, 10),
       fichesVisiblesMj: j['fichesVisiblesMj'] as bool? ?? true,
       fichesVisiblesJoueurs: j['fichesVisiblesJoueurs'] as bool? ?? false,
       pjInventaireHorsSeance: j['pjInventaireHorsSeance'] as bool? ?? true,

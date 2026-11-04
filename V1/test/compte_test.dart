@@ -67,6 +67,7 @@ Personnage _p(String id, String nom, DateTime modifie) => Personnage(
     );
 
 void main() {
+  testsHorsConnexion();
   testsDelaiEnvoi();
   final hier = DateTime(2026, 11, 1);
   final aujourdhui = DateTime(2026, 11, 2);
@@ -461,5 +462,80 @@ void testsDelaiEnvoi() {
     expect(erreur, isNotNull);
     expect(depot.nbEnAttente, 1);
     depot.fermer();
+  });
+}
+
+/// Stockage en ligne qui ne répond pas (pas d'internet).
+class _DepotMuet extends EnMemoireDepotEnLigne {
+  @override
+  Future<List<Personnage>> tous() => Completer<List<Personnage>>().future;
+  @override
+  Future<void> importer(List<Personnage> personnages) =>
+      Completer<void>().future;
+}
+
+/// Hors connexion (04/11/2026) : l'application n'attend pas le réseau et
+/// garde une copie des fiches du compte.
+void testsHorsConnexion() {
+  Personnage fiche(String id, String nom) =>
+      Personnage(id: id, nom: nom, raceId: 'nain', classeId: 'guerrier');
+
+  test('sans réseau : la sauvegarde rend la main, la fiche reste en attente',
+      () async {
+    final stockage = StockageCompteMemoire();
+    final depot = DepotDiffere(
+      _DepotMuet(),
+      envoiImmediat: () => true,
+      stockage: stockage,
+      cle: 'attente',
+      cleMiroir: 'miroir',
+      attenteReseau: const Duration(milliseconds: 20),
+    );
+    await depot.sauvegarder(fiche('b', 'Brom'));
+    expect(depot.nbEnAttente, 1);
+    // Une 2ᵉ modification ne relance pas l'attente.
+    await depot.sauvegarder(fiche('a', 'Aria'));
+    expect(depot.nbEnAttente, 2);
+    // Démarrage sans réseau : les fiches en attente restent visibles.
+    stockage.valeurs['miroir'] = '[]';
+    expect((await depot.tous()).map((p) => p.nom), contains('Brom'));
+    depot.fermer();
+  });
+
+  test('copie des fiches : reprise sans Firebase, envoi au retour', () async {
+    final stockage = StockageCompteMemoire();
+    final enLigne = EnMemoireDepotEnLigne([fiche('b', 'Brom')]);
+    final personnages = PersonnagesController(EnMemoirePersonnageRepository());
+    final compte = CompteController(
+      service: _FauxCompte().._changer(const Utilisateur(uid: 'u1')),
+      personnages: personnages,
+      local: personnages.repository,
+      depotEnLigne: (_) => enLigne,
+      stockage: stockage,
+    );
+    await compte.demarrer();
+    await pumpEventQueue();
+    expect(stockage.valeurs['dernierCompte'], 'u1');
+    expect(stockage.valeurs['miroir.u1'], contains('Brom'));
+
+    // Nouveau démarrage, Firebase injoignable.
+    final hors = PersonnagesController(EnMemoirePersonnageRepository());
+    final c = await CompteController.horsConnexion(hors, stockage);
+    expect(c.etat, EtatSynchro.horsConnexion);
+    expect(hors.personnages.single.nom, 'Brom');
+    // Modification gardée pour le prochain démarrage connecté.
+    await hors.sauvegarder(hors.personnages.single..nom = 'Brom II');
+    expect(c.nbEnAttente, 1);
+    expect(stockage.valeurs['attente.u1'], contains('Brom II'));
+    compte.dispose();
+    c.dispose();
+  });
+
+  test('sans compte précédent : fiches de l\'appareil', () async {
+    final hors = PersonnagesController(EnMemoirePersonnageRepository());
+    final c =
+        await CompteController.horsConnexion(hors, StockageCompteMemoire());
+    expect(c.etat, EtatSynchro.surAppareil);
+    c.dispose();
   });
 }

@@ -37,6 +37,10 @@ abstract class ServiceCampagnes {
   Future<PriveCampagne> lirePrive(String campagneId);
   Future<void> ecrirePrive(String campagneId, PriveCampagne prive);
 
+  /// MJ : récapitulatif de chaque séance (numéro → texte).
+  Future<Map<int, String>> lireRecaps(String campagneId);
+  Future<void> ecrireRecap(String campagneId, int numero, String texte);
+
   /// MJ : remplace le code d'invitation (l'ancien ne marche plus).
   Future<String> nouveauCode(Campagne campagne);
 
@@ -117,6 +121,9 @@ class BaseCampagnesMemoire {
 
   /// Parties en cours (id de campagne → partie).
   final Map<String, PartieMemoire> parties = {};
+
+  /// Récapitulatifs (id de campagne → numéro → texte).
+  final Map<String, Map<int, String>> recaps = {};
 
   /// Fiches en ligne (id → fiche, propriétaire, partage).
   final Map<
@@ -257,6 +264,18 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
     _exigerMj(_lire(campagneId));
     base.prives[campagneId] = prive;
     base.signaler();
+  }
+
+  @override
+  Future<Map<int, String>> lireRecaps(String campagneId) async {
+    _exigerMj(_lire(campagneId));
+    return Map.of(base.recaps[campagneId] ?? const {});
+  }
+
+  @override
+  Future<void> ecrireRecap(String campagneId, int numero, String texte) async {
+    _exigerMj(_lire(campagneId));
+    (base.recaps[campagneId] ??= {})[numero] = texte;
   }
 
   @override

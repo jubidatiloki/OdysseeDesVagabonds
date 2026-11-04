@@ -14,6 +14,7 @@ import 'seance.dart';
 /// - `jets/{j}` : jets de dés, lisibles par leurs seuls `lecteurs` ;
 /// - `degats/{d}` : dégâts à appliquer, lus par leur `destinataire` ;
 /// - `presences/{uid}` : dernier signal de chaque joueur ;
+/// - `messages/{m}` : messages privés, lus par leurs `participants` ;
 /// - `notesJoueurs/{uid}/seances/{n}` : notes personnelles du joueur.
 class FirestoreServiceSeance implements ServiceSeance {
   FirestoreServiceSeance(this.uid, [FirebaseFirestore? base])
@@ -192,6 +193,19 @@ class FirestoreServiceSeance implements ServiceSeance {
   @override
   Future<void> lancer(Campagne c, JetSeance jet) =>
       _jets(c).add(jet.versJson());
+
+  @override
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c) => _campagne(c)
+      .collection('messages')
+      .where('participants', arrayContains: uid)
+      .snapshots()
+      .map((s) => [
+            for (final d in s.docs) MessageSeance.depuisJson(d.id, d.data()),
+          ]..sort((a, b) => a.date.compareTo(b.date)));
+
+  @override
+  Future<void> envoyerMessage(Campagne c, MessageSeance message) =>
+      _campagne(c).collection('messages').add(message.versJson());
 
   @override
   Stream<Map<String, PresenceSeance>> ecouterPresences(Campagne c) =>

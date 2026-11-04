@@ -64,8 +64,9 @@ class CampagnesScreen extends StatelessWidget {
                   titre: 'Campagnes indisponibles',
                   icone: Icons.cloud_off_outlined,
                   children: [
-                    Text('Les campagnes se jouent en ligne : elles existent '
-                        'sur le téléphone (Android) et la version web.'),
+                    Text('Les campagnes se jouent en ligne : il faut une '
+                        'connexion internet, sur le téléphone (Android) ou la '
+                        'version web.'),
                   ],
                 )
               else if (!c.connecte)
@@ -255,7 +256,10 @@ void ouvrirSeance(
   ContexteCampagnes contexte,
   Campagne campagne,
 ) {
-  Navigator.of(context).push(MaterialPageRoute(
+  // Le message « Séance démarrée » n'a plus lieu d'être.
+  ScaffoldMessenger.of(context).clearSnackBars();
+  // La séance prend tout l'écran ; le reste garde le menu latéral.
+  Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
     builder: (_) => SeanceScreen(contexte: contexte, campagneId: campagne.id),
   ));
 }

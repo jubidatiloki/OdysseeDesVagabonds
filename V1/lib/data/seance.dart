@@ -50,6 +50,10 @@ abstract class ServiceSeance {
   Stream<List<DegatsSeance>> ecouterDegats(Campagne c);
   Future<bool> prendreDegats(Campagne c, String id);
 
+  /// Messages privés de ce compte (MJ : tous ; joueur : les siens).
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c);
+  Future<void> envoyerMessage(Campagne c, MessageSeance message);
+
   /// Présence des joueurs (uid → dernier signal), en direct.
   Stream<Map<String, PresenceSeance>> ecouterPresences(Campagne c);
 
@@ -77,6 +81,7 @@ class PartieMemoire {
   final List<JetSeance> jets = [];
   final List<DegatsSeance> degats = [];
   final Map<String, PresenceSeance> presences = {};
+  final List<MessageSeance> messages = [];
 
   /// « uid/numéro » → texte.
   final Map<String, String> notes = {};
@@ -208,6 +213,18 @@ class ServiceSeanceMemoire implements ServiceSeance {
   @override
   Future<void> lancer(Campagne c, JetSeance jet) async {
     _partie(c).jets.add(jet);
+    base.signaler();
+  }
+
+  @override
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c) => _suivre(() => [
+        for (final m in _partie(c).messages)
+          if (m.mj == uid || m.joueur == uid) m,
+      ]);
+
+  @override
+  Future<void> envoyerMessage(Campagne c, MessageSeance message) async {
+    _partie(c).messages.add(message);
     base.signaler();
   }
 

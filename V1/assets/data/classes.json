@@ -1302,6 +1302,7 @@
             "typesSort": ["offensif"],
             "effet": "+2 CON. Tempête de bourrasques, éclairs et grêle : 4D6 sur une zone de 20 m de diamètre.",
             "degats": "4d6 (zone de 20 m de diamètre)",
+            "typeDegats": "physique",
             "effets": [
               {"type": "bonus", "categorie": "CON", "valeur": "2"}
             ]
@@ -2025,6 +2026,7 @@
             "modulable": true,
             "effet": "Projetée jusqu'à 20 m : 1d6 DM FEU (modulable aux rangs suivants : [RANG]d6 avec coût de mana adapté).",
             "degats": "1d6 feu",
+            "typeDegats": "feu",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
           },
           {
@@ -2043,6 +2045,7 @@
             "typesSort": ["offensif", "controle-physique"],
             "effet": "Mur large de 1d8 + INT m pendant 1d6 + INT tours ; 3d6 de feu à qui le traverse.",
             "degats": "3d6 feu (à qui le traverse)",
+            "typeDegats": "feu",
             "effetApplique": "Mur de 1d8 + INT m pendant 1d6 + INT tours",
             "jets": [
               {"libelle": "Mur de flamme : largeur (m)", "des": "1d8", "carac": "INT"},
@@ -2089,6 +2092,7 @@
             "typesSort": ["offensif"],
             "effet": "Bras en pierre : 2d6 DM PHY.",
             "degats": "2d6 phy",
+            "typeDegats": "physique",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
           },
           {
@@ -2152,6 +2156,7 @@
             "typesSort": ["offensif"],
             "effet": "Lance de glace : 1d6 DM GLACE.",
             "degats": "1d6 glace",
+            "typeDegats": "glace",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
           },
           {
@@ -2181,6 +2186,7 @@
             "typesSort": ["offensif", "controle-physique"],
             "effet": "Sphère d'eau autour d'une cible pour la noyer/blesser (2d6 par tour tant que le sort est maintenu), ou la vider de son eau. Renforcement : la lance de givre peut transpercer sa cible et toucher une 2ᵉ cible derrière elle.",
             "degats": "2d6 par tour (maintenu)",
+            "typeDegats": "physique",
             "effetApplique": "Cible enfermée dans une sphère d'eau",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "effets": [
@@ -2252,6 +2258,7 @@
             "typesSort": ["offensif"],
             "effet": "Éclair sur un ennemi rebondissant sur jusqu'à 3 autres cibles (attaques magiques avec −3 par rebond, dégâts −2 par nouvelle cible).",
             "degats": "3d6 foudre (−2 par nouvelle cible)",
+            "typeDegats": "foudre",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible (−3 par rebond)"}
           },
           {
@@ -2288,6 +2295,7 @@
             "typesSort": ["offensif"],
             "effet": "Éclat de magie pure inesquivable : 1d4 DM MAG ; renforcé aux rangs 3 (2d4) et 5 (3d4 + INT).",
             "degats": "1d4 mag, inesquivable (2d4 au rang 3, 3d4 au rang 5)",
+            "typeDegats": "magique",
             "jets": [
               {"libelle": "Éclat des arcanes · dégâts", "des": "1d4", "carac": "INT"}
             ]
@@ -2351,6 +2359,7 @@
             "typesSort": ["offensif"],
             "effet": "Explosion désintégrante : 5d6 + INT DMG ; renforcement éclat des arcanes : 3d4 + INT DM magiques.",
             "degats": "5d6 mag",
+            "typeDegats": "magique",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "effets": [
               {"type": "renforcement", "nom": "Éclat des arcanes", "effet": "3d4 + INT DM magiques."}
@@ -2444,6 +2453,7 @@
             "typesSort": ["offensif"],
             "effet": "Ajoute son dé de mana aux dégâts de ses attaques (lancé avant l'attaque : 1 dé de mana aux dégâts de l'attaque suivante).",
             "degats": "+1 dé de mana à l'attaque suivante",
+            "typeDegats": "physique",
             "etat": {
               "nom": "Frappe de ki",
               "finApresDegats": true,
@@ -2476,6 +2486,7 @@
             "typesSort": ["offensif"],
             "effet": "Attaque magique : boule de ki en ligne droite, 4 DM (dés de mana) + INT ; peut transpercer en perdant 1 DM par cible.",
             "degats": "4dDM (dés de mana), −1 dé par cible transpercée",
+            "typeDegats": "physique",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"}
           },
           {
@@ -2706,6 +2717,7 @@
             "nom": "Toucher nécrotique",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "degats": "1d6",
+            "typeDegats": "physique",
             "effetApplique": "Pas de PV regagnés jusqu'à son prochain tour",
             "type": "actif, sort",
             "typesSort": ["offensif"],
@@ -2736,6 +2748,7 @@
             "type": "actif, sort",
             "typesSort": ["offensif", "support"],
             "degats": "3D6 (créature vivante non démoniaque)",
+            "typeDegats": "physique",
             "soin": "3D6 + INT (être non vivant ou démoniaque)",
             "effet": "Vague d'énergie funèbre : rend 3D6 + INT à un être non vivant ou démoniaque, ou inflige 3D6 + INT à une créature vivante non démoniaque."
           },
@@ -2856,6 +2869,7 @@
             "nom": "Diablotin",
             "invocations": ["diablotin"],
             "degats": "1d6 feu infernal (diablotin)",
+            "typeDegats": "feu",
             "effetApplique": "Invoque un diablotin (INT + 1d4 tours)",
             "type": "actif, sort",
             "typesSort": ["invocation"],
@@ -2870,6 +2884,7 @@
             "nom": "Molosse des abysses",
             "invocations": ["molosse-abysses"],
             "degats": "2d6 (molosse)",
+            "typeDegats": "physique",
             "effetApplique": "Invoque un chien infernal (INT + 1d6 tours)",
             "type": "actif, sort",
             "typesSort": ["invocation"],
@@ -3137,6 +3152,7 @@
             "nom": "Lumière sacrée",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "degats": "1d8 chaos (×2 contre morts-vivants et démons)",
+            "typeDegats": "chaos",
             "variantesDegats": [
               {"libelle": "morts-vivants, démons", "multiplie": 2}
             ],
@@ -3167,6 +3183,7 @@
             "effet": "Éclair divin : attaque magique, 4D6 dégâts de chaos ; si esquivé, dégâts ÷2 (« personne n'échappe à la colère divine »).",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "degats": "4D6 chaos (÷2 si esquivé)",
+            "typeDegats": "chaos",
             "variantesDegats": [
               {"libelle": "esquivé", "divise": 2}
             ]
