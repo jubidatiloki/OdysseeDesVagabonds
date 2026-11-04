@@ -3,6 +3,7 @@
 Application Flutter (mobile Android + web + Windows) de création et de gestion de personnages de jeu de rôle (système maison à d20). Utilisateur : francophone, non développeur. **Toujours répondre en français**, avec des explications simples, sans jargon inutile.
 
 ## À lire en début de session
+0. Nouveau sur le projet : `REPRISE_DU_PROJET.md` explique tout, sans connaître Flutter.
 1. `AVANCEMENT.md` : suivi complet (étapes cochées, décisions, **règles de jeu §7**, journal). C'est la source de vérité du projet.
 2. `ressources/CHARTE_GRAPHIQUE.md` : charte graphique (palette « Taverne », Cinzel, composants, décisions 1 à 17).
 3. Règles du jeu : `ressources/01_REGLES_GENERALES.md`, `CLASSES.md`, `stats.txt` (+ `RACES.md` dans le projet claude.ai).
