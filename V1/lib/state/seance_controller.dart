@@ -101,7 +101,9 @@ class SeanceController extends ChangeNotifier {
   String? _resumePublie;
   Map<String, PresenceSeance> _presences = const {};
   List<MessageSeance> _messages = const [];
-  int _lus = 0;
+
+  /// Messages reçus déjà lus, par conversation (uid du joueur).
+  final Map<String, int> _lus = {};
   Timer? _minuteriePresence;
 
   /// Dégâts reçus, traités un par un (deux coups ne s'écrasent pas).
@@ -258,17 +260,26 @@ class SeanceController extends ChangeNotifier {
           if (m.joueur == joueur) m,
       ];
 
-  /// Messages reçus pas encore lus (onglet Messages pas ouvert).
-  int get nonLus {
-    final recus = _messages.where((m) => m.de != uid).length;
-    return recus > _lus ? recus - _lus : 0;
+  int _recusAvec(String joueur) =>
+      _messages.where((m) => m.joueur == joueur && m.de != uid).length;
+
+  /// Messages reçus pas encore lus dans la conversation avec [joueur].
+  int nonLusAvec(String joueur) {
+    final n = _recusAvec(joueur) - (_lus[joueur] ?? 0);
+    return n > 0 ? n : 0;
   }
 
-  /// Le joueur ou le MJ regarde ses messages.
-  void marquerMessagesLus() {
-    final recus = _messages.where((m) => m.de != uid).length;
-    if (recus == _lus) return;
-    _lus = recus;
+  /// Messages reçus pas encore lus, toutes conversations confondues.
+  int get nonLus {
+    final joueurs = {for (final m in _messages) m.joueur};
+    return joueurs.fold(0, (n, j) => n + nonLusAvec(j));
+  }
+
+  /// La conversation avec [joueur] est à l'écran : ses messages sont lus.
+  void marquerMessagesLus(String joueur) {
+    final recus = _recusAvec(joueur);
+    if (recus == (_lus[joueur] ?? 0)) return;
+    _lus[joueur] = recus;
     notifyListeners();
   }
 

@@ -361,10 +361,26 @@ class _SeanceScreenState extends State<SeanceScreen>
                         children: [
                           TabBar(
                             controller: _vues,
-                            tabs: const [
-                              Tab(key: Key('vue-cartes'), text: 'Cartes'),
-                              Tab(key: Key('vue-detail'), text: 'Détail'),
-                              Tab(key: Key('vue-des'), text: 'Dés'),
+                            tabs: [
+                              const Tab(
+                                key: Key('vue-cartes'),
+                                text: 'Cartes',
+                              ),
+                              const Tab(
+                                key: Key('vue-detail'),
+                                text: 'Détail',
+                              ),
+                              // Écran étroit : les messages sont derrière
+                              // « Dés », la pastille doit se voir d'ici.
+                              Tab(
+                                key: const Key('vue-des'),
+                                child: Badge(
+                                  key: const Key('vue-des-non-lus'),
+                                  isLabelVisible: s.nonLus > 0,
+                                  label: Text('${s.nonLus}'),
+                                  child: const Text('Dés'),
+                                ),
+                              ),
                             ],
                           ),
                           Expanded(

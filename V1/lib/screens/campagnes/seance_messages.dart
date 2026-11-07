@@ -27,22 +27,12 @@ class _OngletMessagesState extends State<OngletMessages> {
     return ids.isEmpty ? null : ids.first;
   }
 
-  @override
-  void didUpdateWidget(OngletMessages ancien) {
-    super.didUpdateWidget(ancien);
-    _lire();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _lire();
-  }
-
-  /// Cet onglet est ouvert : les messages reçus sont lus.
-  void _lire() {
+  /// La conversation affichée a des messages non lus : ils deviennent lus
+  /// une fois à l'écran. Seule la conversation visible compte.
+  void _lire(String joueur) {
+    if (_s.nonLusAvec(joueur) == 0) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _s.marquerMessagesLus();
+      if (mounted && _joueur == joueur) _s.marquerMessagesLus(joueur);
     });
   }
 
@@ -66,12 +56,21 @@ class _OngletMessagesState extends State<OngletMessages> {
 
   @override
   Widget build(BuildContext context) {
+    // Reconstruit à chaque message reçu, même si le parent ne bouge pas.
+    return ListenableBuilder(
+      listenable: _s,
+      builder: (context, _) => _contenu(context),
+    );
+  }
+
+  Widget _contenu(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final j = _joueur;
     if (j == null) {
       return const Center(child: TexteAVenir('Aucun joueur pour l\'instant.'));
     }
+    _lire(j);
     final messages = _s.messagesAvec(j).reversed.toList();
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -91,9 +90,15 @@ class _OngletMessagesState extends State<OngletMessages> {
                     for (final m in _s.joueurs)
                       DropdownMenuItem(
                         value: m.uid,
-                        child: Text(
-                          m.personnageNom,
-                          overflow: TextOverflow.ellipsis,
+                        child: Badge(
+                          key: Key('non-lus-${m.uid}'),
+                          isLabelVisible:
+                              m.uid != j && _s.nonLusAvec(m.uid) > 0,
+                          label: Text('${_s.nonLusAvec(m.uid)}'),
+                          child: Text(
+                            m.personnageNom,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                   ],

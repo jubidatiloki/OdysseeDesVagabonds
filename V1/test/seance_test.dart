@@ -1437,7 +1437,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('PJ : envoie un objet non équipé à un autre PJ', (tester) async {
+    testWidgets('PJ : envoie un objet non équipé à un autre PJ',
+        (tester) async {
       final corde = Objet(nom: 'Corde');
       final epee = Objet(nom: 'Épée', equipe: true);
       final brom = _brom()..inventaire.addAll([corde, epee]);
@@ -1528,10 +1529,11 @@ void main() {
       final x = await ouvrir(
         tester,
         'mj',
-        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
-              c,
-              CreatureSeance(id: 'l', nom: 'Loup', creatureId: _loup.id),
-            ),
+        avant: (b, c) =>
+            ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
+                  c,
+                  CreatureSeance(id: 'l', nom: 'Loup', creatureId: _loup.id),
+                ),
       );
       expect(
         x.base.parties[x.campagne.id]!.creatures['l']!.ca,
@@ -1642,6 +1644,57 @@ void main() {
       expect(
         x.base.campagnes[x.campagne.id]!.parametres.pjVoientPvCreatures,
         isTrue,
+      );
+    });
+
+    testWidgets(
+        'messages non lus : pastille par conversation, visible '
+        'depuis le téléphone', (tester) async {
+      final x = await ouvrir(tester, 'mj', taille: const Size(420, 900));
+      Future<void> ecrire(String de) async {
+        await ServiceCampagnesMemoire(x.base, de).seance.envoyerMessage(
+              x.campagne,
+              MessageSeance(
+                de: de,
+                joueur: de,
+                mj: 'mj',
+                texte: 'Message de $de',
+                date: DateTime(2026, 11, 7),
+              ),
+            );
+        await tester.pumpAndSettle();
+      }
+
+      Text pastille(String cle) =>
+          tester.widget<Badge>(find.byKey(Key(cle))).label! as Text;
+
+      // Vue Cartes : la pastille se voit sur l'onglet « Dés ».
+      await ecrire('j1');
+      await ecrire('j2');
+      expect(
+        tester
+            .widget<Badge>(find.byKey(const Key('vue-des-non-lus')))
+            .isLabelVisible,
+        isTrue,
+      );
+      expect(pastille('vue-des-non-lus').data, '2');
+      // Conversation avec j1 ouverte : celle de j2 reste non lue.
+      await tap(tester, find.byKey(const Key('vue-des')));
+      await tap(tester, find.byKey(const Key('onglet-messages')));
+      expect(find.text('Message de j1'), findsOneWidget);
+      expect(pastille('vue-des-non-lus').data, '1');
+      // Un message arrive dans la conversation ouverte : lu aussitôt.
+      await ecrire('j1');
+      expect(pastille('vue-des-non-lus').data, '1');
+      // Le MJ passe à j2 : plus rien de non lu.
+      await tap(tester, find.byKey(const Key('message-joueur')));
+      await tap(tester, find.text('aria').last);
+      expect(find.text('Message de j2'), findsOneWidget);
+      expect(
+        tester
+            .widget<Badge>(find.byKey(const Key('vue-des-non-lus')))
+            .isLabelVisible,
+        isFalse,
       );
     });
 

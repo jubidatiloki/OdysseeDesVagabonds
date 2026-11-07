@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.35.1',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Séance : la pastille des messages non lus se voit aussi sur '
+            'téléphone (onglet Dés).',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : seule la conversation affichée est marquée lue ; le MJ '
+            'voit les non-lus de chaque joueur.',
+      ),
+    ],
+  ),
+  (
     version: '0.35.0',
     date: '07/11/2026',
     changements: [
