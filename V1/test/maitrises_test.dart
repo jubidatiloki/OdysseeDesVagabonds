@@ -15,6 +15,7 @@ import 'package:odyssee_vagabonds/regles/inventaire.dart';
 import 'package:odyssee_vagabonds/regles/maitrises.dart';
 import 'package:odyssee_vagabonds/screens/creation/etape_recapitulatif.dart';
 import 'package:odyssee_vagabonds/screens/fiche/onglet_inventaire.dart';
+import 'package:odyssee_vagabonds/widgets/maitrises_restrictions.dart';
 
 /// Maîtrises d'armes, restrictions et inventaire de base (07/11/2026), avec
 /// les vraies données du jeu.
@@ -235,6 +236,71 @@ void main() {
     expect(plaques.equipe, isFalse);
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
+  });
+
+  group('affichage', () {
+    Future<void> afficher(WidgetTester tester, Widget w) async {
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: w)));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('classe : armes, armure, survol des armes du groupe',
+        (tester) async {
+      await afficher(
+        tester,
+        MaitrisesRestrictions(
+          classe: classes.firstWhere((c) => c.id == 'magicien'),
+        ),
+      );
+      expect(find.text('Civiles'), findsOneWidget);
+      expect(find.text('Jusqu\'au cuir'), findsOneWidget);
+      expect(find.byKey(const Key('groupe-interdits')), findsNothing);
+      final survol = tester.widget<Tooltip>(find.byType(Tooltip).first);
+      expect(survol.message, contains('Bâton'));
+    });
+
+    testWidgets('race : interdits, malus, précisions', (tester) async {
+      await afficher(
+        tester,
+        MaitrisesRestrictions(race: races.firstWhere((r) => r.id == 'gnome')),
+      );
+      expect(find.text('Armes au-delà du d8 (2d6 permis)'), findsOneWidget);
+      expect(find.byKey(const Key('note-restrictions')), findsOneWidget);
+      await afficher(
+        tester,
+        MaitrisesRestrictions(
+          race: races.firstWhere((r) => r.id == 'haut-elfe'),
+        ),
+      );
+      expect(find.text('Armes à poudre : −2 au toucher'), findsOneWidget);
+    });
+
+    testWidgets('race à origines : l\'arc selon l\'origine', (tester) async {
+      await afficher(
+        tester,
+        MaitrisesRestrictions(
+          race: races.firstWhere((r) => r.id == 'demi-elfe'),
+        ),
+      );
+      expect(find.text('Arc (selon l\'origine)'), findsOneWidget);
+    });
+
+    testWidgets('fiche : classe et race réunies, limite la plus stricte',
+        (tester) async {
+      final f = fiche('haut-elfe', 'magicien');
+      await afficher(
+        tester,
+        MaitrisesRestrictions(
+          classe: f.classe,
+          race: f.race,
+          origineId: '',
+          armesEnPlus: const ['Mousquet'],
+        ),
+      );
+      expect(find.text('Civiles'), findsOneWidget);
+      expect(find.text('Mousquet'), findsOneWidget);
+      expect(find.text('Jusqu\'au cuir'), findsOneWidget);
+    });
   });
 
   testWidgets('récapitulatif : l\'inventaire de base se refuse',

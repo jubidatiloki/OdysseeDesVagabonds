@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/race.dart';
 import '../../models/voie.dart';
+import '../../widgets/maitrises_restrictions.dart';
 import '../../widgets/carte_choix.dart';
 import '../../widgets/carte_selection.dart';
 import '../../widgets/profil_classe.dart';
@@ -108,10 +109,8 @@ class EtapeRace extends StatelessWidget {
                   ),
                 ),
               if (choisie) ...[
-                if (r.maitrises.isNotEmpty)
-                  LigneDetail(libelle: 'Maîtrises', texte: r.maitrises),
-                if (r.restrictions.isNotEmpty)
-                  LigneDetail(libelle: 'Restrictions', texte: r.restrictions),
+                const SizedBox(height: 8),
+                MaitrisesRestrictions(race: r),
               ],
               if (r.voieRaciale != null) ...[
                 const SizedBox(height: 8),

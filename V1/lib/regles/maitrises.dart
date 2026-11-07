@@ -31,6 +31,29 @@ int? _niveauArmure(Objet o) => switch (o.poidsArmure) {
 
 const Map<String, int> _niveauxMax = {'tissu': 0, 'cuir': 1, 'mailles': 2};
 
+/// Niveau d'une limite d'armure ; vide : aucune limite.
+int niveauArmureMax(String m) => _niveauxMax[m] ?? 3;
+
+/// « Communes de mêlée » ; un mot d'un nom prend une majuscule (« Arc »).
+String libelleMaitriseArme(String m) => switch (m) {
+      'civile' => 'Civiles',
+      'commune' => 'Communes',
+      'commune-melee' => 'Communes de mêlée',
+      'commune-distance' => 'Communes à distance',
+      'commune-1-main' => 'Communes à une main',
+      'poudre' => 'Armes à poudre',
+      'siege' => 'Armes de siège',
+      _ => m.isEmpty ? m : m[0].toUpperCase() + m.substring(1),
+    };
+
+/// « Jusqu'au cuir » ; vide : toutes.
+String libelleArmureMax(String m) => switch (m) {
+      'tissu' => 'Tissu seulement',
+      'cuir' => 'Jusqu\'au cuir',
+      'mailles' => 'Jusqu\'à la cotte de mailles',
+      _ => 'Toutes',
+    };
+
 /// Maîtrises d'armes et restrictions de classe et de race (règles du
 /// 07/11/2026).
 extension MaitrisesFiche on FicheCalculee {

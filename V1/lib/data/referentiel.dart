@@ -146,6 +146,20 @@ class Referentiel {
         if (e.groupeArme.isNotEmpty)
           ObjetDuCatalogue.normaliser(e.nom): e.groupeArme,
     };
+    final parGroupe = <String, List<String>>{};
+    void ajouter(String groupe, String nom) =>
+        (parGroupe[groupe] ??= []).add(nom);
+    for (final e in liste) {
+      final g = e.groupeArme;
+      if (g.isEmpty) continue;
+      ajouter(g, e.nom);
+      if (!g.startsWith('commune')) continue;
+      ajouter('commune', e.nom);
+      if (!ObjetDuCatalogue.depuis(e).deuxMains) {
+        ajouter('commune-1-main', e.nom);
+      }
+    }
+    FicheCalculee.armesParGroupe = parGroupe;
     return liste;
   }
 

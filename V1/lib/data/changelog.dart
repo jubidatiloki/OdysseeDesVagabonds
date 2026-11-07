@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.34.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Maîtrises et restrictions plus lisibles (armes, armures, '
+            'interdits, malus) sur la fiche, le glossaire et la création.',
+      ),
+      (
+        type: _m,
+        texte: 'Maîtrises : le survol d\'un groupe montre les armes du '
+            'catalogue concernées.',
+      ),
+    ],
+  ),
+  (
     version: '0.33.0',
     date: '07/11/2026',
     changements: [

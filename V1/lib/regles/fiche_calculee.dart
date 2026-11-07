@@ -235,6 +235,9 @@ class FicheCalculee {
   /// chargement : retrouvent le groupe d'une arme d'une ancienne fiche.
   static Map<String, String> groupesArmes = const {};
 
+  /// Noms des armes du catalogue par groupe de maîtrise (fenêtres de survol).
+  static Map<String, List<String>> armesParGroupe = const {};
+
   /// Groupe des sorts de rang 0 sur la fiche.
   static const Voie voieSortsRang0 =
       Voie(id: 'sorts-rang-0', nom: 'Sorts de rang 0');

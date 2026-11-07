@@ -63,7 +63,7 @@ List<Widget> vuesFiche(
         refusRestriction: fiche.refusRestriction,
         alerteObjet: (o) => fiche.armeMaitrisee(o)
             ? null
-            : 'Non maîtrisée : $kMalusArmeNonMaitrisee au toucher',
+            : 'Non maîtrisée : −${kMalusArmeNonMaitrisee.abs()} au toucher',
         equipements: referentiel.equipements,
         deuxArmesDeuxMains: fiche.deuxArmesDeuxMains,
         fabrications: fiche.fabrications,

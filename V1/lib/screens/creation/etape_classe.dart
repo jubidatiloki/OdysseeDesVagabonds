@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/classe.dart';
 import '../../models/race.dart';
 import '../../regles/fiche_calculee.dart';
+import '../../widgets/maitrises_restrictions.dart';
 import '../../widgets/carte_selection.dart';
 import '../../widgets/profil_classe.dart';
 import '../../widgets/voie_detail.dart';
@@ -82,10 +83,8 @@ class EtapeClasse extends StatelessWidget {
                   libelle: 'Voies',
                   texte: c.voies.map((v) => v.nomCourt).join(', '),
                 ),
-              if (c.maitrises.isNotEmpty)
-                LigneDetail(libelle: 'Maîtrises', texte: c.maitrises),
-              if (c.restrictionArmure.isNotEmpty)
-                LigneDetail(libelle: 'Armure', texte: c.restrictionArmure),
+              const SizedBox(height: 8),
+              MaitrisesRestrictions(classe: c),
               if (c.voies.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Align(

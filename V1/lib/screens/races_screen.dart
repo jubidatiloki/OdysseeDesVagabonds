@@ -9,6 +9,7 @@ import '../theme.dart';
 import '../widgets/carte_selection.dart';
 import '../widgets/consultation.dart';
 import '../widgets/liste_detail.dart';
+import '../widgets/maitrises_restrictions.dart';
 import '../widgets/profil_classe.dart';
 import '../widgets/voie_detail.dart';
 
@@ -163,16 +164,7 @@ class RaceDetail extends StatelessWidget {
         BlocConsultation(
           titre: 'Maîtrises et restrictions',
           icone: Icons.gavel_outlined,
-          children: [
-            LigneDetail(
-              libelle: 'Maîtrises',
-              texte: r.maitrises.isEmpty ? 'aucune précisée' : r.maitrises,
-            ),
-            LigneDetail(
-              libelle: 'Restrictions',
-              texte: r.restrictions.isEmpty ? 'aucune' : r.restrictions,
-            ),
-          ],
+          children: [MaitrisesRestrictions(race: r)],
         ),
         if (r.voieRaciale != null) ...[
           Padding(

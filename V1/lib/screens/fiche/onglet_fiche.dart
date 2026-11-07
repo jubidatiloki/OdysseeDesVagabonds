@@ -11,6 +11,7 @@ import '../../regles/fiche_calculee.dart';
 import '../../regles/inventaire.dart';
 import '../../regles/montee_niveau.dart';
 import '../../theme.dart';
+import '../../widgets/maitrises_restrictions.dart';
 import '../../widgets/carte_choix.dart';
 import '../../widgets/carte_emprunts.dart';
 import '../../widgets/carte_identite.dart';
@@ -743,20 +744,13 @@ class OngletFiche extends StatelessWidget {
         libelle: 'Langues',
         texte: fiche.langues.join(', '),
       ),
-      if (fiche.race.maitrises.isNotEmpty)
-        LigneDetail(libelle: 'Maîtrises (race)', texte: fiche.race.maitrises),
-      if (fiche.classe.maitrises.isNotEmpty)
-        LigneDetail(
-          libelle: 'Maîtrises (classe)',
-          texte: fiche.classe.maitrises,
-        ),
-      if (fiche.classe.restrictionArmure.isNotEmpty)
-        LigneDetail(libelle: 'Armure', texte: fiche.classe.restrictionArmure),
-      if (fiche.race.restrictions.isNotEmpty)
-        LigneDetail(
-          libelle: 'Restrictions (race)',
-          texte: fiche.race.restrictions,
-        ),
+      const SizedBox(height: 8),
+      MaitrisesRestrictions(
+        classe: fiche.classe,
+        race: fiche.race,
+        origineId: fiche.personnage.origineId ?? '',
+        armesEnPlus: fiche.armesMaitrisees,
+      ),
     ];
 
     return ListView(
