@@ -233,6 +233,8 @@ Le bonus de DEX à la CA et à l'esquive ne dépasse pas la limite de l'armure p
 
 - Natation, équitation, maîtrise d'une arme ou d'un instrument, nouvelle langue, lire et écrire.
 - **Instrument** : non maîtrisé → **échec automatique** ; maîtrisé → **+0** (test 1d20 + DEX).
+- **Arme** : non maîtrisée → **−5 au toucher** (classe, race ou aptitude « Maîtrise d'une arme »).
+- **Restrictions** : une armure ou une arme interdite par la classe ou la race ne s'équipe pas.
 - Connaissance d'un domaine : **+5** aux tests liés (géologie, cartographie…).
 - Autre, avec l'accord du MJ.
 

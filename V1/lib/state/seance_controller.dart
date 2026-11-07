@@ -560,6 +560,7 @@ class SeanceController extends ChangeNotifier {
     ButinSeance butin, {
     Bourse? argent,
     Objet? objet,
+    int? quantite,
   }) async {
     final f = maFiche;
     if (f == null) return 'Ta fiche n\'est pas disponible.';
@@ -569,6 +570,7 @@ class SeanceController extends ChangeNotifier {
         butin.id,
         argent: argent,
         objetId: objet?.id,
+        quantite: quantite,
       );
       final o = pris.objet;
       if (o == null && pris.argent.vide) return;
@@ -579,7 +581,7 @@ class SeanceController extends ChangeNotifier {
         ..cuivre += pris.argent.cuivre;
       if (o != null) p.inventaire.add(o);
       final quoi = [
-        if (o != null) o.nom,
+        if (o != null) o.quantite > 1 ? '${o.nom} ×${o.quantite}' : o.nom,
         if (!pris.argent.vide) pris.argent.texte,
       ].join(', ');
       p.journaliser(

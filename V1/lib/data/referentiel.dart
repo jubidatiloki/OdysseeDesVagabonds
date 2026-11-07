@@ -9,6 +9,7 @@ import '../models/equipement.dart';
 import '../models/race.dart';
 import '../models/voie.dart';
 import '../regles/fiche_calculee.dart';
+import '../regles/inventaire.dart';
 import '../regles/invocations.dart';
 
 /// Données de référence du jeu (races, classes, équipements, bestiaire,
@@ -137,6 +138,17 @@ class Referentiel {
     }
   }
 
+  /// Rend les groupes des armes du catalogue connus des fiches
+  /// ([FicheCalculee.groupesArmes]) ; renvoie la liste telle quelle.
+  static List<Equipement> enregistrerGroupesArmes(List<Equipement> liste) {
+    FicheCalculee.groupesArmes = {
+      for (final e in liste)
+        if (e.groupeArme.isNotEmpty)
+          ObjetDuCatalogue.normaliser(e.nom): e.groupeArme,
+    };
+    return liste;
+  }
+
   static Future<Referentiel> charger({AssetBundle? bundle}) async {
     final b = bundle ?? rootBundle;
     final racesJson =
@@ -167,9 +179,9 @@ class Referentiel {
         for (final e in [...aptitudesJson, ...sortsJson])
           Aptitude.depuisJson(e as Map<String, dynamic>),
       ]),
-      equipements: equipementsJson
+      equipements: enregistrerGroupesArmes(equipementsJson
           .map((e) => Equipement.depuisJson(e as Map<String, dynamic>))
-          .toList(),
+          .toList()),
       creatures: enregistrerCreatures(bestiaireJson
           .map((e) => Creature.depuisJson(e as Map<String, dynamic>))
           .toList()),

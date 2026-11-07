@@ -276,6 +276,7 @@ class FirestoreServiceSeance implements ServiceSeance {
     String id, {
     Bourse? argent,
     String? objetId,
+    int? quantite,
   }) =>
       _base.runTransaction((t) async {
         final ref = _butins(c).doc(id);
@@ -283,7 +284,7 @@ class FirestoreServiceSeance implements ServiceSeance {
         final data = d.data();
         if (data == null) return (argent: Bourse(), objet: null);
         final pris = ButinSeance.depuisJson(id, data)
-            .prendre(demande: argent, objetId: objetId);
+            .prendre(demande: argent, objetId: objetId, quantite: quantite);
         t.set(ref, pris.reste.versJson());
         return (argent: pris.argent, objet: pris.objet);
       });

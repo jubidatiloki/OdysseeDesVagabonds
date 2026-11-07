@@ -145,6 +145,7 @@ class Objet {
     this.donnePar = '',
     this.duCatalogue = false,
     this.personnalise = false,
+    this.groupeArme = '',
   }) : id = id ?? nouvelId();
 
   final String id;
@@ -238,6 +239,10 @@ class Objet {
   /// été édités (clé à molette à côté du nom).
   bool personnalise;
 
+  /// Groupe de l'arme du catalogue (civile, commune-melee…) ; vide : arme
+  /// personnalisée, sans malus de maîtrise.
+  String groupeArme;
+
   /// Attributs non modifiables sans passer par « Éditer l'objet » : objet
   /// du catalogue ou donné par une compétence, pas encore personnalisé
   /// (seules l'origine, sa précision et la quantité changent).
@@ -249,6 +254,7 @@ class Objet {
     final j = versJson()
       ..remove('id')
       ..remove('quantite')
+      ..remove('groupeArme')
       ..remove('equipe')
       ..remove('tenueDeuxMains')
       ..remove('principale')
@@ -311,6 +317,7 @@ class Objet {
         'nom': nom,
         'categorie': categorie.name,
         'quantite': quantite,
+        if (groupeArme.isNotEmpty) 'groupeArme': groupeArme,
         if (description.isNotEmpty) 'description': description,
         'equipe': equipe,
         if (degats.isNotEmpty) 'degats': degats,
@@ -341,6 +348,7 @@ class Objet {
         nom: j['nom'] as String? ?? 'Objet',
         categorie: CategorieObjet.depuisCode(j['categorie'] as String?),
         quantite: (j['quantite'] as num?)?.toInt() ?? 1,
+        groupeArme: j['groupeArme'] as String? ?? '',
         description: j['description'] as String? ?? '',
         equipe: j['equipe'] as bool? ?? false,
         degats: j['degats'] as String? ?? '',

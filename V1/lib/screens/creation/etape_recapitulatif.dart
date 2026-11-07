@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/aptitude.dart';
+import '../../models/objet.dart';
 import '../../models/voie.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../widgets/carte_identite.dart';
@@ -15,7 +16,15 @@ class EtapeRecapitulatif extends StatelessWidget {
     this.aptitudes = const [],
     this.pointsConserves = 0,
     this.entete = const [],
+    this.inventaireBase = const [],
+    this.recevoirInventaire = true,
+    this.onInventaire,
   });
+
+  /// Inventaire de base de la classe, que le joueur peut refuser.
+  final List<Objet> inventaireBase;
+  final bool recevoirInventaire;
+  final ValueChanged<bool>? onInventaire;
 
   final FicheCalculee fiche;
   final List<({Voie voie, Competence competence, bool raciale})> competences;
@@ -35,6 +44,20 @@ class EtapeRecapitulatif extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         ...entete,
+        if (inventaireBase.isNotEmpty)
+          CheckboxListTile(
+            key: const Key('inventaire-base'),
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: recevoirInventaire,
+            onChanged: (v) => onInventaire?.call(v ?? false),
+            title: const Text('Recevoir l\'inventaire de base'),
+            subtitle: Text(
+              inventaireBase
+                  .map((o) => o.quantite > 1 ? '${o.nom} ×${o.quantite}' : o.nom)
+                  .join(', '),
+            ),
+          ),
         CarteIdentite(fiche: fiche),
         const SizedBox(height: 20),
         ResumeFiche(fiche: fiche, avecPvPm: true),

@@ -11,6 +11,8 @@ import '../models/race.dart';
 import '../models/voie.dart';
 import 'des.dart';
 import 'ecuyers.dart';
+import 'inventaire.dart';
+import 'maitrises.dart';
 import 'progression.dart';
 import 'regles_particulieres.dart';
 
@@ -228,6 +230,10 @@ class FicheCalculee {
   /// Savoirs du jeu (id de l'aptitude → nom), remplis au chargement des
   /// données : liste « Quelle connaissance ? » (Éducation du chevalier).
   static Map<String, String> savoirs = const {};
+
+  /// Groupes des armes du catalogue (nom sans accents → groupe), remplis au
+  /// chargement : retrouvent le groupe d'une arme d'une ancienne fiche.
+  static Map<String, String> groupesArmes = const {};
 
   /// Groupe des sorts de rang 0 sur la fiche.
   static const Voie voieSortsRang0 =
@@ -1058,6 +1064,7 @@ class FicheCalculee {
                     conditionRemplie(s.effet, arme: o),
               ))
             (nom: s.nom, valeur: s.effet.valeurEntiere ?? 0),
+        ...malusArme(distance: distance),
       ];
 
   /// Plus petit résultat naturel du d20 qui donne une réussite critique au
@@ -1394,6 +1401,16 @@ class FicheCalculee {
         for (final s in effetsActifs)
           if (s.effet.typeNormalise == 'aptitude' && s.effet.valeur.isNotEmpty)
             s.effet.valeur,
+      };
+
+  /// Savoirs et savoir-faire maîtrisés par les compétences (noms sans
+  /// accents) : effets `maitrise` de catégorie aptitude ou connaissance.
+  Set<String> get savoirsMaitrises => {
+        for (final s in effetsActifs)
+          if (s.effet.typeNormalise == 'maitrise' &&
+              const ['aptitude', 'connaissance']
+                  .contains(s.effet.categorieNormalisee))
+            ObjetDuCatalogue.normaliser(s.effet.valeur),
       };
 
   /// Une monture est équipée (= montée).

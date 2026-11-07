@@ -54,6 +54,9 @@ class _CreationScreenState extends State<CreationScreen> {
   static const int _niveau = 1;
 
   int _etape = 0;
+
+  /// Le joueur prend l'inventaire de base de sa classe.
+  var _inventaireBase = true;
   Sexe? _sexe;
   Race? _race;
   String? _origineId;
@@ -233,6 +236,14 @@ class _CreationScreenState extends State<CreationScreen> {
       'Personnage créé : $_resume · niveau 1',
       categorie: CategorieHistorique.creation,
     );
+    if (_inventaireBase) {
+      personnage.inventaire.addAll(
+        ObjetDuCatalogue.inventaireBase(
+          _classe!,
+          widget.referentiel.equipements,
+        ),
+      );
+    }
     // Objets donnés par les compétences de départ (porte-bonheur du gnome).
     final ficheCree =
         FicheCalculee(personnage: personnage, race: _race!, classe: _classe!);
@@ -350,6 +361,12 @@ class _CreationScreenState extends State<CreationScreen> {
         final fiche = _ficheBrouillon;
         return EtapeRecapitulatif(
           fiche: fiche,
+          inventaireBase: ObjetDuCatalogue.inventaireBase(
+            _classe!,
+            widget.referentiel.equipements,
+          ),
+          recevoirInventaire: _inventaireBase,
+          onInventaire: (v) => setState(() => _inventaireBase = v),
           competences: fiche.competencesAcquises,
           entete: [
             // Choix des compétences de départ (gnome, rang 1 : arme ou

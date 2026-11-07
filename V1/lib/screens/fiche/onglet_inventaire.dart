@@ -26,7 +26,15 @@ class OngletInventaire extends StatelessWidget {
     this.usagesRestants = const {},
     this.bidouillage = false,
     this.onEnvoyer,
+    this.refusRestriction,
+    this.alerteObjet,
   });
+
+  /// Restriction de classe ou de race : raison d'un refus d'équiper.
+  final String? Function(Objet)? refusRestriction;
+
+  /// Mention sur la ligne d'un objet (arme non maîtrisée).
+  final String? Function(Objet)? alerteObjet;
 
   /// En séance : envoie un objet non équipé à un autre PJ.
   final void Function(Objet)? onEnvoyer;
@@ -255,7 +263,8 @@ class OngletInventaire extends StatelessWidget {
 
   void _basculerEquipement(BuildContext context, Objet objet) {
     final refus = ReglesInventaire.refusEquipement(_inventaire, objet,
-        deuxArmesDeuxMains: deuxArmesDeuxMains);
+            deuxArmesDeuxMains: deuxArmesDeuxMains) ??
+        (objet.equipe ? null : refusRestriction?.call(objet));
     if (refus != null) {
       _message(context, refus);
       return;
@@ -589,6 +598,13 @@ class OngletInventaire extends StatelessWidget {
                       details.join(' · '),
                       style: theme.textTheme.bodySmall,
                     ),
+                    if (alerteObjet?.call(o) case final alerte?)
+                      Text(
+                        alerte,
+                        key: Key('alerte-objet-${o.id}'),
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: scheme.error),
+                      ),
                     if (o.description.isNotEmpty)
                       Text(
                         o.description,

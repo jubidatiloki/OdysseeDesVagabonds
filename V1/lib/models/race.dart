@@ -76,6 +76,7 @@ class OrigineRace {
     required this.modificateurs,
     this.passif,
     this.bonus,
+    this.maitrisesArmes = const [],
   });
 
   final String id;
@@ -86,12 +87,18 @@ class OrigineRace {
   /// Texte libre (ex. bonus du rang 2 « Origines marquées » de l'humain).
   final String? bonus;
 
+  /// Armes maîtrisées en plus de la race (origines elfiques : arc).
+  final List<String> maitrisesArmes;
+
   factory OrigineRace.depuisJson(Map<String, dynamic> j) => OrigineRace(
         id: j['id'] as String,
         nom: j['nom'] as String,
         modificateurs: caracMapDepuisJson(j['modificateurs']),
         passif: Passif.depuisJson(j['passif']),
         bonus: j['bonus'] as String?,
+        maitrisesArmes: [
+          for (final m in j['maitrisesArmes'] as List? ?? const []) '$m',
+        ],
       );
 }
 
@@ -111,6 +118,12 @@ class Race {
     this.maitrises = '',
     this.langues = const [],
     this.restrictions = '',
+    this.maitrisesArmes = const [],
+    this.armureMax = '',
+    this.armuresPermises = const [],
+    this.armesInterdites = const [],
+    this.malusArmes = const {},
+    this.desArmeMax,
     this.description = '',
     this.profil = ProfilClasse.hybride,
     this.univers = kUniversParDefaut,
@@ -146,6 +159,24 @@ class Race {
   /// Langues parlées d'office par la race (en plus du commun).
   final List<String> langues;
   final String restrictions;
+
+  /// Groupes d'armes ou mots d'un nom maîtrisés (voir `Classe`).
+  final List<String> maitrisesArmes;
+
+  /// Armure la plus lourde permise : tissu, cuir, mailles ; vide : toutes.
+  final String armureMax;
+
+  /// Mots d'un nom d'armure permise malgré tout (plaques ajustées du gnome).
+  final List<String> armuresPermises;
+
+  /// Mots d'un nom d'arme interdite (nain : arc long, hast).
+  final List<String> armesInterdites;
+
+  /// Malus au toucher par groupe d'armes (haut-elfe : poudre −2).
+  final Map<String, int> malusArmes;
+
+  /// Plus grand dé d'arme permis (gnome : d8, 2d6 autorisé).
+  final int? desArmeMax;
 
   /// Présentation de la race (page Races).
   final String description;
@@ -199,6 +230,21 @@ class Race {
           for (final l in j['langues'] as List<dynamic>? ?? const []) '$l',
         ],
         restrictions: j['restrictions'] as String? ?? '',
+        maitrisesArmes: [
+          for (final m in j['maitrisesArmes'] as List? ?? const []) '$m',
+        ],
+        armureMax: j['armureMax'] as String? ?? '',
+        armuresPermises: [
+          for (final m in j['armuresPermises'] as List? ?? const []) '$m',
+        ],
+        armesInterdites: [
+          for (final m in j['armesInterdites'] as List? ?? const []) '$m',
+        ],
+        malusArmes: {
+          if (j['malusArmes'] case final Map<dynamic, dynamic> m)
+            for (final e in m.entries) '${e.key}': (e.value as num).toInt(),
+        },
+        desArmeMax: (j['desArmeMax'] as num?)?.toInt(),
         description: j['description'] as String? ?? '',
         profil: ProfilClasse.depuisCode(
           j['profil'] as String? ?? 'hybride',

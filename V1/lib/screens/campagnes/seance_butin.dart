@@ -23,16 +23,28 @@ class DetailButin extends StatelessWidget {
     final b = butin;
     final montant = await showDialog<Bourse>(
       context: context,
-      builder: (_) => _DialogueArgent(
-        titre: s.estMj ? 'Argent du butin' : 'Prendre de l\'argent',
-        valeur: b.bourse,
-        action: s.estMj ? 'Enregistrer' : 'Prendre',
-      ),
+      builder: (_) => s.estMj
+          ? _DialogueArgent(valeur: b.bourse)
+          : _DialoguePrendreArgent(disponible: b.bourse),
     );
     if (montant == null || !context.mounted) return;
     final erreur = await (s.estMj
         ? s.modifierButin(b.copie(bourse: montant))
         : s.prendreDuButin(b, argent: montant));
+    if (context.mounted) _erreur(context, erreur);
+  }
+
+  /// Plusieurs exemplaires : le joueur choisit combien il en prend.
+  Future<void> _prendreObjet(BuildContext context, Objet o) async {
+    final quantite = o.quantite == 1
+        ? 1
+        : await showDialog<int>(
+            context: context,
+            builder: (_) => _DialogueQuantite(objet: o),
+          );
+    if (quantite == null || !context.mounted) return;
+    final erreur =
+        await seance.prendreDuButin(butin, objet: o, quantite: quantite);
     if (context.mounted) _erreur(context, erreur);
   }
 
@@ -113,11 +125,7 @@ class DetailButin extends StatelessWidget {
                         )
                       : FilledButton.tonal(
                           key: Key('prendre-objet-${o.id}'),
-                          onPressed: () async {
-                            final erreur =
-                                await s.prendreDuButin(b, objet: o);
-                            if (context.mounted) _erreur(context, erreur);
-                          },
+                          onPressed: () => _prendreObjet(context, o),
                           child: const Text('Prendre'),
                         ),
                 ),
@@ -141,17 +149,171 @@ class DetailButin extends StatelessWidget {
   }
 }
 
-/// Montant en or, argent et cuivre.
-class _DialogueArgent extends StatefulWidget {
-  const _DialogueArgent({
-    required this.titre,
+/// Curseur d'une quantité, de [min] à [max], avec sa valeur.
+class _Curseur extends StatelessWidget {
+  const _Curseur({
+    required this.cle,
+    required this.libelle,
     required this.valeur,
-    required this.action,
+    required this.min,
+    required this.max,
+    required this.onChange,
   });
 
-  final String titre;
+  final String cle;
+  final String libelle;
+  final int valeur;
+  final int min;
+  final int max;
+  final ValueChanged<int> onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text(libelle, overflow: TextOverflow.ellipsis)),
+            Text('$valeur / $max', key: Key('valeur-$cle')),
+          ],
+        ),
+        Slider(
+          key: Key(cle),
+          value: valeur.toDouble(),
+          min: min.toDouble(),
+          max: max.toDouble(),
+          divisions: max - min,
+          label: '$valeur',
+          onChanged: (v) => onChange(v.round()),
+        ),
+      ],
+    );
+  }
+}
+
+/// PJ : combien d'or, d'argent et de cuivre il prend.
+class _DialoguePrendreArgent extends StatefulWidget {
+  const _DialoguePrendreArgent({required this.disponible});
+
+  final Bourse disponible;
+
+  @override
+  State<_DialoguePrendreArgent> createState() => _DialoguePrendreArgentState();
+}
+
+class _DialoguePrendreArgentState extends State<_DialoguePrendreArgent> {
+  late int _or = widget.disponible.or;
+  late int _argent = widget.disponible.argent;
+  late int _cuivre = widget.disponible.cuivre;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = widget.disponible;
+    return AlertDialog(
+      title: const Text('Prendre de l\'argent'),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (d.or > 0)
+              _Curseur(
+                cle: 'butin-or',
+                libelle: 'Or',
+                valeur: _or,
+                min: 0,
+                max: d.or,
+                onChange: (v) => setState(() => _or = v),
+              ),
+            if (d.argent > 0)
+              _Curseur(
+                cle: 'butin-argent',
+                libelle: 'Argent',
+                valeur: _argent,
+                min: 0,
+                max: d.argent,
+                onChange: (v) => setState(() => _argent = v),
+              ),
+            if (d.cuivre > 0)
+              _Curseur(
+                cle: 'butin-cuivre',
+                libelle: 'Cuivre',
+                valeur: _cuivre,
+                min: 0,
+                max: d.cuivre,
+                onChange: (v) => setState(() => _cuivre = v),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(
+          key: const Key('valider-argent-butin'),
+          onPressed: () => Navigator.pop(
+            context,
+            Bourse(or: _or, argent: _argent, cuivre: _cuivre),
+          ),
+          child: const Text('Prendre'),
+        ),
+      ],
+    );
+  }
+}
+
+/// PJ : combien d'exemplaires d'un objet il prend.
+class _DialogueQuantite extends StatefulWidget {
+  const _DialogueQuantite({required this.objet});
+
+  final Objet objet;
+
+  @override
+  State<_DialogueQuantite> createState() => _DialogueQuantiteState();
+}
+
+class _DialogueQuantiteState extends State<_DialogueQuantite> {
+  late int _quantite = widget.objet.quantite;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Prendre : ${widget.objet.nom}'),
+      content: SizedBox(
+        width: 360,
+        child: _Curseur(
+          cle: 'butin-quantite',
+          libelle: 'Quantité',
+          valeur: _quantite,
+          min: 1,
+          max: widget.objet.quantite,
+          onChange: (v) => setState(() => _quantite = v),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(
+          key: const Key('valider-quantite-butin'),
+          onPressed: () => Navigator.pop(context, _quantite),
+          child: const Text('Prendre'),
+        ),
+      ],
+    );
+  }
+}
+
+/// MJ : montant en or, argent et cuivre du butin, sans limite.
+class _DialogueArgent extends StatefulWidget {
+  const _DialogueArgent({required this.valeur});
+
   final Bourse valeur;
-  final String action;
 
   @override
   State<_DialogueArgent> createState() => _DialogueArgentState();
@@ -186,7 +348,7 @@ class _DialogueArgentState extends State<_DialogueArgent> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.titre),
+      title: const Text('Argent du butin'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -210,7 +372,7 @@ class _DialogueArgentState extends State<_DialogueArgent> {
               cuivre: _lire(_cuivre),
             ),
           ),
-          child: Text(widget.action),
+          child: const Text('Enregistrer'),
         ),
       ],
     );

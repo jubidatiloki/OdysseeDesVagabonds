@@ -46,6 +46,7 @@
 			{
 				"id": "sylvaine",
 				"nom": "Origine sylvaine",
+				"maitrisesArmes": ["arc"],
 				"modificateurs": {
 					"DEX": 1,
 					"PER": 1,
@@ -67,6 +68,7 @@
 			{
 				"id": "haut-elfe",
 				"nom": "Origine haut-elfe",
+				"maitrisesArmes": ["arc"],
 				"modificateurs": {
 					"DEX": 1,
 					"INT": 1,
@@ -88,6 +90,7 @@
 		],
 		"maitrises": "Armes civiles, armes à 1 main communes ; + arc pour les origines elfiques.",
 		"restrictions": "Aucune.",
+		"maitrisesArmes": ["civile", "commune-1-main"],
 		"voieRaciale": {
 			"id": "race-demi-elfe",
 			"nom": "Voie du demi-elfe — entre deux sangs",
@@ -208,6 +211,7 @@
 		"origines": [],
 		"maitrises": "Armes civiles, armes communes de mêlée (hors poudre).",
 		"restrictions": "Armures plus chères à faire (corpulence) ; pas de maîtrise raciale des armes à poudre ni de siège.",
+		"maitrisesArmes": ["civile", "commune-melee"],
 		"voieRaciale": {
 			"id": "race-demi-orque",
 			"nom": "Voie du demi-orque — sang tribal",
@@ -403,6 +407,7 @@
 		],
 		"maitrises": "Armes civiles, armes communes de mêlée ; griffes et crocs (voie, rang 1).",
 		"restrictions": "Armures adaptées obligatoires et plus chères ; avec Ailes vestigiales, pas de vol en plaques ou chargé lourdement.",
+		"maitrisesArmes": ["civile", "commune-melee"],
 		"voieRaciale": {
 			"id": "race-draconien",
 			"nom": "Voie du draconien",
@@ -547,6 +552,7 @@
 		"origines": [],
 		"maitrises": "Armes civiles, arcs (courts et longs), armes à 1 main communes (lance, dague, épée courte).",
 		"restrictions": "En armure métallique lourde (cotte de mailles, plaques), perd le bénéfice de Grand pas.",
+		"maitrisesArmes": ["civile", "arc", "commune-1-main"],
 		"voieRaciale": {
 			"id": "race-elfe-sylvain",
 			"nom": "Voie de l'elfe-sylvain",
@@ -718,6 +724,9 @@
 		"origines": [],
 		"maitrises": "Armes civiles, épées fines et longues, arcs, bâton.",
 		"restrictions": "Pas d'armure de plaques ; méprise les armes à poudre (−2 AdT avec elles).",
+		"maitrisesArmes": ["civile", "épée", "arc", "bâton"],
+		"armureMax": "mailles",
+		"malusArmes": {"poudre": -2},
 		"voieRaciale": {
 			"id": "race-haut-elfe",
 			"nom": "Voie du haut-elfe",
@@ -868,6 +877,10 @@
 		"origines": [],
 		"maitrises": "Armes à 1 main communes.",
 		"restrictions": "Pas d'arme dépassant le d8 (2d6 autorisé) ; pas d'armure au-delà de la cotte de mailles (plaques ajustées possibles) ; armures moins chères.",
+		"maitrisesArmes": ["commune-1-main"],
+		"armureMax": "mailles",
+		"armuresPermises": ["ajustées"],
+		"desArmeMax": 8,
 		"voieRaciale": {
 			"id": "race-gnome",
 			"nom": "Voie du gnome",
@@ -1108,6 +1121,7 @@
 		],
 		"maitrises": "Armes communes.",
 		"restrictions": "Aucune.",
+		"maitrisesArmes": ["commune"],
 		"voieRaciale": {
 			"id": "race-humain",
 			"nom": "Voie d'humain",
@@ -1340,6 +1354,8 @@
 		"origines": [],
 		"maitrises": "Armes civiles, armes à 1 main communes, arbalètes (hache et marteau via la voie, rang 1).",
 		"restrictions": "Pas d'arc long ni d'arme d'hast.",
+		"maitrisesArmes": ["civile", "commune-1-main", "arbalète"],
+		"armesInterdites": ["arc long", "hast"],
 		"voieRaciale": {
 			"id": "race-nain",
 			"nom": "Voie du nain",

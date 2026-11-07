@@ -53,6 +53,9 @@ class Classe {
     this.lanceurDeSorts = false,
     this.maitrises = '',
     this.restrictionArmure = '',
+    this.maitrisesArmes = const [],
+    this.armureMax = '',
+    this.inventaireBase = const [],
     this.voies = const [],
     this.note = '',
     this.description = '',
@@ -83,6 +86,16 @@ class Classe {
 
   final String maitrises;
   final String restrictionArmure;
+
+  /// Groupes d'armes maîtrisés (civile, commune, commune-melee,
+  /// commune-distance, commune-1-main, poudre, siege) ou mots d'un nom.
+  final List<String> maitrisesArmes;
+
+  /// Armure la plus lourde permise : tissu, cuir, mailles ; vide : toutes.
+  final String armureMax;
+
+  /// Inventaire proposé à la création : ids du catalogue et quantités.
+  final List<({String id, int quantite})> inventaireBase;
   final List<Voie> voies;
 
   /// Précision de règles propre à la classe (affichée avec les voies).
@@ -118,6 +131,18 @@ class Classe {
         lanceurDeSorts: j['lanceurDeSorts'] as bool? ?? false,
         maitrises: j['maitrises'] as String? ?? '',
         restrictionArmure: j['restrictionArmure'] as String? ?? '',
+        maitrisesArmes: [
+          for (final m in j['maitrisesArmes'] as List? ?? const []) '$m',
+        ],
+        armureMax: j['armureMax'] as String? ?? '',
+        // « "epee-longue" » ou « {"id": "potion", "quantite": 2} ».
+        inventaireBase: [
+          for (final e in j['inventaireBase'] as List? ?? const [])
+            if (e is Map)
+              (id: '${e['id']}', quantite: (e['quantite'] as num?)?.toInt() ?? 1)
+            else
+              (id: '$e', quantite: 1),
+        ],
         voies: (j['voies'] as List<dynamic>? ?? const [])
             .map((e) => Voie.depuisJson(e as Map<String, dynamic>))
             .toList(),

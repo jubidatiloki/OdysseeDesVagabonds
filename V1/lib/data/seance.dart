@@ -68,6 +68,7 @@ abstract class ServiceSeance {
     String id, {
     Bourse? argent,
     String? objetId,
+    int? quantite,
   });
 
   /// Objets envoyés d'un PJ à un autre : pris une seule fois par leur
@@ -332,10 +333,12 @@ class ServiceSeanceMemoire implements ServiceSeance {
     String id, {
     Bourse? argent,
     String? objetId,
+    int? quantite,
   }) async {
     final b = _partie(c).butins[id];
     if (b == null) return (argent: Bourse(), objet: null);
-    final pris = b.prendre(demande: argent, objetId: objetId);
+    final pris =
+        b.prendre(demande: argent, objetId: objetId, quantite: quantite);
     _partie(c).butins[id] = pris.reste;
     base.signaler();
     return (argent: pris.argent, objet: pris.objet);

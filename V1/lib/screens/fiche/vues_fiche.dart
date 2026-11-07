@@ -4,6 +4,7 @@ import '../../data/referentiel.dart';
 import '../../models/objet.dart';
 import '../../models/personnage.dart';
 import '../../regles/fiche_calculee.dart';
+import '../../regles/maitrises.dart';
 import '../../state/personnages_controller.dart';
 import 'formulaire_identite.dart';
 import 'onglet_competences.dart';
@@ -59,6 +60,10 @@ List<Widget> vuesFiche(
         verrouille: verrous.inventaire,
         onModifie: onModifie,
         onEnvoyer: onEnvoyerObjet,
+        refusRestriction: fiche.refusRestriction,
+        alerteObjet: (o) => fiche.armeMaitrisee(o)
+            ? null
+            : 'Non maîtrisée : $kMalusArmeNonMaitrisee au toucher',
         equipements: referentiel.equipements,
         deuxArmesDeuxMains: fiche.deuxArmesDeuxMains,
         fabrications: fiche.fabrications,

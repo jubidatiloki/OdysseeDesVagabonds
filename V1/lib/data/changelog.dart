@@ -29,6 +29,37 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.33.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Maîtrises d\'armes selon la classe et la race : −5 au toucher '
+            'avec une arme non maîtrisée.',
+      ),
+      (
+        type: _a,
+        texte: 'Restrictions : armure ou arme interdite par la classe ou la '
+            'race, équipement refusé.',
+      ),
+      (
+        type: _a,
+        texte: 'Création : inventaire de base de la classe, à remplir dans '
+            'classes.json.',
+      ),
+      (
+        type: _a,
+        texte: 'Butin : curseurs pour choisir l\'argent et la quantité '
+            'd\'objets à prendre.',
+      ),
+      (
+        type: _c,
+        texte: 'Savoirs : les maîtrises données par les compétences comptent '
+            'aux jets.',
+      ),
+    ],
+  ),
+  (
     version: '0.32.0',
     date: '07/11/2026',
     changements: [

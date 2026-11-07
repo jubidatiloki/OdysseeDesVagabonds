@@ -2,6 +2,7 @@ import '../models/aptitude.dart';
 import '../models/carac.dart';
 import 'des.dart';
 import 'fiche_calculee.dart';
+import 'inventaire.dart';
 
 /// Un jet de savoir ou de savoir-faire proposé sur la page dé.
 class JetSavoir {
@@ -91,7 +92,8 @@ List<JetSavoir> jetsSavoirs(
     ];
     // Innée (sa race, INT) ou offerte par une compétence (équitation).
     final innee = a.estInnee(raceId: p.raceId, intel: f.carac(Carac.intel)) ||
-        f.aptitudesOffertes.contains(a.id);
+        f.aptitudesOffertes.contains(a.id) ||
+        f.savoirsMaitrises.contains(ObjetDuCatalogue.normaliser(a.nom));
     var general = innee;
     for (final x in acquises) {
       final prec = x.precision;

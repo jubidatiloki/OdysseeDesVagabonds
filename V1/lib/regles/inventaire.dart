@@ -1,3 +1,4 @@
+import '../models/classe.dart';
 import '../models/equipement.dart';
 import '../models/historique.dart';
 import '../models/objet.dart';
@@ -137,6 +138,7 @@ class ObjetDuCatalogue {
     return Objet(
       nom: e.nom,
       categorie: categorie,
+      groupeArme: e.groupeArme,
       description: [
         if (e.description.isNotEmpty) e.description,
         if (autres.isNotEmpty) autres.join(' · '),
@@ -250,11 +252,23 @@ class ObjetDuCatalogue {
       ) ??
       0;
 
+  /// Inventaire de base d'une classe, repris du [catalogue] (les ids
+  /// inconnus sont ignorés).
+  static List<Objet> inventaireBase(Classe c, List<Equipement> catalogue) => [
+        for (final b in c.inventaireBase)
+          for (final e in catalogue)
+            if (e.id == b.id) depuis(e)..quantite = b.quantite,
+      ];
+
+  /// Texte sans accents ni majuscules.
+  static String normaliser(String texte) => _norm(texte);
+
   static String _norm(String texte) => texte
       .trim()
       .toLowerCase()
       .replaceAll(RegExp('[éèê]'), 'e')
       .replaceAll('â', 'a')
+      .replaceAll('î', 'i')
       .replaceAll('ç', 'c');
 }
 

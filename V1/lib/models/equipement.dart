@@ -49,6 +49,7 @@ class Equipement {
     this.sousCategorie = '',
     this.description = '',
     this.proprietes = const {},
+    this.groupeArme = '',
   });
 
   final String id;
@@ -58,6 +59,10 @@ class Equipement {
   /// Ex. « Potion », « CaC, Épée, une main, tranchante » (plusieurs
   /// étiquettes séparées par des virgules).
   final String sousCategorie;
+
+  /// Groupe d'une arme : civile, commune-melee, commune-distance, poudre,
+  /// siege ; vide : pas une arme classée.
+  final String groupeArme;
 
   /// Étiquettes de la sous-catégorie (« CaC », « Épée », « une main »…).
   List<String> get etiquettes => [
@@ -107,6 +112,7 @@ class Equipement {
       nom: j['nom'] as String? ?? '',
       categorie: categorie,
       sousCategorie: sous,
+      groupeArme: j['groupeArme'] as String? ?? '',
       description: j['description'] as String? ?? '',
       proprietes: {
         for (final e

@@ -44,11 +44,13 @@ class ButinSeance {
         objets: objets ?? this.objets,
       );
 
-  /// Ce qu'il reste après avoir pris [demande] et l'objet [objetId], et ce
-  /// qui a vraiment été pris : on ne prend pas plus que ce qu'il reste.
+  /// Ce qu'il reste après avoir pris [demande] et [quantite] exemplaires de
+  /// l'objet [objetId] (tous si `null`), et ce qui a vraiment été pris : on ne
+  /// prend pas plus que ce qu'il reste.
   ({ButinSeance reste, Bourse argent, Objet? objet}) prendre({
     Bourse? demande,
     String? objetId,
+    int? quantite,
   }) {
     int pris(int voulu, int dispo) => math.max(0, math.min(voulu, dispo));
     final argentPris = Bourse(
@@ -57,8 +59,20 @@ class ButinSeance {
       cuivre: pris(demande?.cuivre ?? 0, cuivre),
     );
     Objet? objet;
+    final restants = <Objet>[];
     for (final o in objets) {
-      if (o.id == objetId) objet = o;
+      if (o.id != objetId) {
+        restants.add(o);
+        continue;
+      }
+      final n = (quantite ?? o.quantite).clamp(1, o.quantite);
+      if (n == o.quantite) {
+        objet = o;
+      } else {
+        // Une partie de la pile : l'objet pris est un nouvel exemplaire.
+        objet = Objet.depuisJson(o.versJson()..remove('id'))..quantite = n;
+        restants.add(Objet.depuisJson(o.versJson())..quantite = o.quantite - n);
+      }
     }
     return (
       reste: copie(
@@ -67,10 +81,7 @@ class ButinSeance {
           argent: argent - argentPris.argent,
           cuivre: cuivre - argentPris.cuivre,
         ),
-        objets: [
-          for (final o in objets)
-            if (o.id != objetId) o,
-        ],
+        objets: restants,
       ),
       argent: argentPris,
       objet: objet,

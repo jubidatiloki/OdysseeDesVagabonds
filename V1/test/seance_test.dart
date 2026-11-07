@@ -1363,23 +1363,39 @@ void main() {
     testWidgets('PJ : prend l\'argent et les objets du butin', (tester) async {
       final brom = _brom();
       final epee = Objet(nom: 'Épée courte');
+      final fleches = Objet(nom: 'Flèche', quantite: 5);
       final x = await ouvrir(
         tester,
         'j1',
         fiches: [brom],
         avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').seance.ecrireButin(
               c,
-              ButinSeance(id: 'b', nom: 'Coffre', or: 4, objets: [epee]),
+              ButinSeance(
+                id: 'b',
+                nom: 'Coffre',
+                or: 4,
+                objets: [epee, fleches],
+              ),
             ),
       );
       final partie = x.base.parties[x.campagne.id]!;
       await tap(tester, find.byKey(const Key('carte-b')));
       await tap(tester, find.byKey(Key('prendre-objet-${epee.id}')));
+      // Curseur de quantité : 2 flèches sur 5.
+      await tap(tester, find.byKey(Key('prendre-objet-${fleches.id}')));
+      tester
+          .widget<Slider>(find.byKey(const Key('butin-quantite')))
+          .onChanged!(2);
+      await tester.pump();
+      await tap(tester, find.byKey(const Key('valider-quantite-butin')));
+      expect(partie.butins['b']!.objets.single.quantite, 3);
+      // Curseur d'argent : 3 or sur 4.
       await tap(tester, find.byKey(const Key('argent-du-butin')));
-      await tester.enterText(find.byKey(const Key('butin-or')), '3');
+      tester.widget<Slider>(find.byKey(const Key('butin-or'))).onChanged!(3);
+      await tester.pump();
+      expect(find.text('3 / 4'), findsOneWidget);
       await tap(tester, find.byKey(const Key('valider-argent-butin')));
       expect(partie.butins['b']!.or, 1);
-      expect(partie.butins['b']!.objets, isEmpty);
       expect(partie.jets.map((j) => j.libelle), contains(contains('3 or')));
       await tester.pump(const Duration(seconds: 11));
       await tester.pumpAndSettle();

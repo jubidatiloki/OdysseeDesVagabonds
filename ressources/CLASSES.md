@@ -41,7 +41,7 @@
 
 **DE** (dé d'endurance, règle du 03/11/2026) : classes physiques et hybrides ; coûts en PE indiqués sur les compétences (`"endurance"` dans `classes.json`). Les classes physiques n'ont plus de mana. Leurs sorts raciaux se paient en PE.
 
-« Inventaire de base » : bloc présent pour chaque classe mais **vide** ❌.
+« Inventaire de base » : champ `inventaireBase` de chaque classe dans `classes.json`, **vide** ❌, à remplir : ids du catalogue (`"baton"`) ou `{"id": "potion-fer", "quantite": 2}`.
 
 ---
 

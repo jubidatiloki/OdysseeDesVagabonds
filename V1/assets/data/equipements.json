@@ -125,6 +125,7 @@
 	},
 	{
 		"id": "epee-longue",
+		"groupeArme": "commune-melee",
 		"nom": "Épée longue",
 		"categorie": "Arme",
 		"sousCategorie": "CaC, Épée, une main, tranchante",
@@ -136,6 +137,7 @@
 	},
 	{
 		"id": "lance-arcon",
+		"groupeArme": "commune-melee",
 		"nom": "Lance d'arçon",
 		"categorie": "Arme",
 		"sousCategorie": "CaC, Lance, une main, perforante",
@@ -146,6 +148,7 @@
 	},
 	{
 		"id": "baton",
+		"groupeArme": "civile",
 		"nom": "Bâton",
 		"categorie": "Arme",
 		"sousCategorie": "CaC, bâton, une main, deux mains, contondant",
@@ -158,6 +161,7 @@
 	},
 	{
 		"id": "hache-de-guerre",
+		"groupeArme": "commune-melee",
 		"nom": "Hache de guerre",
 		"categorie": "Arme",
 		"sousCategorie": "CaC, hache, une main, deux mains, tranchante",
@@ -169,6 +173,7 @@
 	},
 	{
 		"id": "marteau-de-guerre",
+		"groupeArme": "commune-melee",
 		"nom": "Marteau de guerre",
 		"categorie": "Arme",
 		"sousCategorie": "CaC, marteau, une main, deux mains, contondant",
@@ -180,6 +185,7 @@
 	},
 	{
 		"id": "arc-court",
+		"groupeArme": "commune-distance",
 		"nom": "Arc court",
 		"categorie": "Arme",
 		"sousCategorie": "Distance, arc, deux mains, perçant",
@@ -192,6 +198,7 @@
 	},
 	{
 		"id": "arc-long",
+		"groupeArme": "commune-distance",
 		"nom": "Arc long",
 		"categorie": "Arme",
 		"sousCategorie": "Distance, arc, deux mains, perçant",
@@ -204,6 +211,7 @@
 	},
 	{
 		"id": "petoire",
+		"groupeArme": "poudre",
 		"nom": "Pétoire",
 		"categorie": "Arme",
 		"sousCategorie": "Distance, poudre, une main",
@@ -216,6 +224,7 @@
 	},
 {
 		"id": "mousquet",
+		"groupeArme": "poudre",
 		"nom": "Mousquet",
 		"categorie": "Arme",
 		"sousCategorie": "Distance, poudre, deux main",
@@ -228,6 +237,7 @@
 	},
 	{
 		"id": "canon-a-mains",
+		"groupeArme": "poudre",
 		"nom": "Canon à mains",
 		"categorie": "Arme",
 		"sousCategorie": "Distance, poudre, deux mains",
@@ -307,6 +317,7 @@
 	},
 	{
 		"id": "pelle",
+		"groupeArme": "civile",
 		"nom": "Pelle",
 		"categorie": "Outil, arme",
 		"sousCategorie": "outil, arme, CaC, deux main",
@@ -318,6 +329,7 @@
 	},
 	{
 		"id": "pioche",
+		"groupeArme": "civile",
 		"nom": "Pioche",
 		"categorie": "Outil, arme",
 		"sousCategorie": "outil, arme, CaC, deux main",
@@ -329,6 +341,7 @@
 	},
 	{
 		"id": "hache",
+		"groupeArme": "civile",
 		"nom": "Hache",
 		"categorie": "Outil, arme",
 		"sousCategorie": "outil, arme, CaC, deux main",
