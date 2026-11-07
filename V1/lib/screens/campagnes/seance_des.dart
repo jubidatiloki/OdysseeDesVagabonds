@@ -8,6 +8,7 @@ import '../../models/voie.dart';
 import '../../regles/des.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../state/seance_controller.dart';
+import '../../theme.dart';
 import '../../widgets/consultation.dart';
 import '../de_screen.dart';
 import 'seance_messages.dart';
@@ -29,7 +30,7 @@ class PanneauDes extends StatelessWidget {
             labelPadding: const EdgeInsets.symmetric(horizontal: 4),
             tabs: [
               const Tab(key: Key('onglet-des'), text: 'Dés'),
-              const Tab(key: Key('onglet-historique'), text: 'Historique'),
+              const Tab(key: Key('onglet-historique'), text: 'Logs'),
               Tab(
                 key: const Key('onglet-messages'),
                 child: Badge(
@@ -199,6 +200,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         avecCible: true,
         degats: j.applique.isEmpty && _estDegats(j.libelle),
         type: sort.typeDegats.isEmpty ? 'physique' : sort.typeDegats,
+        genre: GenreJet.sort,
       );
     }
     if (jets.isEmpty) {
@@ -208,6 +210,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         modificateur: 0,
         parAttaquant: true,
         avecCible: true,
+        genre: GenreJet.sort,
       );
     }
   }
@@ -221,6 +224,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     bool avecCible = false,
     bool degats = false,
     String type = 'physique',
+    GenreJet genre = GenreJet.libre,
   }) async {
     final f = lireFormule(des);
     if (f == null) return;
@@ -236,6 +240,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       avecCible: avecCible,
       degats: degats,
       type: type,
+      genre: genre,
     );
   }
 
@@ -247,6 +252,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     bool avecCible = false,
     bool degats = false,
     String type = 'physique',
+    GenreJet genre = GenreJet.libre,
   }) async {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
     final detail = jets.isEmpty
@@ -262,6 +268,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       visibilite: _visibilite,
       cible: _cible,
       parAttaquant: parAttaquant,
+      genre: genre,
       cibleJet: avecCible
           ? [
               _nomCible,
@@ -435,6 +442,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                             avecCible: true,
                             degats: a.degats,
                             type: a.type,
+                            genre:
+                                a.degats ? GenreJet.degats : GenreJet.attaque,
                           ),
                 ),
             ],
@@ -489,6 +498,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                             '1d20',
                             fiche.mod(c),
                             parAttaquant: true,
+                            genre: GenreJet.test,
                           ),
                 ),
             ],
@@ -539,6 +549,15 @@ class _Compteur extends StatelessWidget {
 }
 
 /// Jets que ce compte peut lire, du plus récent au plus ancien.
+/// Icône de chaque nature de jet.
+IconData iconeGenreJet(GenreJet g) => switch (g) {
+      GenreJet.libre => Icons.casino_outlined,
+      GenreJet.attaque => Icons.gps_fixed,
+      GenreJet.degats => Icons.local_fire_department_outlined,
+      GenreJet.sort => Icons.auto_awesome_outlined,
+      GenreJet.test => Icons.fact_check_outlined,
+    };
+
 class _Historique extends StatelessWidget {
   const _Historique({required this.seance});
 
@@ -550,35 +569,119 @@ class _Historique extends StatelessWidget {
     if (jets.isEmpty) {
       return const Center(child: TexteAVenir('Aucun jet pour l\'instant.'));
     }
-    final theme = Theme.of(context);
     return ListView.builder(
       key: const Key('historique-seance'),
       padding: const EdgeInsets.all(8),
       itemCount: jets.length,
-      itemBuilder: (context, i) {
-        final j = jets[i];
-        return ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-          leading: j.visibilite == VisibiliteJet.tous
-              ? null
-              : Tooltip(
-                  message: j.visibilite.libelle,
-                  child: const Icon(Icons.visibility_off_outlined, size: 18),
-                ),
-          title: Text(
-            '${j.auteurNom} · ${j.libelle}'
-            '${j.cible.isEmpty ? '' : ' → ${j.cible}'}',
-            overflow: TextOverflow.ellipsis,
+      itemBuilder: (context, i) => _LigneJet(jet: jets[i]),
+    );
+  }
+}
+
+/// Une ligne des logs : nature du jet, qui, quoi, dés et bonus, total.
+class _LigneJet extends StatelessWidget {
+  const _LigneJet({required this.jet});
+
+  final JetSeance jet;
+
+  @override
+  Widget build(BuildContext context) {
+    final j = jet;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final sombre = theme.brightness == Brightness.dark;
+    final (:des, :modificateur) = j.decomposition;
+    final malus = modificateur.startsWith('−') || modificateur.startsWith('-');
+    final couleurBonus = malus
+        ? scheme.error
+        : sombre
+            ? OdvCouleurs.lightGreen
+            : OdvCouleurs.darkGreen;
+    return Padding(
+      key: Key('jet-${j.id}'),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      child: Row(
+        children: [
+          Tooltip(
+            message: j.genre.libelle,
+            child: Icon(
+              iconeGenreJet(j.genre),
+              key: Key('genre-${j.genre.name}'),
+              size: 22,
+              color: scheme.primary,
+            ),
           ),
-          subtitle: j.detail.isEmpty
-              ? null
-              : Text(j.detail, overflow: TextOverflow.ellipsis),
-          trailing: j.detail.isEmpty
-              ? null
-              : Text('${j.total}', style: theme.textTheme.titleMedium),
-        );
-      },
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (j.visibilite != VisibiliteJet.tous)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Tooltip(
+                          message: j.visibilite.libelle,
+                          child: const Icon(Icons.visibility_off_outlined,
+                              size: 16),
+                        ),
+                      ),
+                    Flexible(
+                      child: Text(
+                        '${j.auteurNom} · ${j.libelle}'
+                        '${j.cible.isEmpty ? '' : ' → ${j.cible}'}',
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                if (j.detail.isNotEmpty)
+                  Text.rich(
+                    TextSpan(
+                      text: des,
+                      children: [
+                        if (modificateur.isNotEmpty)
+                          TextSpan(
+                            text: '  $modificateur',
+                            style: TextStyle(
+                              color: couleurBonus,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                      ],
+                    ),
+                    key: Key('detail-jet-${j.id}'),
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+              ],
+            ),
+          ),
+          if (j.detail.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            // Le résultat final, bonus et malus compris : il ressort.
+            Container(
+              key: Key('total-jet-${j.id}'),
+              constraints: const BoxConstraints(minWidth: 44),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: OdvCouleurs.or.withValues(alpha: 0.18),
+                border: Border.all(color: OdvCouleurs.or),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${j.total}',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -182,6 +182,23 @@ ThemeData themeOdv(Brightness brightness) {
 
   return base.copyWith(
     scaffoldBackgroundColor: scheme.surface,
+    // Fenêtres de survol : carte de la charte, filet or, texte parchemin.
+    tooltipTheme: TooltipThemeData(
+      constraints: const BoxConstraints(maxWidth: 320),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      waitDuration: const Duration(milliseconds: 200),
+      textStyle: TextStyle(color: scheme.onSurface, fontSize: 13, height: 1.35),
+      decoration: BoxDecoration(
+        color: fondBarre,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: OdvCouleurs.or),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x66000000), blurRadius: 8, offset: Offset(0, 2)),
+        ],
+      ),
+    ),
     // Barre du haut sombre avec un filet orange : l'orange reste réservé
     // aux actions.
     appBarTheme: AppBarTheme(

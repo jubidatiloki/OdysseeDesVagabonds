@@ -122,6 +122,58 @@ Future<({BaseCampagnesMemoire base, Campagne campagne})> _partie({
 }
 
 void main() {
+  group('logs', () {
+    JetSeance jet(String detail) => JetSeance(
+          auteur: 'a',
+          auteurNom: 'A',
+          libelle: 'Jet',
+          detail: detail,
+          total: 0,
+          date: DateTime(2026),
+          seance: 1,
+          lecteurs: const [],
+          genre: GenreJet.sort,
+        );
+
+    test('dés et bonus ou malus séparés', () {
+      expect(jet('3 + 5 +2').decomposition, (des: '3 + 5', modificateur: '+2'));
+      expect(jet('7 −1').decomposition, (des: '7', modificateur: '−1'));
+      expect(jet('3 + 5').decomposition, (des: '3 + 5', modificateur: ''));
+    });
+
+    test('la nature du jet est enregistrée ; ancien jet : jet de dés', () {
+      expect(
+        JetSeance.depuisJson('1', jet('1').versJson()).genre,
+        GenreJet.sort,
+      );
+      expect(JetSeance.depuisJson('1', const {}).genre, GenreJet.libre);
+    });
+
+    test('la famille d\'une créature au nom caché reste cachée', () {
+      const p = ParametresCampagne();
+      const loup = CreatureSeance(id: 'l', nom: 'Loup', famille: 'Bêtes');
+      const cachee = CreatureSeance(
+        id: 'l',
+        nom: 'Loup',
+        famille: 'Bêtes',
+        nomCache: true,
+      );
+      expect(loup.versPublic(p)['famille'], 'Bêtes');
+      expect(loup.pourJoueur(p).famille, 'Bêtes');
+      expect(cachee.versPublic(p).containsKey('famille'), isFalse);
+      expect(cachee.pourJoueur(p).famille, '');
+      // Le MJ la garde.
+      expect(
+        CreatureSeance.depuisDocuments(
+          'l',
+          cachee.versPublic(p),
+          cachee.versMj(),
+        ).famille,
+        'Bêtes',
+      );
+    });
+  });
+
   group('tours', () {
     test('initiative décroissante ; à égalité, les PJ d\'abord', () {
       expect(
@@ -860,6 +912,37 @@ void main() {
       expect(x.auteurNom, 'Brom');
       await tap(tester, find.byKey(const Key('onglet-historique')));
       expect(find.textContaining('→ aria'), findsOneWidget);
+      // Logs : nature du jet en icône, résultat final mis en avant.
+      expect(find.text('Logs'), findsOneWidget);
+      expect(x.genre, GenreJet.attaque);
+      expect(find.byKey(const Key('genre-attaque')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(Key('total-jet-${x.id}')),
+          matching: find.text('${x.total}'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('carte de créature : icône de sa famille, comme le bestiaire',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) =>
+            ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
+                  c,
+                  const CreatureSeance(id: '', nom: 'Loup', famille: 'Bêtes'),
+                ),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('liste-cartes')),
+          matching: find.byIcon(Icons.pets),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('fiche hors séance : inventaire et compétences verrouillés',

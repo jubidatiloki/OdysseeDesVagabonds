@@ -54,7 +54,11 @@ void main() {
     // Trois cadres : connaissances, aptitudes (savoir-faire), maîtrises.
     for (final f in FamilleAptitude.values) {
       final cadre = find.byKey(Key('famille-aptitudes-${f.name}'));
-      await tester.scrollUntilVisible(cadre, 300);
+      await tester.scrollUntilVisible(
+        cadre,
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
       await tester.pumpAndSettle();
       expect(cadre, findsOneWidget);
     }

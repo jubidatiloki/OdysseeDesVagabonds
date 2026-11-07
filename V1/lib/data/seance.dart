@@ -185,6 +185,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
       id: id,
       nom: creature.nom,
       creatureId: creature.creatureId,
+      famille: creature.famille,
       description: creature.description,
       initiative: creature.initiative,
       pv: creature.pv,

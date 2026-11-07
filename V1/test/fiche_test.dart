@@ -350,7 +350,8 @@ void main() {
           .widget<Tooltip>(
             find.descendant(of: caseCac, matching: find.byType(Tooltip)),
           )
-          .message,
+          .richMessage!
+          .toPlainText(),
       contains('Bâton (tenu à deux mains) : 1d8'),
     );
 

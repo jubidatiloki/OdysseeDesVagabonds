@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/equipement.dart';
 import '../models/voie.dart';
 import 'voie_detail.dart';
 
@@ -18,6 +19,7 @@ class CarteChoix extends StatelessWidget {
     this.onPrecision,
     this.validerPrecision = false,
     this.elements,
+    this.catalogue = const [],
     this.permises,
   });
 
@@ -45,6 +47,35 @@ class CarteChoix extends StatelessWidget {
   /// Éléments d'une liste (`armes`, `instruments`) avec « déjà maîtrisé » ;
   /// `null` : saisie libre seulement.
   final List<({String nom, bool maitrise})> Function(String liste)? elements;
+
+  /// Catalogue des équipements : affiche les statistiques des armes et des
+  /// instruments proposés.
+  final List<Equipement> catalogue;
+
+  /// Équipement du catalogue portant ce nom, s'il y en a un.
+  Equipement? _equipement(String nom) {
+    final n = nom.trim().toLowerCase();
+    for (final e in catalogue) {
+      if (e.nom.trim().toLowerCase() == n) return e;
+    }
+    return null;
+  }
+
+  /// Équipements offerts par les options : leurs statistiques sont visibles
+  /// avant de choisir (Outils de nain : hache ou marteau de guerre).
+  List<Equipement> get _equipementsOfferts {
+    final res = <Equipement>[];
+    for (final o in choix.options) {
+      if (o.cache) continue;
+      for (final objet in o.objets) {
+        final e = _equipement('${objet['nom'] ?? ''}');
+        if (e != null && e.resumeStats.isNotEmpty && !res.contains(e)) {
+          res.add(e);
+        }
+      }
+    }
+    return res;
+  }
 
   /// « +1 au toucher » : ce que donne l'option « déjà maîtrisé » de [o].
   String _bonusSiMaitrise(OptionChoix o) {
@@ -214,6 +245,8 @@ class CarteChoix extends StatelessWidget {
                     ),
                 ],
               ),
+            // Armes et instruments offerts : statistiques avant de choisir.
+            for (final e in _equipementsOfferts) _StatsEquipement(e),
             // Liste déroulante (armes, instruments) : déjà maîtrisé → option
             // « bonus », sinon nouvelle maîtrise.
             // Écuyer : trois propositions (nom et description) en cartes.
@@ -265,6 +298,7 @@ class CarteChoix extends StatelessWidget {
                   // Savoirs : pas de « nouvelle maîtrise » (simple bonus).
                   mentionNouveau: cible.liste != 'savoirs',
                   selection: precision,
+                  equipement: _equipement,
                   onChoisir: (nom, maitrise) {
                     final o = cible;
                     onChoisir(maitrise && o.siDejaMaitrise.isNotEmpty
@@ -452,6 +486,44 @@ class _ChampPrecisionState extends State<_ChampPrecision> {
 /// Liste déroulante des éléments d'un choix (armes, instruments), avec
 /// l'indication « déjà maîtrisé → bonus » ou « nouvelle maîtrise », et
 /// « Autre… » pour saisir un nom absent de la liste.
+/// Statistiques d'une arme ou d'un instrument proposé dans un choix.
+class _StatsEquipement extends StatelessWidget {
+  const _StatsEquipement(this.equipement);
+
+  final Equipement equipement;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 16, color: scheme.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '${equipement.nom} : ',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  TextSpan(text: equipement.resumeStats),
+                ],
+              ),
+              key: Key('stats-choix-${equipement.id}'),
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ListeElements extends StatefulWidget {
   const _ListeElements({
     super.key,
@@ -461,8 +533,12 @@ class _ListeElements extends StatefulWidget {
     required this.bonus,
     required this.selection,
     required this.onChoisir,
+    required this.equipement,
     this.mentionNouveau = true,
   });
+
+  /// Fiche du catalogue d'un élément, pour afficher ses statistiques.
+  final Equipement? Function(String nom) equipement;
 
   /// « · nouvelle maîtrise » après un élément pas encore maîtrisé.
   final bool mentionNouveau;
@@ -488,6 +564,12 @@ class _ListeElementsState extends State<_ListeElements> {
   late bool _saisieLibre = widget.selection.isNotEmpty && !_dansListe;
 
   bool get _dansListe => widget.elements.any((e) => e.nom == widget.selection);
+
+  /// Équipement choisi, quand il a des statistiques à montrer.
+  Equipement? get _choisi {
+    final e = widget.equipement(widget.selection);
+    return !_saisieLibre && e != null && e.resumeStats.isNotEmpty ? e : null;
+  }
 
   @override
   void dispose() {
@@ -520,6 +602,9 @@ class _ListeElementsState extends State<_ListeElements> {
                   TextSpan(
                     children: [
                       TextSpan(text: e.nom),
+                      if (widget.equipement(e.nom)?.degatsCourts case final d?
+                          when d.isNotEmpty)
+                        TextSpan(text: ' ($d)'),
                       TextSpan(
                         text: e.maitrise
                             ? (widget.bonus.isEmpty
@@ -554,6 +639,8 @@ class _ListeElementsState extends State<_ListeElements> {
             widget.onChoisir(e.nom, e.maitrise);
           },
         ),
+        // Statistiques de l'arme ou de l'instrument choisi.
+        if (_choisi case final e?) _StatsEquipement(e),
         if (_saisieLibre) ...[
           const SizedBox(height: 8),
           Row(

@@ -586,6 +586,7 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
             onChoisir: (o) =>
                 setState(() => _choix = {..._choix, c.choix.cle: o}),
             precision: _precisions[c.choix.cle] ?? '',
+            catalogue: widget.referentiel.equipements,
             elements: (liste) => _fiche.elementsChoix(
               liste,
               catalogue: widget.referentiel.equipements,
@@ -712,7 +713,9 @@ class _MonteeNiveauScreenState extends State<MonteeNiveauScreen> {
         ),
         body: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
+            constraints: BoxConstraints(
+              maxWidth: _etape == 1 ? kLargeurAvecResume : 720,
+            ),
             child: _contenu(),
           ),
         ),

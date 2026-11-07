@@ -99,77 +99,92 @@ class EtapeCaracteristiques extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  c.abrev,
-                  style: theme.textTheme.titleSmall
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      c.abrev,
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      modifiable ? c.nom : '${c.nom} (fixe)',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: scheme.onSurfaceVariant),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                key: Key('moins-${c.code}'),
+                tooltip: 'Retirer un point',
+                onPressed: RepartitionCreation.peutDiminuer(base, c)
+                    ? () => _modifier(c, -1)
+                    : null,
+                icon: const Icon(Icons.remove_circle_outline),
+              ),
+              SizedBox(
+                width: 28,
+                child: Text(
+                  '$valeur',
+                  key: Key('valeur-${c.code}'),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              IconButton(
+                key: Key('plus-${c.code}'),
+                tooltip: 'Ajouter un point',
+                onPressed: RepartitionCreation.peutAugmenter(base, c)
+                    ? () => _modifier(c, 1)
+                    : null,
+                icon: const Icon(Icons.add_circle_outline),
+              ),
+              SizedBox(
+                width: 40,
+                child: Text(
+                  race == 0 ? '' : formaterModificateur(race),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: race > 0
+                        ? scheme.primary
+                        : (race < 0 ? scheme.error : null),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                child: Text(
+                  '$total',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                Text(
-                  modifiable ? c.nom : '${c.nom} (fixe)',
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: scheme.onSurfaceVariant),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            key: Key('moins-${c.code}'),
-            tooltip: 'Retirer un point',
-            onPressed: RepartitionCreation.peutDiminuer(base, c)
-                ? () => _modifier(c, -1)
-                : null,
-            icon: const Icon(Icons.remove_circle_outline),
-          ),
-          SizedBox(
-            width: 28,
-            child: Text(
-              '$valeur',
-              key: Key('valeur-${c.code}'),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium,
-            ),
-          ),
-          IconButton(
-            key: Key('plus-${c.code}'),
-            tooltip: 'Ajouter un point',
-            onPressed: RepartitionCreation.peutAugmenter(base, c)
-                ? () => _modifier(c, 1)
-                : null,
-            icon: const Icon(Icons.add_circle_outline),
-          ),
-          SizedBox(
-            width: 40,
-            child: Text(
-              race == 0 ? '' : formaterModificateur(race),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: race > 0
-                    ? scheme.primary
-                    : (race < 0 ? scheme.error : null),
               ),
-            ),
+              SizedBox(
+                width: 36,
+                child: Text(
+                  formaterModificateur(modificateur(total)),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
-          SizedBox(
-            width: 36,
+          // À quoi sert cette caractéristique.
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
             child: Text(
-              '$total',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          SizedBox(
-            width: 36,
-            child: Text(
-              formaterModificateur(modificateur(total)),
-              textAlign: TextAlign.center,
+              c.description,
+              key: Key('explication-${c.code}'),
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant),
             ),
           ),
         ],

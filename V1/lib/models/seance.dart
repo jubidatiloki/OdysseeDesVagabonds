@@ -152,6 +152,7 @@ class CreatureSeance {
     required this.id,
     required this.nom,
     this.creatureId = '',
+    this.famille = '',
     this.description = '',
     this.initiative = 0,
     this.pv,
@@ -169,6 +170,9 @@ class CreatureSeance {
 
   /// Fiche du bestiaire.
   final String creatureId;
+
+  /// Famille du bestiaire : donne l'icône de la carte.
+  final String famille;
   final String description;
   final int initiative;
   final int? pv;
@@ -189,6 +193,7 @@ class CreatureSeance {
       id: id,
       nom: nom,
       creatureId: creatureId,
+      famille: famille,
       description: description,
       initiative: initiative,
       pv: v,
@@ -205,6 +210,7 @@ class CreatureSeance {
         id: id,
         nom: nomPublic,
         creatureId: p.pjVoientFichesCreatures && !nomCache ? creatureId : '',
+        famille: nomCache ? '' : famille,
         description: description,
         initiative: initiative,
         pv: p.pjVoientPvCreatures ? pv : null,
@@ -217,6 +223,7 @@ class CreatureSeance {
   Map<String, dynamic> versPublic(ParametresCampagne p) => {
         'nom': nomPublic,
         if (p.pjVoientFichesCreatures && !nomCache) 'creatureId': creatureId,
+        if (!nomCache && famille.isNotEmpty) 'famille': famille,
         if (p.pjVoientPvCreatures && pv != null) 'pv': pv,
         if (p.pjVoientPvCreatures && pvMax != null) 'pvMax': pvMax,
         'description': description,
@@ -230,6 +237,7 @@ class CreatureSeance {
   Map<String, dynamic> versMj() => {
         'nom': nom,
         'creatureId': creatureId,
+        if (famille.isNotEmpty) 'famille': famille,
         if (pv != null) 'pv': pv,
         if (pvMax != null) 'pvMax': pvMax,
       };
@@ -244,6 +252,7 @@ class CreatureSeance {
         id: id,
         nom: (mj?['nom'] ?? public['nom']) as String? ?? nomInconnu,
         creatureId: (mj ?? public)['creatureId'] as String? ?? '',
+        famille: (mj ?? public)['famille'] as String? ?? '',
         description: public['description'] as String? ?? '',
         initiative: (public['initiative'] as num?)?.toInt() ?? 0,
         pv: ((mj ?? public)['pv'] as num?)?.toInt(),
@@ -358,6 +367,26 @@ List<String> lecteursDuJet(
     };
 
 /// Un jet de dés d'une séance.
+/// Nature d'un jet : donne son icône dans les logs de la séance.
+enum GenreJet {
+  libre('Jet de dés'),
+  attaque('Attaque'),
+  degats('Dégâts'),
+  sort('Sort'),
+  test('Test de caractéristique');
+
+  const GenreJet(this.libelle);
+
+  final String libelle;
+
+  static GenreJet depuisCode(Object? code) {
+    for (final g in values) {
+      if (g.name == code) return g;
+    }
+    return libre;
+  }
+}
+
 class JetSeance {
   const JetSeance({
     this.id = '',
@@ -371,6 +400,7 @@ class JetSeance {
     required this.lecteurs,
     this.visibilite = VisibiliteJet.tous,
     this.cible = '',
+    this.genre = GenreJet.libre,
   });
 
   final String id;
@@ -392,6 +422,16 @@ class JetSeance {
 
   /// Cible d'une attaque ou d'un sort (nom affiché) ; vide : aucune.
   final String cible;
+  final GenreJet genre;
+
+  /// Dés et bonus ou malus séparés : « 3 + 5 +2 » → (« 3 + 5 », « +2 »).
+  /// Le modificateur est vide quand il n'y en a pas.
+  ({String des, String modificateur}) get decomposition {
+    final m = RegExp(r'^(.*\S)\s([+−-]\d+)$').firstMatch(detail);
+    return m == null
+        ? (des: detail, modificateur: '')
+        : (des: m[1]!, modificateur: m[2]!);
+  }
 
   Map<String, dynamic> versJson() => {
         'auteur': auteur,
@@ -404,6 +444,7 @@ class JetSeance {
         'lecteurs': lecteurs,
         'visibilite': visibilite.name,
         if (cible.isNotEmpty) 'cible': cible,
+        'genre': genre.name,
       };
 
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
@@ -418,6 +459,7 @@ class JetSeance {
         lecteurs: [for (final u in j['lecteurs'] as List? ?? const []) '$u'],
         visibilite: VisibiliteJet.depuisCode(j['visibilite']),
         cible: j['cible'] as String? ?? '',
+        genre: GenreJet.depuisCode(j['genre']),
       );
 }
 

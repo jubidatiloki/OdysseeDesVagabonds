@@ -327,6 +327,11 @@ void main() {
           .onPressed,
       isNull,
     );
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('prendre-g-melee')),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
     await tap(find.byKey(const Key('prendre-g-melee')));
     await tap(find.byKey(const Key('valider-depense-points')));
 

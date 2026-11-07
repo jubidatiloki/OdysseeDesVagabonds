@@ -98,7 +98,7 @@ class _DepenserPointsScreenState extends State<DepenserPointsScreen> {
         appBar: AppBar(title: const Text('Dépenser des points')),
         body: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
+            constraints: const BoxConstraints(maxWidth: kLargeurAvecResume),
             child: EtapeCompetences(
               titre: 'Points de compétence restants',
               race: _fiche.race,

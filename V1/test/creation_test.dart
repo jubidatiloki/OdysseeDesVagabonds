@@ -153,12 +153,27 @@ void main() {
     final plusFor =
         tester.widget<IconButton>(find.byKey(const Key('plus-FOR')));
     expect(plusFor.onPressed, isNull);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('plus-CHAN')),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
     final plusChan =
         tester.widget<IconButton>(find.byKey(const Key('plus-CHAN')));
     expect(plusChan.onPressed, isNull);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('plus-CON')),
+      -200,
+      scrollable: find.byType(Scrollable).last,
+    );
     for (var i = 0; i < 6; i++) {
       await _tap(tester, find.byKey(const Key('plus-CON')));
     }
+    await tester.scrollUntilVisible(
+      find.text('0 / 12'),
+      -200,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.text('0 / 12'), findsOneWidget);
     await _tap(tester, suivant);
 

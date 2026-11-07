@@ -433,6 +433,7 @@ class SeanceController extends ChangeNotifier {
             id: '',
             nom: nomNumerote(creature.nom, _creatures.map((x) => x.nom)),
             creatureId: creature.id,
+            famille: creature.famille,
             description: creature.description,
             initiative: creature.initiative ?? 0,
             pv: creature.pv,
@@ -619,6 +620,7 @@ class SeanceController extends ChangeNotifier {
     String? cible,
     bool parAttaquant = false,
     String cibleJet = '',
+    GenreJet genre = GenreJet.libre,
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -638,6 +640,7 @@ class SeanceController extends ChangeNotifier {
             lecteurs: lecteursDuJet(c, visibilite, auteur: uid, cible: cible),
             visibilite: visibilite,
             cible: cibleJet,
+            genre: genre,
           ),
         ),
       );

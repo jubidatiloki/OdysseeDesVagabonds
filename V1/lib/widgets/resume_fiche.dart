@@ -38,6 +38,8 @@ class ResumeFiche extends StatelessWidget {
   static const _iconeCac = Icons.gavel;
   static const _iconeDistance = Icons.gps_fixed;
   static const _iconeMagie = Icons.auto_awesome;
+  static const _explicationToucher =
+      'Jet à lancer pour toucher, comparé à la CA de la cible.';
 
   @override
   Widget build(BuildContext context) {
@@ -53,18 +55,24 @@ class ResumeFiche extends StatelessWidget {
           _CaseValeur(
             key: Key('stat-$prefixe-cac'),
             libelle: 'CaC',
+            titre: 'Toucher au corps à corps',
+            explication: _explicationToucher,
             icone: _iconeCac,
             valeur: valeurs[0],
           ),
           _CaseValeur(
             key: Key('stat-$prefixe-dist'),
             libelle: 'Distance',
+            titre: 'Toucher à distance',
+            explication: _explicationToucher,
             icone: _iconeDistance,
             valeur: valeurs[1],
           ),
           _CaseValeur(
             key: Key('stat-$prefixe-mag'),
             libelle: 'Magie',
+            titre: 'Toucher avec les sorts',
+            explication: _explicationToucher,
             icone: _iconeMagie,
             valeur: valeurs[2],
           ),
@@ -78,6 +86,7 @@ class ResumeFiche extends StatelessWidget {
         return _CaseValeur(
           key: Key('stat-deg-$cle'),
           libelle: libelle,
+          titre: 'Dégâts · $libelle',
           icone: icone,
           valeur: entrees.first.$1,
           detail: entrees.first.$2,
@@ -105,6 +114,7 @@ class ResumeFiche extends StatelessWidget {
       return _CaseValeur(
         key: Key('stat-rd-$type'),
         libelle: 'RD $type',
+        explication: 'Résistance aux dégâts de type $type.',
         icone: Icons.shield_moon_outlined,
         valeur: r == null ? '—' : formaterModificateur(r.total),
         detail: r?.sources.map((s) => s.nom).join(', '),
@@ -124,6 +134,8 @@ class ResumeFiche extends StatelessWidget {
           _Rangee(colonnes: 3, [
             _CaseValeur(
               libelle: 'PV max',
+              explication: 'Quantité de coups et de blessures encaissables '
+                  'avant de s\'évanouir ou de mourir.',
               valeur: '${f.pvMax}',
               detail: f.bonusPvCompetences != 0
                   ? 'dont ${formaterModificateur(f.bonusPvCompetences)} comp.'
@@ -132,6 +144,8 @@ class ResumeFiche extends StatelessWidget {
             if (f.classe.aDuMana)
               _CaseValeur(
                 libelle: 'PM max',
+                explication: 'Quantité de magie utilisable. Régénération : '
+                    'dé de mana par nuit de sommeil.',
                 valeur: '${f.pmMax}',
                 detail: 'd${f.deMana}',
               ),
@@ -139,6 +153,9 @@ class ResumeFiche extends StatelessWidget {
               _CaseValeur(
                 key: const Key('stat-pe-max'),
                 libelle: 'PE max',
+                explication: 'Effort physique disponible, dépensé par les '
+                    'compétences. Régénération : dé d\'endurance par nuit de '
+                    'sommeil.',
                 valeur: '${f.peMax}',
                 detail: 'd${f.deEndurance}',
               ),
@@ -150,18 +167,22 @@ class ResumeFiche extends StatelessWidget {
           _CaseValeur(
             key: const Key('stat-dv'),
             libelle: 'Dé de vie',
+            explication: 'Gain de points de vie par montée de niveau, et '
+                'limite encaissable avant de mourir.',
             valeur: 'd${f.deVie}',
           ),
           if (f.classe.aDuMana)
             _CaseValeur(
               key: const Key('stat-dm'),
               libelle: 'Dé de mana',
+              explication: 'Gain de points de mana par montée de niveau.',
               valeur: 'd${f.deMana}',
             ),
           if (f.classe.aDeLEndurance)
             _CaseValeur(
               key: const Key('stat-de'),
               libelle: "Dé d'endurance",
+              explication: "Gain de points d'endurance par montée de niveau.",
               valeur: 'd${f.deEndurance}',
             ),
           carac(Carac.chan),
@@ -175,6 +196,9 @@ class ResumeFiche extends StatelessWidget {
           _CaseValeur(
             key: const Key('stat-ca'),
             libelle: 'CA',
+            titre: "Classe d'armure",
+            explication: 'Faculté à ne pas subir les attaques, grâce à son '
+                'armure ou à son agilité.',
             icone: Icons.shield_outlined,
             valeur: '${f.classeArmure}',
             detail: [
@@ -208,6 +232,8 @@ class ResumeFiche extends StatelessWidget {
           grande: _GrandeCase(
             key: const Key('stat-init'),
             libelle: 'Initiative',
+            explication: 'Vitesse de réaction : la plus grande joue avant la '
+                'plus petite. Valeur de DEX + bonus, sans jet.',
             icone: Icons.bolt,
             // Valeur de DEX + bonus : pas de jet (règle du 31/10/2026).
             valeur: '${f.initiative}',
@@ -231,6 +257,7 @@ class ResumeFiche extends StatelessWidget {
           _CaseValeur(
             key: const Key('stat-deplacement'),
             libelle: 'Déplacement',
+            explication: 'Distance parcourue par action de mouvement.',
             icone: Icons.directions_run,
             valeur: '${f.deplacement} m',
             detail: f.bonusDeplacement.isEmpty
@@ -249,6 +276,8 @@ class ResumeFiche extends StatelessWidget {
           _CaseValeur(
             key: const Key('stat-actions-mouvement'),
             libelle: 'Actions de mvt',
+            titre: 'Actions de mouvement',
+            explication: "Nombre d'actions de mouvement par tour.",
             icone: Icons.repeat,
             valeur: '${f.actionsMouvement} / tour',
             detail: f.actionsMouvement > 1 ? 'Insaisissable' : null,
@@ -258,6 +287,7 @@ class ResumeFiche extends StatelessWidget {
             _CaseValeur(
               key: const Key('stat-chute'),
               libelle: 'Chute sans dégâts',
+              explication: 'Hauteur de chute qui ne cause aucun dégât.',
               icone: Icons.south,
               valeur: "jusqu'à ${f.chuteSansDegats} m",
             ),
@@ -402,6 +432,42 @@ class _BlocAvecGrandeCase extends StatelessWidget {
   }
 }
 
+/// Petite fenêtre au survol (souris) ou au toucher : titre en Cinzel, puis
+/// l'explication. Son cadre vient de `tooltipTheme` (charte graphique).
+class _Infobulle extends StatelessWidget {
+  const _Infobulle({
+    required this.titre,
+    required this.texte,
+    required this.child,
+  });
+
+  final String titre;
+  final String texte;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Tooltip(
+      richMessage: TextSpan(
+        children: [
+          TextSpan(
+            text: '$titre\n',
+            style: styleAmbiance(theme.textTheme.labelLarge).copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          TextSpan(text: texte),
+        ],
+      ),
+      triggerMode: TooltipTriggerMode.tap,
+      showDuration: const Duration(seconds: 6),
+      child: child,
+    );
+  }
+}
+
 /// Fond commun des cases.
 class _Fond extends StatelessWidget {
   const _Fond({required this.child});
@@ -432,10 +498,18 @@ class _CaseValeur extends StatelessWidget {
     this.icone,
     this.detail,
     this.infobulle,
+    this.titre,
+    this.explication,
     this.suite = const [],
   });
 
   final String libelle;
+
+  /// Titre de la fenêtre de survol ; par défaut, le libellé.
+  final String? titre;
+
+  /// À quoi sert cette statistique (première ligne de la fenêtre de survol).
+  final String? explication;
   final String valeur;
   final IconData? icone;
   final String? detail;
@@ -501,13 +575,12 @@ class _CaseValeur extends StatelessWidget {
         ],
       ),
     );
-    if (infobulle == null) return contenu;
-    return Tooltip(
-      message: infobulle,
-      triggerMode: TooltipTriggerMode.tap,
-      showDuration: const Duration(seconds: 6),
-      child: contenu,
-    );
+    final texte = [
+      if (explication != null) explication!,
+      if (infobulle != null && infobulle!.isNotEmpty) infobulle!,
+    ].join('\n');
+    if (texte.isEmpty) return contenu;
+    return _Infobulle(titre: titre ?? libelle, texte: texte, child: contenu);
   }
 }
 
@@ -518,17 +591,19 @@ class _GrandeCase extends StatelessWidget {
     required this.libelle,
     required this.icone,
     required this.valeur,
+    required this.explication,
   });
 
   final String libelle;
   final IconData icone;
   final String valeur;
+  final String explication;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return Container(
+    final contenu = Container(
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(10),
@@ -577,6 +652,7 @@ class _GrandeCase extends StatelessWidget {
         ],
       ),
     );
+    return _Infobulle(titre: libelle, texte: explication, child: contenu);
   }
 }
 
@@ -603,8 +679,10 @@ class _CaseCarac extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final contenu = Tooltip(
-      message: '${carac.nom} : valeur $valeur'
+    final contenu = _Infobulle(
+      titre: carac.nom,
+      texte: '${carac.description}\n'
+          'Valeur $valeur'
           '${bonus == 0 ? '' : ' (dont ${formaterModificateur(bonus)} des traits et compétences)'}'
           ', modificateur ${formaterModificateur(mod)}',
       child: Row(

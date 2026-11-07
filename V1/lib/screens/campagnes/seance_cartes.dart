@@ -6,6 +6,7 @@ import '../../models/seance.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
+import '../../widgets/infos_creature.dart';
 import '../../widgets/profil_classe.dart';
 import '../bestiaire_screen.dart';
 import '../fiche/vues_fiche.dart';
@@ -23,6 +24,18 @@ class ListeCartes extends StatelessWidget {
   void _choisir(String id) {
     seance.choisirCarte(id);
     onChoisie?.call();
+  }
+
+  /// Icône et couleur de la famille, comme dans le bestiaire. Une créature
+  /// ajoutée avant la version 0.29 retrouve sa famille par sa fiche.
+  ({Color couleur, IconData icone})? _styleCreature(
+    BuildContext context,
+    CreatureSeance c,
+  ) {
+    final famille =
+        c.famille.isNotEmpty ? c.famille : seance.ficheCreature(c)?.famille;
+    if (famille == null || famille.isEmpty) return null;
+    return styleFamille(famille, Theme.of(context).brightness);
   }
 
   @override
@@ -72,7 +85,9 @@ class ListeCartes extends StatelessWidget {
             cle: 'carte-${c.id}',
             selectionnee: s.carte == c.id,
             actif: s.etat.actif == c.id,
-            icone: Icons.pets_outlined,
+            cleIcone: 'icone-${c.id}',
+            icone: _styleCreature(context, c)?.icone ?? Icons.pets_outlined,
+            couleurIcone: _styleCreature(context, c)?.couleur,
             titre: c.nom,
             initiative: s.etat.enCombat ? c.initiative : null,
             ressources: [
@@ -111,6 +126,8 @@ class _Carte extends StatelessWidget {
     required this.icone,
     required this.titre,
     required this.onTap,
+    this.cleIcone,
+    this.couleurIcone,
     this.lignes = const [],
     this.ressources = const [],
     this.initiative,
@@ -123,6 +140,10 @@ class _Carte extends StatelessWidget {
   final String cle;
   final bool selectionnee;
   final IconData icone;
+  final String? cleIcone;
+
+  /// Couleur de l'icône ; par défaut, celle du thème.
+  final Color? couleurIcone;
   final String titre;
   final List<String> lignes;
 
@@ -169,7 +190,12 @@ class _Carte extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
           child: Row(
             children: [
-              Icon(icone, size: 20, color: scheme.primary),
+              Icon(
+                icone,
+                key: cleIcone == null ? null : Key(cleIcone!),
+                size: 20,
+                color: couleurIcone ?? scheme.primary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(

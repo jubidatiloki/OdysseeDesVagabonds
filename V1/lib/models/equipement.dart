@@ -70,6 +70,21 @@ class Equipement {
   /// (dégâts, type de dégâts, bonus de CA, prix, emplacement…).
   final Map<String, String> proprietes;
 
+  /// Statistiques utiles au moment de choisir : tout sauf le prix et les
+  /// conditions de déblocage (« Dégâts : 1d8 phy · Portée : 20 m »).
+  String get resumeStats => [
+        for (final p in proprietes.entries)
+          if (!p.key.toLowerCase().startsWith('prix') &&
+              !p.key.toLowerCase().startsWith('déblocage'))
+            '${p.key} : ${p.value}',
+      ].join(' · ');
+
+  /// Dégâts seuls, pour une liste déroulante (« 1d8 phy »).
+  String get degatsCourts => [
+        for (final p in proprietes.entries)
+          if (p.key.toLowerCase().startsWith('dégâts')) p.value,
+      ].join(' / ');
+
   /// Texte utilisé par la recherche.
   String get texteRecherche => [
         nom,

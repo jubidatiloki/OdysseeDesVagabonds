@@ -29,6 +29,52 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.29.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Fiche : petite fenêtre au survol de chaque statistique, '
+            'aux couleurs de la charte.',
+      ),
+      (
+        type: _a,
+        texte: 'Création : une phrase d\'explication pour chaque '
+            'caractéristique.',
+      ),
+      (
+        type: _a,
+        texte: 'Compétences : panneau « Déjà acquis » avec tout ce que '
+            'le personnage possède.',
+      ),
+      (
+        type: _a,
+        texte: 'Choix d\'une arme ou d\'un instrument : ses statistiques '
+            'sont affichées (ex. Outils de nain).',
+      ),
+      (
+        type: _m,
+        texte: 'Compétences : voie raciale et voies de classe bien '
+            'séparées, avec des en-têtes colorés.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : l\'onglet Historique devient Logs, avec une icône '
+            'par type de lancer.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : résultat final mis en avant, bonus et malus '
+            'en couleur dans les logs.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : les créatures ont l\'icône de leur famille, '
+            'comme dans le bestiaire.',
+      ),
+    ],
+  ),
+  (
     version: '0.28.0',
     date: '04/11/2026',
     changements: [

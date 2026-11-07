@@ -474,6 +474,7 @@ class OngletFiche extends StatelessWidget {
               onModifie();
             },
             precision: p.precisionsChoix[c.choix.cle] ?? '',
+            catalogue: equipements,
             elements: (liste) => fiche.elementsChoix(
               liste,
               catalogue: equipements,

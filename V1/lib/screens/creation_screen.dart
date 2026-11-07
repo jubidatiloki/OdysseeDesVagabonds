@@ -367,6 +367,7 @@ class _CreationScreenState extends State<CreationScreen> {
                       ..remove(c.competence.choix!.cle);
                   }),
                   precision: _precisions[c.competence.choix!.cle] ?? '',
+                  catalogue: widget.referentiel.equipements,
                   elements: (liste) => fiche.elementsChoix(
                     liste,
                     catalogue: widget.referentiel.equipements,
@@ -523,7 +524,14 @@ class _CreationScreenState extends State<CreationScreen> {
         body: Center(
           child: ConstrainedBox(
             // Races et classes côte à côte : deux colonnes de 720 px.
-            constraints: BoxConstraints(maxWidth: cote ? 1440 : 720),
+            // Compétences : place pour le panneau « Déjà acquis ».
+            constraints: BoxConstraints(
+              maxWidth: cote
+                  ? 1440
+                  : _etapeEff == 4
+                      ? kLargeurAvecResume
+                      : 720,
+            ),
             child: _contenuEtape(),
           ),
         ),
