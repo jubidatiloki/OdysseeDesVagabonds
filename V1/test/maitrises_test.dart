@@ -136,6 +136,28 @@ void main() {
     expect(f.savoirsMaitrises, contains('escalade'));
   });
 
+  test('inventaire de base : chaque kit respecte sa classe', () {
+    for (final c in classes) {
+      final objets = ObjetDuCatalogue.inventaireBase(c, catalogue);
+      expect(objets, hasLength(c.inventaireBase.length), reason: c.id);
+      expect(
+        objets.where((o) => o.categorie == CategorieObjet.arme),
+        isNotEmpty,
+        reason: c.id,
+      );
+      // Sans race : seules les maîtrises et limites de la classe comptent.
+      final f = FicheCalculee(
+        personnage: Personnage(id: 'p', nom: 'T', raceId: 'r', classeId: c.id),
+        race: const Race(id: 'r', nom: 'R', deVie: 8, deMana: 4),
+        classe: c,
+      );
+      for (final o in objets) {
+        expect(f.refusRestriction(o), isNull, reason: '${c.id} ${o.nom}');
+        expect(f.armeMaitrisee(o), isTrue, reason: '${c.id} ${o.nom}');
+      }
+    }
+  });
+
   test('arme personnalisée : aucun malus', () {
     final o = Objet(nom: 'Fouet maudit', categorie: CategorieObjet.arme);
     expect(fiche('gnome', 'magicien').armeMaitrisee(o), isTrue);

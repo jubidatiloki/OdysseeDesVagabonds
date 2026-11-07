@@ -10,7 +10,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune-melee"],
     "armureMax": "mailles",
-    "inventaireBase": [],
+    "inventaireBase": ["hache-de-guerre", "armure-cuir", "biere-naine"],
     "voies": [
       {
         "id": "barbare-brute",
@@ -313,7 +313,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune-1-main"],
     "armureMax": "mailles",
-    "inventaireBase": [],
+    "inventaireBase": ["epee-longue", "armure-cuir", "lyre", "materiel-ecriture"],
     "voies": [
       {
         "id": "barde-vagabond",
@@ -569,7 +569,7 @@
     "restrictionArmure": "Aucune.",
     "maitrisesArmes": ["civile", "commune-melee"],
     "armureMax": "",
-    "inventaireBase": [],
+    "inventaireBase": ["epee-longue", "bouclier-en-bois", "cotte-de-mailles"],
     "voies": [
       {
         "id": "chevalier-noblesse",
@@ -997,7 +997,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune"],
     "armureMax": "mailles",
-    "inventaireBase": [],
+    "inventaireBase": ["baton", "armure-cuir", "potion-sante-1"],
     "voies": [
       {
         "id": "druide-bestiale",
@@ -1398,7 +1398,7 @@
     "restrictionArmure": "Aucune.",
     "maitrisesArmes": ["civile", "commune"],
     "armureMax": "",
-    "inventaireBase": [],
+    "inventaireBase": ["epee-longue", "bouclier-en-bois", "cotte-de-mailles"],
     "voies": [
       {
         "id": "guerrier-bouclier",
@@ -1693,7 +1693,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune-melee", "poudre", "siege"],
     "armureMax": "mailles",
-    "inventaireBase": [],
+    "inventaireBase": ["petoire", "armure-cuir", "pioche", "potion-feu-gregeois"],
     "voies": [
       {
         "id": "ingenieur-artillerie",
@@ -1972,7 +1972,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile"],
     "armureMax": "cuir",
-    "inventaireBase": [],
+    "inventaireBase": ["baton", "vetement-tissu", "parchemin-magie", "materiel-ecriture"],
     "voies": [
       {
         "id": "magicien-magie-universelle",
@@ -2464,7 +2464,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile", "commune-melee"],
     "armureMax": "cuir",
-    "inventaireBase": [],
+    "inventaireBase": ["baton", "vetement-tissu", "potion-sante-1"],
     "voies": [
       {
         "id": "moine-ki",
@@ -2733,7 +2733,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile"],
     "armureMax": "cuir",
-    "inventaireBase": [],
+    "inventaireBase": ["baton", "vetement-tissu", "materiel-ecriture", "potion-poison"],
     "voies": [
       {
         "id": "necromancien-mort",
@@ -3025,7 +3025,7 @@
     "restrictionArmure": "Cotte de mailles maximum.",
     "maitrisesArmes": ["civile", "commune-melee"],
     "armureMax": "mailles",
-    "inventaireBase": [],
+    "inventaireBase": ["marteau-de-guerre", "cotte-de-mailles", {"id": "potion-sante-1", "quantite": 2}],
     "voies": [
       {
         "id": "pretre-soins",
@@ -3308,7 +3308,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile", "commune", "commune-distance"],
     "armureMax": "cuir",
-    "inventaireBase": [],
+    "inventaireBase": ["arc-court", "armure-cuir", "corde-20m"],
     "voies": [
       {
         "id": "rodeur-archer",
@@ -3600,7 +3600,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile", "commune"],
     "armureMax": "cuir",
-    "inventaireBase": [],
+    "inventaireBase": ["epee-longue", "armure-cuir", "outils-crochetage"],
     "voies": [
       {
         "id": "voleur-assassin",

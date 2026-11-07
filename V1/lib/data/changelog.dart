@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.35.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Création : un inventaire de base pour chaque classe, que le '
+            'joueur peut refuser.',
+      ),
+    ],
+  ),
+  (
     version: '0.34.0',
     date: '07/11/2026',
     changements: [
