@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.40.0',
+    date: '08/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Création : inventaires de base revus avec le nouveau catalogue '
+            '(rapière, écu, munitions, sac à dos…).',
+      ),
+    ],
+  ),
+  (
     version: '0.39.0',
     date: '08/11/2026',
     changements: [

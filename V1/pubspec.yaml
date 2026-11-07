@@ -2,7 +2,7 @@ name: odyssee_vagabonds
 description: "L'odyssée des vagabonds — création et gestion de personnages de jeu de rôle."
 publish_to: 'none'
 
-version: 0.39.0+52
+version: 0.40.0+53
 
 environment:
   sdk: ^3.5.0
