@@ -122,11 +122,19 @@ class FirestoreServiceSeance implements ServiceSeance {
 
   @override
   Future<void> demarrerCombat(Campagne c, List<String> ordre) =>
-      _etat(c).set(EtatJeu(mode: ModeJeu.combat, ordre: ordre).versJson());
+      _modifierEtat(c, (e) => e.commencerCombat(ordre));
 
   @override
   Future<void> passerEnExploration(Campagne c) =>
-      _etat(c).set(const EtatJeu().versJson());
+      _modifierEtat(c, (e) => e.enExploration());
+
+  @override
+  Future<void> changerInfos(
+    Campagne c, {
+    String? lieu,
+    Map<String, int>? montees,
+  }) =>
+      _modifierEtat(c, (e) => e.avecInfos(lieu: lieu, montees: montees));
 
   Future<void> _modifierEtat(
     Campagne c,

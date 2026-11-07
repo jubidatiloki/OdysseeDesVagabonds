@@ -9,6 +9,7 @@ import '../data/seance.dart';
 import '../models/campagne.dart';
 import '../models/creature.dart';
 import '../models/historique.dart';
+import '../models/objet.dart';
 import '../models/personnage.dart';
 import '../models/seance.dart';
 import '../regles/fiche_calculee.dart';
@@ -416,6 +417,55 @@ class SeanceController extends ChangeNotifier {
       ? s.passerEnExploration(c)
       : s.demarrerCombat(c, ordreCombat(joueurs, _creatures)));
 
+  /// MJ : lieu de la scène.
+  Future<String?> changerLieu(String lieu) =>
+      _agir((s, c) => s.changerInfos(c, lieu: lieu.trim()));
+
+  /// MJ : autorise ou retire la montée de niveau d'un joueur.
+  Future<String?> basculerMontee(String joueur, int niveau) {
+    final montees = Map<String, int>.of(_etat.montees);
+    if (_etat.peutMonter(joueur, niveau)) {
+      montees.remove(joueur);
+    } else {
+      montees[joueur] = niveau + 1;
+    }
+    return _agir((s, c) => s.changerInfos(c, montees: montees));
+  }
+
+  /// CA d'une cible (créature ou joueur) ; `null` : inconnue.
+  int? caDe(String id) {
+    for (final c in _creatures) {
+      if (c.id == id) return c.ca ?? ficheCreature(c)?.ca;
+    }
+    return ficheDe(id)?.classeArmure;
+  }
+
+  /// En combat : [id] a déjà attaqué ou lancé un sort pendant cette manche.
+  bool dejaAttaque(String id) {
+    if (!_etat.enCombat) return false;
+    for (final j in _jets.reversed) {
+      if (j.mode != ModeJeu.combat || j.manche != _etat.manche) return false;
+      if (j.attaquant == id &&
+          (j.genre == GenreJet.attaque || j.genre == GenreJet.sort)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// MJ : donne un objet au joueur dont il voit la fiche.
+  Future<String?> donnerObjet(String joueur, Objet objet) async {
+    final f = ficheDe(joueur);
+    if (f == null) return 'Fiche non partagée.';
+    f.personnage.inventaire.add(objet);
+    f.personnage.journaliser(
+      'Objet reçu du MJ : ${objet.nom}',
+      categorie: CategorieHistorique.inventaire,
+    );
+    await enregistrerFiche(f.personnage);
+    return null;
+  }
+
   Future<String?> passerTour() => _agir((s, c) => s.passerTour(c));
   Future<String?> tourPrecedent() => _agir((s, c) => s.tourPrecedent(c));
 
@@ -438,6 +488,7 @@ class SeanceController extends ChangeNotifier {
             initiative: creature.initiative ?? 0,
             pv: creature.pv,
             pvMax: creature.pv,
+            ca: creature.ca,
             cachee: cachee,
             nomCache: nomCache,
           ),
@@ -621,6 +672,8 @@ class SeanceController extends ChangeNotifier {
     bool parAttaquant = false,
     String cibleJet = '',
     GenreJet genre = GenreJet.libre,
+    int? caCible,
+    bool? touche,
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -641,6 +694,11 @@ class SeanceController extends ChangeNotifier {
             visibilite: visibilite,
             cible: cibleJet,
             genre: genre,
+            mode: _etat.mode,
+            manche: _etat.manche,
+            attaquant: parAttaquant ? idAttaquant : '',
+            caCible: caCible,
+            touche: touche,
           ),
         ),
       );

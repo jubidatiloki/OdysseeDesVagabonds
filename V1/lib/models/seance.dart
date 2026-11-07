@@ -25,7 +25,38 @@ class EtatJeu {
     this.ordre = const [],
     this.index = 0,
     this.manche = 1,
+    this.lieu = '',
+    this.montees = const {},
   });
+
+  /// Lieu de la scène, choisi par le MJ.
+  final String lieu;
+
+  /// Montées de niveau autorisées par le MJ : uid → niveau atteignable.
+  final Map<String, int> montees;
+
+  /// Le MJ autorise ce joueur à quitter le [niveau] actuel.
+  bool peutMonter(String joueur, int niveau) => (montees[joueur] ?? 0) > niveau;
+
+  /// Début d'un combat : le lieu et les autorisations restent.
+  EtatJeu commencerCombat(List<String> ordre) => EtatJeu(
+        mode: ModeJeu.combat,
+        ordre: ordre,
+        lieu: lieu,
+        montees: montees,
+      );
+
+  /// Retour à l'exploration : le lieu et les autorisations restent.
+  EtatJeu enExploration() => EtatJeu(lieu: lieu, montees: montees);
+
+  EtatJeu avecInfos({String? lieu, Map<String, int>? montees}) => EtatJeu(
+        mode: mode,
+        ordre: ordre,
+        index: index,
+        manche: manche,
+        lieu: lieu ?? this.lieu,
+        montees: montees ?? this.montees,
+      );
 
   final ModeJeu mode;
   final List<String> ordre;
@@ -51,6 +82,8 @@ class EtatJeu {
       ordre: ordre,
       index: fin ? 0 : index + 1,
       manche: fin ? manche + 1 : manche,
+      lieu: lieu,
+      montees: montees,
     );
   }
 
@@ -63,6 +96,8 @@ class EtatJeu {
       ordre: ordre,
       index: debut ? ordre.length - 1 : index - 1,
       manche: debut ? manche - 1 : manche,
+      lieu: lieu,
+      montees: montees,
     );
   }
 
@@ -79,6 +114,8 @@ class EtatJeu {
               ? 0
               : index.clamp(0, nouveau.length - 1),
       manche: manche,
+      lieu: lieu,
+      montees: montees,
     );
   }
 
@@ -87,6 +124,8 @@ class EtatJeu {
         'ordre': ordre,
         'index': index,
         'manche': manche,
+        if (lieu.isNotEmpty) 'lieu': lieu,
+        if (montees.isNotEmpty) 'montees': montees,
       };
 
   factory EtatJeu.depuisJson(Object? j) {
@@ -96,6 +135,12 @@ class EtatJeu {
       ordre: [for (final o in j['ordre'] as List? ?? const []) '$o'],
       index: (j['index'] as num?)?.toInt() ?? 0,
       manche: (j['manche'] as num?)?.toInt() ?? 1,
+      lieu: j['lieu'] as String? ?? '',
+      montees: {
+        if (j['montees'] case final Map m)
+          for (final e in m.entries)
+            if (e.value is num) '${e.key}': (e.value as num).toInt(),
+      },
     );
   }
 }
@@ -157,6 +202,7 @@ class CreatureSeance {
     this.initiative = 0,
     this.pv,
     this.pvMax,
+    this.ca,
     this.etat = EtatCreature.indemne,
     this.cachee = false,
     this.nomCache = false,
@@ -177,6 +223,9 @@ class CreatureSeance {
   final int initiative;
   final int? pv;
   final int? pvMax;
+
+  /// Classe d'armure, comparée aux attaques (visible de tous).
+  final int? ca;
   final EtatCreature etat;
 
   /// Carte invisible des PJ.
@@ -198,6 +247,7 @@ class CreatureSeance {
       initiative: initiative,
       pv: v,
       pvMax: pvMax,
+      ca: ca,
       etat: EtatCreature.depuisPv(v, pvMax),
       cachee: cachee ?? this.cachee,
       nomCache: nomCache ?? this.nomCache,
@@ -215,6 +265,7 @@ class CreatureSeance {
         initiative: initiative,
         pv: p.pjVoientPvCreatures ? pv : null,
         pvMax: p.pjVoientPvCreatures ? pvMax : null,
+        ca: ca,
         etat: etat,
         nomCache: nomCache,
       );
@@ -226,6 +277,7 @@ class CreatureSeance {
         if (!nomCache && famille.isNotEmpty) 'famille': famille,
         if (p.pjVoientPvCreatures && pv != null) 'pv': pv,
         if (p.pjVoientPvCreatures && pvMax != null) 'pvMax': pvMax,
+        if (ca != null) 'ca': ca,
         'description': description,
         'initiative': initiative,
         'etat': etat.name,
@@ -257,6 +309,7 @@ class CreatureSeance {
         initiative: (public['initiative'] as num?)?.toInt() ?? 0,
         pv: ((mj ?? public)['pv'] as num?)?.toInt(),
         pvMax: ((mj ?? public)['pvMax'] as num?)?.toInt(),
+        ca: (public['ca'] as num?)?.toInt(),
         etat: EtatCreature.depuisCode(public['etat']),
         cachee: public['cachee'] as bool? ?? false,
         nomCache: public['nomCache'] as bool? ?? false,
@@ -401,6 +454,11 @@ class JetSeance {
     this.visibilite = VisibiliteJet.tous,
     this.cible = '',
     this.genre = GenreJet.libre,
+    this.mode = ModeJeu.exploration,
+    this.manche = 1,
+    this.attaquant = '',
+    this.caCible,
+    this.touche,
   });
 
   final String id;
@@ -424,6 +482,21 @@ class JetSeance {
   final String cible;
   final GenreJet genre;
 
+  /// Mode de jeu et manche au moment du jet : sections des logs.
+  final ModeJeu mode;
+  final int manche;
+
+  /// Qui attaque (uid ou id de créature) ; vide : jet sans attaquant.
+  final String attaquant;
+
+  /// Attaque comparée à la CA de la cible ; `null` : pas de comparaison.
+  final int? caCible;
+  final bool? touche;
+
+  /// « Touché (CA 14) », « Raté (CA 14) » ; vide : pas de comparaison.
+  String get resultatCible =>
+      touche == null ? '' : '${touche! ? 'Touché' : 'Raté'} (CA $caCible)';
+
   /// Dés et bonus ou malus séparés : « 3 + 5 +2 » → (« 3 + 5 », « +2 »).
   /// Le modificateur est vide quand il n'y en a pas.
   ({String des, String modificateur}) get decomposition {
@@ -445,6 +518,11 @@ class JetSeance {
         'visibilite': visibilite.name,
         if (cible.isNotEmpty) 'cible': cible,
         'genre': genre.name,
+        'mode': mode.name,
+        'manche': manche,
+        if (attaquant.isNotEmpty) 'attaquant': attaquant,
+        if (caCible != null) 'caCible': caCible,
+        if (touche != null) 'touche': touche,
       };
 
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
@@ -460,8 +538,22 @@ class JetSeance {
         visibilite: VisibiliteJet.depuisCode(j['visibilite']),
         cible: j['cible'] as String? ?? '',
         genre: GenreJet.depuisCode(j['genre']),
+        mode: ModeJeu.depuisCode(j['mode']),
+        manche: (j['manche'] as num?)?.toInt() ?? 1,
+        attaquant: j['attaquant'] as String? ?? '',
+        caCible: (j['caCible'] as num?)?.toInt(),
+        touche: j['touche'] as bool?,
       );
 }
+
+/// Attaque contre la CA (règle du 07/11/2026) : total ≥ CA ; un 20 naturel
+/// touche toujours, un 1 naturel rate toujours.
+bool attaqueTouche({
+  required int naturel,
+  required int total,
+  required int ca,
+}) =>
+    naturel == 20 || (naturel != 1 && total >= ca);
 
 /// Dégâts à appliquer, en attente chez celui qui peut les écrire : le joueur
 /// pour sa propre fiche, le MJ pour une créature.

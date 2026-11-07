@@ -13,8 +13,12 @@ import '../../widgets/voie_detail.dart';
 /// dessous (téléphone), un cadre repliable en haut de la liste.
 const double kLargeurResume = 900;
 
+/// À partir de cette largeur, aptitudes et connaissances passent à droite
+/// des voies.
+const double kLargeurTroisColonnes = 1200;
+
 /// Largeur maximale des écrans qui affichent ce panneau.
-const double kLargeurAvecResume = 1040;
+const double kLargeurAvecResume = 1440;
 
 /// Choix des premières compétences : voie raciale (rang 1 offert),
 /// rangs des voies de classe et aptitudes (1 point chacune).
@@ -131,104 +135,109 @@ class EtapeCompetences extends StatelessWidget {
     return LayoutBuilder(builder: (context, contraintes) {
       final large = contraintes.maxWidth >= kLargeurResume;
       final groupes = _groupesAcquis();
-      final liste = ListView(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-        children: [
-          if (!large) ...[
-            _ResumeReplie(groupes: groupes),
-            const SizedBox(height: 12),
-          ],
-          Text(titre, style: theme.textTheme.titleLarge),
-          const SizedBox(height: 4),
-          Text(
-            'Dépense tes points dans les voies de ta classe (au niveau $niveau, '
-            'jusqu\'au rang $niveau) ou dans des aptitudes à 1 point. '
-            'Rien n\'oblige à tout dépenser : les points restants sont '
-            'conservés pour les niveaux suivants.'
-            '${race.pointsCompetenceBonus > 0 ? ' Bonus de race : +${race.pointsCompetenceBonus} point.' : ''}',
-          ),
-          if (voieRaciale != null) ...[
-            const SizedBox(height: 16),
-            _TitreVoies(
-              icone: _iconeRace,
-              texte: 'Voie de ta race · ${race.nom}',
-              couleur: scheme.tertiary,
-            ),
-            _CarteVoie(
-              icone: _iconeRace,
-              couleur: scheme.tertiary,
-              titre: voieRaciale.nom,
-              sousTitre: 'Voie raciale · rang $rangRacial offert',
-              enfants: [
-                for (final c in voieRaciale.competences)
-                  if (c.rang <= rangRacial) ...[
-                    LigneCompetence(competence: c, acquise: true),
-                    for (final a in c.aussi)
-                      LigneCompetence(competence: a, acquise: true),
-                  ],
-              ],
-            ),
-          ],
-          const SizedBox(height: 20),
+      final voies = <Widget>[
+        if (!large) ...[
+          _ResumeReplie(groupes: groupes),
+          const SizedBox(height: 12),
+        ],
+        Text(titre, style: theme.textTheme.titleLarge),
+        const SizedBox(height: 4),
+        Text(
+          'Dépense tes points dans les voies de ta classe (au niveau $niveau, '
+          'jusqu\'au rang $niveau) ou dans des aptitudes à 1 point. '
+          'Rien n\'oblige à tout dépenser : les points restants sont '
+          'conservés pour les niveaux suivants.'
+          '${race.pointsCompetenceBonus > 0 ? ' Bonus de race : +${race.pointsCompetenceBonus} point.' : ''}',
+        ),
+        if (voieRaciale != null) ...[
+          const SizedBox(height: 16),
           _TitreVoies(
-            icone: _iconeClasse,
-            texte: 'Voies de ta classe · ${classe.nom}',
-            couleur: scheme.primary,
+            icone: _iconeRace,
+            texte: 'Voie de ta race · ${race.nom}',
+            couleur: scheme.tertiary,
           ),
-          for (final (i, v) in classe.voies.indexed) ...[
-            if (i > 0) const SizedBox(height: 12),
-            _carteVoieClasse(context, v),
-          ],
-          const SizedBox(height: 24),
-          Text(
-            'Aptitudes et connaissances',
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          Text(
-            '1 point chacune.',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: scheme.onSurfaceVariant),
-          ),
-          // Un cadre par groupe : connaissances (savoirs), aptitudes
-          // (savoir-faire), puis maîtrises et autres.
-          for (final (f, icone) in _groupesAptitudes)
-            if (catalogueAptitudes
-                .any((a) => !a.estSort && a.famille == f)) ...[
-              const SizedBox(height: 12),
-              _CarteGroupe(
-                key: Key('famille-aptitudes-${f.name}'),
-                icone: icone,
-                titre: f.libelle,
-                sousTitre: f.sousTitre,
-                acquises: _nombreAcquises((a) => !a.estSort && a.famille == f),
-                enfants: [
-                  for (final a in catalogueAptitudes)
-                    if (!a.estSort && a.famille == f)
-                      _ligneAptitude(context, a),
+          _CarteVoie(
+            icone: _iconeRace,
+            couleur: scheme.tertiary,
+            titre: voieRaciale.nom,
+            sousTitre: 'Voie raciale · rang $rangRacial offert',
+            enfants: [
+              for (final c in voieRaciale.competences)
+                if (c.rang <= rangRacial) ...[
+                  LigneCompetence(competence: c, acquise: true),
+                  for (final a in c.aussi)
+                    LigneCompetence(competence: a, acquise: true),
                 ],
-              ),
             ],
-          // Sorts de rang 0 : classes lanceuses de sorts ou hybrides.
-          if (catalogueAptitudes
-              .any((a) => a.estSort && a.disponiblePour(classe))) ...[
+          ),
+        ],
+        const SizedBox(height: 20),
+        _TitreVoies(
+          icone: _iconeClasse,
+          texte: 'Voies de ta classe · ${classe.nom}',
+          couleur: scheme.primary,
+        ),
+        for (final (i, v) in classe.voies.indexed) ...[
+          if (i > 0) const SizedBox(height: 12),
+          _carteVoieClasse(context, v),
+        ],
+      ];
+      final partieAptitudes = <Widget>[
+        Text(
+          'Aptitudes et connaissances',
+          style: theme.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        Text(
+          '1 point chacune.',
+          style: theme.textTheme.bodySmall
+              ?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+        // Un cadre par groupe : connaissances (savoirs), aptitudes
+        // (savoir-faire), puis maîtrises et autres.
+        for (final (f, icone) in _groupesAptitudes)
+          if (catalogueAptitudes.any((a) => !a.estSort && a.famille == f)) ...[
             const SizedBox(height: 12),
             _CarteGroupe(
-              key: const Key('titre-sorts-rang0'),
-              icone: Icons.auto_awesome,
-              titre: 'Sorts de rang 0',
-              sousTitre:
-                  '1 point chacun · 0 PM · une fois par tour · pas de maintien',
-              acquises:
-                  _nombreAcquises((a) => a.estSort && a.disponiblePour(classe)),
+              key: Key('famille-aptitudes-${f.name}'),
+              icone: icone,
+              titre: f.libelle,
+              sousTitre: f.sousTitre,
+              acquises: _nombreAcquises((a) => !a.estSort && a.famille == f),
               enfants: [
                 for (final a in catalogueAptitudes)
-                  if (a.estSort && a.disponiblePour(classe))
-                    _ligneAptitude(context, a),
+                  if (!a.estSort && a.famille == f) _ligneAptitude(context, a),
               ],
             ),
           ],
+        // Sorts de rang 0 : classes lanceuses de sorts ou hybrides.
+        if (catalogueAptitudes
+            .any((a) => a.estSort && a.disponiblePour(classe))) ...[
+          const SizedBox(height: 12),
+          _CarteGroupe(
+            key: const Key('titre-sorts-rang0'),
+            icone: Icons.auto_awesome,
+            titre: 'Sorts de rang 0',
+            sousTitre:
+                '1 point chacun · 0 PM · une fois par tour · pas de maintien',
+            acquises:
+                _nombreAcquises((a) => a.estSort && a.disponiblePour(classe)),
+            enfants: [
+              for (final a in catalogueAptitudes)
+                if (a.estSort && a.disponiblePour(classe))
+                  _ligneAptitude(context, a),
+            ],
+          ),
         ],
+      ];
+      Widget colonne(List<Widget> enfants) => ListView(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            children: enfants,
+          );
+      final tout = [...voies, const SizedBox(height: 24), ...partieAptitudes];
+      final panneau = Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 0, 16),
+        child: SizedBox(width: 280, child: _PanneauAcquis(groupes: groupes)),
       );
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -238,21 +247,19 @@ class EtapeCompetences extends StatelessWidget {
             child: bandeau,
           ),
           Expanded(
-            child: large
-                ? Row(
+            child: !large
+                ? colonne(tout)
+                : Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 0, 16),
-                        child: SizedBox(
-                          width: 280,
-                          child: _PanneauAcquis(groupes: groupes),
-                        ),
-                      ),
-                      Expanded(child: liste),
+                      panneau,
+                      if (contraintes.maxWidth >= kLargeurTroisColonnes) ...[
+                        Expanded(child: colonne(voies)),
+                        Expanded(child: colonne(partieAptitudes)),
+                      ] else
+                        Expanded(child: colonne(tout)),
                     ],
-                  )
-                : liste,
+                  ),
           ),
         ],
       );
@@ -663,7 +670,7 @@ class _ListeAcquis extends StatelessWidget {
       children: [
         for (final g in groupes) ...[
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 2),
+            padding: const EdgeInsets.only(top: 16, bottom: 6),
             child: Row(
               children: [
                 Icon(g.icone, size: 16, color: scheme.primary),
@@ -680,8 +687,11 @@ class _ListeAcquis extends StatelessWidget {
           ),
           for (final l in g.lignes)
             Padding(
-              padding: const EdgeInsets.only(left: 22),
-              child: Text('• $l', style: theme.textTheme.bodySmall),
+              padding: const EdgeInsets.only(left: 22, top: 3, bottom: 3),
+              child: Text(
+                '• $l',
+                style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+              ),
             ),
         ],
       ],

@@ -89,7 +89,7 @@ class _ListeDetailState<T> extends State<ListeDetail<T>> {
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 760),
-              child: widget.detail(e),
+              child: SelectionArea(child: widget.detail(e)),
             ),
           ),
         ),

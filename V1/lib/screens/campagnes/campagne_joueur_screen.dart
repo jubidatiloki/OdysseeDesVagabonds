@@ -6,6 +6,7 @@ import 'campagnes_screen.dart';
 import 'creation_campagne_screen.dart';
 import 'fiche_partagee_screen.dart';
 import 'rejoindre_campagne_screen.dart';
+import 'seance_recaps.dart';
 
 /// Page d'une campagne pour un joueur : présentation, séance en cours, son
 /// personnage, les autres membres ; changer de personnage ou quitter.
@@ -184,6 +185,35 @@ class CampagneJoueurScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (membre)
+                      BlocConsultation(
+                        titre: 'Séances précédentes',
+                        icone: Icons.event_note_outlined,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: OutlinedButton.icon(
+                              key: const Key('recaps-joueur'),
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => Scaffold(
+                                    appBar: AppBar(
+                                      title: const Text('Séances précédentes'),
+                                    ),
+                                    body: OngletRecaps(
+                                      contexte: contexte,
+                                      campagne: c,
+                                      lecture: true,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              icon: const Icon(Icons.menu_book_outlined),
+                              label: const Text('Lire les récapitulatifs'),
+                            ),
+                          ),
+                        ],
+                      ),
                     if (membre)
                       BlocConsultation(
                         titre: 'Les autres joueurs',

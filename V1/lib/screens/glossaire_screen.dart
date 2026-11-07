@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../data/referentiel.dart';
+import '../models/affliction.dart';
 import '../regles/index_competences.dart';
 import '../widgets/liste_detail.dart';
+import 'afflictions_glossaire_screen.dart';
 import 'aptitudes_glossaire_screen.dart';
 import 'bestiaire_screen.dart';
 import 'competences_glossaire_screen.dart';
@@ -17,7 +19,8 @@ enum OngletGlossaire {
   competences('Compétences', Icons.menu_book_outlined),
   aptitudes('Connaissances & Aptitudes', Icons.school_outlined),
   equipements('Équipements', Icons.backpack_outlined),
-  bestiaire('Bestiaire', Icons.pets_outlined);
+  bestiaire('Bestiaire', Icons.pets_outlined),
+  afflictions('Afflictions & effets', Icons.healing_outlined);
 
   const OngletGlossaire(this.libelle, this.icone);
 
@@ -32,6 +35,7 @@ enum OngletGlossaire {
         aptitudes => AptitudesGlossaireScreen.entrees(r).length,
         equipements => r.equipements.length,
         bestiaire => r.creatures.length,
+        afflictions => kAfflictions.length + kEffetsDegats.length,
       };
 }
 
@@ -127,16 +131,20 @@ class _GlossaireScreenState extends State<GlossaireScreen>
           ),
       ],
     );
-    final contenu = TabBarView(
-      controller: _onglets,
-      children: [
-        ClassesScreen(referentiel: ref),
-        RacesScreen(referentiel: ref),
-        CompetencesGlossaireScreen(referentiel: ref),
-        AptitudesGlossaireScreen(referentiel: ref),
-        EquipementsScreen(referentiel: ref),
-        BestiaireScreen(referentiel: ref),
-      ],
+    // Texte sélectionnable, donc copiable, dans tous les onglets.
+    final contenu = SelectionArea(
+      child: TabBarView(
+        controller: _onglets,
+        children: [
+          ClassesScreen(referentiel: ref),
+          RacesScreen(referentiel: ref),
+          CompetencesGlossaireScreen(referentiel: ref),
+          AptitudesGlossaireScreen(referentiel: ref),
+          EquipementsScreen(referentiel: ref),
+          BestiaireScreen(referentiel: ref),
+          const AfflictionsGlossaireScreen(),
+        ],
+      ),
     );
     if (widget.dansSeance) {
       return DetailSurPlace(

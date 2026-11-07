@@ -4,15 +4,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odyssee_vagabonds/models/aptitude.dart';
+import 'package:odyssee_vagabonds/models/affliction.dart';
 import 'package:odyssee_vagabonds/models/carac.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/equipement.dart';
+import 'package:odyssee_vagabonds/models/objet.dart';
 import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/models/voie.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/screens/creation/etape_caracteristiques.dart';
+import 'package:odyssee_vagabonds/screens/afflictions_glossaire_screen.dart';
 import 'package:odyssee_vagabonds/screens/creation/etape_competences.dart';
+import 'package:odyssee_vagabonds/screens/fiche/formulaire_objet.dart';
 import 'package:odyssee_vagabonds/theme.dart';
 import 'package:odyssee_vagabonds/widgets/carte_choix.dart';
 import 'package:odyssee_vagabonds/widgets/resume_fiche.dart';
@@ -111,6 +115,105 @@ void main() {
     // Voies raciale et de classe : deux familles bien séparées.
     expect(find.text('Voie de ta race · ${nain.nom}'), findsOneWidget);
     expect(find.text('Voies de ta classe · ${guerrier.nom}'), findsOneWidget);
+  });
+
+  testWidgets('très grand écran : aptitudes à droite des voies',
+      (tester) async {
+    await taille(tester, const Size(1400, 900));
+    await tester.pumpWidget(competences(rangs: const {}));
+    await tester.pumpAndSettle();
+    final voies = tester.getTopLeft(
+      find.text('Voie de ta race · ${nain.nom}'),
+    );
+    final droite = tester.getTopLeft(find.text('Aptitudes et connaissances'));
+    expect(droite.dx, greaterThan(voies.dx + 200));
+    expect((droite.dy - voies.dy).abs(), lessThan(200));
+  });
+
+  testWidgets('choix : {precision} remplacé par la sélection', (tester) async {
+    await taille(tester, const Size(800, 800));
+    final choix = ChoixCompetence(
+      cle: 'arme',
+      options: [
+        OptionChoix(
+          id: 'arme',
+          nom: 'Arme',
+          effet: 'Maîtrise de {precision}.',
+          question: 'Laquelle ?',
+        ),
+      ],
+    );
+    Widget carte(String precision) => MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: CarteChoix(
+                nom: 'Maîtrise',
+                choix: choix,
+                valeur: 'arme',
+                precision: precision,
+                onChoisir: (_) {},
+                onPrecision: (_) {},
+              ),
+            ),
+          ),
+        );
+    await tester.pumpWidget(carte('Pioche'));
+    expect(find.text('Maîtrise de Pioche.'), findsOneWidget);
+    await tester.pumpWidget(carte(''));
+    expect(find.text('Maîtrise de la sélection.'), findsOneWidget);
+    expect(find.textContaining('{precision}'), findsNothing);
+  });
+
+  testWidgets('glossaire : afflictions et types de dégâts', (tester) async {
+    await taille(tester, const Size(900, 1200));
+    await tester.pumpWidget(const MaterialApp(
+      home: Scaffold(body: AfflictionsGlossaireScreen()),
+    ));
+    for (final a in [...kAfflictions, ...kEffetsDegats]) {
+      expect(
+        find.textContaining(a.effet, findRichText: true),
+        findsWidgets,
+        reason: a.nom,
+      );
+    }
+  });
+
+  testWidgets('arme personnalisée : élément et affliction', (tester) async {
+    await taille(tester, const Size(900, 1600));
+    final arme = Objet(
+      nom: 'Lame',
+      categorie: CategorieObjet.arme,
+      degats: '1d6',
+      personnalise: true,
+    );
+    Objet? resultat;
+    await tester.pumpWidget(MaterialApp(
+      home: Builder(
+        builder: (context) => TextButton(
+          onPressed: () async =>
+              resultat = await FormulaireObjet.ouvrir(context, objet: arme),
+          child: const Text('ouvrir'),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('ouvrir'));
+    await tester.pumpAndSettle();
+    if (find.byKey(const Key('editer-objet')).evaluate().isNotEmpty) {
+      await tester.tap(find.byKey(const Key('editer-objet')));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.byKey(const Key('element-feu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('affliction-Ralenti')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('enregistrer-objet')));
+    await tester.pumpAndSettle();
+    expect(resultat?.element, 'feu');
+    expect(resultat?.affliction, 'Ralenti');
+    expect(resultat?.resume, contains('1d6 feu'));
+    final lu = Objet.depuisJson(resultat!.versJson());
+    expect(lu.element, 'feu');
+    expect(lu.affliction, 'Ralenti');
   });
 
   testWidgets('téléphone : le résumé est un cadre repliable', (tester) async {

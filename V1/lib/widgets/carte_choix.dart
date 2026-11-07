@@ -52,6 +52,11 @@ class CarteChoix extends StatelessWidget {
   /// instruments proposés.
   final List<Equipement> catalogue;
 
+  /// Sélection à la place de `{precision}` dans les textes affichés.
+  String get _selection => precision.isEmpty ? 'la sélection' : precision;
+  String _avecPrecision(String texte) =>
+      texte.replaceAll('{precision}', _selection);
+
   /// Équipement du catalogue portant ce nom, s'il y en a un.
   Equipement? _equipement(String nom) {
     final n = nom.trim().toLowerCase();
@@ -82,7 +87,9 @@ class CarteChoix extends StatelessWidget {
     final cible = choix.option(o.siDejaMaitrise);
     if (cible == null) return '';
     final i = cible.nom.indexOf(':');
-    return i < 0 ? cible.nom : cible.nom.substring(i + 1).trim();
+    return _avecPrecision(
+      i < 0 ? cible.nom : cible.nom.substring(i + 1).trim(),
+    );
   }
 
   @override
@@ -334,16 +341,24 @@ class CarteChoix extends StatelessWidget {
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 if (o.effet.isNotEmpty)
-                  Text(o.effet, style: theme.textTheme.bodyMedium),
-                if (o.effets.isNotEmpty) ListeEffets(o.effets),
+                  Text(_avecPrecision(o.effet),
+                      style: theme.textTheme.bodyMedium),
+                if (o.effets.isNotEmpty)
+                  ListeEffets([
+                    for (final e in o.effets) e.avecPrecision(_selection),
+                  ]),
               ],
             if (choix.nombre <= 1 &&
                 choisie != null &&
                 (choisie.effet.isNotEmpty || choisie.effets.isNotEmpty)) ...[
               const SizedBox(height: 8),
               if (choisie.effet.isNotEmpty)
-                Text(choisie.effet, style: theme.textTheme.bodyMedium),
-              if (choisie.effets.isNotEmpty) ListeEffets(choisie.effets),
+                Text(_avecPrecision(choisie.effet),
+                    style: theme.textTheme.bodyMedium),
+              if (choisie.effets.isNotEmpty)
+                ListeEffets([
+                  for (final e in choisie.effets) e.avecPrecision(_selection),
+                ]),
             ],
           ],
         ),

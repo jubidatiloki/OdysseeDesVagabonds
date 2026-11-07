@@ -127,6 +127,8 @@ class Objet {
     this.equipe = false,
     this.degats = '',
     this.typeDegats,
+    this.element = '',
+    this.affliction = '',
     this.deuxMains = false,
     this.polyvalente = false,
     this.degatsDeuxMains = '',
@@ -220,6 +222,12 @@ class Objet {
   /// Effets quand l'objet est équipé (porte-bonheur : +2 CHAN).
   List<Effet> effets;
 
+  /// Élément des dégâts d'une arme (feu, glace…) ; vide : physiques.
+  String element;
+
+  /// Affliction infligée par l'arme, appliquée par le MJ ; vide : aucune.
+  String affliction;
+
   /// Compétence qui a donné l'objet (« race-gnome/1/Porte-bonheur »).
   String donnePar;
 
@@ -270,8 +278,15 @@ class Objet {
     if (categorie == CategorieObjet.arme) {
       final d = degatsActuels;
       if (d.isNotEmpty) {
-        parties.add(typeDegats == null ? d : '$d $typeDegats');
+        parties.add(
+          [
+            d,
+            if (typeDegats != null) typeDegats,
+            if (element.isNotEmpty) element
+          ].join(' '),
+        );
       }
+      if (affliction.isNotEmpty) parties.add(affliction);
       if (distance) parties.add('distance');
       if (polyvalente) {
         parties.add(tenueDeuxMains ? 'tenu à 2 mains' : 'tenu à 1 main');
@@ -314,6 +329,8 @@ class Objet {
           'poidsArmure': poidsArmure.name,
         if (principale) 'principale': true,
         if (effets.isNotEmpty) 'effets': [for (final e in effets) e.versJson()],
+        if (element.isNotEmpty) 'element': element,
+        if (affliction.isNotEmpty) 'affliction': affliction,
         if (donnePar.isNotEmpty) 'donnePar': donnePar,
         if (duCatalogue) 'duCatalogue': true,
         if (personnalise) 'personnalise': true,
@@ -341,6 +358,8 @@ class Objet {
         poidsArmure: PoidsArmure.depuisCode(j['poidsArmure'] as String?),
         principale: j['principale'] as bool? ?? false,
         effets: Effet.listeDepuisJson(j['effets']),
+        element: j['element'] as String? ?? '',
+        affliction: j['affliction'] as String? ?? '',
         donnePar: j['donnePar'] as String? ?? '',
         duCatalogue: j['duCatalogue'] as bool? ?? false,
         personnalise: j['personnalise'] as bool? ?? false,

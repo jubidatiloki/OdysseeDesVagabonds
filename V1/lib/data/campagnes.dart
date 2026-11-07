@@ -268,7 +268,8 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
 
   @override
   Future<Map<int, String>> lireRecaps(String campagneId) async {
-    _exigerMj(_lire(campagneId));
+    final c = _lire(campagneId);
+    if (!c.joueurs.contains(uid)) _exigerMj(c);
     return Map.of(base.recaps[campagneId] ?? const {});
   }
 

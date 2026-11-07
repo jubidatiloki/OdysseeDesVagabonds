@@ -13,11 +13,13 @@ import 'package:odyssee_vagabonds/models/campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/models/effet.dart';
+import 'package:odyssee_vagabonds/models/equipement.dart';
 import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/models/seance.dart';
 import 'package:odyssee_vagabonds/regles/des.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
+import 'package:odyssee_vagabonds/regles/objet_aleatoire.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/seance_screen.dart';
 import 'package:odyssee_vagabonds/screens/fiche_screen.dart';
@@ -80,6 +82,15 @@ const _referentiel = Referentiel(
   races: [_nain],
   classes: [_guerrier],
   creatures: [_loup],
+  equipements: [
+    Equipement(
+      id: 'epee',
+      nom: 'Épée',
+      categorie: CategorieEquipement.arme,
+      sousCategorie: 'CaC, une main',
+      proprietes: {'Dégâts': '1d8 phy'},
+    ),
+  ],
 );
 
 Personnage _brom() =>
@@ -170,6 +181,89 @@ void main() {
           cachee.versMj(),
         ).famille,
         'Bêtes',
+      );
+    });
+  });
+
+  group('combat et infos', () {
+    test('le lieu et les montées survivent aux tours et aux modes', () {
+      const e = EtatJeu(lieu: 'Taverne', montees: {'j1': 2});
+      final combat = e.commencerCombat(['j1', 'l']);
+      expect(combat.enCombat, isTrue);
+      expect(combat.suivant().lieu, 'Taverne');
+      expect(combat.suivant().precedent().montees, {'j1': 2});
+      expect(combat.avecOrdre(['l']).lieu, 'Taverne');
+      final fin = combat.enExploration();
+      expect(fin.enCombat, isFalse);
+      expect(fin.lieu, 'Taverne');
+      final lu = EtatJeu.depuisJson(e.versJson());
+      expect(lu.lieu, 'Taverne');
+      expect(lu.peutMonter('j1', 1), isTrue);
+      expect(lu.peutMonter('j1', 2), isFalse);
+      expect(lu.peutMonter('j2', 1), isFalse);
+    });
+
+    test('attaque contre la CA : total ≥ CA, 20 et 1 naturels', () {
+      expect(attaqueTouche(naturel: 10, total: 14, ca: 14), isTrue);
+      expect(attaqueTouche(naturel: 10, total: 13, ca: 14), isFalse);
+      expect(attaqueTouche(naturel: 20, total: 20, ca: 30), isTrue);
+      expect(attaqueTouche(naturel: 1, total: 25, ca: 14), isFalse);
+    });
+
+    test('objet aléatoire : arme ou protection avec un bonus de +1 à +3', () {
+      const catalogue = [
+        Equipement(
+          id: 'epee',
+          nom: 'Épée',
+          categorie: CategorieEquipement.arme,
+          sousCategorie: 'CaC, une main',
+          proprietes: {'Dégâts': '1d8 phy'},
+        ),
+        Equipement(
+          id: 'cuir',
+          nom: 'Cuir',
+          categorie: CategorieEquipement.armure,
+          proprietes: {'CA': '+2'},
+        ),
+        Equipement(
+          id: 'potion',
+          nom: 'Potion',
+          categorie: CategorieEquipement.consommable,
+        ),
+      ];
+      final r = Random(3);
+      final vus = <String>{};
+      for (var i = 0; i < 200; i++) {
+        final o = tirerObjetAleatoire(catalogue, r)!;
+        expect(o.nom, isNot('Potion'));
+        expect(o.personnalise, isTrue);
+        if (o.categorie.protection) {
+          expect(o.bonusCA, inInclusiveRange(3, 5));
+          vus.add('ca');
+        } else if (o.element.isNotEmpty) {
+          expect(['feu', 'glace', 'foudre'], contains(o.element));
+          vus.add('element');
+        } else if (o.affliction.isNotEmpty) {
+          vus.add('affliction');
+        } else {
+          final e = o.effets.single;
+          expect(int.parse(e.valeur), inInclusiveRange(1, 3));
+          vus.add(e.type);
+        }
+      }
+      expect(vus, {'ca', 'element', 'affliction', 'toucher', 'degats'});
+      expect(tirerObjetAleatoire(const [], r), isNull);
+    });
+
+    test('les joueurs lisent les récaps, seul le MJ les écrit', () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj');
+      final j1 = ServiceCampagnesMemoire(p.base, 'j1');
+      await mj.ecrireRecap(p.campagne.id, 1, 'Le pont est tombé.');
+      expect(await j1.lireRecaps(p.campagne.id), {1: 'Le pont est tombé.'});
+      await expectLater(
+        j1.ecrireRecap(p.campagne.id, 1, 'Non'),
+        throwsA(isA<ErreurCampagne>()),
       );
     });
   });
@@ -752,7 +846,7 @@ void main() {
       // Jet caché pour le joueur aussi : le résultat ne s'affiche pas.
       await tap(tester, find.byKey(const Key('visibilite-jet')));
       await tap(tester, find.text('Caché pour moi aussi (MJ seul)').last);
-      await tap(tester, find.byKey(const Key('lancer-seance')));
+      await tap(tester, find.byKey(const Key('test-seance-FOR')));
       expect(partie.jets.single.lecteurs, ['mj']);
       expect(find.text('Jet envoyé au MJ : résultat caché.'), findsOneWidget);
 
@@ -923,6 +1017,130 @@ void main() {
         ),
         findsOneWidget,
       );
+    });
+
+    testWidgets('en-tête : le MJ définit le lieu, le mode ressort',
+        (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      expect(find.text('Lieu à définir'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('modifier-lieu')));
+      await tester.enterText(find.byKey(const Key('champ-lieu')), 'Taverne');
+      await tap(tester, find.byKey(const Key('valider-lieu')));
+      expect(x.base.parties[x.campagne.id]!.etat.lieu, 'Taverne');
+      expect(find.text('Taverne'), findsOneWidget);
+      expect(find.byKey(const Key('menu-droite')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('basculer-mode')));
+      expect(tester.widget<Text>(find.byKey(const Key('mode-jeu'))).data,
+          'Combat');
+      expect(find.text('Taverne'), findsOneWidget);
+    });
+
+    testWidgets('PJ : boutons de dés regroupés, sans jet libre',
+        (tester) async {
+      await ouvrir(tester, 'j1', fiches: [_brom()]);
+      for (final k in ['lancer-seance', 'nombre-des', 'de-20']) {
+        expect(find.byKey(Key(k)), findsNothing);
+      }
+      expect(find.byKey(const PageStorageKey('groupe-combat')), findsOneWidget);
+      expect(find.byKey(const Key('test-seance-FOR')), findsOneWidget);
+      await tester.drag(
+        find.byKey(const PageStorageKey('groupe-stats')),
+        const Offset(0, -600),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const PageStorageKey('groupe-aptitudes')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('attaque : comparée à la CA, alerte à la deuxième, logs',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(id: 'l', nom: 'Loup', ca: 14),
+          );
+          await mj.demarrerCombat(c, ['j1', 'l']);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      final j = partie.jets.last;
+      expect(j.caCible, 14);
+      expect(j.touche, isNotNull);
+      expect(j.attaquant, 'j1');
+      expect(j.mode, ModeJeu.combat);
+      expect(find.byKey(const Key('alerte-attaque')), findsNothing);
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      // Simple alerte : le jet est quand même lancé.
+      expect(find.byKey(const Key('alerte-attaque')), findsOneWidget);
+      expect(partie.jets.length, 2);
+
+      await tap(tester, find.byKey(const Key('onglet-historique')));
+      expect(find.byKey(const Key('logs-combat')), findsOneWidget);
+      expect(find.byKey(Key('touche-jet-${j.id}')), findsNWidgets(2));
+      expect(find.text(j.resultatCible), findsWidgets);
+      final h = j.date.hour.toString().padLeft(2, '0');
+      expect(find.textContaining('$h:', findRichText: true), findsWidgets);
+    });
+
+    testWidgets('montée de niveau : possible après l\'accord du MJ',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .changerInfos(c, montees: {'j1': 2}),
+      );
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      expect(find.byKey(const Key('monter-niveau-seance')), findsOneWidget);
+    });
+
+    testWidgets('sans accord du MJ : pas de montée de niveau', (tester) async {
+      await ouvrir(tester, 'j1', fiches: [_brom()]);
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      expect(find.byKey(const Key('monter-niveau-seance')), findsNothing);
+    });
+
+    testWidgets('MJ : autorise la montée et donne un objet aléatoire',
+        (tester) async {
+      final brom = _brom();
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async => b.fiches['brom'] = (
+          fiche: brom,
+          proprietaire: 'j1',
+          partage: ['mj'],
+          editeurs: ['mj'],
+        ),
+      );
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      await tap(tester, find.byKey(const Key('autoriser-montee-j1')));
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(partie.etat.montees, {'j1': 2});
+      await tap(tester, find.byKey(const Key('autoriser-montee-j1')));
+      expect(partie.etat.montees, isEmpty);
+
+      await tap(tester, find.byKey(const Key('objet-aleatoire-j1')));
+      final nom = tester
+          .widget<Text>(find.byKey(const Key('nom-objet-aleatoire')))
+          .data!;
+      await tap(tester, find.byKey(const Key('donner-objet')));
+      expect(
+        x.base.fiches['brom']!.fiche.inventaire.map((o) => o.nom),
+        contains(nom),
+      );
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('carte de créature : icône de sa famille, comme le bestiaire',

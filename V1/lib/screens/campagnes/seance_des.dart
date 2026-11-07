@@ -2,11 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../models/aptitude.dart';
 import '../../models/carac.dart';
 import '../../models/seance.dart';
 import '../../models/voie.dart';
 import '../../regles/des.dart';
 import '../../regles/fiche_calculee.dart';
+import '../../regles/savoirs.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
@@ -22,35 +24,73 @@ class PanneauDes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return DefaultTabController(
       length: 3,
-      child: Column(
-        children: [
-          TabBar(
-            labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-            tabs: [
-              const Tab(key: Key('onglet-des'), text: 'Dés'),
-              const Tab(key: Key('onglet-historique'), text: 'Logs'),
-              Tab(
-                key: const Key('onglet-messages'),
-                child: Badge(
-                  isLabelVisible: seance.nonLus > 0,
-                  label: Text('${seance.nonLus}'),
-                  child: const Text('Messages'),
-                ),
-              ),
-            ],
+      // Fond propre et filet or : on voit que c'est un menu à part.
+      child: DecoratedBox(
+        key: const Key('menu-droite'),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          border: const Border(
+            left: BorderSide(color: OdvCouleurs.or, width: 2),
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _Lanceur(seance: seance, aleatoire: aleatoire),
-                _Historique(seance: seance),
-                OngletMessages(seance: seance),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+              child: Row(
+                children: [
+                  Icon(Icons.menu_open, size: 20, color: scheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Actions de jeu',
+                      overflow: TextOverflow.ellipsis,
+                      style: styleAmbiance(theme.textTheme.titleSmall)
+                          .copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TabBar(
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+              tabs: [
+                const Tab(
+                  key: Key('onglet-des'),
+                  icon: Icon(Icons.casino_outlined),
+                  text: 'Dés',
+                ),
+                const Tab(
+                  key: Key('onglet-historique'),
+                  icon: Icon(Icons.receipt_long_outlined),
+                  text: 'Logs',
+                ),
+                Tab(
+                  key: const Key('onglet-messages'),
+                  icon: Badge(
+                    isLabelVisible: seance.nonLus > 0,
+                    label: Text('${seance.nonLus}'),
+                    child: const Icon(Icons.mail_outline),
+                  ),
+                  text: 'Messages',
+                ),
               ],
             ),
-          ),
-        ],
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _Lanceur(seance: seance, aleatoire: aleatoire),
+                  _Historique(seance: seance),
+                  OngletMessages(seance: seance),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -80,6 +120,17 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
 
   /// Dernier résultat affiché.
   String? _resultat;
+
+  /// Alerte : deuxième attaque du tour (rien n'est bloqué).
+  String? _alerte;
+
+  /// Prévient si l'attaquant a déjà attaqué pendant cette manche.
+  void _verifierAttaque() {
+    final deja = _s.dejaAttaque(_s.idAttaquant);
+    setState(() {
+      _alerte = deja ? 'Attaque déjà faite ce tour.' : null;
+    });
+  }
 
   @override
   bool get wantKeepAlive => true;
@@ -135,7 +186,12 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       ajouter('Toucher magie', '1d20', f.toucherMagie);
       for (final d in [f.detailDegatsCac, f.detailDegatsDistance]) {
         for (final arme in d.armes) {
-          ajouter('Dégâts · ${arme.nom}', d.des(arme), d.bonusAvec(arme));
+          ajouter(
+            'Dégâts · ${arme.nom}',
+            d.des(arme),
+            d.bonusAvec(arme),
+            type: arme.element.isEmpty ? 'physique' : arme.element,
+          );
         }
         if (d.mainsNues) {
           ajouter('Dégâts · Mains nues', d.desMainsNuesAvec, d.bonusMainsNues);
@@ -186,6 +242,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     ({Competence competence, int rangSort, int cout}) s,
   ) async {
     final sort = s.competence;
+    _verifierAttaque();
     await _s.depenserSort(f, sort.nom, s.cout);
     final jets = [
       if (f.jetReussite(sort) case final j?) j,
@@ -201,6 +258,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         degats: j.applique.isEmpty && _estDegats(j.libelle),
         type: sort.typeDegats.isEmpty ? 'physique' : sort.typeDegats,
         genre: GenreJet.sort,
+        contreCa: j.attaqueMagique && j.difficulte == null,
       );
     }
     if (jets.isEmpty) {
@@ -225,6 +283,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     bool degats = false,
     String type = 'physique',
     GenreJet genre = GenreJet.libre,
+    bool contreCa = false,
   }) async {
     final f = lireFormule(des);
     if (f == null) return;
@@ -241,6 +300,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       degats: degats,
       type: type,
       genre: genre,
+      contreCa:
+          contreCa && f.groupes.length == 1 && f.groupes.first.faces == 20,
     );
   }
 
@@ -253,8 +314,17 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     bool degats = false,
     String type = 'physique',
     GenreJet genre = GenreJet.libre,
+    bool contreCa = false,
   }) async {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
+    // Attaque : comparée à la CA de la cible, si elle est connue.
+    final cibleCa = _cibleEnCours == 'soi' ? '' : _cibleEnCours;
+    final ca = contreCa && jets.length == 1 && cibleCa.isNotEmpty
+        ? _s.caDe(cibleCa)
+        : null;
+    final touche = ca == null
+        ? null
+        : attaqueTouche(naturel: jets.first, total: total, ca: ca);
     final detail = jets.isEmpty
         ? ''
         : [
@@ -269,6 +339,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       cible: _cible,
       parAttaquant: parAttaquant,
       genre: genre,
+      caCible: ca,
+      touche: touche,
       cibleJet: avecCible
           ? [
               _nomCible,
@@ -294,7 +366,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
               ? 'Jet envoyé au MJ : résultat caché.'
               : jets.isEmpty
                   ? '$libelle : lancé'
-                  : '$libelle : $total ($detail)');
+                  : '$libelle : $total ($detail)'
+                      '${touche == null ? '' : ' · ${touche ? 'Touché' : 'Raté'} (CA $ca)'}');
     });
   }
 
@@ -310,37 +383,40 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     return ListView(
       padding: const EdgeInsets.all(12),
       children: [
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final f in _faces)
-              ChoiceChip(
-                key: Key('de-$f'),
-                label: Text('d$f'),
-                selected: _de == f,
-                onSelected: (_) => setState(() => _de = f),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        _Compteur(
-          cle: 'nombre-des',
-          libelle: 'Nombre',
-          valeur: _nombre,
-          min: 1,
-          max: 20,
-          onChange: (v) => setState(() => _nombre = v),
-        ),
-        _Compteur(
-          cle: 'modificateur-de',
-          libelle: 'Modificateur',
-          valeur: _modificateur,
-          min: -30,
-          max: 30,
-          onChange: (v) => setState(() => _modificateur = v),
-        ),
-        const SizedBox(height: 8),
+        // Jets libres : MJ seulement ; les PJ passent par leurs boutons.
+        if (_s.estMj) ...[
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final f in _faces)
+                ChoiceChip(
+                  key: Key('de-$f'),
+                  label: Text('d$f'),
+                  selected: _de == f,
+                  onSelected: (_) => setState(() => _de = f),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _Compteur(
+            cle: 'nombre-des',
+            libelle: 'Nombre',
+            valeur: _nombre,
+            min: 1,
+            max: 20,
+            onChange: (v) => setState(() => _nombre = v),
+          ),
+          _Compteur(
+            cle: 'modificateur-de',
+            libelle: 'Modificateur',
+            valeur: _modificateur,
+            min: -30,
+            max: 30,
+            onChange: (v) => setState(() => _modificateur = v),
+          ),
+          const SizedBox(height: 8),
+        ],
         DropdownButtonFormField<VisibiliteJet>(
           key: const Key('visibilite-jet'),
           initialValue: _visibilite,
@@ -375,19 +451,21 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             onChanged: (v) => setState(() => _cible = v),
           ),
         ],
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          key: const Key('lancer-seance'),
-          onPressed: pasDeCible
-              ? null
-              : () => _lancerFormule(
-                    '${_nombre}d$_de',
-                    '${_nombre}d$_de',
-                    _modificateur,
-                  ),
-          icon: const Icon(Icons.casino_outlined),
-          label: const Text('Lancer'),
-        ),
+        if (_s.estMj) ...[
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            key: const Key('lancer-seance'),
+            onPressed: pasDeCible
+                ? null
+                : () => _lancerFormule(
+                      '${_nombre}d$_de',
+                      '${_nombre}d$_de',
+                      _modificateur,
+                    ),
+            icon: const Icon(Icons.casino_outlined),
+            label: const Text('Lancer'),
+          ),
+        ],
         if (_resultat != null) ...[
           const SizedBox(height: 12),
           Text(
@@ -396,81 +474,114 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             style: theme.textTheme.titleMedium,
           ),
         ],
-        // Attaques du personnage ou de la créature sélectionnée.
-        if (attaques.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          InputDecorator(
-            decoration: const InputDecoration(labelText: 'Cible'),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                key: const Key('cible-attaque'),
-                isDense: true,
-                isExpanded: true,
-                value: _cibleEnCours,
-                items: [
-                  for (final c in _s.cibles)
-                    DropdownMenuItem(
-                      value: c.id,
-                      child: Text(c.nom, overflow: TextOverflow.ellipsis),
-                    ),
-                  const DropdownMenuItem(value: 'soi', child: Text('Soi-même')),
-                  const DropdownMenuItem(
-                      value: '', child: Text('Aucune cible')),
-                ],
-                onChanged: (v) => setState(() => _cibleAttaque = v),
+        if (_alerte != null) ...[
+          const SizedBox(height: 8),
+          Row(
+            key: const Key('alerte-attaque'),
+            children: [
+              Icon(
+                Icons.warning_amber,
+                size: 18,
+                color: theme.colorScheme.tertiary,
               ),
-            ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _alerte!,
+                  style: TextStyle(color: theme.colorScheme.tertiary),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          Text('Attaques · $nom', style: theme.textTheme.titleSmall),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
+        ],
+        const SizedBox(height: 8),
+        if (attaques.isNotEmpty || (fiche != null && fiche.sorts.isNotEmpty))
+          _GroupeJets(
+            cle: 'groupe-combat',
+            titre: 'Combat · $nom',
+            icone: Icons.sports_martial_arts,
             children: [
-              for (final (i, a) in attaques.indexed)
-                ActionChip(
-                  key: Key('attaque-$i'),
-                  label: Text('${a.libelle} : ${formaterJet(a.des, a.bonus)}'),
-                  onPressed: pasDeCible
-                      ? null
-                      : () => _lancerFormule(
-                            a.libelle,
-                            a.des,
-                            a.bonus,
-                            parAttaquant: true,
-                            avecCible: true,
-                            degats: a.degats,
-                            type: a.type,
-                            genre:
-                                a.degats ? GenreJet.degats : GenreJet.attaque,
+              // Attaques du personnage ou de la créature sélectionnée.
+              if (attaques.isNotEmpty) ...[
+                InputDecorator(
+                  decoration: const InputDecoration(labelText: 'Cible'),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      key: const Key('cible-attaque'),
+                      isDense: true,
+                      isExpanded: true,
+                      value: _cibleEnCours,
+                      items: [
+                        for (final c in _s.cibles)
+                          DropdownMenuItem(
+                            value: c.id,
+                            child: Text(c.nom, overflow: TextOverflow.ellipsis),
                           ),
-                ),
-            ],
-          ),
-        ],
-        // Sorts : dépensent leur coût, puis lancent leurs dés.
-        if (fiche != null && fiche.sorts.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text('Sorts · $nom', style: theme.textTheme.titleSmall),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final (i, s) in fiche.sorts.indexed)
-                ActionChip(
-                  key: Key('sort-seance-$i'),
-                  label: Text(
-                    '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
+                        const DropdownMenuItem(
+                            value: 'soi', child: Text('Soi-même')),
+                        const DropdownMenuItem(
+                            value: '', child: Text('Aucune cible')),
+                      ],
+                      onChanged: (v) => setState(() => _cibleAttaque = v),
+                    ),
                   ),
-                  onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
-                      ? null
-                      : () => _lancerSort(fiche, s),
                 ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final (i, a) in attaques.indexed)
+                      ActionChip(
+                        key: Key('attaque-$i'),
+                        label: Text(
+                            '${a.libelle} : ${formaterJet(a.des, a.bonus)}'),
+                        onPressed: pasDeCible
+                            ? null
+                            : () {
+                                if (!a.degats) _verifierAttaque();
+                                _lancerFormule(
+                                  a.libelle,
+                                  a.des,
+                                  a.bonus,
+                                  contreCa: !a.degats,
+                                  parAttaquant: true,
+                                  avecCible: true,
+                                  degats: a.degats,
+                                  type: a.type,
+                                  genre: a.degats
+                                      ? GenreJet.degats
+                                      : GenreJet.attaque,
+                                );
+                              },
+                      ),
+                  ],
+                ),
+              ],
+              // Sorts : dépensent leur coût, puis lancent leurs dés.
+              if (fiche != null && fiche.sorts.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text('Sorts', style: theme.textTheme.titleSmall),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final (i, s) in fiche.sorts.indexed)
+                      ActionChip(
+                        key: Key('sort-seance-$i'),
+                        label: Text(
+                          '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
+                        ),
+                        onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
+                            ? null
+                            : () => _lancerSort(fiche, s),
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
-        ],
         if (attaques.isEmpty && _s.estMj) ...[
           const SizedBox(height: 16),
           const Text('Sélectionne un personnage ou une créature pour lancer '
@@ -478,33 +589,117 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         ],
         // Tests de caractéristique du personnage du joueur.
         if (fiche != null) ...[
-          const SizedBox(height: 16),
-          Text('Tests de caractéristique', style: theme.textTheme.titleSmall),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
+          _GroupeJets(
+            cle: 'groupe-stats',
+            titre: 'Statistiques',
+            icone: Icons.bar_chart,
             children: [
-              for (final c in Carac.values)
-                ActionChip(
-                  key: Key('test-seance-${c.code}'),
-                  label: Text(
-                    '${c.abrev} ${formaterModificateur(fiche.mod(c))}',
-                  ),
-                  onPressed: pasDeCible
-                      ? null
-                      : () => _lancerFormule(
-                            'Test de ${c.abrev}',
-                            '1d20',
-                            fiche.mod(c),
-                            parAttaquant: true,
-                            genre: GenreJet.test,
-                          ),
-                ),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final c in Carac.values)
+                    ActionChip(
+                      key: Key('test-seance-${c.code}'),
+                      label: Text(
+                        '${c.abrev} ${formaterModificateur(fiche.mod(c))}',
+                      ),
+                      onPressed: pasDeCible
+                          ? null
+                          : () => _lancerFormule(
+                                'Test de ${c.abrev}',
+                                '1d20',
+                                fiche.mod(c),
+                                parAttaquant: true,
+                                genre: GenreJet.test,
+                              ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          // Connaissances et aptitudes : replié, la liste est longue.
+          _GroupeJets(
+            cle: 'groupe-aptitudes',
+            titre: 'Aptitudes',
+            icone: Icons.school_outlined,
+            ouvert: false,
+            children: [
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final (i, j) in [
+                    ...jetsSavoirs(
+                      fiche,
+                      _s.referentiel.aptitudes,
+                      FamilleAptitude.savoir,
+                    ),
+                    ...jetsSavoirs(
+                      fiche,
+                      _s.referentiel.aptitudes,
+                      FamilleAptitude.savoirFaire,
+                    ),
+                  ].indexed)
+                    ActionChip(
+                      key: Key('aptitude-seance-$i'),
+                      label: Text(
+                        '${j.libelle} ${formaterModificateur(fiche.mod(j.carac) + j.total)}',
+                      ),
+                      onPressed: pasDeCible
+                          ? null
+                          : () => _lancerFormule(
+                                j.libelle,
+                                '1d20',
+                                fiche.mod(j.carac) + j.total,
+                                parAttaquant: true,
+                                genre: GenreJet.test,
+                              ),
+                    ),
+                ],
+              ),
             ],
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Groupe de boutons de dés, repliable.
+class _GroupeJets extends StatelessWidget {
+  const _GroupeJets({
+    required this.cle,
+    required this.titre,
+    required this.icone,
+    required this.children,
+    this.ouvert = true,
+  });
+
+  final String cle;
+  final String titre;
+  final IconData icone;
+  final List<Widget> children;
+  final bool ouvert;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      margin: const EdgeInsets.only(top: 8),
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        key: PageStorageKey(cle),
+        initiallyExpanded: ouvert,
+        leading: Icon(icone, color: scheme.primary),
+        title: Text(titre, overflow: TextOverflow.ellipsis),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        children: children,
+      ),
     );
   }
 }
@@ -569,11 +764,51 @@ class _Historique extends StatelessWidget {
     if (jets.isEmpty) {
       return const Center(child: TexteAVenir('Aucun jet pour l\'instant.'));
     }
-    return ListView.builder(
+    // Une section à chaque changement de mode (du plus récent au plus ancien).
+    final lignes = <Widget>[];
+    for (final (i, j) in jets.indexed) {
+      if (i == 0 || jets[i - 1].mode != j.mode) {
+        lignes.add(_TitreSectionLogs(mode: j.mode));
+      }
+      lignes.add(_LigneJet(jet: j));
+    }
+    return ListView(
       key: const Key('historique-seance'),
       padding: const EdgeInsets.all(8),
-      itemCount: jets.length,
-      itemBuilder: (context, i) => _LigneJet(jet: jets[i]),
+      children: lignes,
+    );
+  }
+}
+
+/// Début d'une section des logs : combat ou exploration.
+class _TitreSectionLogs extends StatelessWidget {
+  const _TitreSectionLogs({required this.mode});
+
+  final ModeJeu mode;
+
+  @override
+  Widget build(BuildContext context) {
+    final combat = mode == ModeJeu.combat;
+    final couleur = combat ? OdvCouleurs.red : OdvCouleurs.green;
+    return Container(
+      key: Key('logs-${mode.name}'),
+      margin: const EdgeInsets.only(top: 8, bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: couleur.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            combat ? Icons.sports_martial_arts : Icons.explore,
+            size: 16,
+            color: couleur,
+          ),
+          const SizedBox(width: 6),
+          Text(mode.libelle, style: Theme.of(context).textTheme.labelLarge),
+        ],
+      ),
     );
   }
 }
@@ -591,6 +826,8 @@ class _LigneJet extends StatelessWidget {
     final scheme = theme.colorScheme;
     final sombre = theme.brightness == Brightness.dark;
     final (:des, :modificateur) = j.decomposition;
+    String deux(int n) => n.toString().padLeft(2, '0');
+    final heure = '${deux(j.date.hour)}:${deux(j.date.minute)}';
     final malus = modificateur.startsWith('−') || modificateur.startsWith('-');
     final couleurBonus = malus
         ? scheme.error
@@ -637,25 +874,39 @@ class _LigneJet extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (j.detail.isNotEmpty)
-                  Text.rich(
-                    TextSpan(
-                      text: des,
-                      children: [
-                        if (modificateur.isNotEmpty)
-                          TextSpan(
-                            text: '  $modificateur',
-                            style: TextStyle(
-                              color: couleurBonus,
-                              fontWeight: FontWeight.w700,
-                            ),
+                Text.rich(
+                  TextSpan(
+                    text: heure,
+                    children: [
+                      if (j.detail.isNotEmpty) TextSpan(text: ' · $des'),
+                      if (modificateur.isNotEmpty)
+                        TextSpan(
+                          text: '  $modificateur',
+                          style: TextStyle(
+                            color: couleurBonus,
+                            fontWeight: FontWeight.w700,
                           ),
-                      ],
-                    ),
-                    key: Key('detail-jet-${j.id}'),
+                        ),
+                    ],
+                  ),
+                  key: Key('detail-jet-${j.id}'),
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+                if (j.touche != null)
+                  Text(
+                    j.resultatCible,
+                    key: Key('touche-jet-${j.id}'),
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: scheme.onSurfaceVariant),
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: j.touche!
+                          ? (sombre
+                              ? OdvCouleurs.lightGreen
+                              : OdvCouleurs.darkGreen)
+                          : scheme.error,
+                    ),
                   ),
               ],
             ),

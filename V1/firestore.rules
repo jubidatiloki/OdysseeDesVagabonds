@@ -6,7 +6,7 @@ rules_version = '2';
 //   partageAvec  : uids qui peuvent la lire (MJ et joueurs des campagnes)
 // Collection « campagnes » : parties à plusieurs menées par un MJ.
 //   mj, joueurs, demandes (uids), code, paramètres, séance
-//   prive/mj : script et notes (MJ seulement)
+//   prive/mj : script et notes (MJ seulement) ; prive/recaps : lus par les joueurs
 //   membres/{uid} : joueur, personnage, statut (demande / accepte)
 //   jeu/etat : mode et tours de la séance
 //   creatures/{c} : ce que voient les PJ ; creaturesMj/{c} : MJ seulement
@@ -113,9 +113,11 @@ service cloud.firestore {
           .data.joueurs;
       }
 
-      // Script et notes : le MJ seulement.
+      // Script et notes : le MJ seulement ; récaps : lus par les joueurs.
       match /prive/{doc} {
-        allow read, write: if connecte() && mjDe(id);
+        allow read: if connecte()
+          && (mjDe(id) || doc == 'recaps' && membreDe(id));
+        allow write: if connecte() && mjDe(id);
       }
 
       // Membres : le MJ, le joueur lui-même et les autres joueurs acceptés.

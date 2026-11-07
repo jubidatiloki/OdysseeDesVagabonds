@@ -1,15 +1,22 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../models/campagne.dart';
 import '../../models/creature.dart';
+import '../../models/objet.dart';
 import '../../models/seance.dart';
+import '../../regles/montee_niveau.dart';
+import '../../regles/objet_aleatoire.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/infos_creature.dart';
 import '../../widgets/profil_classe.dart';
 import '../bestiaire_screen.dart';
+import '../fiche/formulaire_objet.dart';
 import '../fiche/vues_fiche.dart';
+import '../montee_niveau_screen.dart';
 import 'campagnes_screen.dart';
 import 'fiche_partagee_screen.dart';
 
@@ -114,6 +121,104 @@ class ListeCartes extends StatelessWidget {
                 : null,
             cleRetirer: 'retirer-${c.id}',
           ),
+      ],
+    );
+  }
+}
+
+/// MJ : tire un objet du catalogue avec un bonus, le relance ou le modifie,
+/// puis le donne au joueur.
+class _DialogueObjetAleatoire extends StatefulWidget {
+  const _DialogueObjetAleatoire({
+    required this.seance,
+    required this.joueur,
+    required this.nomJoueur,
+  });
+
+  final SeanceController seance;
+  final String joueur;
+  final String nomJoueur;
+
+  @override
+  State<_DialogueObjetAleatoire> createState() =>
+      _DialogueObjetAleatoireState();
+}
+
+class _DialogueObjetAleatoireState extends State<_DialogueObjetAleatoire> {
+  final _aleatoire = Random();
+  late Objet? _objet = _tirer();
+
+  Objet? _tirer() => tirerObjetAleatoire(
+        widget.seance.referentiel.equipements,
+        _aleatoire,
+      );
+
+  Future<void> _modifier() async {
+    final o = _objet;
+    if (o == null) return;
+    final modifie = await FormulaireObjet.ouvrir(context, objet: o);
+    if (modifie != null && mounted) setState(() => _objet = modifie);
+  }
+
+  Future<void> _donner() async {
+    final o = _objet;
+    if (o == null) return;
+    final navigator = Navigator.of(context);
+    final messager = ScaffoldMessenger.of(context);
+    final erreur = await widget.seance.donnerObjet(widget.joueur, o);
+    navigator.pop();
+    messager.showSnackBar(
+      SnackBar(
+          content: Text(erreur ?? '${o.nom} : donné à ${widget.nomJoueur}.')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final o = _objet;
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: const Text('Objet aléatoire'),
+      content: o == null
+          ? const Text('Aucune arme ni armure dans le catalogue.')
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  o.nom,
+                  key: const Key('nom-objet-aleatoire'),
+                  style: theme.textTheme.titleMedium,
+                ),
+                if (o.resume.isNotEmpty) Text(o.resume),
+                if (o.description.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(o.description, style: theme.textTheme.bodySmall),
+                ],
+              ],
+            ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        if (o != null) ...[
+          TextButton(
+            key: const Key('relancer-objet'),
+            onPressed: () => setState(() => _objet = _tirer()),
+            child: const Text('Relancer'),
+          ),
+          TextButton(
+            key: const Key('modifier-objet-aleatoire'),
+            onPressed: _modifier,
+            child: const Text('Modifier'),
+          ),
+          FilledButton(
+            key: const Key('donner-objet'),
+            onPressed: _donner,
+            child: Text('Donner à ${widget.nomJoueur}'),
+          ),
+        ],
       ],
     );
   }
@@ -306,20 +411,96 @@ class DetailCarte extends StatelessWidget {
     if (f != null) {
       // Sa propre fiche, ou le MJ : fiche complète et modifiable.
       if (m.uid == s.uid) {
-        return FicheComplete(
+        final fiche = FicheComplete(
           key: ValueKey(m.uid),
           fiche: f,
           referentiel: ref,
           controller: contexte.personnages,
           onModifie: () => contexte.personnages.sauvegarder(f.personnage),
         );
+        final p = f.personnage;
+        if (!s.etat.peutMonter(m.uid, p.niveau) || !MonteeNiveau.possible(p)) {
+          return fiche;
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: FilledButton.icon(
+                key: const Key('monter-niveau-seance'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => MonteeNiveauScreen(
+                      personnage: p,
+                      race: f.race,
+                      classe: f.classe,
+                      referentiel: ref,
+                      controller: contexte.personnages,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.keyboard_double_arrow_up),
+                label:
+                    Text('Le MJ autorise : passer au niveau ${p.niveau + 1}'),
+              ),
+            ),
+            Expanded(child: fiche),
+          ],
+        );
       }
       if (s.estMj) {
-        return FicheComplete(
-          key: ValueKey(m.uid),
-          fiche: f,
-          referentiel: ref,
-          onModifie: () => s.enregistrerFiche(f.personnage),
+        final p = f.personnage;
+        final autorisee = s.etat.peutMonter(m.uid, p.niveau);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (MonteeNiveau.possible(p))
+                    OutlinedButton.icon(
+                      key: Key('autoriser-montee-${m.uid}'),
+                      onPressed: () => s.basculerMontee(m.uid, p.niveau),
+                      icon: Icon(
+                        autorisee
+                            ? Icons.check_circle
+                            : Icons.keyboard_double_arrow_up,
+                      ),
+                      label: Text(
+                        autorisee
+                            ? 'Montée de niveau autorisée'
+                            : 'Autoriser la montée de niveau',
+                      ),
+                    ),
+                  OutlinedButton.icon(
+                    key: Key('objet-aleatoire-${m.uid}'),
+                    onPressed: () => showDialog<void>(
+                      context: context,
+                      builder: (_) => _DialogueObjetAleatoire(
+                        seance: s,
+                        joueur: m.uid,
+                        nomJoueur: m.personnageNom,
+                      ),
+                    ),
+                    icon: const Icon(Icons.casino_outlined),
+                    label: const Text('Objet aléatoire'),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: FicheComplete(
+                key: ValueKey(m.uid),
+                fiche: f,
+                referentiel: ref,
+                onModifie: () => s.enregistrerFiche(f.personnage),
+              ),
+            ),
+          ],
         );
       }
       return FicheLecture(

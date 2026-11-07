@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/affliction.dart';
 import '../../models/objet.dart';
 import '../../widgets/cadre_classe.dart';
 import '../../widgets/icone_guitare.dart';
@@ -43,6 +44,8 @@ class _FormulaireObjetState extends State<FormulaireObjet> {
   /// Armure : limite du bonus de DEX (`null` : sans limite).
   int? _dexMax;
   String? _typeDegats;
+  String _element = '';
+  String _affliction = '';
   late _Prise _prise;
   late bool _distance;
   late OrigineObjet _origine;
@@ -72,6 +75,8 @@ class _FormulaireObjetState extends State<FormulaireObjet> {
     _bonusCA = o?.bonusCA ?? 0;
     _dexMax = o?.dexMax;
     _typeDegats = o?.typeDegats;
+    _element = o?.element ?? '';
+    _affliction = o?.affliction ?? '';
     _degatsDeuxMains = TextEditingController(text: o?.degatsDeuxMains ?? '');
     _prise = o == null
         ? _Prise.uneMain
@@ -113,6 +118,8 @@ class _FormulaireObjetState extends State<FormulaireObjet> {
       ..description = _description.text.trim()
       ..degats = estArme ? _degats.text.trim() : ''
       ..typeDegats = estArme ? _typeDegats : null
+      ..element = estArme ? _element : ''
+      ..affliction = estArme ? _affliction : ''
       ..deuxMains = (estArme || _categorie == CategorieObjet.bouclier) &&
           _prise == _Prise.deuxMains
       ..polyvalente = polyvalente
@@ -309,6 +316,40 @@ class _FormulaireObjetState extends State<FormulaireObjet> {
                           selected: t == _typeDegats,
                           onSelected: (choisi) =>
                               setState(() => _typeDegats = choisi ? t : null),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Élément des dégâts', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final t in kElementsDegats)
+                        ChoiceChip(
+                          key: Key('element-$t'),
+                          label: Text(t),
+                          selected: t == _element,
+                          onSelected: (choisi) =>
+                              setState(() => _element = choisi ? t : ''),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Affliction', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      for (final a in kAfflictions)
+                        ChoiceChip(
+                          key: Key('affliction-${a.nom}'),
+                          label: Text(a.nom),
+                          tooltip: a.effet,
+                          selected: a.nom == _affliction,
+                          onSelected: (choisi) =>
+                              setState(() => _affliction = choisi ? a.nom : ''),
                         ),
                     ],
                   ),

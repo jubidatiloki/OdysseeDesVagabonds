@@ -11,10 +11,14 @@ class OngletRecaps extends StatefulWidget {
     super.key,
     required this.contexte,
     required this.campagne,
+    this.lecture = false,
   });
 
   final ContexteCampagnes contexte;
   final Campagne campagne;
+
+  /// Joueur : récapitulatifs du MJ, sans les modifier.
+  final bool lecture;
 
   @override
   State<OngletRecaps> createState() => _OngletRecapsState();
@@ -66,10 +70,37 @@ class _OngletRecapsState extends State<OngletRecaps>
     super.dispose();
   }
 
+  Widget _lecture() {
+    final ecrits = [
+      for (final e in _textes.entries)
+        if (e.value.text.trim().isNotEmpty) e,
+    ]..sort((a, b) => b.key.compareTo(a.key));
+    if (ecrits.isEmpty) {
+      return const Center(
+        child: TexteAVenir('Le MJ n\'a pas encore écrit de récapitulatif.'),
+      );
+    }
+    return LargeurLimitee(
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          for (final e in ecrits)
+            BlocConsultation(
+              key: Key('recap-lecture-${e.key}'),
+              titre: 'Séance ${e.key}',
+              icone: Icons.event_note_outlined,
+              children: [SelectableText(e.value.text)],
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     if (!_charge) return const Center(child: CircularProgressIndicator());
+    if (widget.lecture) return _lecture();
     final derniere = widget.campagne.seance?.numero ?? 0;
     if (derniere == 0) {
       return const Center(

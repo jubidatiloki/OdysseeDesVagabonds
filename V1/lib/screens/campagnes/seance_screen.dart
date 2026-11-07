@@ -86,29 +86,61 @@ class _SeanceScreenState extends State<SeanceScreen>
         const styleOnglet =
             TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
         return DefaultTabController(
-          length: s.estMj ? 6 : 3,
+          length: s.estMj ? 6 : 4,
           child: Scaffold(
             appBar: AppBar(
-              title: Text(
-                'Séance ${s.numero} · ${c.nom}',
-                overflow: TextOverflow.ellipsis,
+              toolbarHeight: 76,
+              // Combat : tout l'en-tête passe au rouge.
+              backgroundColor: s.etat.enCombat
+                  ? Color.alphaBlend(
+                      OdvCouleurs.red.withValues(alpha: 0.35),
+                      Theme.of(context).appBarTheme.backgroundColor ??
+                          Theme.of(context).colorScheme.surface,
+                    )
+                  : null,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Séance ${s.numero} · ${c.nom}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  _EnTeteMode(seance: s),
+                ],
               ),
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: s.estMj
-                      ? FilledButton.icon(
-                          key: const Key('terminer-seance'),
-                          onPressed: () => _terminer(context),
-                          icon: const Icon(Icons.stop_circle_outlined),
-                          label: const Text('Clôturer la séance'),
+                  child: MediaQuery.sizeOf(context).width < 700
+                      ? IconButton(
+                          key: Key(
+                            s.estMj ? 'terminer-seance' : 'quitter-seance',
+                          ),
+                          tooltip: s.estMj
+                              ? 'Clôturer la séance'
+                              : 'Quitter la séance',
+                          onPressed: s.estMj
+                              ? () => _terminer(context)
+                              : () => Navigator.of(context).pop(),
+                          icon: Icon(
+                            s.estMj ? Icons.stop_circle_outlined : Icons.logout,
+                          ),
                         )
-                      : OutlinedButton.icon(
-                          key: const Key('quitter-seance'),
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.logout),
-                          label: const Text('Quitter la séance'),
-                        ),
+                      : s.estMj
+                          ? FilledButton.icon(
+                              key: const Key('terminer-seance'),
+                              onPressed: () => _terminer(context),
+                              icon: const Icon(Icons.stop_circle_outlined),
+                              label: const Text('Clôturer la séance'),
+                            )
+                          : OutlinedButton.icon(
+                              key: const Key('quitter-seance'),
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: const Icon(Icons.logout),
+                              label: const Text('Quitter la séance'),
+                            ),
                 ),
               ],
               bottom: TabBar(
@@ -140,13 +172,12 @@ class _SeanceScreenState extends State<SeanceScreen>
                       icon: Icon(Icons.auto_stories_outlined, size: 28),
                       text: 'Glossaire',
                     ),
-                  if (s.estMj)
-                    const Tab(
-                      key: Key('seance-recaps'),
-                      height: 76,
-                      icon: Icon(Icons.event_note_outlined, size: 28),
-                      text: 'Séances précédentes',
-                    ),
+                  const Tab(
+                    key: Key('seance-recaps'),
+                    height: 76,
+                    icon: Icon(Icons.event_note_outlined, size: 28),
+                    text: 'Séances précédentes',
+                  ),
                   const Tab(
                     key: Key('seance-regles'),
                     height: 76,
@@ -222,8 +253,12 @@ class _SeanceScreenState extends State<SeanceScreen>
             referentiel: widget.contexte.referentiel,
             dansSeance: true,
           ),
-        if (s.estMj && s.campagne != null)
-          OngletRecaps(contexte: widget.contexte, campagne: s.campagne!),
+        if (s.campagne != null)
+          OngletRecaps(
+            contexte: widget.contexte,
+            campagne: s.campagne!,
+            lecture: !s.estMj,
+          ),
         ReglesScreen(
           referentiel: widget.contexte.referentiel,
           avecBarre: false,
@@ -256,8 +291,10 @@ class _SeanceScreenState extends State<SeanceScreen>
           ),
           child: Column(
             children: [
-              _BarreTours(seance: s),
-              const Divider(height: 1),
+              if (s.estMj || s.etat.enCombat) ...[
+                _BarreTours(seance: s),
+                const Divider(height: 1),
+              ],
               Expanded(
                 child: large
                     ? Row(
@@ -309,6 +346,144 @@ Future<void> _suivre(BuildContext context, Future<String?> action) async {
   if (context.mounted) _erreur(context, erreur);
 }
 
+/// MJ : saisie du lieu de la scène.
+class _DialogueLieu extends StatefulWidget {
+  const _DialogueLieu({required this.lieu});
+
+  final String lieu;
+
+  @override
+  State<_DialogueLieu> createState() => _DialogueLieuState();
+}
+
+class _DialogueLieuState extends State<_DialogueLieu> {
+  late final _champ = TextEditingController(text: widget.lieu);
+
+  @override
+  void dispose() {
+    _champ.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Lieu de la scène'),
+      content: TextField(
+        key: const Key('champ-lieu'),
+        controller: _champ,
+        autofocus: true,
+        maxLength: 60,
+        textCapitalization: TextCapitalization.sentences,
+        decoration:
+            const InputDecoration(hintText: 'Ex. : Taverne du Sanglier'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(
+          key: const Key('valider-lieu'),
+          onPressed: () => Navigator.pop(context, _champ.text),
+          child: const Text('Enregistrer'),
+        ),
+      ],
+    );
+  }
+}
+
+/// En-tête : pastille du mode, bien visible, et lieu de la scène.
+class _EnTeteMode extends StatelessWidget {
+  const _EnTeteMode({required this.seance});
+
+  final SeanceController seance;
+
+  Future<void> _modifierLieu(BuildContext context) async {
+    final lieu = await showDialog<String>(
+      context: context,
+      builder: (_) => _DialogueLieu(lieu: seance.etat.lieu),
+    );
+    if (lieu != null && context.mounted) {
+      await _suivre(context, seance.changerLieu(lieu));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final e = seance.etat;
+    final theme = Theme.of(context);
+    final couleur = e.enCombat ? OdvCouleurs.red : OdvCouleurs.darkGreen;
+    final texteLieu = e.lieu.isEmpty ? 'Lieu à définir' : e.lieu;
+    final lieu = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.place_outlined, size: 18),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            texteLieu,
+            key: const Key('lieu-seance'),
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium,
+          ),
+        ),
+        if (seance.estMj) ...[
+          const SizedBox(width: 4),
+          const Icon(Icons.edit_outlined, size: 14),
+        ],
+      ],
+    );
+    return Row(
+      children: [
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: couleur,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  e.enCombat ? Icons.sports_martial_arts : Icons.explore,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    e.mode.libelle,
+                    key: const Key('mode-jeu'),
+                    overflow: TextOverflow.ellipsis,
+                    style: styleAmbiance(theme.textTheme.titleSmall).copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (seance.estMj || e.lieu.isNotEmpty) ...[
+          const SizedBox(width: 10),
+          Flexible(
+            child: seance.estMj
+                ? InkWell(
+                    key: const Key('modifier-lieu'),
+                    onTap: () => _modifierLieu(context),
+                    child: lieu,
+                  )
+                : lieu,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 /// Mode de jeu et tours : au-dessus des trois portions.
 class _BarreTours extends StatelessWidget {
   const _BarreTours({required this.seance});
@@ -329,22 +504,6 @@ class _BarreTours extends StatelessWidget {
           runSpacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  e.enCombat ? Icons.sports_martial_arts : Icons.explore,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  e.mode.libelle,
-                  key: const Key('mode-jeu'),
-                  style: theme.textTheme.titleSmall,
-                ),
-              ],
-            ),
             if (e.enCombat)
               Text(
                 'Manche ${e.manche} · '

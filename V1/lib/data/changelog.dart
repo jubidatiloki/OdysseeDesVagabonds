@@ -29,6 +29,69 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.30.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Glossaire : texte copiable et onglet Afflictions & effets.',
+      ),
+      (
+        type: _a,
+        texte: 'Armes personnalisées : élément des dégâts (feu, glace…) '
+            'et affliction.',
+      ),
+      (
+        type: _a,
+        texte: 'Campagne : les PJ lisent les récapitulatifs des séances '
+            'écrits par le MJ.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : lieu défini par le MJ, mode bien visible dans '
+            'l\'en-tête.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : attaque comparée à la CA de la cible (touché ou '
+            'raté) et alerte à la 2e attaque du tour.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : montée de niveau sur autorisation du MJ.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : le MJ peut tirer un objet aléatoire et le donner '
+            'à un PJ.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : logs séparés par combat et exploration, avec '
+            'l\'heure de chaque lancer.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : boutons de dés regroupés (combat, statistiques, '
+            'aptitudes), jets libres réservés au MJ.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : menu de droite plus visible (titre, icônes, '
+            'filet or).',
+      ),
+      (
+        type: _m,
+        texte: 'Compétences : aptitudes à droite des voies sur grand écran, '
+            '« Déjà acquis » plus aéré.',
+      ),
+      (
+        type: _c,
+        texte: 'Création : {precision} remplacé par la sélection.',
+      ),
+    ],
+  ),
+  (
     version: '0.29.0',
     date: '07/11/2026',
     changements: [

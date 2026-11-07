@@ -37,6 +37,12 @@ abstract class ServiceSeance {
   Future<void> tourPrecedent(Campagne c);
 
   /// MJ : ajoute, modifie (PV, carte cachée, nom caché) ou retire.
+  /// MJ : lieu de la scène et montées de niveau autorisées.
+  Future<void> changerInfos(
+    Campagne c, {
+    String? lieu,
+    Map<String, int>? montees,
+  });
   Future<void> ajouterCreature(Campagne c, CreatureSeance creature);
   Future<void> modifierCreature(Campagne c, CreatureSeance creature);
   Future<void> retirerCreature(Campagne c, String creatureId);
@@ -147,13 +153,23 @@ class ServiceSeanceMemoire implements ServiceSeance {
   @override
   Future<void> demarrerCombat(Campagne c, List<String> ordre) async {
     _exigerMj(c);
-    _changer(c, EtatJeu(mode: ModeJeu.combat, ordre: ordre));
+    _changer(c, _partie(c).etat.commencerCombat(ordre));
   }
 
   @override
   Future<void> passerEnExploration(Campagne c) async {
     _exigerMj(c);
-    _changer(c, const EtatJeu());
+    _changer(c, _partie(c).etat.enExploration());
+  }
+
+  @override
+  Future<void> changerInfos(
+    Campagne c, {
+    String? lieu,
+    Map<String, int>? montees,
+  }) async {
+    _exigerMj(c);
+    _changer(c, _partie(c).etat.avecInfos(lieu: lieu, montees: montees));
   }
 
   @override
@@ -190,6 +206,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
       initiative: creature.initiative,
       pv: creature.pv,
       pvMax: creature.pvMax,
+      ca: creature.ca,
       etat: creature.etat,
       cachee: creature.cachee,
       nomCache: creature.nomCache,
