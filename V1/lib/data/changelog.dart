@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.37.0',
+    date: '08/11/2026',
+    changements: [
+      (type: _a, texte: 'Catalogue : la rapière.'),
+      (
+        type: _a,
+        texte: 'Catalogue : 26 objets de marchand (lanterne, torche, tente, '
+            'rations, grappin, munitions…).',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : le lieu est gardé d\'une séance à la suivante.',
+      ),
+    ],
+  ),
+  (
     version: '0.36.0',
     date: '07/11/2026',
     changements: [
@@ -55,7 +71,8 @@ const List<VersionChangelog> kChangelog = [
       ),
       (
         type: _c,
-        texte: 'Séance : seule la conversation affichée est marquée lue ; le MJ '
+        texte:
+            'Séance : seule la conversation affichée est marquée lue ; le MJ '
             'voit les non-lus de chaque joueur.',
       ),
     ],

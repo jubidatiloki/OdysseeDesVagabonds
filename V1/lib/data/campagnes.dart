@@ -3,7 +3,6 @@ import 'dart:math';
 
 import '../models/campagne.dart';
 import '../models/personnage.dart';
-import '../models/seance.dart';
 import 'seance.dart';
 
 /// Campagnes en ligne d'un compte (uid). L'interface permet de remplacer
@@ -392,8 +391,9 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
   Future<void> demarrerSeance(Campagne campagne) async {
     _exigerMj(campagne);
     final c = _lire(campagne.id);
-    // Une séance commence en exploration.
-    base.parties[c.id]?.etat = const EtatJeu();
+    // Une séance commence en exploration, au lieu où la précédente a fini.
+    final partie = base.parties[c.id];
+    if (partie != null) partie.etat = partie.etat.nouvelleSeance();
     final seance =
         Seance(numero: (c.seance?.numero ?? 0) + 1, debut: _horloge());
     (base.datesRecaps[c.id] ??= {})[seance.numero] = seance.debut;

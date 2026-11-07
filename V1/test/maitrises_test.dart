@@ -96,6 +96,22 @@ void main() {
     expect(objet('pavois').categorie, CategorieObjet.bouclier);
   });
 
+  test('catalogue : rapière et objets de marchand', () {
+    final rapiere = objet('rapiere');
+    expect((rapiere.groupeArme, rapiere.degats, rapiere.deuxMains),
+        ('commune-melee', '1d6', false));
+    // Lanterne : objet divers, ne s'équipe pas ; ses propriétés (sauf le
+    // prix) sont lisibles dans la description.
+    final lanterne = objet('lanterne');
+    expect(lanterne.categorie, CategorieObjet.divers);
+    expect(lanterne.categorie.equipable, isFalse);
+    expect(lanterne.description, contains('Lumière : 10 m'));
+    expect(lanterne.description, isNot(contains('Prix')));
+    expect(objet('torche').categorie, CategorieObjet.consommable);
+    expect(objet('fleches').categorie, CategorieObjet.consommable);
+    expect(objet('symbole-sacre').categorie, CategorieObjet.divers);
+  });
+
   test('arme non maîtrisée : −5 au toucher ; maîtrisée : rien', () {
     final epee = objet('epee-longue')..equipe = true;
     final magicien = fiche('demi-orque', 'magicien');

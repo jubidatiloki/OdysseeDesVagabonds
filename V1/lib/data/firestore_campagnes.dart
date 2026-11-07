@@ -305,7 +305,9 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       numero: (c.seance?.numero ?? 0) + 1,
       debut: DateTime.now(),
     );
-    // Une séance commence en exploration.
+    // Une séance commence en exploration, au lieu où la précédente a fini.
+    final etat = _campagnes.doc(c.id).collection('jeu').doc('etat');
+    final ancien = EtatJeu.depuisJson((await etat.get()).data());
     final lot = _base.batch()
       ..update(_campagnes.doc(c.id), {
         'seance': seance.versJson(),
@@ -316,8 +318,7 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
         {'date-${seance.numero}': seance.debut.toIso8601String()},
         SetOptions(merge: true),
       )
-      ..set(_campagnes.doc(c.id).collection('jeu').doc('etat'),
-          const EtatJeu().versJson());
+      ..set(etat, ancien.nouvelleSeance().versJson());
     await lot.commit();
   }
 

@@ -46,6 +46,10 @@ class EtatJeu {
         montees: montees,
       );
 
+  /// Nouvelle séance : exploration, seul le lieu reste (la partie reprend où
+  /// elle s'était arrêtée).
+  EtatJeu nouvelleSeance() => EtatJeu(lieu: lieu);
+
   /// Retour à l'exploration : le lieu et les autorisations restent.
   EtatJeu enExploration() => EtatJeu(lieu: lieu, montees: montees);
 

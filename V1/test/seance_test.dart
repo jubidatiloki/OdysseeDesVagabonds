@@ -310,6 +310,24 @@ void main() {
       expect(vus[PuissanceObjet.fort], {'bonus', 'affliction'});
     });
 
+    test('séance suivante : le lieu reste, le combat et les montées non',
+        () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj');
+      await mj.seance.changerInfos(
+        p.campagne,
+        lieu: 'Taverne du Sanglier',
+        montees: {'j1': 2},
+      );
+      await mj.seance.demarrerCombat(p.campagne, ['j1']);
+      await mj.terminerSeance(p.base.campagnes[p.campagne.id]!);
+      await mj.demarrerSeance(p.base.campagnes[p.campagne.id]!);
+      final e = await mj.seance.ecouterEtat(p.campagne).first;
+      expect(e.lieu, 'Taverne du Sanglier');
+      expect(e.enCombat, isFalse);
+      expect(e.montees, isEmpty);
+    });
+
     test('date d\'une séance : posée au démarrage, modifiable par le MJ',
         () async {
       final p = await _partie();

@@ -677,5 +677,288 @@
 			"DEX max": "+1",
 			"Prix": "3 pa"
 		}
+	},
+	{
+		"id": "rapiere",
+		"groupeArme": "commune-melee",
+		"nom": "Rapière",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, épée, une main, perforante",
+		"description": "Épée fine et longue, arme favorite des bretteurs.",
+		"proprietes": {
+			"Dégâts": "1D6 phy",
+			"Prix": "25 pc"
+		}
+	},
+	{
+		"id": "lanterne",
+		"nom": "Lanterne",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, éclairage",
+		"description": "Lanterne à huile munie d'un volet pour masquer la lumière.",
+		"proprietes": {
+			"Lumière": "10 m",
+			"Durée": "6 h par flasque d'huile",
+			"Prix": "8 pc"
+		}
+	},
+	{
+		"id": "flasque-huile",
+		"nom": "Flasque d'huile",
+		"categorie": "Consommable",
+		"sousCategorie": "Éclairage",
+		"description": "Huile pour lanterne.",
+		"proprietes": {
+			"Durée": "6 h",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "torche",
+		"nom": "Torche",
+		"categorie": "Consommable",
+		"sousCategorie": "Éclairage",
+		"description": "Bâton enduit de poix qui brûle environ une heure.",
+		"proprietes": {
+			"Lumière": "6 m",
+			"Durée": "1 h",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "bougie",
+		"nom": "Bougie",
+		"categorie": "Consommable",
+		"sousCategorie": "Éclairage",
+		"description": "Petite bougie de suif.",
+		"proprietes": {
+			"Lumière": "2 m",
+			"Durée": "1 h",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "briquet",
+		"nom": "Briquet à silex",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, feu",
+		"description": "Silex, amadou et acier pour allumer un feu.",
+		"proprietes": {
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "sac-a-dos",
+		"nom": "Sac à dos",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Sac de toile solide à porter sur le dos.",
+		"proprietes": {
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "sac-de-couchage",
+		"nom": "Sac de couchage",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Couverture épaisse pour dormir à la belle étoile.",
+		"proprietes": {
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "tente",
+		"nom": "Tente",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Tente de toile pour deux personnes.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "gourde",
+		"nom": "Gourde",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Outre de cuir contenant environ un litre.",
+		"proprietes": {
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "rations",
+		"nom": "Rations de voyage",
+		"categorie": "Consommable",
+		"sousCategorie": "Nourriture",
+		"description": "Viande séchée, fromage et biscuits pour une journée.",
+		"proprietes": {
+			"Durée": "1 jour",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "gamelle",
+		"nom": "Gamelle et couverts",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Écuelle, gobelet et couverts de fer-blanc.",
+		"proprietes": {
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "carte-region",
+		"nom": "Carte de la région",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Carte des routes, villages et lieux remarquables des environs.",
+		"proprietes": {
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "longue-vue",
+		"nom": "Longue-vue",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, voyage",
+		"description": "Tube de laiton à lentilles pour voir au loin.",
+		"proprietes": {
+			"Prix": "5 pa"
+		}
+	},
+	{
+		"id": "trousse-soins",
+		"nom": "Trousse de soins",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, soins",
+		"description": "Bandages, onguents et attelles pour panser les blessures.",
+		"proprietes": {
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "grappin",
+		"nom": "Grappin",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, escalade",
+		"description": "Crochet de fer à attacher au bout d'une corde.",
+		"proprietes": {
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "pied-de-biche",
+		"nom": "Pied-de-biche",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Barre de fer pour forcer portes et coffres.",
+		"proprietes": {
+			"Prix": "3 pc"
+		}
+	},
+	{
+		"id": "chaine",
+		"nom": "Chaîne",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Chaîne de fer de 3 m.",
+		"proprietes": {
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "menottes",
+		"nom": "Menottes",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Bracelets de fer reliés par une chaîne, avec leur clé.",
+		"proprietes": {
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "cadenas",
+		"nom": "Cadenas",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Cadenas de fer et sa clé.",
+		"proprietes": {
+			"Prix": "4 pc"
+		}
+	},
+	{
+		"id": "miroir",
+		"nom": "Miroir de poche",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Petit miroir d'acier poli.",
+		"proprietes": {
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "sablier",
+		"nom": "Sablier",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Sablier qui mesure une heure.",
+		"proprietes": {
+			"Prix": "3 pc"
+		}
+	},
+	{
+		"id": "craie",
+		"nom": "Craie",
+		"categorie": "accessoire",
+		"sousCategorie": "outil",
+		"description": "Bâtons de craie pour marquer son chemin.",
+		"proprietes": {
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "symbole-sacre",
+		"nom": "Symbole sacré",
+		"categorie": "accessoire",
+		"sousCategorie": "outil, religion",
+		"description": "Pendentif ou reliquaire à l'effigie d'une divinité.",
+		"proprietes": {
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "fleches",
+		"nom": "Carquois et flèches",
+		"categorie": "Consommable",
+		"sousCategorie": "Munitions",
+		"description": "Carquois de cuir et 20 flèches.",
+		"proprietes": {
+			"Quantité": "20",
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "carreaux",
+		"nom": "Carreaux d'arbalète",
+		"categorie": "Consommable",
+		"sousCategorie": "Munitions",
+		"description": "Étui de 20 carreaux.",
+		"proprietes": {
+			"Quantité": "20",
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "poudre-balles",
+		"nom": "Poudre et balles",
+		"categorie": "Consommable",
+		"sousCategorie": "Munitions",
+		"description": "Corne de poudre et balles de plomb pour armes à poudre.",
+		"proprietes": {
+			"Quantité": "10 tirs",
+			"Prix": "1 pa"
+		}
 	}
 ]
