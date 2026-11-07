@@ -72,6 +72,30 @@ void main() {
     }
   });
 
+  test('catalogue : armes et armures ajoutées le 07/11/2026', () {
+    // Lance : une ou deux mains ; arbalète : distance, deux mains.
+    final lance = objet('lance');
+    expect((lance.polyvalente, lance.degats, lance.degatsDeuxMains),
+        (true, '1d6', '1d8'));
+    final arbalete = objet('arbalete-lourde');
+    expect((arbalete.distance, arbalete.deuxMains), (true, true));
+    expect(objet('tromblon').groupeArme, 'poudre');
+    expect(objet('dague').groupeArme, 'civile');
+    // Gnome : pas d'arme au-delà du d8, mais le 2d6 reste permis.
+    final gnome = fiche('gnome', 'guerrier');
+    expect(gnome.refusRestriction(objet('hallebarde')), isNotNull);
+    expect(gnome.refusRestriction(objet('epee-a-deux-mains')), isNull);
+    // Armures : la matelassée est du tissu, la demi-plaque est lourde ; les
+    // casques (heaume) ne sont pas soumis aux limites d'armure.
+    final magicien = fiche('humain', 'magicien');
+    expect(magicien.refusRestriction(objet('armure-matelassee')), isNull);
+    expect(magicien.refusRestriction(objet('demi-plaque')), isNotNull);
+    expect(magicien.refusRestriction(objet('heaume')), isNull);
+    final ecailles = objet('armure-ecailles');
+    expect((ecailles.bonusCA, ecailles.dexMax), (4, 1));
+    expect(objet('pavois').categorie, CategorieObjet.bouclier);
+  });
+
   test('arme non maîtrisée : −5 au toucher ; maîtrisée : rien', () {
     final epee = objet('epee-longue')..equipe = true;
     final magicien = fiche('demi-orque', 'magicien');

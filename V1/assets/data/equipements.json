@@ -421,5 +421,261 @@
 		"proprietes": {
 			"Prix": "10 pc"
 		}
+	},
+	{
+		"id": "dague",
+		"groupeArme": "civile",
+		"nom": "Dague",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, dague, une main, perforante",
+		"description": "Petite lame facile à cacher ; peut se lancer (6 m).",
+		"proprietes": {
+			"Dégâts": "1D4 phy",
+			"Prix": "2 pc"
+		}
+	},
+	{
+		"id": "gourdin",
+		"groupeArme": "civile",
+		"nom": "Gourdin",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, gourdin, une main, contondant",
+		"description": "Simple morceau de bois noueux.",
+		"proprietes": {
+			"Dégâts": "1D4 phy",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "fronde",
+		"groupeArme": "civile",
+		"nom": "Fronde",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, fronde, une main, contondant",
+		"description": "Lanière de cuir pour lancer des pierres.",
+		"proprietes": {
+			"Dégâts": "1D4 phy",
+			"Portée": "15m",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "epee-courte",
+		"groupeArme": "commune-melee",
+		"nom": "Épée courte",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, épée, une main, perforante",
+		"description": "Lame courte et maniable.",
+		"proprietes": {
+			"Dégâts": "1D4 phy",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "masse-d-armes",
+		"groupeArme": "commune-melee",
+		"nom": "Masse d'armes",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, masse, une main, contondant",
+		"description": "Tête de métal à ailettes au bout d'un manche.",
+		"proprietes": {
+			"Dégâts": "1D6 phy",
+			"Prix": "15 pc"
+		}
+	},
+	{
+		"id": "lance",
+		"groupeArme": "commune-melee",
+		"nom": "Lance",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, lance, une main, deux mains, perforante",
+		"description": "Lance de fantassin, à une ou deux mains ; peut se lancer (10 m).",
+		"proprietes": {
+			"Dégâts (une main)": "1D6 phy",
+			"Dégâts (deux mains)": "1D8 phy",
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "hallebarde",
+		"groupeArme": "commune-melee",
+		"nom": "Hallebarde",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, hast, deux mains, tranchante",
+		"description": "Arme d'hast mêlant hache et pique.",
+		"proprietes": {
+			"Dégâts": "1D10 phy",
+			"Prix": "20 pc"
+		}
+	},
+	{
+		"id": "grande-hache",
+		"groupeArme": "commune-melee",
+		"nom": "Grande hache",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, hache, deux mains, tranchante",
+		"description": "Lourde hache à large lame.",
+		"proprietes": {
+			"Dégâts": "1D12 phy",
+			"Prix": "30 pc"
+		}
+	},
+	{
+		"id": "epee-a-deux-mains",
+		"groupeArme": "commune-melee",
+		"nom": "Épée à deux mains",
+		"categorie": "Arme",
+		"sousCategorie": "CaC, épée, deux mains, tranchante",
+		"description": "Grande épée maniée à deux mains.",
+		"proprietes": {
+			"Dégâts": "2D6 phy",
+			"Prix": "50 pc"
+		}
+	},
+	{
+		"id": "javelot",
+		"groupeArme": "commune-distance",
+		"nom": "Javelot",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, javelot, une main, perforante",
+		"description": "Courte lance faite pour être lancée.",
+		"proprietes": {
+			"Dégâts": "1D6 phy",
+			"Portée": "10m",
+			"Prix": "1 pc"
+		}
+	},
+	{
+		"id": "arbalete-legere",
+		"groupeArme": "commune-distance",
+		"nom": "Arbalète légère",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, arbalète, deux mains, perforante",
+		"description": "Arbalète à carreaux, simple à manier.",
+		"proprietes": {
+			"Dégâts": "1D8 phy",
+			"Portée": "25m",
+			"Prix": "25 pc"
+		}
+	},
+	{
+		"id": "arbalete-lourde",
+		"groupeArme": "commune-distance",
+		"nom": "Arbalète lourde",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, arbalète, deux mains, perforante",
+		"description": "Arbalète puissante, longue à réarmer.",
+		"proprietes": {
+			"Dégâts": "1D10 phy",
+			"Portée": "40m",
+			"Prix": "5 pa"
+		}
+	},
+	{
+		"id": "tromblon",
+		"groupeArme": "poudre",
+		"nom": "Tromblon",
+		"categorie": "Arme",
+		"sousCategorie": "Distance, poudre, deux mains",
+		"description": "Arme à poudre au canon évasé qui crache une gerbe de plombs.",
+		"proprietes": {
+			"Dégâts": "1D12 phy",
+			"Portée": "10m",
+			"Prix": "20 pa"
+		}
+	},
+	{
+		"id": "armure-matelassee",
+		"nom": "Armure matelassée",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, légère, tissu",
+		"description": "Épaisses couches de tissu cousues ensemble.",
+		"proprietes": {
+			"CA": "+1",
+			"DEX max": "+2",
+			"Prix": "5 pc"
+		}
+	},
+	{
+		"id": "armure-peaux",
+		"nom": "Armure de peaux",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, légère, cuir",
+		"description": "Peaux de bêtes épaisses, rustiques mais solides.",
+		"proprietes": {
+			"CA": "+2",
+			"DEX max": "+1",
+			"Prix": "10 pc"
+		}
+	},
+	{
+		"id": "cuir-cloute",
+		"nom": "Cuir clouté",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, légère, cuir",
+		"description": "Cuir renforcé de rivets de métal.",
+		"proprietes": {
+			"CA": "+2",
+			"DEX max": "+2",
+			"Prix": "45 pc"
+		}
+	},
+	{
+		"id": "armure-ecailles",
+		"nom": "Armure d'écailles",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, intermédiaire, métal",
+		"description": "Écailles de métal cousues sur du cuir.",
+		"proprietes": {
+			"CA": "+4",
+			"DEX max": "+1",
+			"Prix": "5 pa"
+		}
+	},
+	{
+		"id": "demi-plaque",
+		"nom": "Demi-plaque",
+		"categorie": "Armure",
+		"sousCategorie": "plastron, lourde, métal",
+		"description": "Plaques couvrant le torse, membres plus libres.",
+		"proprietes": {
+			"CA": "+5",
+			"DEX max": "+2",
+			"Prix": "15 pa"
+		}
+	},
+	{
+		"id": "heaume",
+		"nom": "Heaume",
+		"categorie": "Armure",
+		"sousCategorie": "casque, lourde, métal",
+		"description": "Casque de métal fermé qui protège toute la tête.",
+		"proprietes": {
+			"CA": "+2",
+			"Prix": "2 pa"
+		}
+	},
+	{
+		"id": "ecu-metal",
+		"nom": "Écu en métal",
+		"categorie": "Armure",
+		"sousCategorie": "bouclier, une main, métal",
+		"description": "Bouclier de métal solide.",
+		"proprietes": {
+			"CA": "+2",
+			"Prix": "2 pa"
+		}
+	},
+	{
+		"id": "pavois",
+		"nom": "Pavois",
+		"categorie": "Armure",
+		"sousCategorie": "bouclier, une main, bois",
+		"description": "Grand bouclier de bois cerclé de fer, encombrant.",
+		"proprietes": {
+			"CA": "+3",
+			"DEX max": "+1",
+			"Prix": "3 pa"
+		}
 	}
 ]

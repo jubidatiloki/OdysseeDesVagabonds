@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.36.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Catalogue : 13 armes (dague, lance, hallebarde, arbalètes, '
+            'tromblon…).',
+      ),
+      (
+        type: _a,
+        texte: 'Catalogue : 8 armures (matelassée, cuir clouté, écailles, '
+            'demi-plaque, heaume, écu, pavois…).',
+      ),
+    ],
+  ),
+  (
     version: '0.35.1',
     date: '07/11/2026',
     changements: [
