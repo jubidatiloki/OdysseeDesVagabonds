@@ -29,6 +29,36 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.38.0',
+    date: '08/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Séance : PV des joueurs envoyés en 2 s en combat, 15 s en '
+            'exploration.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : présence signalée toutes les 3 min ; un jet de dés '
+            'récent compte aussi.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : seuls les 50 derniers jets et les messages de la '
+            'séance sont suivis en direct.',
+      ),
+      (
+        type: _a,
+        texte: 'Messages : bouton « Messages des séances précédentes ».',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : un changement de PV n\'écrit plus que les PV '
+            '(moins d\'appels à Firebase).',
+      ),
+    ],
+  ),
+  (
     version: '0.37.0',
     date: '08/11/2026',
     changements: [

@@ -619,15 +619,18 @@ class DegatsSeance {
       );
 }
 
-/// Présence d'un joueur dans la séance : son application le signale à
-/// intervalles réguliers tant que la séance est ouverte. Sans nouvelle
-/// depuis [delaiAbsence] (app fermée, plus de connexion) : absent.
+/// Présence d'un joueur dans la séance : son application le signale en
+/// entrant, en sortant et toutes les 3 minutes. Sans nouvelle depuis
+/// [delaiAbsence] (app fermée, plus de connexion) : absent. Un jet de dés
+/// récent compte aussi comme signe de vie.
 class PresenceSeance {
   const PresenceSeance({required this.vu, this.present = true});
 
-  /// Intervalle entre deux signaux.
-  static const Duration intervalle = Duration(seconds: 45);
-  static const Duration delaiAbsence = Duration(minutes: 2);
+  /// Intervalle entre deux signaux (moins d'écritures Firebase).
+  static const Duration intervalle = Duration(minutes: 3);
+
+  /// Deux signaux manqués, avec une marge.
+  static const Duration delaiAbsence = Duration(minutes: 7);
 
   final DateTime vu;
 
@@ -657,9 +660,14 @@ class MessageSeance {
     required this.mj,
     required this.texte,
     required this.date,
+    this.seance = 0,
   });
 
   final String id;
+
+  /// Numéro de la séance où le message a été écrit (0 : ancien message,
+  /// d'avant le 08/11/2026).
+  final int seance;
 
   /// Compte qui écrit.
   final String de;
@@ -679,6 +687,7 @@ class MessageSeance {
         'participants': [mj, joueur],
         'texte': texte,
         'date': date.toIso8601String(),
+        if (seance > 0) 'seance': seance,
       };
 
   factory MessageSeance.depuisJson(String id, Map<String, dynamic> j) =>
@@ -689,5 +698,6 @@ class MessageSeance {
         mj: j['mj'] as String? ?? '',
         texte: j['texte'] as String? ?? '',
         date: DateTime.tryParse('${j['date']}') ?? DateTime(2026),
+        seance: (j['seance'] as num?)?.toInt() ?? 0,
       );
 }

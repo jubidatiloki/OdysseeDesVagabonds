@@ -108,6 +108,25 @@ class _OngletMessagesState extends State<OngletMessages> {
             )
           else
             Text('Conversation avec le MJ', style: theme.textTheme.titleSmall),
+          if (!_s.anciensMessagesCharges)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const Key('anciens-messages'),
+                onPressed: () async {
+                  final messager = ScaffoldMessenger.of(context);
+                  final erreur = await _s.chargerAnciensMessages();
+                  if (erreur != null) {
+                    messager.showSnackBar(SnackBar(content: Text(erreur)));
+                  }
+                },
+                icon: const Icon(Icons.history, size: 18),
+                label: const Text(
+                  'Messages des séances précédentes',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
           const SizedBox(height: 8),
           Expanded(
             child: messages.isEmpty

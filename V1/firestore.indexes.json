@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "jets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "lecteurs", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "seance", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

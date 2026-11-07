@@ -42,16 +42,29 @@ class SeanceController extends ChangeNotifier {
           recevoir(v);
           notifyListeners();
         }, onError: (Object _) {}));
-    suivre(seance.ecouterEtat(c), (v) => _etat = v);
+    suivre(seance.ecouterEtat(c), (v) {
+      final debutCombat = v.enCombat && !_etat.enCombat;
+      _etat = v;
+      // Début du combat : les PV en attente partent sans attendre.
+      if (debutCombat && _minuteriePublication != null) {
+        _minuteriePublication!.cancel();
+        _minuteriePublication = null;
+        unawaited(_publier(force: true));
+      }
+    });
     suivre(seance.ecouterJets(c, _numero), (v) => _jets = v);
     suivre(seance.ecouterPresences(c), (v) => _presences = v);
-    suivre(seance.ecouterMessages(c), (v) => _messages = v);
-    // Joueur : signale sa présence ; tous : les absents sont réévalués.
+    suivre(seance.ecouterMessages(c, _numero), (v) => _messages = v);
+    // Joueur : signale sa présence (toutes les 3 minutes).
     _signalerPresence(true);
     _minuteriePresence = Timer.periodic(PresenceSeance.intervalle, (_) {
       _signalerPresence(true);
-      notifyListeners();
     });
+    // Tous : les absents sont réévalués chaque minute, sans rien écrire.
+    _minuterieAbsences = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => notifyListeners(),
+    );
     suivre(seance.ecouterDegats(c), (v) {
       _degats = v;
       _traiterDegats();
@@ -75,10 +88,17 @@ class SeanceController extends ChangeNotifier {
     unawaited(_chargerTexte());
   }
 
-  /// Écritures espacées : le joueur publie au plus toutes les 10 secondes,
-  /// le MJ enregistre les fiches au plus toutes les 3 secondes.
-  static const Duration delaiEcritureJoueur = Duration(seconds: 10);
+  /// Écritures espacées : le joueur publie ses PV au plus toutes les
+  /// 2 secondes en combat (les autres attendent de les voir bouger) et toutes
+  /// les 15 secondes en exploration ; le MJ enregistre les fiches au plus
+  /// toutes les 3 secondes.
+  static const Duration delaiEcritureCombat = Duration(seconds: 2);
+  static const Duration delaiEcritureExploration = Duration(seconds: 15);
   static const Duration delaiEcritureMj = Duration(seconds: 3);
+
+  /// Délai entre deux publications du joueur, selon le mode de jeu.
+  Duration get delaiEcritureJoueur =>
+      _etat.enCombat ? delaiEcritureCombat : delaiEcritureExploration;
 
   final CampagnesController campagnes;
   final PersonnagesController personnages;
@@ -102,9 +122,15 @@ class SeanceController extends ChangeNotifier {
   Map<String, PresenceSeance> _presences = const {};
   List<MessageSeance> _messages = const [];
 
+  /// Messages des séances précédentes, chargés à la demande (`null` : pas
+  /// encore chargés).
+  List<MessageSeance>? _anciens;
+  bool get anciensMessagesCharges => _anciens != null;
+
   /// Messages reçus déjà lus, par conversation (uid du joueur).
   final Map<String, int> _lus = {};
   Timer? _minuteriePresence;
+  Timer? _minuterieAbsences;
 
   /// Dégâts reçus, traités un par un (deux coups ne s'écrasent pas).
   List<DegatsSeance> _degats = const [];
@@ -256,9 +282,19 @@ class SeanceController extends ChangeNotifier {
 
   /// Conversation privée avec un joueur (MJ), ou avec le MJ (joueur).
   List<MessageSeance> messagesAvec(String joueur) => [
-        for (final m in _messages)
+        for (final m in [...?_anciens, ..._messages])
           if (m.joueur == joueur) m,
       ];
+
+  /// Lit une fois les messages des séances précédentes.
+  Future<String?> chargerAnciensMessages() => _agir((s, c) async {
+        final tous = await s.lireMessages(c);
+        _anciens = [
+          for (final m in tous)
+            if (m.seance != _numero) m,
+        ];
+        notifyListeners();
+      });
 
   int _recusAvec(String joueur) =>
       _messages.where((m) => m.joueur == joueur && m.de != uid).length;
@@ -296,6 +332,7 @@ class SeanceController extends ChangeNotifier {
           mj: c.mj,
           texte: t,
           date: DateTime.now(),
+          seance: _numero,
         ),
       );
     });
@@ -307,8 +344,17 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Le joueur est-il dans la séance ? (Jamais absent pour lui-même.)
-  bool estPresent(String joueur) =>
-      joueur == uid || (_presences[joueur]?.estLa(DateTime.now()) ?? false);
+  bool estPresent(String joueur) {
+    if (joueur == uid) return true;
+    final maintenant = DateTime.now();
+    if (_presences[joueur]?.estLa(maintenant) ?? false) return true;
+    // Un jet récent prouve aussi qu'il est là.
+    return _jets.any(
+      (j) =>
+          j.auteur == joueur &&
+          maintenant.difference(j.date) < PresenceSeance.delaiAbsence,
+    );
+  }
 
   void _campagneChangee() {
     _suivreSelonPermissions();
@@ -409,7 +455,7 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Joueur : publie PV, PM, PE, résumé, initiative et CA quand ils changent.
-  Future<void> _publier() async {
+  Future<void> _publier({bool force = false}) async {
     final c = campagne;
     final f = maFiche;
     if (c == null || f == null || !c.joueurs.contains(uid)) return;
@@ -423,38 +469,39 @@ class SeanceController extends ChangeNotifier {
     );
     final resume = '${f.race.nom} · ${f.classe.nom} · '
         'niveau ${f.personnage.niveau}';
-    if (r == _publiees &&
-        resume == _resumePublie &&
-        f.initiative == _initiativePubliee &&
-        f.classeArmure == _caPubliee) {
-      return;
-    }
-    // Changement trop rapproché : publié à la fin du délai.
-    if (_minuteriePublication != null) return;
-    final dernier = _dernierePublication;
-    final reste = dernier == null
-        ? Duration.zero
-        : delaiEcritureJoueur - DateTime.now().difference(dernier);
-    if (reste > Duration.zero) {
-      _minuteriePublication = Timer(reste, () {
-        _minuteriePublication = null;
-        _dernierePublication = null;
-        unawaited(_publier());
-      });
-      return;
+    final ressourcesChangent = r != _publiees;
+    final membreChange = resume != _resumePublie ||
+        f.initiative != _initiativePubliee ||
+        f.classeArmure != _caPubliee;
+    if (!ressourcesChangent && !membreChange) return;
+    if (!force) {
+      // Changement trop rapproché : publié à la fin du délai.
+      if (_minuteriePublication != null) return;
+      final dernier = _dernierePublication;
+      final reste = dernier == null
+          ? Duration.zero
+          : delaiEcritureJoueur - DateTime.now().difference(dernier);
+      if (reste > Duration.zero) {
+        _minuteriePublication = Timer(reste, () {
+          _minuteriePublication = null;
+          unawaited(_publier(force: true));
+        });
+        return;
+      }
     }
     _dernierePublication = DateTime.now();
     _publiees = r;
     _resumePublie = resume;
     _initiativePubliee = f.initiative;
     _caPubliee = f.classeArmure;
+    // Seul ce qui a changé est écrit (PV seuls le plus souvent).
     final erreur = await campagnes.agir(
       (x) => x.seance.publierPersonnage(
         c,
-        r,
-        resume: resume,
-        initiative: f.initiative,
-        ca: f.classeArmure,
+        ressources: ressourcesChangent ? r : null,
+        resume: membreChange ? resume : null,
+        initiative: membreChange ? f.initiative : null,
+        ca: membreChange ? f.classeArmure : null,
       ),
     );
     // Échec : réessayé au prochain changement.
@@ -970,6 +1017,7 @@ class SeanceController extends ChangeNotifier {
   @override
   void dispose() {
     _minuteriePresence?.cancel();
+    _minuterieAbsences?.cancel();
     _minuteriePublication?.cancel();
     annonce.dispose();
     _signalerPresence(false);

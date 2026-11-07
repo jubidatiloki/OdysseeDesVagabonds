@@ -468,9 +468,35 @@ void main() {
       expect(jet(touche: true).resultatCible, 'Touché (CA 14)');
     });
 
-    test('écritures espacées : 10 s pour le joueur, 3 s pour le MJ', () {
-      expect(SeanceController.delaiEcritureJoueur.inSeconds, 10);
+    test(
+        'écritures espacées : joueur 2 s en combat, 15 s en exploration, '
+        'MJ 3 s', () {
+      expect(SeanceController.delaiEcritureCombat.inSeconds, 2);
+      expect(SeanceController.delaiEcritureExploration.inSeconds, 15);
       expect(SeanceController.delaiEcritureMj.inSeconds, 3);
+    });
+
+    test('jets suivis : seulement les plus récents', () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj').seance;
+      for (var i = 0; i < kJetsSuivis + 5; i++) {
+        await mj.lancer(
+          p.campagne,
+          JetSeance(
+            auteur: 'mj',
+            auteurNom: 'MJ',
+            libelle: 'Jet $i',
+            detail: '',
+            total: i,
+            date: DateTime(2026, 11, 8, 20, i),
+            seance: 1,
+            lecteurs: const ['mj'],
+          ),
+        );
+      }
+      final jets = await mj.ecouterJets(p.campagne, 1).first;
+      expect(jets, hasLength(kJetsSuivis));
+      expect(jets.last.libelle, 'Jet ${kJetsSuivis + 4}');
     });
   });
 
@@ -600,9 +626,26 @@ void main() {
     const r = RessourcesPj(pv: 9, pvMax: 13, pe: 3, peMax: 6);
 
     Future<void> publier(BaseCampagnesMemoire b, Campagne c) =>
-        ServiceCampagnesMemoire(b, 'j1')
-            .seance
-            .publierPersonnage(c, r, resume: 'x', initiative: 11, ca: 15);
+        ServiceCampagnesMemoire(b, 'j1').seance.publierPersonnage(
+              c,
+              ressources: r,
+              resume: 'x',
+              initiative: 11,
+              ca: 15,
+            );
+
+    test('publication partielle : les PV seuls ne touchent pas le membre',
+        () async {
+      final p = await _partie();
+      await publier(p.base, p.campagne);
+      await ServiceCampagnesMemoire(p.base, 'j1').seance.publierPersonnage(
+            p.campagne,
+            ressources: const RessourcesPj(pv: 2, pvMax: 13),
+          );
+      expect(p.base.parties[p.campagne.id]!.ressources['j1']!.pv, 2);
+      final m = p.base.membres[p.campagne.id]!['j1']!;
+      expect((m.personnageResume, m.initiative, m.ca), ('x', 11, 15));
+    });
 
     test('fiches non partagées entre joueurs : PV, PM, PE cachés', () async {
       final p = await _partie();
@@ -716,17 +759,30 @@ void main() {
         mj: 'mj',
         texte: 'Je trahis le groupe',
         date: DateTime(2026, 11, 4),
+        seance: 2,
       ),
     );
-    expect(await mj.ecouterMessages(c).first, hasLength(1));
-    expect(await j1.ecouterMessages(c).first, hasLength(1));
-    expect(await j2.ecouterMessages(c).first, isEmpty);
-    expect(
-      MessageSeance.depuisJson(
-              'x', (await j1.ecouterMessages(c).first).single.versJson())
-          .texte,
-      'Je trahis le groupe',
+    // Ancien message (séance précédente).
+    await j1.envoyerMessage(
+      c,
+      MessageSeance(
+        de: 'j1',
+        joueur: 'j1',
+        mj: 'mj',
+        texte: 'Bonjour',
+        date: DateTime(2026, 11, 1),
+        seance: 1,
+      ),
     );
+    expect(await mj.ecouterMessages(c, 2).first, hasLength(1));
+    expect(await j1.ecouterMessages(c, 2).first, hasLength(1));
+    expect(await j2.ecouterMessages(c, 2).first, isEmpty);
+    expect(await mj.lireMessages(c), hasLength(2));
+    final relu = MessageSeance.depuisJson(
+      'x',
+      (await j1.ecouterMessages(c, 2).first).single.versJson(),
+    );
+    expect((relu.texte, relu.seance), ('Je trahis le groupe', 2));
   });
 
   group('types de dégâts', () {
@@ -860,11 +916,12 @@ void main() {
     });
   });
 
-  test('présence : absent sans nouvelle depuis 2 minutes', () {
+  test('présence : absent sans nouvelle depuis 7 minutes', () {
     final t = DateTime(2026, 11, 4, 12);
     final p = PresenceSeance(vu: t);
-    expect(p.estLa(t.add(const Duration(seconds: 100))), isTrue);
-    expect(p.estLa(t.add(const Duration(minutes: 3))), isFalse);
+    expect(PresenceSeance.intervalle, const Duration(minutes: 3));
+    expect(p.estLa(t.add(const Duration(minutes: 6))), isTrue);
+    expect(p.estLa(t.add(const Duration(minutes: 8))), isFalse);
     expect(PresenceSeance(vu: t, present: false).estLa(t), isFalse);
   });
 
@@ -1169,7 +1226,7 @@ void main() {
       expect(find.text('7/10'), findsOneWidget);
       // Publication espacée : les autres le voient à la fin du délai.
       expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 10);
-      await tester.pump(const Duration(seconds: 11));
+      await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
       expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
     });
@@ -1415,7 +1472,7 @@ void main() {
       await tap(tester, find.byKey(const Key('valider-argent-butin')));
       expect(partie.butins['b']!.or, 1);
       expect(partie.jets.map((j) => j.libelle), contains(contains('3 or')));
-      await tester.pump(const Duration(seconds: 11));
+      await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
 
@@ -1451,7 +1508,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Aria t\'a envoyé : Corde'), findsOneWidget);
       expect(find.textContaining('Dague cachée'), findsNothing);
-      await tester.pump(const Duration(seconds: 11));
+      await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
 
@@ -1475,7 +1532,7 @@ void main() {
       expect(envoi.destinataire, 'j2');
       expect(envoi.discret, isTrue);
       expect(envoi.objet.nom, 'Corde');
-      await tester.pump(const Duration(seconds: 11));
+      await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
 
@@ -1500,7 +1557,7 @@ void main() {
       expect(find.text('Frappe tout autour.'), findsOneWidget);
       await tester.tap(find.text('Fermer'));
       await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 11));
+      await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
 
@@ -1678,6 +1735,7 @@ void main() {
                 mj: 'mj',
                 texte: 'Message de $de',
                 date: DateTime(2026, 11, 7),
+                seance: 1,
               ),
             );
         await tester.pumpAndSettle();
@@ -1708,6 +1766,22 @@ void main() {
       await tap(tester, find.byKey(const Key('message-joueur')));
       await tap(tester, find.text('aria').last);
       expect(find.text('Message de j2'), findsOneWidget);
+      // Les messages des séances précédentes se chargent à la demande.
+      await ServiceCampagnesMemoire(x.base, 'j2').seance.envoyerMessage(
+            x.campagne,
+            MessageSeance(
+              de: 'j2',
+              joueur: 'j2',
+              mj: 'mj',
+              texte: 'Souvenir',
+              date: DateTime(2026, 10, 1),
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(find.text('Souvenir'), findsNothing);
+      await tap(tester, find.byKey(const Key('anciens-messages')));
+      expect(find.text('Souvenir'), findsOneWidget);
+      expect(find.byKey(const Key('anciens-messages')), findsNothing);
       expect(
         tester
             .widget<Badge>(find.byKey(const Key('vue-des-non-lus')))

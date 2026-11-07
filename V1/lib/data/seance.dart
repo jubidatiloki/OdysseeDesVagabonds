@@ -10,6 +10,9 @@ import 'campagnes.dart';
 /// le compte n'a pas le droit de voir n'arrive jamais jusqu'à lui : créatures
 /// cachées, PV des créatures, ressources des autres (selon les paramètres),
 /// jets dont il n'est pas lecteur.
+/// Jets suivis en direct pendant une séance (les plus récents).
+const int kJetsSuivis = 50;
+
 abstract class ServiceSeance {
   String get uid;
 
@@ -22,7 +25,8 @@ abstract class ServiceSeance {
   /// Ressources lisibles par ce compte (uid du joueur → PV, PM, PE).
   Stream<Map<String, RessourcesPj>> ecouterRessources(Campagne c);
 
-  /// Jets de la séance [numero] lisibles par ce compte.
+  /// Jets de la séance [numero] lisibles par ce compte : les [kJetsSuivis]
+  /// derniers (moins de lectures en revenant dans la séance).
   Stream<List<JetSeance>> ecouterJets(Campagne c, int numero);
 
   /// MJ : passe en combat avec cet ordre, ou revient en exploration.
@@ -77,8 +81,12 @@ abstract class ServiceSeance {
   Stream<List<EnvoiObjet>> ecouterEnvois(Campagne c);
   Future<bool> prendreEnvoi(Campagne c, String id);
 
-  /// Messages privés de ce compte (MJ : tous ; joueur : les siens).
-  Stream<List<MessageSeance>> ecouterMessages(Campagne c);
+  /// Messages privés de ce compte écrits pendant la séance [numero]
+  /// (MJ : tous ; joueur : les siens).
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c, int numero);
+
+  /// Tous les messages de ce compte, lus une fois (séances précédentes).
+  Future<List<MessageSeance>> lireMessages(Campagne c);
   Future<void> envoyerMessage(Campagne c, MessageSeance message);
 
   /// Présence des joueurs (uid → dernier signal), en direct.
@@ -88,11 +96,12 @@ abstract class ServiceSeance {
   Future<void> signalerPresence(Campagne c, {required bool present});
 
   /// Joueur : publie ses PV, PM, PE, le résumé et l'initiative du personnage.
+  /// Seul ce qui est donné est écrit : PV seuls, ou carte du membre seule.
   Future<void> publierPersonnage(
-    Campagne c,
-    RessourcesPj ressources, {
-    required String resume,
-    required int initiative,
+    Campagne c, {
+    RessourcesPj? ressources,
+    String? resume,
+    int? initiative,
     int? ca,
   });
 
@@ -164,10 +173,13 @@ class ServiceSeanceMemoire implements ServiceSeance {
       });
 
   @override
-  Stream<List<JetSeance>> ecouterJets(Campagne c, int numero) => _suivre(() => [
-        for (final j in _partie(c).jets)
-          if (j.seance == numero && j.lecteurs.contains(uid)) j,
-      ]);
+  Stream<List<JetSeance>> ecouterJets(Campagne c, int numero) => _suivre(() {
+        final l = [
+          for (final j in _partie(c).jets)
+            if (j.seance == numero && j.lecteurs.contains(uid)) j,
+        ];
+        return l.length > kJetsSuivis ? l.sublist(l.length - kJetsSuivis) : l;
+      });
 
   void _changer(Campagne c, EtatJeu e) {
     _partie(c).etat = e;
@@ -259,10 +271,17 @@ class ServiceSeanceMemoire implements ServiceSeance {
   }
 
   @override
-  Stream<List<MessageSeance>> ecouterMessages(Campagne c) => _suivre(() => [
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c, int numero) =>
+      _suivre(() => [
+            for (final m in _partie(c).messages)
+              if ((m.mj == uid || m.joueur == uid) && m.seance == numero) m,
+          ]);
+
+  @override
+  Future<List<MessageSeance>> lireMessages(Campagne c) async => [
         for (final m in _partie(c).messages)
           if (m.mj == uid || m.joueur == uid) m,
-      ]);
+      ];
 
   @override
   Future<void> envoyerMessage(Campagne c, MessageSeance message) async {
@@ -367,15 +386,15 @@ class ServiceSeanceMemoire implements ServiceSeance {
 
   @override
   Future<void> publierPersonnage(
-    Campagne c,
-    RessourcesPj ressources, {
-    required String resume,
-    required int initiative,
+    Campagne c, {
+    RessourcesPj? ressources,
+    String? resume,
+    int? initiative,
     int? ca,
   }) async {
-    _partie(c).ressources[uid] = ressources;
+    if (ressources != null) _partie(c).ressources[uid] = ressources;
     final m = base.membres[c.id]?[uid];
-    if (m != null) {
+    if (m != null && resume != null && initiative != null) {
       base.membres[c.id]![uid] = MembreCampagne(
         uid: m.uid,
         nom: m.nom,

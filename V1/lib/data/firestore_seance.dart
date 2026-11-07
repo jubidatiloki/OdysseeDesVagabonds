@@ -116,13 +116,47 @@ class FirestoreServiceSeance implements ServiceSeance {
   }
 
   @override
-  Stream<List<JetSeance>> ecouterJets(Campagne c, int numero) => _jets(c)
-      .where('lecteurs', arrayContains: uid)
-      .where('seance', isEqualTo: numero)
-      .snapshots()
-      .map((s) => [
-            for (final d in s.docs) JetSeance.depuisJson(d.id, d.data()),
-          ]..sort((a, b) => a.date.compareTo(b.date)));
+  Stream<List<JetSeance>> ecouterJets(Campagne c, int numero) {
+    final requete = _jets(c)
+        .where('lecteurs', arrayContains: uid)
+        .where('seance', isEqualTo: numero);
+    List<JetSeance> lire(QuerySnapshot<Map<String, dynamic>> s) => [
+          for (final d in s.docs) JetSeance.depuisJson(d.id, d.data()),
+        ]..sort((a, b) => a.date.compareTo(b.date));
+    // Index pas encore déployé (firestore.indexes.json) : tous les jets.
+    return _avecRepli(
+      requete.orderBy('date', descending: true).limit(kJetsSuivis),
+      requete,
+      lire,
+    );
+  }
+
+  /// Écoute [principale] ; si Firestore la refuse (index manquant), écoute
+  /// [repli] à la place.
+  Stream<T> _avecRepli<T>(
+    Query<Map<String, dynamic>> principale,
+    Query<Map<String, dynamic>> repli,
+    T Function(QuerySnapshot<Map<String, dynamic>>) lire,
+  ) {
+    late final StreamController<T> sortie;
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? abonnement;
+    sortie = StreamController<T>(
+      onListen: () {
+        abonnement = principale.snapshots().listen(
+          (s) => sortie.add(lire(s)),
+          onError: (Object _) {
+            unawaited(abonnement?.cancel());
+            abonnement = repli.snapshots().listen(
+                  (s) => sortie.add(lire(s)),
+                  onError: sortie.addError,
+                );
+          },
+        );
+      },
+      onCancel: () => abonnement?.cancel(),
+    );
+    return sortie.stream;
+  }
 
   @override
   Future<void> demarrerCombat(Campagne c, List<String> ordre) =>
@@ -206,14 +240,30 @@ class FirestoreServiceSeance implements ServiceSeance {
   Future<void> lancer(Campagne c, JetSeance jet) =>
       _jets(c).add(jet.versJson());
 
-  @override
-  Stream<List<MessageSeance>> ecouterMessages(Campagne c) => _campagne(c)
+  Query<Map<String, dynamic>> _mesMessages(Campagne c) => _campagne(c)
       .collection('messages')
-      .where('participants', arrayContains: uid)
-      .snapshots()
-      .map((s) => [
-            for (final d in s.docs) MessageSeance.depuisJson(d.id, d.data()),
-          ]..sort((a, b) => a.date.compareTo(b.date)));
+      .where('participants', arrayContains: uid);
+
+  static List<MessageSeance> _lireMessages(
+    QuerySnapshot<Map<String, dynamic>> s, {
+    int? seance,
+  }) =>
+      [
+        for (final d in s.docs) MessageSeance.depuisJson(d.id, d.data()),
+      ].where((m) => seance == null || m.seance == seance).toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+
+  @override
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c, int numero) =>
+      _avecRepli(
+        _mesMessages(c).where('seance', isEqualTo: numero),
+        _mesMessages(c),
+        (s) => _lireMessages(s, seance: numero),
+      );
+
+  @override
+  Future<List<MessageSeance>> lireMessages(Campagne c) async =>
+      _lireMessages(await _mesMessages(c).get());
 
   @override
   Future<void> envoyerMessage(Campagne c, MessageSeance message) =>
@@ -310,19 +360,26 @@ class FirestoreServiceSeance implements ServiceSeance {
 
   @override
   Future<void> publierPersonnage(
-    Campagne c,
-    RessourcesPj ressources, {
-    required String resume,
-    required int initiative,
+    Campagne c, {
+    RessourcesPj? ressources,
+    String? resume,
+    int? initiative,
     int? ca,
   }) async {
-    final lot = _base.batch()
-      ..set(_ressources(c).doc(uid), ressources.versJson())
-      ..update(_campagne(c).collection('membres').doc(uid), {
+    final membre = resume != null && initiative != null;
+    if (ressources == null && !membre) return;
+    // Seuls les documents qui changent sont écrits (chacun est compté).
+    final lot = _base.batch();
+    if (ressources != null) {
+      lot.set(_ressources(c).doc(uid), ressources.versJson());
+    }
+    if (membre) {
+      lot.update(_campagne(c).collection('membres').doc(uid), {
         'personnageResume': resume,
         'initiative': initiative,
         if (ca != null) 'ca': ca,
       });
+    }
     await lot.commit();
   }
 
