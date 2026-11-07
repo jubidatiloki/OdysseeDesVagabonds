@@ -10,7 +10,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune-melee"],
     "armureMax": "mailles",
-    "inventaireBase": ["hache-de-guerre", "armure-peaux", "biere-naine", "sac-a-dos", "sac-de-couchage", {"id": "rations", "quantite": 3}],
+    "inventaireBase": ["hache-de-guerre", "armure-peaux", "biere-naine", "sac-a-dos", "sac-de-couchage"],
     "voies": [
       {
         "id": "barbare-brute",
@@ -997,7 +997,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune"],
     "armureMax": "mailles",
-    "inventaireBase": ["baton", "fronde", "armure-peaux", "potion-sante-1", "sac-a-dos", {"id": "rations", "quantite": 3}],
+    "inventaireBase": ["baton", "fronde", "armure-matelassee", "potion-sante-1", "sac-a-dos"],
     "voies": [
       {
         "id": "druide-bestiale",
@@ -1398,7 +1398,7 @@
     "restrictionArmure": "Aucune.",
     "maitrisesArmes": ["civile", "commune"],
     "armureMax": "",
-    "inventaireBase": ["epee-longue", {"id": "javelot", "quantite": 3}, "bouclier-en-bois", "cotte-de-mailles", "sac-a-dos", {"id": "rations", "quantite": 3}],
+    "inventaireBase": ["epee-longue", {"id": "javelot", "quantite": 3}, "bouclier-en-bois", "cotte-de-mailles", "sac-a-dos"],
     "voies": [
       {
         "id": "guerrier-bouclier",
@@ -1693,7 +1693,7 @@
     "restrictionArmure": "Pas de plaques.",
     "maitrisesArmes": ["civile", "commune-melee", "poudre", "siege"],
     "armureMax": "mailles",
-    "inventaireBase": ["petoire", "poudre-balles", "armure-cuir", "pioche", "pied-de-biche", "potion-feu-gregeois"],
+    "inventaireBase": ["petoire", "poudre-balles", "marteau-de-guerre", "armure-cuir", "potion-feu-gregeois"],
     "voies": [
       {
         "id": "ingenieur-artillerie",
@@ -2464,7 +2464,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile", "commune-melee"],
     "armureMax": "cuir",
-    "inventaireBase": ["baton", "vetement-tissu", "potion-sante-1", "gourde", {"id": "rations", "quantite": 3}],
+    "inventaireBase": ["baton", "vetement-tissu", "potion-sante-1"],
     "voies": [
       {
         "id": "moine-ki",
@@ -3600,7 +3600,7 @@
     "restrictionArmure": "Cuir maximum.",
     "maitrisesArmes": ["civile", "commune"],
     "armureMax": "cuir",
-    "inventaireBase": ["rapiere", "dague", "armure-cuir", "outils-crochetage", "grappin"],
+    "inventaireBase": ["rapiere", "dague", "armure-matelassee", "outils-crochetage", "grappin"],
     "voies": [
       {
         "id": "voleur-assassin",

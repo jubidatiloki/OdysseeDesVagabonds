@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.40.1',
+    date: '08/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Création : kits retouchés (armure matelassée du druide et du '
+            'voleur, marteau de guerre de l\'ingénieur, sans rations).',
+      ),
+    ],
+  ),
+  (
     version: '0.40.0',
     date: '08/11/2026',
     changements: [
