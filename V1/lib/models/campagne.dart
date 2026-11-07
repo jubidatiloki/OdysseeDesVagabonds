@@ -268,6 +268,7 @@ class MembreCampagne {
     this.statut = StatutMembre.demande,
     required this.date,
     this.initiative = 0,
+    this.ca,
   });
 
   final String uid;
@@ -287,6 +288,9 @@ class MembreCampagne {
   /// Initiative du personnage (ordre des tours en combat).
   final int initiative;
 
+  /// CA du personnage, visible de tous : les attaques y sont comparées.
+  final int? ca;
+
   MembreCampagne copie({StatutMembre? statut}) => MembreCampagne(
         uid: uid,
         nom: nom,
@@ -296,6 +300,7 @@ class MembreCampagne {
         statut: statut ?? this.statut,
         date: date,
         initiative: initiative,
+        ca: ca,
       );
 
   Map<String, dynamic> versJson() => {
@@ -307,6 +312,7 @@ class MembreCampagne {
         'statut': statut.name,
         'date': date.toIso8601String(),
         'initiative': initiative,
+        if (ca != null) 'ca': ca,
       };
 
   factory MembreCampagne.depuisJson(Map<String, dynamic> j) => MembreCampagne(
@@ -318,6 +324,7 @@ class MembreCampagne {
         statut: StatutMembre.depuisCode(j['statut']),
         date: DateTime.tryParse('${j['date']}') ?? DateTime(2026),
         initiative: (j['initiative'] as num?)?.toInt() ?? 0,
+        ca: (j['ca'] as num?)?.toInt(),
       );
 }
 

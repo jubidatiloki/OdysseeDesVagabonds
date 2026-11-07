@@ -236,7 +236,7 @@ class CreatureSeance {
 
   String get nomPublic => nomCache ? nomInconnu : nom;
 
-  CreatureSeance copie({int? pv, bool? cachee, bool? nomCache}) {
+  CreatureSeance copie({int? pv, int? ca, bool? cachee, bool? nomCache}) {
     final v = pv ?? this.pv;
     return CreatureSeance(
       id: id,
@@ -247,7 +247,7 @@ class CreatureSeance {
       initiative: initiative,
       pv: v,
       pvMax: pvMax,
-      ca: ca,
+      ca: ca ?? this.ca,
       etat: EtatCreature.depuisPv(v, pvMax),
       cachee: cachee ?? this.cachee,
       nomCache: nomCache ?? this.nomCache,
@@ -459,6 +459,7 @@ class JetSeance {
     this.attaquant = '',
     this.caCible,
     this.touche,
+    this.sansComparaison = '',
   });
 
   final String id;
@@ -493,9 +494,14 @@ class JetSeance {
   final int? caCible;
   final bool? touche;
 
-  /// « Touché (CA 14) », « Raté (CA 14) » ; vide : pas de comparaison.
-  String get resultatCible =>
-      touche == null ? '' : '${touche! ? 'Touché' : 'Raté'} (CA $caCible)';
+  /// Attaque qui n'a pas pu être comparée : la raison (« CA inconnue »).
+  final String sansComparaison;
+
+  /// « Touché (CA 14) », « Raté (CA 14) », ou pourquoi l'attaque n'a pas été
+  /// comparée ; vide : ce jet n'est pas une attaque.
+  String get resultatCible => touche == null
+      ? sansComparaison
+      : '${touche! ? 'Touché' : 'Raté'} (CA $caCible)';
 
   /// Dés et bonus ou malus séparés : « 3 + 5 +2 » → (« 3 + 5 », « +2 »).
   /// Le modificateur est vide quand il n'y en a pas.
@@ -523,6 +529,7 @@ class JetSeance {
         if (attaquant.isNotEmpty) 'attaquant': attaquant,
         if (caCible != null) 'caCible': caCible,
         if (touche != null) 'touche': touche,
+        if (sansComparaison.isNotEmpty) 'sansComparaison': sansComparaison,
       };
 
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
@@ -543,6 +550,7 @@ class JetSeance {
         attaquant: j['attaquant'] as String? ?? '',
         caCible: (j['caCible'] as num?)?.toInt(),
         touche: j['touche'] as bool?,
+        sansComparaison: j['sansComparaison'] as String? ?? '',
       );
 }
 

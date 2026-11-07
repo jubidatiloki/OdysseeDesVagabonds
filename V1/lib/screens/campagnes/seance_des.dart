@@ -319,9 +319,14 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
     // Attaque : comparée à la CA de la cible, si elle est connue.
     final cibleCa = _cibleEnCours == 'soi' ? '' : _cibleEnCours;
-    final ca = contreCa && jets.length == 1 && cibleCa.isNotEmpty
-        ? _s.caDe(cibleCa)
-        : null;
+    final attaque = contreCa && jets.length == 1;
+    final ca = attaque && cibleCa.isNotEmpty ? _s.caDe(cibleCa) : null;
+    // Pas de comparaison : le jet dit pourquoi.
+    final sansComparaison = !attaque || ca != null
+        ? ''
+        : cibleCa.isEmpty
+            ? 'Sans cible : pas de comparaison'
+            : 'CA de la cible inconnue';
     final touche = ca == null
         ? null
         : attaqueTouche(naturel: jets.first, total: total, ca: ca);
@@ -341,6 +346,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       genre: genre,
       caCible: ca,
       touche: touche,
+      sansComparaison: sansComparaison,
       cibleJet: avecCible
           ? [
               _nomCible,
@@ -367,7 +373,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
               : jets.isEmpty
                   ? '$libelle : lancé'
                   : '$libelle : $total ($detail)'
-                      '${touche == null ? '' : ' · ${touche ? 'Touché' : 'Raté'} (CA $ca)'}');
+                      '${touche != null ? ' · ${touche ? 'Touché' : 'Raté'} (CA $ca)' : sansComparaison.isEmpty ? '' : ' · $sansComparaison'}');
     });
   }
 
@@ -894,18 +900,20 @@ class _LigneJet extends StatelessWidget {
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: scheme.onSurfaceVariant),
                 ),
-                if (j.touche != null)
+                if (j.resultatCible.isNotEmpty)
                   Text(
                     j.resultatCible,
                     key: Key('touche-jet-${j.id}'),
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: j.touche!
-                          ? (sombre
-                              ? OdvCouleurs.lightGreen
-                              : OdvCouleurs.darkGreen)
-                          : scheme.error,
+                      color: switch (j.touche) {
+                        null => scheme.onSurfaceVariant,
+                        true => sombre
+                            ? OdvCouleurs.lightGreen
+                            : OdvCouleurs.darkGreen,
+                        false => scheme.error,
+                      },
                     ),
                   ),
               ],

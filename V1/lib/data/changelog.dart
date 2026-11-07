@@ -29,6 +29,46 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.31.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Compétences : chaque voie et chaque groupe se réduit en '
+            'touchant son en-tête.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : le MJ choisit la puissance de l\'objet aléatoire.',
+      ),
+      (
+        type: _a,
+        texte: 'Notes de séances : date de chaque séance, modifiable par '
+            'le MJ.',
+      ),
+      (
+        type: _m,
+        texte: 'Notes de séances : interface revue, séances passées '
+            'réduites, bouton Enregistrer plus clair.',
+      ),
+      (
+        type: _m,
+        texte: 'Glossaire : voies des classes, races et créatures au style '
+            'de la répartition des points.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : la CA des PJ et des anciennes créatures est '
+            'connue pour comparer les attaques.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : une attaque non comparée dit pourquoi (sans cible, '
+            'CA inconnue).',
+      ),
+    ],
+  ),
+  (
     version: '0.30.0',
     date: '07/11/2026',
     changements: [

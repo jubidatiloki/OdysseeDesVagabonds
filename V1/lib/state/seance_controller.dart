@@ -84,6 +84,8 @@ class SeanceController extends ChangeNotifier {
   String _texte = '';
   RessourcesPj? _publiees;
   int? _initiativePubliee;
+  int? _caPubliee;
+  final Set<String> _caCompletees = {};
   String? _resumePublie;
   Map<String, PresenceSeance> _presences = const {};
   List<MessageSeance> _messages = const [];
@@ -289,6 +291,7 @@ class SeanceController extends ChangeNotifier {
     _ressourcesFlux?.cancel();
     _creaturesFlux = s.seance.ecouterCreatures(c).listen((v) {
       _creatures = v;
+      _completerCa();
       notifyListeners();
     }, onError: (Object _) {});
     _ressourcesFlux = s.seance.ecouterRessources(c).listen((v) {
@@ -368,7 +371,7 @@ class SeanceController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Joueur : publie PV, PM, PE, résumé et initiative quand ils changent.
+  /// Joueur : publie PV, PM, PE, résumé, initiative et CA quand ils changent.
   Future<void> _publier() async {
     final c = campagne;
     final f = maFiche;
@@ -385,18 +388,21 @@ class SeanceController extends ChangeNotifier {
         'niveau ${f.personnage.niveau}';
     if (r == _publiees &&
         resume == _resumePublie &&
-        f.initiative == _initiativePubliee) {
+        f.initiative == _initiativePubliee &&
+        f.classeArmure == _caPubliee) {
       return;
     }
     _publiees = r;
     _resumePublie = resume;
     _initiativePubliee = f.initiative;
+    _caPubliee = f.classeArmure;
     final erreur = await campagnes.agir(
       (x) => x.seance.publierPersonnage(
         c,
         r,
         resume: resume,
         initiative: f.initiative,
+        ca: f.classeArmure,
       ),
     );
     // Échec : réessayé au prochain changement.
@@ -437,7 +443,24 @@ class SeanceController extends ChangeNotifier {
     for (final c in _creatures) {
       if (c.id == id) return c.ca ?? ficheCreature(c)?.ca;
     }
-    return ficheDe(id)?.classeArmure;
+    // La fiche si ce compte la lit, sinon la CA publiée par le joueur.
+    if (ficheDe(id) case final f?) return f.classeArmure;
+    for (final m in _membres) {
+      if (m.uid == id) return m.ca;
+    }
+    return null;
+  }
+
+  /// MJ : les créatures ajoutées avant la version 0.30.0 n'ont pas leur CA
+  /// dans la partie, les PJ ne pourraient pas y comparer leurs attaques.
+  void _completerCa() {
+    if (!estMj) return;
+    for (final c in _creatures) {
+      final ca = c.ca == null ? ficheCreature(c)?.ca : null;
+      if (ca != null && _caCompletees.add(c.id)) {
+        unawaited(modifierCreature(c.copie(ca: ca)));
+      }
+    }
   }
 
   /// En combat : [id] a déjà attaqué ou lancé un sort pendant cette manche.
@@ -674,6 +697,7 @@ class SeanceController extends ChangeNotifier {
     GenreJet genre = GenreJet.libre,
     int? caCible,
     bool? touche,
+    String sansComparaison = '',
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -699,6 +723,7 @@ class SeanceController extends ChangeNotifier {
             attaquant: parAttaquant ? idAttaquant : '',
             caCible: caCible,
             touche: touche,
+            sansComparaison: sansComparaison,
           ),
         ),
       );

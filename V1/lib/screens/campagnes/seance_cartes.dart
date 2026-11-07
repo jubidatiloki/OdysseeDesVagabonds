@@ -146,11 +146,13 @@ class _DialogueObjetAleatoire extends StatefulWidget {
 
 class _DialogueObjetAleatoireState extends State<_DialogueObjetAleatoire> {
   final _aleatoire = Random();
+  var _puissance = PuissanceObjet.hasard;
   late Objet? _objet = _tirer();
 
   Objet? _tirer() => tirerObjetAleatoire(
         widget.seance.referentiel.equipements,
         _aleatoire,
+        puissance: _puissance,
       );
 
   Future<void> _modifier() async {
@@ -185,6 +187,25 @@ class _DialogueObjetAleatoireState extends State<_DialogueObjetAleatoire> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text('Puissance', style: theme.textTheme.labelLarge),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final p in PuissanceObjet.values)
+                      ChoiceChip(
+                        key: Key('puissance-${p.name}'),
+                        label: Text(p.libelle),
+                        selected: _puissance == p,
+                        onSelected: (_) => setState(() {
+                          _puissance = p;
+                          _objet = _tirer();
+                        }),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Text(
                   o.nom,
                   key: const Key('nom-objet-aleatoire'),

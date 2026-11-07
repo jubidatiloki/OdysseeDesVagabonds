@@ -252,12 +252,14 @@ class FirestoreServiceSeance implements ServiceSeance {
     RessourcesPj ressources, {
     required String resume,
     required int initiative,
+    int? ca,
   }) async {
     final lot = _base.batch()
       ..set(_ressources(c).doc(uid), ressources.versJson())
       ..update(_campagne(c).collection('membres').doc(uid), {
         'personnageResume': resume,
         'initiative': initiative,
+        if (ca != null) 'ca': ca,
       });
     await lot.commit();
   }

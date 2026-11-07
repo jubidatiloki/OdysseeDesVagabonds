@@ -160,12 +160,9 @@ class ClasseDetail extends StatelessWidget {
           ),
         ),
         for (final v in c.voies)
-          Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: VoieDetail(voie: v),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: VoieDetail(voie: v),
           ),
       ],
     );

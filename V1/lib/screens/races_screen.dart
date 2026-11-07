@@ -182,12 +182,9 @@ class RaceDetail extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
-          Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: VoieDetail(voie: r.voieRaciale!, raciale: true),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: VoieDetail(voie: r.voieRaciale!, raciale: true),
           ),
         ],
       ],

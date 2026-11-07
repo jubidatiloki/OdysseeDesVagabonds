@@ -42,8 +42,12 @@ String formaterJour(DateTime d, {DateTime? maintenant}) {
   final ecart = aujourdhui.difference(jour).inDays;
   if (ecart == 0) return 'Aujourd\'hui';
   if (ecart == 1) return 'Hier';
-  return '${_jours[d.weekday - 1]} ${d.day} ${_mois[d.month - 1]} ${d.year}';
+  return formaterDate(d);
 }
+
+/// « lundi 19 octobre 2026 ».
+String formaterDate(DateTime d) =>
+    '${_jours[d.weekday - 1]} ${d.day} ${_mois[d.month - 1]} ${d.year}';
 
 IconData iconeHistorique(CategorieHistorique c) {
   switch (c) {

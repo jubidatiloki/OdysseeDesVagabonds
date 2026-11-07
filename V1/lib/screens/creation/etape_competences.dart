@@ -6,6 +6,7 @@ import '../../models/classe.dart';
 import '../../models/race.dart';
 import '../../models/voie.dart';
 import '../../regles/progression.dart';
+import '../../widgets/cadre_repliable.dart';
 import '../../widgets/libelles_sort.dart';
 import '../../widgets/voie_detail.dart';
 
@@ -536,7 +537,7 @@ class _TitreVoies extends StatelessWidget {
   }
 }
 
-/// Cadre d'une voie : en-tête coloré (or : race, orange : classe).
+/// Cadre d'une voie : en-tête coloré (or : race, orange : classe), réductible.
 class _CarteVoie extends StatelessWidget {
   const _CarteVoie({
     required this.titre,
@@ -562,75 +563,30 @@ class _CarteVoie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final teinte = couleur ?? scheme.primary;
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 0,
-      color: scheme.surfaceContainerHighest,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: teinte.withValues(alpha: 0.6)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            color: teinte.withValues(alpha: 0.15),
-            padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
-            child: Row(
-              children: [
-                Icon(icone, color: teinte),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        titre,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: teinte,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        sousTitre,
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return CadreRepliable(
+      key: PageStorageKey('voie-$titre'),
+      cle: 'voie-$titre',
+      icone: icone,
+      couleur: couleur,
+      titre: titre,
+      sousTitre: sousTitre,
+      enfants: [
+        ...enfants,
+        if (rangsSuivants > 0 && voie != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => afficherVoies(
+                context,
+                titre: voie!.nom,
+                voies: [voie!],
+              ),
+              child: Text(
+                'Voir les rangs suivants ($rangsSuivants)',
+              ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 12, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ...enfants,
-                if (rangsSuivants > 0 && voie != null)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () => afficherVoies(
-                        context,
-                        titre: voie!.nom,
-                        voies: [voie!],
-                      ),
-                      child: Text(
-                        'Voir les rangs suivants ($rangsSuivants)',
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -770,7 +726,8 @@ class _ResumeReplie extends StatelessWidget {
 }
 
 /// Cadre d'un groupe d'aptitudes (connaissances, aptitudes, maîtrises, sorts
-/// de rang 0) : en-tête avec icône, titre, sous-titre et nombre acquises.
+/// de rang 0) : en-tête avec icône, titre, sous-titre et nombre acquises ;
+/// réductible, les listes sont longues.
 class _CarteGroupe extends StatelessWidget {
   const _CarteGroupe({
     super.key,
@@ -789,64 +746,19 @@ class _CarteGroupe extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 0,
-      color: scheme.surfaceContainerHighest,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: scheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // En-tête coloré : le groupe se repère d'un coup d'œil.
-          Container(
-            color: scheme.primary.withValues(alpha: 0.15),
-            padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
-            child: Row(
-              children: [
-                Icon(icone, color: scheme.primary),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        titre,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: scheme.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        sousTitre,
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
-                ),
-                if (acquises > 0)
-                  Chip(
-                    visualDensity: VisualDensity.compact,
-                    label: Text('$acquises acquise${acquises > 1 ? 's' : ''}'),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 12, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: enfants,
-            ),
-          ),
-        ],
-      ),
+    return CadreRepliable(
+      key: PageStorageKey('groupe-$titre'),
+      cle: 'groupe-$titre',
+      icone: icone,
+      titre: titre,
+      sousTitre: sousTitre,
+      droite: acquises > 0
+          ? Chip(
+              visualDensity: VisualDensity.compact,
+              label: Text('$acquises acquise${acquises > 1 ? 's' : ''}'),
+            )
+          : null,
+      enfants: enfants,
     );
   }
 }

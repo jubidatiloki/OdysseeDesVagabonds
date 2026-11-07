@@ -73,6 +73,7 @@ const _loup = Creature(
   description: 'Un grand loup gris.',
   initiative: 14,
   pv: 12,
+  ca: 13,
   attaques: [
     AttaqueCreature(nom: 'Morsure', toucher: '1d20 +2', degats: '1d6 +1'),
   ],
@@ -255,6 +256,81 @@ void main() {
       expect(tirerObjetAleatoire(const [], r), isNull);
     });
 
+    test('objet aléatoire : la puissance donne le palier', () {
+      const catalogue = [
+        Equipement(
+          id: 'epee',
+          nom: 'Épée',
+          categorie: CategorieEquipement.arme,
+          proprietes: {'dégâts': '1d8'},
+        ),
+        Equipement(
+          id: 'cotte',
+          nom: 'Cotte',
+          categorie: CategorieEquipement.armure,
+          proprietes: {'CA': '+2'},
+        ),
+      ];
+      final r = Random(5);
+      final vus = {for (final p in PuissanceObjet.values) p: <String>{}};
+      for (final p in PuissanceObjet.values.skip(1)) {
+        for (var i = 0; i < 200; i++) {
+          final o = tirerObjetAleatoire(catalogue, r, puissance: p)!;
+          if (o.categorie.protection) {
+            expect(o.bonusCA, 2 + p.palier);
+          } else if (o.element.isNotEmpty) {
+            vus[p]!.add('element');
+          } else if (o.affliction.isNotEmpty) {
+            vus[p]!.add('affliction');
+          } else {
+            expect(o.effets.single.valeur, '${p.palier}');
+            vus[p]!.add('bonus');
+          }
+        }
+      }
+      expect(vus[PuissanceObjet.faible], {'bonus'});
+      expect(vus[PuissanceObjet.moyen], {'bonus', 'element'});
+      expect(vus[PuissanceObjet.fort], {'bonus', 'affliction'});
+    });
+
+    test('date d\'une séance : posée au démarrage, modifiable par le MJ',
+        () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj');
+      final j1 = ServiceCampagnesMemoire(p.base, 'j1');
+      await mj.demarrerSeance(p.campagne);
+      final numero = p.base.campagnes[p.campagne.id]!.seance!.numero;
+      expect((await j1.lireDatesRecaps(p.campagne.id)).keys, contains(numero));
+      await mj.ecrireDateRecap(p.campagne.id, numero, DateTime(2026, 3, 14));
+      expect(
+        (await j1.lireDatesRecaps(p.campagne.id))[numero],
+        DateTime(2026, 3, 14),
+      );
+      await expectLater(
+        j1.ecrireDateRecap(p.campagne.id, numero, DateTime(2026)),
+        throwsA(isA<ErreurCampagne>()),
+      );
+    });
+
+    test('la raison d\'une attaque non comparée est gardée', () {
+      final j = JetSeance(
+        auteur: 'j1',
+        auteurNom: 'Brom',
+        libelle: 'Toucher CaC',
+        detail: '12 +3',
+        total: 15,
+        date: DateTime(2026),
+        seance: 1,
+        lecteurs: const ['j1'],
+        sansComparaison: 'CA de la cible inconnue',
+      );
+      expect(j.resultatCible, 'CA de la cible inconnue');
+      expect(
+        JetSeance.depuisJson('x', j.versJson()).resultatCible,
+        'CA de la cible inconnue',
+      );
+    });
+
     test('les joueurs lisent les récaps, seul le MJ les écrit', () async {
       final p = await _partie();
       final mj = ServiceCampagnesMemoire(p.base, 'mj');
@@ -396,7 +472,7 @@ void main() {
     Future<void> publier(BaseCampagnesMemoire b, Campagne c) =>
         ServiceCampagnesMemoire(b, 'j1')
             .seance
-            .publierPersonnage(c, r, resume: 'x', initiative: 11);
+            .publierPersonnage(c, r, resume: 'x', initiative: 11, ca: 15);
 
     test('fiches non partagées entre joueurs : PV, PM, PE cachés', () async {
       final p = await _partie();
@@ -410,6 +486,13 @@ void main() {
       expect((await vues('j1'))['j1'], r);
       expect(await vues('j2'), isEmpty);
       expect(p.base.membres[p.campagne.id]!['j1']!.initiative, 11);
+      expect(p.base.membres[p.campagne.id]!['j1']!.ca, 15);
+      expect(
+        MembreCampagne.depuisJson(
+          p.base.membres[p.campagne.id]!['j1']!.versJson(),
+        ).ca,
+        15,
+      );
     });
 
     test('fiches partagées entre joueurs : visibles ; MJ selon le paramètre',
@@ -914,6 +997,7 @@ void main() {
       await tap(tester, find.byKey(const Key('seance-recaps')));
       await tester.enterText(
           find.byKey(const Key('recap-1')), 'La brume est tombée.');
+      await tester.pump();
       await tap(tester, find.byKey(const Key('enregistrer-recap-1')));
       expect(x.base.recaps[x.campagne.id]![1], 'La brume est tombée.');
       await tester.pump(const Duration(seconds: 5));
@@ -1141,6 +1225,94 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('attaque non comparée : le jet dit pourquoi', (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .ajouterCreature(c, const CreatureSeance(id: 'o', nom: 'Ombre')),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      expect(partie.jets.last.touche, isNull);
+      expect(partie.jets.last.resultatCible, 'CA de la cible inconnue');
+      await tap(tester, find.byKey(const Key('cible-attaque')));
+      await tap(tester, find.text('Aucune cible').last);
+      await tap(tester, find.byKey(const Key('attaque-0')));
+      expect(
+        partie.jets.last.resultatCible,
+        'Sans cible : pas de comparaison',
+      );
+      await tap(tester, find.byKey(const Key('onglet-historique')));
+      expect(find.text('CA de la cible inconnue'), findsWidgets);
+    });
+
+    testWidgets('MJ : la CA manquante d\'une créature est complétée',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
+              c,
+              CreatureSeance(id: 'l', nom: 'Loup', creatureId: _loup.id),
+            ),
+      );
+      expect(
+        x.base.parties[x.campagne.id]!.creatures['l']!.ca,
+        _loup.ca,
+      );
+    });
+
+    testWidgets('objet aléatoire : le MJ choisit la puissance', (tester) async {
+      final brom = _brom();
+      await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async => b.fiches['brom'] = (
+          fiche: brom,
+          proprietaire: 'j1',
+          partage: ['mj'],
+          editeurs: ['mj'],
+        ),
+      );
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      await tap(tester, find.byKey(const Key('objet-aleatoire-j1')));
+      await tap(tester, find.byKey(const Key('puissance-faible')));
+      expect(
+        tester
+            .widget<ChoiceChip>(find.byKey(const Key('puissance-faible')))
+            .selected,
+        isTrue,
+      );
+      expect(find.byKey(const Key('nom-objet-aleatoire')), findsOneWidget);
+    });
+
+    testWidgets('notes de séances : date, bouton actif s\'il y a du neuf',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj');
+          await mj.ecrireDateRecap(c.id, 1, DateTime(2026, 3, 14));
+        },
+      );
+      await tap(tester, find.byKey(const Key('seance-recaps')));
+      final derniere = x.base.campagnes[x.campagne.id]!.seance!.numero;
+      expect(find.byKey(const Key('resume-recaps')), findsOneWidget);
+      expect(find.byKey(Key('recap-$derniere')), findsOneWidget);
+      expect(find.byKey(Key('date-recap-$derniere')), findsOneWidget);
+      // Rien de neuf : rien à enregistrer.
+      final bouton = find.byKey(Key('enregistrer-recap-$derniere'));
+      expect(tester.widget<ButtonStyleButton>(bouton).onPressed, isNull);
+      await tester.enterText(find.byKey(Key('recap-$derniere')), 'Un pont.');
+      await tester.pump();
+      expect(tester.widget<ButtonStyleButton>(bouton).onPressed, isNotNull);
+      expect(find.textContaining('14 mars 2026'), findsOneWidget);
     });
 
     testWidgets('carte de créature : icône de sa famille, comme le bestiaire',

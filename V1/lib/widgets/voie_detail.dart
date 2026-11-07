@@ -7,6 +7,7 @@ import '../regles/fiche_calculee.dart';
 import '../regles/invocations.dart';
 import '../regles/progression.dart';
 import '../screens/bestiaire_screen.dart';
+import 'cadre_repliable.dart';
 import 'libelles_sort.dart';
 import 'types_competence.dart';
 
@@ -260,7 +261,9 @@ class LigneTrait extends StatelessWidget {
   }
 }
 
-/// Une voie complète (titre + 5 rangs), en lecture seule.
+/// Une voie complète (titre + 5 rangs), en lecture seule, dans le même cadre
+/// que la répartition des points : en-tête or pour une voie raciale, orange
+/// pour une voie de classe.
 class VoieDetail extends StatelessWidget {
   const VoieDetail({
     super.key,
@@ -279,26 +282,32 @@ class VoieDetail extends StatelessWidget {
   /// Faux : aucune mention de coût ni de niveau (voies de créatures).
   final bool afficherCouts;
 
+  String get _sousTitre {
+    final rangs = '${voie.competences.length} '
+        'rang${voie.competences.length > 1 ? 's' : ''}';
+    if (raciale) return 'Voie raciale · $rangs';
+    return afficherCouts ? 'Voie de classe · $rangs' : rangs;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          voie.nom,
-          style: theme.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
+    final cle = 'voie-${voie.id}-${voie.nom}';
+    return CadreRepliable(
+      key: PageStorageKey(cle),
+      cle: cle,
+      icone: raciale ? Icons.diversity_3_outlined : Icons.route_outlined,
+      couleur: raciale ? Theme.of(context).colorScheme.tertiary : null,
+      titre: voie.nom,
+      sousTitre: _sousTitre,
+      enfants: [
         for (final c in voie.competences) ...[
           LigneCompetence(
             competence: c,
             acquise: c.rang <= rangAcquis,
-            mention: !afficherCouts
-                ? null
-                : raciale
-                    ? 'Offert au niveau ${c.rang * 2 - 1}'
+            mention: raciale
+                ? 'Offert au niveau ${c.rang * 2 - 1}'
+                : !afficherCouts
+                    ? null
                     : 'Coût : ${Progression.coutRang(c.rang)} pt'
                         '${Progression.coutRang(c.rang) > 1 ? 's' : ''}'
                         ' · niveau ${c.rang} minimum',
@@ -358,11 +367,8 @@ Future<void> afficherVoies(
                       const SizedBox(height: 16),
                     ],
                     for (final v in voies) ...[
-                      if (afficherCouts)
-                        VoieDetail(voie: v)
-                      else
-                        _VoieSansCout(voie: v),
-                      if (v != voies.last) const Divider(height: 32),
+                      VoieDetail(voie: v, raciale: !afficherCouts),
+                      if (v != voies.last) const SizedBox(height: 12),
                     ],
                   ],
                 ),
@@ -373,37 +379,6 @@ Future<void> afficherVoies(
       );
     },
   );
-}
-
-/// Voie raciale : pas de coût, rangs offerts aux niveaux impairs.
-class _VoieSansCout extends StatelessWidget {
-  const _VoieSansCout({required this.voie});
-
-  final Voie voie;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          voie.nom,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
-        for (final c in voie.competences) ...[
-          LigneCompetence(
-            competence: c,
-            mention: 'Offert au niveau ${c.rang * 2 - 1}',
-          ),
-          for (final a in c.aussi) LigneCompetence(competence: a),
-        ],
-      ],
-    );
-  }
 }
 
 /// Icône d'un effet selon son type (et sa catégorie pour les maîtrises).

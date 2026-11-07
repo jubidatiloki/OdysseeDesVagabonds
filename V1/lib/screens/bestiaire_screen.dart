@@ -5,6 +5,7 @@ import '../models/carac.dart';
 import '../models/creature.dart';
 import '../regles/fiche_calculee.dart';
 import '../theme.dart';
+import '../widgets/cadre_repliable.dart';
 import '../widgets/carte_selection.dart';
 import '../widgets/consultation.dart';
 import '../widgets/infos_creature.dart';
@@ -246,25 +247,18 @@ class CreatureDetail extends StatelessWidget {
             ),
           ),
           for (final v in c.voies)
-            Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: v.competences.isEmpty
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            v.nom,
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          const TexteAVenir('Compétences à définir.'),
-                        ],
-                      )
-                    : VoieDetail(voie: v, afficherCouts: false),
-              ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: v.competences.isEmpty
+                  ? CadreRepliable(
+                      key: PageStorageKey('voie-${v.id}-${v.nom}'),
+                      cle: 'voie-${v.id}-${v.nom}',
+                      icone: Icons.route_outlined,
+                      titre: v.nom,
+                      sousTitre: '',
+                      enfants: const [TexteAVenir('Compétences à définir.')],
+                    )
+                  : VoieDetail(voie: v, afficherCouts: false),
             ),
         ],
       ],

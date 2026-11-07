@@ -72,6 +72,7 @@ abstract class ServiceSeance {
     RessourcesPj ressources, {
     required String resume,
     required int initiative,
+    int? ca,
   });
 
   /// Joueur : notes personnelles d'une séance (lui seul peut les lire).
@@ -290,6 +291,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
     RessourcesPj ressources, {
     required String resume,
     required int initiative,
+    int? ca,
   }) async {
     _partie(c).ressources[uid] = ressources;
     final m = base.membres[c.id]?[uid];
@@ -303,6 +305,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
         statut: m.statut,
         date: m.date,
         initiative: initiative,
+        ca: ca,
       );
     }
     base.signaler();

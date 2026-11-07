@@ -188,6 +188,24 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       _recaps(campagneId).set({'$numero': texte}, SetOptions(merge: true));
 
   @override
+  Future<Map<int, DateTime>> lireDatesRecaps(String campagneId) async {
+    final d = (await _recaps(campagneId).get()).data() ?? const {};
+    return {
+      for (final e in d.entries)
+        if (e.key.startsWith('date-'))
+          if (int.tryParse(e.key.substring(5)) case final n?)
+            if (DateTime.tryParse('${e.value}') case final date?) n: date,
+    };
+  }
+
+  @override
+  Future<void> ecrireDateRecap(String campagneId, int numero, DateTime date) =>
+      _recaps(campagneId).set(
+        {'date-$numero': date.toIso8601String()},
+        SetOptions(merge: true),
+      );
+
+  @override
   Future<String> nouveauCode(Campagne campagne) async {
     final code = await _codeLibre();
     final lot = _base.batch()
@@ -281,15 +299,21 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
   @override
   Future<void> demarrerSeance(Campagne campagne) async {
     final c = _campagne(await _campagnes.doc(campagne.id).get());
+    final seance = Seance(
+      numero: (c.seance?.numero ?? 0) + 1,
+      debut: DateTime.now(),
+    );
     // Une séance commence en exploration.
     final lot = _base.batch()
       ..update(_campagnes.doc(c.id), {
-        'seance': Seance(
-          numero: (c.seance?.numero ?? 0) + 1,
-          debut: DateTime.now(),
-        ).versJson(),
+        'seance': seance.versJson(),
         'modifieLe': _maintenant,
       })
+      ..set(
+        _recaps(c.id),
+        {'date-${seance.numero}': seance.debut.toIso8601String()},
+        SetOptions(merge: true),
+      )
       ..set(_campagnes.doc(c.id).collection('jeu').doc('etat'),
           const EtatJeu().versJson());
     await lot.commit();

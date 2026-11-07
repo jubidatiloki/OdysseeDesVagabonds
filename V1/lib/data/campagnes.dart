@@ -41,6 +41,10 @@ abstract class ServiceCampagnes {
   Future<Map<int, String>> lireRecaps(String campagneId);
   Future<void> ecrireRecap(String campagneId, int numero, String texte);
 
+  /// Dates des séances (numéro → date), posées au démarrage ou par le MJ.
+  Future<Map<int, DateTime>> lireDatesRecaps(String campagneId);
+  Future<void> ecrireDateRecap(String campagneId, int numero, DateTime date);
+
   /// MJ : remplace le code d'invitation (l'ancien ne marche plus).
   Future<String> nouveauCode(Campagne campagne);
 
@@ -124,6 +128,9 @@ class BaseCampagnesMemoire {
 
   /// Récapitulatifs (id de campagne → numéro → texte).
   final Map<String, Map<int, String>> recaps = {};
+
+  /// Dates des séances (id de campagne → numéro → date).
+  final Map<String, Map<int, DateTime>> datesRecaps = {};
 
   /// Fiches en ligne (id → fiche, propriétaire, partage).
   final Map<
@@ -280,6 +287,23 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
   }
 
   @override
+  Future<Map<int, DateTime>> lireDatesRecaps(String campagneId) async {
+    final c = _lire(campagneId);
+    if (!c.joueurs.contains(uid)) _exigerMj(c);
+    return Map.of(base.datesRecaps[campagneId] ?? const {});
+  }
+
+  @override
+  Future<void> ecrireDateRecap(
+    String campagneId,
+    int numero,
+    DateTime date,
+  ) async {
+    _exigerMj(_lire(campagneId));
+    (base.datesRecaps[campagneId] ??= {})[numero] = date;
+  }
+
+  @override
   Future<String> nouveauCode(Campagne campagne) async {
     _exigerMj(campagne);
     final c = _lire(campagne.id);
@@ -367,9 +391,10 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
     final c = _lire(campagne.id);
     // Une séance commence en exploration.
     base.parties[c.id]?.etat = const EtatJeu();
-    _ecrire(c.copie(
-      seance: Seance(numero: (c.seance?.numero ?? 0) + 1, debut: _horloge()),
-    ));
+    final seance =
+        Seance(numero: (c.seance?.numero ?? 0) + 1, debut: _horloge());
+    (base.datesRecaps[c.id] ??= {})[seance.numero] = seance.debut;
+    _ecrire(c.copie(seance: seance));
   }
 
   @override
