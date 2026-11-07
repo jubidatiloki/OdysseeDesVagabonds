@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 import '../../state/seance_controller.dart';
 import '../../widgets/consultation.dart';
 
+/// Heure d'un message : « 20:15 » le jour même, « 07/11 · 20:15 » sinon.
+String heureMessage(DateTime d, DateTime maintenant) {
+  String n(int v) => v.toString().padLeft(2, '0');
+  final heure = '${n(d.hour)}:${n(d.minute)}';
+  final memeJour = d.year == maintenant.year &&
+      d.month == maintenant.month &&
+      d.day == maintenant.day;
+  return memeJour ? heure : '${n(d.day)}/${n(d.month)} · $heure';
+}
+
 /// Messagerie privée de la séance : une conversation par joueur avec le MJ.
 class OngletMessages extends StatefulWidget {
   const OngletMessages({super.key, required this.seance});
@@ -71,6 +81,7 @@ class _OngletMessagesState extends State<OngletMessages> {
       return const Center(child: TexteAVenir('Aucun joueur pour l\'instant.'));
     }
     _lire(j);
+    final maintenant = DateTime.now();
     final messages = _s.messagesAvec(j).reversed.toList();
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -153,7 +164,23 @@ class _OngletMessagesState extends State<OngletMessages> {
                                 : scheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Text(m.texte),
+                          child: Column(
+                            crossAxisAlignment: moi
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(m.texte),
+                              const SizedBox(height: 2),
+                              Text(
+                                heureMessage(m.date, maintenant),
+                                key: Key('heure-message-$i'),
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

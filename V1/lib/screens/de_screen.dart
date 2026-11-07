@@ -16,6 +16,7 @@ import '../state/historique_lancers.dart';
 import '../state/personnages_controller.dart';
 import '../state/preferences_controller.dart';
 import '../theme.dart';
+import '../widgets/animation_lancer.dart';
 import '../widgets/consultation.dart';
 import '../widgets/icone_guitare.dart';
 import '../widgets/libelles_sort.dart';
@@ -271,6 +272,13 @@ class _DeScreenState extends State<DeScreen> {
       }
     }
     setState(() => _compteur++);
+    AnimationLancer.montrer(
+      context,
+      total: r.total,
+      libelle: r.libelle,
+      critique: r.reussiteCritique,
+      echec: r.echecCritique,
+    );
     _historique.ajouter(r);
     // Jet du personnage actif : aussi inscrit dans son historique.
     final p = fiche?.personnage;

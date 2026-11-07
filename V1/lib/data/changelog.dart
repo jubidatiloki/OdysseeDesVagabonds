@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.39.0',
+    date: '08/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : l\'heure de chaque message (et sa date s\'il n\'est '
+            'pas du jour).',
+      ),
+      (
+        type: _a,
+        texte: 'Dés : animation d\'un dé qui roule à chaque lancer, page dé et '
+            'séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.38.0',
     date: '08/11/2026',
     changements: [

@@ -11,6 +11,7 @@ import '../../regles/fiche_calculee.dart';
 import '../../regles/savoirs.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
+import '../../widgets/animation_lancer.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/voie_detail.dart';
 import '../de_screen.dart';
@@ -318,6 +319,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     bool contreCa = false,
   }) async {
     final total = jets.fold(0, (a, b) => a + b) + modificateur;
+    AnimationLancer.montrer(context, total: total, libelle: libelle);
     // Attaque : comparée à la CA de la cible, si elle est connue.
     final cibleCa = _cibleEnCours == 'soi' ? '' : _cibleEnCours;
     final attaque = contreCa && jets.length == 1;
