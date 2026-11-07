@@ -497,11 +497,13 @@ class JetSeance {
   /// Attaque qui n'a pas pu être comparée : la raison (« CA inconnue »).
   final String sansComparaison;
 
-  /// « Touché (CA 14) », « Raté (CA 14) », ou pourquoi l'attaque n'a pas été
-  /// comparée ; vide : ce jet n'est pas une attaque.
-  String get resultatCible => touche == null
-      ? sansComparaison
-      : '${touche! ? 'Touché' : 'Raté'} (CA $caCible)';
+  /// « Touché (CA 14) », « Raté » (la CA reste cachée), ou pourquoi l'attaque
+  /// n'a pas été comparée ; vide : ce jet n'est pas une attaque.
+  String get resultatCible => switch (touche) {
+        null => sansComparaison,
+        true => 'Touché (CA $caCible)',
+        false => 'Raté',
+      };
 
   /// Dés et bonus ou malus séparés : « 3 + 5 +2 » → (« 3 + 5 », « +2 »).
   /// Le modificateur est vide quand il n'y en a pas.

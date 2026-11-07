@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import '../models/butin.dart';
 import '../models/campagne.dart';
+import '../models/objet.dart';
 import '../models/seance.dart';
 import 'campagnes.dart';
 
@@ -56,6 +58,24 @@ abstract class ServiceSeance {
   Stream<List<DegatsSeance>> ecouterDegats(Campagne c);
   Future<bool> prendreDegats(Campagne c, String id);
 
+  /// Butins : le MJ les écrit, les PJ y prennent ce qu'il reste ; renvoie ce
+  /// qui a vraiment été pris.
+  Stream<List<ButinSeance>> ecouterButins(Campagne c);
+  Future<void> ecrireButin(Campagne c, ButinSeance butin);
+  Future<void> retirerButin(Campagne c, String id);
+  Future<({Bourse argent, Objet? objet})> prendreButin(
+    Campagne c,
+    String id, {
+    Bourse? argent,
+    String? objetId,
+  });
+
+  /// Objets envoyés d'un PJ à un autre : pris une seule fois par leur
+  /// destinataire (`false` : déjà pris).
+  Future<void> envoyerObjet(Campagne c, EnvoiObjet envoi);
+  Stream<List<EnvoiObjet>> ecouterEnvois(Campagne c);
+  Future<bool> prendreEnvoi(Campagne c, String id);
+
   /// Messages privés de ce compte (MJ : tous ; joueur : les siens).
   Stream<List<MessageSeance>> ecouterMessages(Campagne c);
   Future<void> envoyerMessage(Campagne c, MessageSeance message);
@@ -87,6 +107,8 @@ class PartieMemoire {
   final Map<String, RessourcesPj> ressources = {};
   final List<JetSeance> jets = [];
   final List<DegatsSeance> degats = [];
+  final Map<String, ButinSeance> butins = {};
+  final List<EnvoiObjet> envois = [];
   final Map<String, PresenceSeance> presences = {};
   final List<MessageSeance> messages = [];
 
@@ -282,6 +304,61 @@ class ServiceSeanceMemoire implements ServiceSeance {
     final liste = _partie(c).degats;
     final avant = liste.length;
     liste.removeWhere((d) => d.id == id);
+    return liste.length < avant;
+  }
+
+  @override
+  Stream<List<ButinSeance>> ecouterButins(Campagne c) =>
+      _suivre(() => _partie(c).butins.values.toList());
+
+  @override
+  Future<void> ecrireButin(Campagne c, ButinSeance butin) async {
+    _exigerMj(c);
+    final id = butin.id.isEmpty ? base.nouvelId() : butin.id;
+    _partie(c).butins[id] = butin.copie(id: id);
+    base.signaler();
+  }
+
+  @override
+  Future<void> retirerButin(Campagne c, String id) async {
+    _exigerMj(c);
+    _partie(c).butins.remove(id);
+    base.signaler();
+  }
+
+  @override
+  Future<({Bourse argent, Objet? objet})> prendreButin(
+    Campagne c,
+    String id, {
+    Bourse? argent,
+    String? objetId,
+  }) async {
+    final b = _partie(c).butins[id];
+    if (b == null) return (argent: Bourse(), objet: null);
+    final pris = b.prendre(demande: argent, objetId: objetId);
+    _partie(c).butins[id] = pris.reste;
+    base.signaler();
+    return (argent: pris.argent, objet: pris.objet);
+  }
+
+  @override
+  Future<void> envoyerObjet(Campagne c, EnvoiObjet envoi) async {
+    _partie(c).envois.add(envoi.avecId(base.nouvelId()));
+    base.signaler();
+  }
+
+  @override
+  Stream<List<EnvoiObjet>> ecouterEnvois(Campagne c) => _suivre(() => [
+        for (final e in _partie(c).envois)
+          if (e.destinataire == uid) e,
+      ]);
+
+  @override
+  Future<bool> prendreEnvoi(Campagne c, String id) async {
+    final liste = _partie(c).envois;
+    final avant = liste.length;
+    liste.removeWhere((e) => e.id == id);
+    base.signaler();
     return liste.length < avant;
   }
 

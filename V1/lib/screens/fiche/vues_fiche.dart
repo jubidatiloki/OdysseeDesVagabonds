@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/referentiel.dart';
+import '../../models/objet.dart';
 import '../../models/personnage.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../state/personnages_controller.dart';
@@ -21,6 +22,7 @@ List<Widget> vuesFiche(
   required Referentiel referentiel,
   required Future<void> Function() onModifie,
   PersonnagesController? controller,
+  void Function(Objet)? onEnvoyerObjet,
   ({bool inventaire, bool competences}) verrous = (
     inventaire: false,
     competences: false,
@@ -56,6 +58,7 @@ List<Widget> vuesFiche(
         personnage: p,
         verrouille: verrous.inventaire,
         onModifie: onModifie,
+        onEnvoyer: onEnvoyerObjet,
         equipements: referentiel.equipements,
         deuxArmesDeuxMains: fiche.deuxArmesDeuxMains,
         fabrications: fiche.fabrications,
@@ -78,12 +81,16 @@ class FicheComplete extends StatelessWidget {
     required this.referentiel,
     required this.onModifie,
     this.controller,
+    this.onEnvoyerObjet,
   });
 
   final FicheCalculee fiche;
   final Referentiel referentiel;
   final Future<void> Function() onModifie;
   final PersonnagesController? controller;
+
+  /// En séance : envoyer un objet non équipé à un autre PJ.
+  final void Function(Objet)? onEnvoyerObjet;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +118,7 @@ class FicheComplete extends StatelessWidget {
                 referentiel: referentiel,
                 onModifie: onModifie,
                 controller: controller,
+                onEnvoyerObjet: onEnvoyerObjet,
               ),
             ),
           ),

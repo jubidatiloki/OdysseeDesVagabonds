@@ -29,6 +29,40 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.32.0',
+    date: '07/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : butins créés par le MJ dans le menu de gauche, où '
+            'les PJ prennent argent et objets.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : un PJ envoie un objet non équipé à un autre PJ, '
+            'discrètement s\'il le veut.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : le MJ donne un nom à une séance (Séance 3 - Nom).',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : groupes Sorts et Compétences dans les jets, avec '
+            'le détail de chaque compétence.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : toucher raté, la CA de la cible reste cachée.',
+      ),
+      (
+        type: _m,
+        texte: 'Écritures espacées : 10 secondes pour un PJ, 3 secondes '
+            'pour le MJ.',
+      ),
+    ],
+  ),
+  (
     version: '0.31.0',
     date: '07/11/2026',
     changements: [

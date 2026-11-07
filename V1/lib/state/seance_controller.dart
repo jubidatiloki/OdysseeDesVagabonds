@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../data/campagnes.dart';
 import '../data/referentiel.dart';
 import '../data/seance.dart';
+import '../models/butin.dart';
 import '../models/campagne.dart';
 import '../models/creature.dart';
 import '../models/historique.dart';
@@ -55,10 +56,16 @@ class SeanceController extends ChangeNotifier {
       _degats = v;
       _traiterDegats();
     });
+    suivre(seance.ecouterButins(c), (v) => _butins = v);
+    suivre(seance.ecouterEnvois(c), (v) {
+      _envois = v;
+      _traiterEnvois();
+    });
     suivre(s.ecouterMembres(c.id), (v) {
       _membres = v;
       _suivreFiches();
       _traiterDegats();
+      _traiterEnvois();
       unawaited(_publier());
       unawaited(_ajusterOrdre());
     });
@@ -67,6 +74,11 @@ class SeanceController extends ChangeNotifier {
     personnages.addListener(_personnagesChanges);
     unawaited(_chargerTexte());
   }
+
+  /// Écritures espacées : le joueur publie au plus toutes les 10 secondes,
+  /// le MJ enregistre les fiches au plus toutes les 3 secondes.
+  static const Duration delaiEcritureJoueur = Duration(seconds: 10);
+  static const Duration delaiEcritureMj = Duration(seconds: 3);
 
   final CampagnesController campagnes;
   final PersonnagesController personnages;
@@ -104,7 +116,20 @@ class SeanceController extends ChangeNotifier {
   final Map<String, StreamSubscription<void>> _fichesFlux = {};
   final Map<String, Personnage> _fiches = {};
 
-  /// MJ : fiches modifiées, envoyées au plus toutes les 5 secondes.
+  /// Butins de la partie, objets reçus d'autres PJ.
+  List<ButinSeance> _butins = const [];
+  List<EnvoiObjet> _envois = const [];
+  final Set<String> _envoisPris = {};
+  Future<void> _fileEnvois = Future.value();
+
+  /// Message à montrer au joueur (objet reçu).
+  final ValueNotifier<String?> annonce = ValueNotifier(null);
+
+  /// Joueur : publication espacée de [delaiEcritureJoueur].
+  DateTime? _dernierePublication;
+  Timer? _minuteriePublication;
+
+  /// MJ : fiches modifiées, envoyées au plus toutes les 3 secondes.
   final Map<String, Personnage> _aEcrire = {};
   Timer? _minuterieFiches;
 
@@ -117,6 +142,7 @@ class SeanceController extends ChangeNotifier {
   List<CreatureSeance> get creatures => _creatures;
   Map<String, RessourcesPj> get ressources => _ressources;
   List<JetSeance> get jets => _jets;
+  List<ButinSeance> get butins => _butins;
 
   /// Joueurs acceptés.
   List<MembreCampagne> get joueurs => [
@@ -342,7 +368,7 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// MJ : enregistre une fiche modifiée ; la première écriture part tout de
-  /// suite, les suivantes sont regroupées toutes les 5 secondes.
+  /// suite, les suivantes sont regroupées toutes les 3 secondes.
   Future<void> enregistrerFiche(Personnage p) async {
     _aEcrire[p.id] = p;
     notifyListeners();
@@ -353,7 +379,7 @@ class SeanceController extends ChangeNotifier {
     if (_aEcrire.isEmpty) return;
     final lot = _aEcrire.values.toList();
     _aEcrire.clear();
-    _minuterieFiches = Timer(const Duration(seconds: 5), () {
+    _minuterieFiches = Timer(delaiEcritureMj, () {
       _minuterieFiches = null;
       unawaited(_ecrireFiches());
     });
@@ -392,6 +418,21 @@ class SeanceController extends ChangeNotifier {
         f.classeArmure == _caPubliee) {
       return;
     }
+    // Changement trop rapproché : publié à la fin du délai.
+    if (_minuteriePublication != null) return;
+    final dernier = _dernierePublication;
+    final reste = dernier == null
+        ? Duration.zero
+        : delaiEcritureJoueur - DateTime.now().difference(dernier);
+    if (reste > Duration.zero) {
+      _minuteriePublication = Timer(reste, () {
+        _minuteriePublication = null;
+        _dernierePublication = null;
+        unawaited(_publier());
+      });
+      return;
+    }
+    _dernierePublication = DateTime.now();
     _publiees = r;
     _resumePublie = resume;
     _initiativePubliee = f.initiative;
@@ -474,6 +515,158 @@ class SeanceController extends ChangeNotifier {
       }
     }
     return false;
+  }
+
+  /// Ligne des logs sans dés (butin, envoi d'objet).
+  Future<void> _noter(
+    ServiceSeance s,
+    Campagne c,
+    String libelle,
+    VisibiliteJet visibilite,
+  ) =>
+      s.lancer(
+        c,
+        JetSeance(
+          auteur: uid,
+          auteurNom: moi?.personnageNom ?? 'Joueur',
+          libelle: libelle,
+          detail: '',
+          total: 0,
+          date: DateTime.now(),
+          seance: _numero,
+          lecteurs: lecteursDuJet(c, visibilite, auteur: uid),
+          visibilite: visibilite,
+          mode: _etat.mode,
+          manche: _etat.manche,
+        ),
+      );
+
+  /// MJ : nouveau butin, visible de tous dans le menu de gauche.
+  Future<String?> creerButin(String nom) => _agir((s, c) => s.ecrireButin(
+        c,
+        ButinSeance(nom: nom.trim().isEmpty ? 'Butin' : nom.trim()),
+      ));
+
+  Future<String?> modifierButin(ButinSeance butin) =>
+      _agir((s, c) => s.ecrireButin(c, butin));
+
+  Future<String?> retirerButin(ButinSeance butin) => _agir((s, c) async {
+        await s.retirerButin(c, butin.id);
+        if (_carte == butin.id) _carte = kCarteScript;
+      });
+
+  /// PJ : prend de l'argent ou un objet du butin, ajoutés à sa fiche.
+  Future<String?> prendreDuButin(
+    ButinSeance butin, {
+    Bourse? argent,
+    Objet? objet,
+  }) async {
+    final f = maFiche;
+    if (f == null) return 'Ta fiche n\'est pas disponible.';
+    return _agir((s, c) async {
+      final pris = await s.prendreButin(
+        c,
+        butin.id,
+        argent: argent,
+        objetId: objet?.id,
+      );
+      final o = pris.objet;
+      if (o == null && pris.argent.vide) return;
+      final p = f.personnage;
+      p.bourse
+        ..or += pris.argent.or
+        ..argent += pris.argent.argent
+        ..cuivre += pris.argent.cuivre;
+      if (o != null) p.inventaire.add(o);
+      final quoi = [
+        if (o != null) o.nom,
+        if (!pris.argent.vide) pris.argent.texte,
+      ].join(', ');
+      p.journaliser(
+        'Pris dans ${butin.nom} : $quoi',
+        categorie: CategorieHistorique.inventaire,
+      );
+      await personnages.sauvegarder(p);
+      await _noter(s, c, 'Prend $quoi (${butin.nom})', VisibiliteJet.tous);
+    });
+  }
+
+  /// PJ : envoie [quantite] exemplaires d'un objet non équipé à [joueur].
+  /// [discret] : il n'est pas prévenu.
+  Future<String?> envoyerObjet(
+    Objet objet,
+    String joueur, {
+    int quantite = 1,
+    bool discret = false,
+  }) async {
+    final f = maFiche;
+    if (f == null) return 'Ta fiche n\'est pas disponible.';
+    if (objet.equipe) return 'Déséquipe d\'abord cet objet.';
+    final n = quantite.clamp(1, objet.quantite);
+    final copie = Objet.depuisJson(objet.versJson()..remove('id'))
+      ..quantite = n;
+    var nomCible = '';
+    for (final m in joueurs) {
+      if (m.uid == joueur) nomCible = m.personnageNom;
+    }
+    return _agir((s, c) async {
+      await s.envoyerObjet(
+        c,
+        EnvoiObjet(
+          destinataire: joueur,
+          auteur: uid,
+          auteurNom: f.personnage.nom,
+          objet: copie,
+          discret: discret,
+        ),
+      );
+      final p = f.personnage;
+      if (n >= objet.quantite) {
+        p.inventaire.remove(objet);
+      } else {
+        objet.quantite -= n;
+      }
+      p.journaliser(
+        'Objet envoyé à $nomCible : ${objet.nom}'
+        '${n > 1 ? ' ×$n' : ''}${discret ? ' (discrètement)' : ''}',
+        categorie: CategorieHistorique.inventaire,
+      );
+      await personnages.sauvegarder(p);
+      await _noter(
+        s,
+        c,
+        'Envoie ${objet.nom} à $nomCible${discret ? ' (discrètement)' : ''}',
+        VisibiliteJet.mjEtAuteur,
+      );
+    });
+  }
+
+  void _traiterEnvois() {
+    if (maFiche == null) return;
+    for (final e in _envois) {
+      if (!_envoisPris.add(e.id)) continue;
+      _fileEnvois = _fileEnvois.then((_) => _recevoir(e));
+    }
+  }
+
+  /// Ajoute un objet reçu à la fiche ; prévenu, sauf envoi discret.
+  Future<void> _recevoir(EnvoiObjet e) async {
+    await _agir((s, c) async {
+      if (!await s.prendreEnvoi(c, e.id)) return;
+      final f = maFiche;
+      if (f == null) return;
+      final p = f.personnage..inventaire.add(e.objet);
+      if (!e.discret) {
+        p.journaliser(
+          'Objet reçu de ${e.auteurNom} : ${e.objet.nom}',
+          categorie: CategorieHistorique.inventaire,
+        );
+      }
+      await personnages.sauvegarder(p);
+      if (!e.discret) {
+        annonce.value = '${e.auteurNom} t\'a envoyé : ${e.objet.nom}';
+      }
+    });
   }
 
   /// MJ : donne un objet au joueur dont il voit la fiche.
@@ -684,6 +877,24 @@ class SeanceController extends ChangeNotifier {
     }
   }
 
+  /// Action de compétence payée en endurance (Moulinet : 2 PE).
+  Future<void> depenserAction(
+    FicheCalculee f,
+    ({String libelle, int cout, String origine}) a,
+  ) async {
+    final avant = f.peActuels;
+    final p = f.personnage..peActuels = avant - a.cout;
+    p.journaliser(
+      '${a.libelle} (−${a.cout} PE) · PE : $avant → ${p.peActuels}',
+      categorie: CategorieHistorique.vie,
+    );
+    if (p.id == moi?.personnageId) {
+      await personnages.sauvegarder(p);
+    } else {
+      await enregistrerFiche(p);
+    }
+  }
+
   /// Enregistre un jet pour ses lecteurs ; [parAttaquant] : au nom du
   /// personnage ou de la créature qui agit.
   Future<String?> lancer({
@@ -746,6 +957,8 @@ class SeanceController extends ChangeNotifier {
   @override
   void dispose() {
     _minuteriePresence?.cancel();
+    _minuteriePublication?.cancel();
+    annonce.dispose();
     _signalerPresence(false);
     for (final a in _abonnements) {
       a.cancel();

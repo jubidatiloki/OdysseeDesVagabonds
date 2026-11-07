@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/butin.dart';
 import '../models/campagne.dart';
+import '../models/objet.dart';
 import '../models/seance.dart';
 import 'seance.dart';
 
@@ -13,6 +15,8 @@ import 'seance.dart';
 /// - `ressources/{uid}` : PV, PM, PE (selon les paramètres de la campagne) ;
 /// - `jets/{j}` : jets de dés, lisibles par leurs seuls `lecteurs` ;
 /// - `degats/{d}` : dégâts à appliquer, lus par leur `destinataire` ;
+/// - `butins/{b}` : butins du MJ, où les PJ se servent ;
+/// - `envois/{e}` : objets envoyés entre PJ, lus par leur `destinataire` ;
 /// - `presences/{uid}` : dernier signal de chaque joueur ;
 /// - `messages/{m}` : messages privés, lus par leurs `participants` ;
 /// - `notesJoueurs/{uid}/seances/{n}` : notes personnelles du joueur.
@@ -241,6 +245,63 @@ class FirestoreServiceSeance implements ServiceSeance {
   Future<bool> prendreDegats(Campagne c, String id) =>
       _base.runTransaction((t) async {
         final ref = _degats(c).doc(id);
+        if (!(await t.get(ref)).exists) return false;
+        t.delete(ref);
+        return true;
+      });
+
+  CollectionReference<Map<String, dynamic>> _butins(Campagne c) =>
+      _campagne(c).collection('butins');
+  CollectionReference<Map<String, dynamic>> _envois(Campagne c) =>
+      _campagne(c).collection('envois');
+
+  @override
+  Stream<List<ButinSeance>> ecouterButins(Campagne c) =>
+      _butins(c).snapshots().map((s) => [
+            for (final d in s.docs) ButinSeance.depuisJson(d.id, d.data()),
+          ]);
+
+  @override
+  Future<void> ecrireButin(Campagne c, ButinSeance butin) => butin.id.isEmpty
+      ? _butins(c).add(butin.versJson())
+      : _butins(c).doc(butin.id).set(butin.versJson());
+
+  @override
+  Future<void> retirerButin(Campagne c, String id) =>
+      _butins(c).doc(id).delete();
+
+  @override
+  Future<({Bourse argent, Objet? objet})> prendreButin(
+    Campagne c,
+    String id, {
+    Bourse? argent,
+    String? objetId,
+  }) =>
+      _base.runTransaction((t) async {
+        final ref = _butins(c).doc(id);
+        final d = await t.get(ref);
+        final data = d.data();
+        if (data == null) return (argent: Bourse(), objet: null);
+        final pris = ButinSeance.depuisJson(id, data)
+            .prendre(demande: argent, objetId: objetId);
+        t.set(ref, pris.reste.versJson());
+        return (argent: pris.argent, objet: pris.objet);
+      });
+
+  @override
+  Future<void> envoyerObjet(Campagne c, EnvoiObjet envoi) =>
+      _envois(c).add(envoi.versJson());
+
+  @override
+  Stream<List<EnvoiObjet>> ecouterEnvois(Campagne c) =>
+      _envois(c).where('destinataire', isEqualTo: uid).snapshots().map((s) => [
+            for (final d in s.docs) EnvoiObjet.depuisJson(d.id, d.data()),
+          ]);
+
+  @override
+  Future<bool> prendreEnvoi(Campagne c, String id) =>
+      _base.runTransaction((t) async {
+        final ref = _envois(c).doc(id);
         if (!(await t.get(ref)).exists) return false;
         t.delete(ref);
         return true;

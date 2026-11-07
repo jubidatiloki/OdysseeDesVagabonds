@@ -13,6 +13,8 @@ rules_version = '2';
 //   ressources/{uid} : PV, PM, PE (selon les paramètres de la campagne)
 //   jets/{j} : lisibles par leurs seuls « lecteurs »
 //   degats/{d} : dégâts à appliquer, lus par leur destinataire
+//   butins/{b} : butins du MJ, les joueurs s'y servent
+//   envois/{e} : objets envoyés entre joueurs
 //   presences/{uid} : dernier signal de chaque joueur
 //   messages/{m} : messages privés MJ - joueur
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
@@ -194,6 +196,24 @@ service cloud.firestore {
         allow create: if connecte()
           && request.resource.data.auteur == soi()
           && (mjDe(id) || membreDe(id));
+        allow delete: if connecte()
+          && (resource.data.destinataire == soi() || mjDe(id));
+      }
+
+      // Butins : écrits par le MJ ; les joueurs y prennent, sans le renommer.
+      match /butins/{butin} {
+        allow read: if connecte() && (mjDe(id) || membreDe(id));
+        allow create, delete: if connecte() && mjDe(id);
+        allow update: if connecte() && (mjDe(id)
+          || membreDe(id) && request.resource.data.nom == resource.data.nom);
+      }
+
+      // Objets envoyés entre joueurs, pris par leur destinataire.
+      match /envois/{envoi} {
+        allow read: if connecte()
+          && (resource.data.destinataire == soi() || mjDe(id));
+        allow create: if connecte()
+          && request.resource.data.auteur == soi() && membreDe(id);
         allow delete: if connecte()
           && (resource.data.destinataire == soi() || mjDe(id));
       }

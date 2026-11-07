@@ -69,6 +69,9 @@ abstract class ServiceCampagnes {
 
   /// MJ : démarre une séance (numéro suivant) ou termine celle en cours.
   Future<void> demarrerSeance(Campagne campagne);
+
+  /// MJ : nom d'une séance (vide : aucun).
+  Future<void> nommerSeance(Campagne campagne, int numero, String nom);
   Future<void> terminerSeance(Campagne campagne);
 
   /// Fiche partagée par un autre joueur (lecture seule) ; `null` si elle
@@ -395,6 +398,13 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
         Seance(numero: (c.seance?.numero ?? 0) + 1, debut: _horloge());
     (base.datesRecaps[c.id] ??= {})[seance.numero] = seance.debut;
     _ecrire(c.copie(seance: seance));
+  }
+
+  @override
+  Future<void> nommerSeance(Campagne campagne, int numero, String nom) async {
+    _exigerMj(campagne);
+    final c = _lire(campagne.id);
+    _ecrire(c.copie(nomsSeances: {...c.nomsSeances, numero: nom.trim()}));
   }
 
   @override

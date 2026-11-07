@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/campagne.dart';
 import '../../widgets/cadre_repliable.dart';
 import '../../widgets/consultation.dart';
+import '../../widgets/dialogue_texte.dart';
 import '../fiche/onglet_historique.dart' show formaterDate;
 import 'campagnes_screen.dart';
 
@@ -34,6 +35,9 @@ class _OngletRecapsState extends State<OngletRecaps>
   /// Textes tels qu'ils sont enregistrés : le bouton sait s'il y a du neuf.
   final Map<int, String> _enregistres = {};
   Map<int, DateTime> _dates = {};
+
+  /// Noms changés ici : affichés sans attendre la campagne à jour.
+  final Map<int, String> _noms = {};
   var _charge = false;
 
   @override
@@ -70,6 +74,30 @@ class _OngletRecapsState extends State<OngletRecaps>
   DateTime? _date(int n) {
     final s = widget.campagne.seance;
     return _dates[n] ?? (s?.numero == n ? s?.debut : null);
+  }
+
+  String _nom(int n) => _noms[n] ?? widget.campagne.nomsSeances[n] ?? '';
+
+  Future<void> _nommer(int n) async {
+    final messager = ScaffoldMessenger.of(context);
+    final nom = await showDialog<String>(
+      context: context,
+      builder: (_) => DialogueTexte(
+        titre: 'Nom de la séance $n',
+        valeur: _nom(n),
+        exemple: 'Ex. : La tour noire',
+        cleChamp: 'champ-nom-seance',
+        cleValider: 'valider-nom-seance',
+      ),
+    );
+    if (nom == null) return;
+    final erreur = await widget.contexte.campagnes
+        .agir((s) => s.nommerSeance(widget.campagne, n, nom));
+    if (erreur != null) {
+      messager.showSnackBar(SnackBar(content: Text(erreur)));
+    } else if (mounted) {
+      setState(() => _noms[n] = nom.trim());
+    }
   }
 
   String _sousTitre(int n) {
@@ -160,7 +188,7 @@ class _OngletRecapsState extends State<OngletRecaps>
               key: PageStorageKey('recap-${e.key}'),
               cle: 'recap-${e.key}',
               icone: Icons.event_note_outlined,
-              titre: 'Séance ${e.key}',
+              titre: Campagne.titre(e.key, _nom(e.key)),
               sousTitre: _sousTitre(e.key),
               enfants: [
                 Padding(
@@ -181,16 +209,28 @@ class _OngletRecapsState extends State<OngletRecaps>
       key: PageStorageKey('recap-$n'),
       cle: 'recap-$n',
       icone: Icons.event_note_outlined,
-      titre: 'Séance $n',
+      titre: Campagne.titre(n, _nom(n)),
       sousTitre: _sousTitre(n),
       // Les séances passées sont réduites : la dernière reste sous la main.
       ouvertAuDepart: n == derniere,
-      droite: IconButton(
-        key: Key('date-recap-$n'),
-        tooltip: 'Choisir la date',
-        visualDensity: VisualDensity.compact,
-        onPressed: () => _choisirDate(n),
-        icon: const Icon(Icons.calendar_month_outlined),
+      droite: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            key: Key('nom-recap-$n'),
+            tooltip: 'Nommer la séance',
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _nommer(n),
+            icon: const Icon(Icons.edit_outlined),
+          ),
+          IconButton(
+            key: Key('date-recap-$n'),
+            tooltip: 'Choisir la date',
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _choisirDate(n),
+            icon: const Icon(Icons.calendar_month_outlined),
+          ),
+        ],
       ),
       enfants: [
         const SizedBox(height: 8),

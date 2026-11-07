@@ -147,7 +147,7 @@ class CompteController extends ChangeNotifier {
   Future<void> demarrer() async {
     await _lireReglages();
     // Lancer de dé du personnage actif : envoi si la méthode le prévoit.
-    // Envoi espacé d'au moins 5 s (DepotDiffere.delai).
+    // Envoi espacé d'au moins 10 s (DepotDiffere.delai).
     personnages.apresLancer = () async {
       if (_automatique && _aChaqueLancer && nbEnAttente > 0) {
         await _envoiAutomatique();
@@ -237,7 +237,7 @@ class CompteController extends ChangeNotifier {
     return aEnvoyer.length;
   }
 
-  /// Envoi automatique, espacé d'au moins 5 s du précédent ; en cas
+  /// Envoi automatique, espacé d'au moins 10 s du précédent ; en cas
   /// d'échec, les modifications restent en attente.
   Future<void> _envoiAutomatique() async {
     try {

@@ -422,7 +422,7 @@ void testsDelaiEnvoi() {
     depot.fermer();
   });
 
-  test('délai par défaut : 5 secondes ; envoi manuel sans attendre', () async {
+  test('délai par défaut : 10 secondes ; envoi manuel sans attendre', () async {
     final distant = _DepotCompte();
     final depot = DepotDiffere(
       distant,
@@ -430,7 +430,7 @@ void testsDelaiEnvoi() {
       stockage: StockageCompteMemoire(),
       cle: 'attente',
     );
-    expect(depot.delai, const Duration(seconds: 5));
+    expect(depot.delai, const Duration(seconds: 10));
     await depot.sauvegarder(fiche('b', 'Brom'));
     await depot.sauvegarder(fiche('a', 'Aria'));
     expect(depot.envoiPlanifie, isTrue);

@@ -14,6 +14,7 @@ import 'seance_cartes.dart';
 import 'seance_creatures.dart';
 import 'seance_des.dart';
 import 'seance_recaps.dart';
+import '../../widgets/dialogue_texte.dart';
 
 /// Interface de jeu d'une séance. Les cartes (à gauche) et les dés (à droite)
 /// restent visibles ; la navigation du haut change le centre : Tableau de
@@ -59,10 +60,19 @@ class _SeanceScreenState extends State<SeanceScreen>
       referentiel: widget.contexte.referentiel,
       campagneId: widget.campagneId,
     );
+    _seance.annonce.addListener(_annoncer);
+  }
+
+  /// Objet reçu d'un autre PJ.
+  void _annoncer() {
+    final texte = _seance.annonce.value;
+    if (texte == null || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texte)));
   }
 
   @override
   void dispose() {
+    _seance.annonce.removeListener(_annoncer);
     _vues.dispose();
     _seance.dispose();
     super.dispose();
@@ -102,9 +112,27 @@ class _SeanceScreenState extends State<SeanceScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'Séance ${s.numero} · ${c.nom}',
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${c.titreSeance(s.numero)} · ${c.nom}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (s.estMj)
+                        InkWell(
+                          key: const Key('nommer-seance'),
+                          onTap: () => _nommer(context),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Tooltip(
+                              message: 'Nommer la séance',
+                              child: Icon(Icons.edit_outlined, size: 16),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   _EnTeteMode(seance: s),
@@ -200,6 +228,28 @@ class _SeanceScreenState extends State<SeanceScreen>
     );
   }
 
+  /// MJ : nom de la séance, gardé après le numéro.
+  Future<void> _nommer(BuildContext context) async {
+    final c = _seance.campagne;
+    if (c == null) return;
+    final numero = _seance.numero;
+    final nom = await showDialog<String>(
+      context: context,
+      builder: (_) => DialogueTexte(
+        titre: 'Nom de la séance $numero',
+        valeur: c.nomsSeances[numero] ?? '',
+        exemple: 'Ex. : La tour noire',
+        cleChamp: 'champ-nom-seance',
+        cleValider: 'valider-nom-seance',
+      ),
+    );
+    if (nom == null || !context.mounted) return;
+    await _suivre(
+      context,
+      widget.contexte.campagnes.agir((x) => x.nommerSeance(c, numero, nom)),
+    );
+  }
+
   /// MJ : clôture la séance, après confirmation.
   Future<void> _terminer(BuildContext context) async {
     final c = _seance.campagne;
@@ -207,7 +257,7 @@ class _SeanceScreenState extends State<SeanceScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Clôturer la séance ${_seance.numero} ?'),
+        title: Text('Clôturer : ${c.titreSeance(_seance.numero)} ?'),
         content: const Text('La séance se termine pour tous les joueurs.'),
         actions: [
           TextButton(
@@ -346,53 +396,6 @@ Future<void> _suivre(BuildContext context, Future<String?> action) async {
   if (context.mounted) _erreur(context, erreur);
 }
 
-/// MJ : saisie du lieu de la scène.
-class _DialogueLieu extends StatefulWidget {
-  const _DialogueLieu({required this.lieu});
-
-  final String lieu;
-
-  @override
-  State<_DialogueLieu> createState() => _DialogueLieuState();
-}
-
-class _DialogueLieuState extends State<_DialogueLieu> {
-  late final _champ = TextEditingController(text: widget.lieu);
-
-  @override
-  void dispose() {
-    _champ.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Lieu de la scène'),
-      content: TextField(
-        key: const Key('champ-lieu'),
-        controller: _champ,
-        autofocus: true,
-        maxLength: 60,
-        textCapitalization: TextCapitalization.sentences,
-        decoration:
-            const InputDecoration(hintText: 'Ex. : Taverne du Sanglier'),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FilledButton(
-          key: const Key('valider-lieu'),
-          onPressed: () => Navigator.pop(context, _champ.text),
-          child: const Text('Enregistrer'),
-        ),
-      ],
-    );
-  }
-}
-
 /// En-tête : pastille du mode, bien visible, et lieu de la scène.
 class _EnTeteMode extends StatelessWidget {
   const _EnTeteMode({required this.seance});
@@ -402,7 +405,13 @@ class _EnTeteMode extends StatelessWidget {
   Future<void> _modifierLieu(BuildContext context) async {
     final lieu = await showDialog<String>(
       context: context,
-      builder: (_) => _DialogueLieu(lieu: seance.etat.lieu),
+      builder: (_) => DialogueTexte(
+        titre: 'Lieu de la scène',
+        valeur: seance.etat.lieu,
+        exemple: 'Ex. : Taverne du Sanglier',
+        cleChamp: 'champ-lieu',
+        cleValider: 'valider-lieu',
+      ),
     );
     if (lieu != null && context.mounted) {
       await _suivre(context, seance.changerLieu(lieu));
@@ -583,7 +592,8 @@ class _OngletParametresState extends State<_OngletParametres> {
           Text(c.nom, style: styleAmbiance(theme.textTheme.headlineSmall)),
           const SizedBox(height: 8),
           Text(
-            'Séance ${s.numero} en cours depuis ${_heure(c.seance!.debut)}.',
+            '${c.titreSeance(s.numero)} en cours depuis '
+            '${_heure(c.seance!.debut)}.',
             key: const Key('etat-seance'),
           ),
           Text('Mode : ${s.etat.mode.libelle.toLowerCase()}.'),

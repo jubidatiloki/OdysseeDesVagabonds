@@ -144,6 +144,8 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
     for (final q in <Query<Map<String, dynamic>>>[
       _membres(campagne.id),
       doc.collection('creatures'),
+      doc.collection('butins'),
+      doc.collection('envois'),
       doc.collection('creaturesMj'),
       doc.collection('ressources'),
       doc.collection('presences'),
@@ -318,6 +320,13 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
           const EtatJeu().versJson());
     await lot.commit();
   }
+
+  @override
+  Future<void> nommerSeance(Campagne campagne, int numero, String nom) =>
+      _campagnes.doc(campagne.id).update({
+        'nomsSeances.$numero': nom.trim(),
+        'modifieLe': _maintenant,
+      });
 
   @override
   Future<void> terminerSeance(Campagne campagne) =>

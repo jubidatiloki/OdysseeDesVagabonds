@@ -239,7 +239,7 @@ class BandeauSeance extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: const Icon(Icons.campaign_outlined),
-        title: Text('Séance ${s.numero} en cours'),
+        title: Text('${campagne.titreSeance(s.numero)} en cours'),
         subtitle: Text('${campagne.nom} · MJ : ${campagne.mjNom}'),
         trailing: FilledButton(
           onPressed: () => ouvrirSeance(context, contexte, campagne),

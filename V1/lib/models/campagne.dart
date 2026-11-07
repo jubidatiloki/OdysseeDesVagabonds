@@ -137,6 +137,7 @@ class Campagne {
     this.demandes = const [],
     this.parametres = const ParametresCampagne(),
     this.seance,
+    this.nomsSeances = const {},
     required this.creeLe,
     required this.modifieLe,
   });
@@ -165,12 +166,21 @@ class Campagne {
 
   /// Dernière séance (en cours ou terminée), `null` : jamais jouée.
   final Seance? seance;
+
+  /// Noms donnés aux séances par le MJ (numéro → nom).
+  final Map<int, String> nomsSeances;
   final DateTime creeLe;
   final DateTime modifieLe;
 
   bool get seanceEnCours => seance?.enCours ?? false;
   bool get complete => joueurs.length >= parametres.joueursMax;
   bool estMj(String uid) => mj == uid;
+
+  /// « Séance 3 », ou « Séance 3 - La tour noire » si elle a un nom.
+  static String titre(int numero, String nom) =>
+      nom.trim().isEmpty ? 'Séance $numero' : 'Séance $numero - ${nom.trim()}';
+
+  String titreSeance(int numero) => titre(numero, nomsSeances[numero] ?? '');
 
   Campagne copie({
     String? nom,
@@ -180,6 +190,7 @@ class Campagne {
     List<String>? demandes,
     ParametresCampagne? parametres,
     Seance? seance,
+    Map<int, String>? nomsSeances,
     DateTime? modifieLe,
   }) =>
       Campagne(
@@ -193,6 +204,7 @@ class Campagne {
         demandes: demandes ?? this.demandes,
         parametres: parametres ?? this.parametres,
         seance: seance ?? this.seance,
+        nomsSeances: nomsSeances ?? this.nomsSeances,
         creeLe: creeLe,
         modifieLe: modifieLe ?? this.modifieLe,
       );
@@ -208,6 +220,10 @@ class Campagne {
         'joueursMax': parametres.joueursMax,
         'parametres': parametres.versJson(),
         if (seance != null) 'seance': seance!.versJson(),
+        if (nomsSeances.isNotEmpty)
+          'nomsSeances': {
+            for (final e in nomsSeances.entries) '${e.key}': e.value,
+          },
         'creeLe': creeLe.toIso8601String(),
         'modifieLe': modifieLe.toIso8601String(),
       };
@@ -223,6 +239,11 @@ class Campagne {
         demandes: [for (final u in j['demandes'] as List? ?? const []) '$u'],
         parametres: ParametresCampagne.depuisJson(j['parametres']),
         seance: Seance.depuisJson(j['seance']),
+        nomsSeances: {
+          if (j['nomsSeances'] case final Map<dynamic, dynamic> m)
+            for (final e in m.entries)
+              if (int.tryParse('${e.key}') case final n?) n: '${e.value}',
+        },
         creeLe: DateTime.tryParse('${j['creeLe']}') ?? DateTime(2026),
         modifieLe: DateTime.tryParse('${j['modifieLe']}') ?? DateTime(2026),
       );

@@ -11,7 +11,7 @@ import 'personnage_repository.dart';
 /// qu'à [envoyer] (prochain lancer de dé, bouton « Synchroniser
 /// maintenant »). En attendant, la liste montre la version de l'appareil.
 ///
-/// Envois automatiques espacés d'au moins [delai] (5 s) pour limiter les
+/// Envois automatiques espacés d'au moins [delai] (10 s) pour limiter les
 /// écritures Firestore : le premier part tout de suite, les modifications
 /// suivantes sont regroupées (dernière version de chaque fiche) et partent
 /// à la fin du délai.
@@ -24,7 +24,7 @@ class DepotDiffere implements DepotEnLigne {
     this.surEnvoi,
     this.surAttente,
     this.surErreur,
-    this.delai = const Duration(seconds: 5),
+    this.delai = const Duration(seconds: 10),
     this.attenteReseau = const Duration(seconds: 3),
     this.cleMiroir,
     DateTime Function()? horloge,

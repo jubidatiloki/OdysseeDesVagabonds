@@ -9,14 +9,17 @@ import 'package:odyssee_vagabonds/data/compte.dart';
 import 'package:odyssee_vagabonds/data/personnage_repository.dart';
 import 'package:odyssee_vagabonds/data/referentiel.dart';
 import 'package:odyssee_vagabonds/data/seance.dart';
+import 'package:odyssee_vagabonds/models/butin.dart';
 import 'package:odyssee_vagabonds/models/campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/models/effet.dart';
 import 'package:odyssee_vagabonds/models/equipement.dart';
+import 'package:odyssee_vagabonds/models/objet.dart';
 import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/models/seance.dart';
+import 'package:odyssee_vagabonds/models/voie.dart';
 import 'package:odyssee_vagabonds/regles/des.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/regles/objet_aleatoire.dart';
@@ -63,6 +66,20 @@ const _guerrier = Classe(
   nom: 'Guerrier',
   modifDeVie: ModifDe.plus,
   modifDeMana: ModifDe.moins,
+  voies: [
+    Voie(
+      id: 'brute',
+      nom: 'Voie de la brute',
+      competences: [
+        Competence(
+          rang: 1,
+          nom: 'Moulinet',
+          effet: 'Frappe tout autour.',
+          endurance: [CoutEndurance(cout: 2)],
+        ),
+      ],
+    ),
+  ],
 );
 const _loup = Creature(
   id: 'loup',
@@ -341,6 +358,101 @@ void main() {
         j1.ecrireRecap(p.campagne.id, 1, 'Non'),
         throwsA(isA<ErreurCampagne>()),
       );
+    });
+  });
+
+  group('butin, envois et noms de séance', () {
+    test('on ne prend pas plus que ce qu\'il reste', () {
+      final epee = Objet(nom: 'Épée');
+      final b = ButinSeance(nom: 'Coffre', or: 5, cuivre: 2, objets: [epee]);
+      final pris = b.prendre(demande: Bourse(or: 9), objetId: epee.id);
+      expect(pris.argent.or, 5);
+      expect(pris.objet?.nom, 'Épée');
+      expect(pris.reste.or, 0);
+      expect(pris.reste.cuivre, 2);
+      expect(pris.reste.objets, isEmpty);
+      final relu = ButinSeance.depuisJson('x', b.versJson());
+      expect(relu.resume, '1 objet · 5 or, 2 cuivre');
+      expect(relu.objets.single.id, epee.id);
+    });
+
+    test('le MJ écrit le butin ; le deuxième joueur n\'a plus rien', () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj').seance;
+      final j1 = ServiceCampagnesMemoire(p.base, 'j1').seance;
+      final j2 = ServiceCampagnesMemoire(p.base, 'j2').seance;
+      await expectLater(
+        j1.ecrireButin(p.campagne, const ButinSeance(nom: 'Non')),
+        throwsA(isA<ErreurCampagne>()),
+      );
+      await mj.ecrireButin(p.campagne, const ButinSeance(nom: 'Bourse', or: 3));
+      final id = (await j1.ecouterButins(p.campagne).first).single.id;
+      final a = await j1.prendreButin(p.campagne, id, argent: Bourse(or: 3));
+      final b = await j2.prendreButin(p.campagne, id, argent: Bourse(or: 3));
+      expect(a.argent.or, 3);
+      expect(b.argent.vide, isTrue);
+    });
+
+    test('un envoi n\'est lu et pris que par son destinataire', () async {
+      final p = await _partie();
+      final j1 = ServiceCampagnesMemoire(p.base, 'j1').seance;
+      final j2 = ServiceCampagnesMemoire(p.base, 'j2').seance;
+      await j1.envoyerObjet(
+        p.campagne,
+        EnvoiObjet(
+          destinataire: 'j2',
+          auteur: 'j1',
+          auteurNom: 'Brom',
+          objet: Objet(nom: 'Corde'),
+          discret: true,
+        ),
+      );
+      expect(await j1.ecouterEnvois(p.campagne).first, isEmpty);
+      final e = (await j2.ecouterEnvois(p.campagne).first).single;
+      final relu = EnvoiObjet.depuisJson(e.id, e.versJson());
+      expect(relu.objet.nom, 'Corde');
+      expect(relu.discret, isTrue);
+      expect(await j2.prendreEnvoi(p.campagne, e.id), isTrue);
+      expect(await j2.prendreEnvoi(p.campagne, e.id), isFalse);
+    });
+
+    test('nom de séance : gardé après le numéro, donné par le MJ', () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj');
+      await mj.nommerSeance(p.campagne, 3, ' La tour noire ');
+      final c = p.base.campagnes[p.campagne.id]!;
+      expect(c.titreSeance(3), 'Séance 3 - La tour noire');
+      expect(c.titreSeance(2), 'Séance 2');
+      expect(
+        Campagne.depuisJson(c.id, c.versJson()).titreSeance(3),
+        'Séance 3 - La tour noire',
+      );
+      await expectLater(
+        ServiceCampagnesMemoire(p.base, 'j1').nommerSeance(c, 3, 'Non'),
+        throwsA(isA<ErreurCampagne>()),
+      );
+    });
+
+    test('toucher raté : la CA de la cible n\'est pas affichée', () {
+      JetSeance jet({required bool touche}) => JetSeance(
+            auteur: 'j1',
+            auteurNom: 'Brom',
+            libelle: 'Toucher CaC',
+            detail: '9 +3',
+            total: 12,
+            date: DateTime(2026),
+            seance: 1,
+            lecteurs: const ['j1'],
+            caCible: 14,
+            touche: touche,
+          );
+      expect(jet(touche: false).resultatCible, 'Raté');
+      expect(jet(touche: true).resultatCible, 'Touché (CA 14)');
+    });
+
+    test('écritures espacées : 10 s pour le joueur, 3 s pour le MJ', () {
+      expect(SeanceController.delaiEcritureJoueur.inSeconds, 10);
+      expect(SeanceController.delaiEcritureMj.inSeconds, 3);
     });
   });
 
@@ -1037,6 +1149,9 @@ void main() {
       expect(x.base.parties[x.campagne.id]!.degats, isEmpty);
       // Nain guerrier : 10 PV − 3, sur la carte comme pour les autres.
       expect(find.text('7/10'), findsOneWidget);
+      // Publication espacée : les autres le voient à la fin du délai.
+      expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 10);
+      await tester.pump(const Duration(seconds: 11));
       await tester.pumpAndSettle();
       expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
     });
@@ -1225,6 +1340,147 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : crée un butin et y met de l\'argent', (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      await tap(tester, find.byKey(const Key('creer-butin')));
+      await tester.enterText(
+          find.byKey(const Key('champ-nom-butin')), 'Coffre');
+      await tap(tester, find.byKey(const Key('valider-nom-butin')));
+      final partie = x.base.parties[x.campagne.id]!;
+      final b = partie.butins.values.single;
+      expect(b.nom, 'Coffre');
+      await tap(tester, find.byKey(Key('carte-${b.id}')));
+      await tap(tester, find.byKey(const Key('argent-du-butin')));
+      await tester.enterText(find.byKey(const Key('butin-or')), '12');
+      await tap(tester, find.byKey(const Key('valider-argent-butin')));
+      expect(partie.butins[b.id]!.or, 12);
+      expect(find.byKey(const Key('argent-butin')), findsOneWidget);
+      expect(find.text('12 or'), findsWidgets);
+    });
+
+    testWidgets('PJ : prend l\'argent et les objets du butin', (tester) async {
+      final brom = _brom();
+      final epee = Objet(nom: 'Épée courte');
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [brom],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').seance.ecrireButin(
+              c,
+              ButinSeance(id: 'b', nom: 'Coffre', or: 4, objets: [epee]),
+            ),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await tap(tester, find.byKey(const Key('carte-b')));
+      await tap(tester, find.byKey(Key('prendre-objet-${epee.id}')));
+      await tap(tester, find.byKey(const Key('argent-du-butin')));
+      await tester.enterText(find.byKey(const Key('butin-or')), '3');
+      await tap(tester, find.byKey(const Key('valider-argent-butin')));
+      expect(partie.butins['b']!.or, 1);
+      expect(partie.butins['b']!.objets, isEmpty);
+      expect(partie.jets.map((j) => j.libelle), contains(contains('3 or')));
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : reçoit un objet, prévenu sauf s\'il est discret',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final j2 = ServiceCampagnesMemoire(b, 'j2').seance;
+          await j2.envoyerObjet(
+            c,
+            EnvoiObjet(
+              destinataire: 'j1',
+              auteur: 'j2',
+              auteurNom: 'Aria',
+              objet: Objet(nom: 'Corde'),
+            ),
+          );
+          await j2.envoyerObjet(
+            c,
+            EnvoiObjet(
+              destinataire: 'j1',
+              auteur: 'j2',
+              auteurNom: 'Aria',
+              objet: Objet(nom: 'Dague cachée'),
+              discret: true,
+            ),
+          );
+        },
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Aria t\'a envoyé : Corde'), findsOneWidget);
+      expect(find.textContaining('Dague cachée'), findsNothing);
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : envoie un objet non équipé à un autre PJ', (tester) async {
+      final corde = Objet(nom: 'Corde');
+      final epee = Objet(nom: 'Épée', equipe: true);
+      final brom = _brom()..inventaire.addAll([corde, epee]);
+      final x = await ouvrir(tester, 'j1', fiches: [brom]);
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      await tap(tester, find.byKey(const Key('vue-inventaire')));
+      await tap(tester, find.byKey(Key('menu-objet-${epee.id}')));
+      expect(find.byKey(Key('envoyer-objet-${epee.id}')), findsNothing);
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(Key('menu-objet-${corde.id}')));
+      await tap(tester, find.byKey(Key('envoyer-objet-${corde.id}')));
+      await tap(tester, find.byKey(const Key('envoi-discret')));
+      await tap(tester, find.byKey(const Key('valider-envoi')));
+      final envoi = x.base.parties[x.campagne.id]!.envois.single;
+      expect(envoi.destinataire, 'j2');
+      expect(envoi.discret, isTrue);
+      expect(envoi.objet.nom, 'Corde');
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : ses compétences et ses sorts sont dans le panneau',
+        (tester) async {
+      final brom = _brom()..rangsVoies['brute'] = 1;
+      final x = await ouvrir(tester, 'j1', fiches: [brom]);
+      final panneau = find.byType(Scrollable).last;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('endurance-seance-0')),
+        200,
+        scrollable: panneau,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Moulinet : 2 PE'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('endurance-seance-0')));
+      expect(
+        x.base.parties[x.campagne.id]!.jets.last.libelle,
+        'Moulinet (2 PE)',
+      );
+      await tap(tester, find.byKey(const Key('detail-competences')));
+      expect(find.text('Frappe tout autour.'), findsOneWidget);
+      await tester.tap(find.text('Fermer'));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : nomme la séance, le numéro reste', (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      await tap(tester, find.byKey(const Key('nommer-seance')));
+      await tester.enterText(
+          find.byKey(const Key('champ-nom-seance')), 'La tour');
+      await tap(tester, find.byKey(const Key('valider-nom-seance')));
+      final c = x.base.campagnes[x.campagne.id]!;
+      expect(c.nomsSeances[c.seance!.numero], 'La tour');
+      expect(
+        find.text('${c.titreSeance(c.seance!.numero)} · ${c.nom}'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('attaque non comparée : le jet dit pourquoi', (tester) async {

@@ -25,7 +25,11 @@ class OngletInventaire extends StatelessWidget {
     this.fabrications = const [],
     this.usagesRestants = const {},
     this.bidouillage = false,
+    this.onEnvoyer,
   });
+
+  /// En séance : envoie un objet non équipé à un autre PJ.
+  final void Function(Objet)? onEnvoyer;
 
   final Personnage personnage;
   final Future<void> Function() onModifie;
@@ -668,9 +672,17 @@ class OngletInventaire extends StatelessWidget {
                         _supprimer(context, o);
                       case 'bidouiller':
                         _bidouiller(context, o);
+                      case 'envoyer':
+                        onEnvoyer?.call(o);
                     }
                   },
                   itemBuilder: (context) => [
+                    if (onEnvoyer != null && !o.equipe)
+                      PopupMenuItem(
+                        key: Key('envoyer-objet-${o.id}'),
+                        value: 'envoyer',
+                        child: const Text('Envoyer à un PJ'),
+                      ),
                     if (bidouillage && FicheCalculee.estArmeAFeu(o))
                       const PopupMenuItem(
                         value: 'bidouiller',

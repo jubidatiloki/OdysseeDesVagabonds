@@ -11,6 +11,7 @@ import '../../regles/objet_aleatoire.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
+import '../../widgets/dialogue_texte.dart';
 import '../../widgets/infos_creature.dart';
 import '../../widgets/profil_classe.dart';
 import '../bestiaire_screen.dart';
@@ -19,6 +20,7 @@ import '../fiche/vues_fiche.dart';
 import '../montee_niveau_screen.dart';
 import 'campagnes_screen.dart';
 import 'fiche_partagee_screen.dart';
+import 'seance_butin.dart';
 
 /// Portion de gauche : script (MJ) ou notes de séance (PJ), personnages,
 /// créatures. [onChoisie] : téléphone, passe à la vue Détail.
@@ -121,8 +123,57 @@ class ListeCartes extends StatelessWidget {
                 : null,
             cleRetirer: 'retirer-${c.id}',
           ),
+        for (final b in s.butins)
+          _Carte(
+            cle: 'carte-${b.id}',
+            selectionnee: s.carte == b.id,
+            icone: Icons.redeem_outlined,
+            couleurIcone: OdvCouleurs.or,
+            titre: b.nom,
+            lignes: [b.resume],
+            onTap: () => _choisir(b.id),
+            onRetirer: s.estMj
+                ? () async {
+                    final erreur = await s.retirerButin(b);
+                    if (erreur != null && context.mounted) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(erreur)));
+                    }
+                  }
+                : null,
+            cleRetirer: 'retirer-${b.id}',
+          ),
+        if (s.estMj)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: OutlinedButton.icon(
+              key: const Key('creer-butin'),
+              onPressed: () => _creerButin(context),
+              icon: const Icon(Icons.redeem_outlined),
+              label: const Text('Créer un butin'),
+            ),
+          ),
       ],
     );
+  }
+
+  Future<void> _creerButin(BuildContext context) async {
+    final nom = await showDialog<String>(
+      context: context,
+      builder: (_) => const DialogueTexte(
+        titre: 'Nouveau butin',
+        valeur: 'Butin',
+        exemple: 'Ex. : Coffre du gobelin',
+        cleChamp: 'champ-nom-butin',
+        cleValider: 'valider-nom-butin',
+      ),
+    );
+    if (nom == null) return;
+    final erreur = await seance.creerButin(nom);
+    if (erreur != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(erreur)));
+    }
   }
 }
 
@@ -412,6 +463,9 @@ class DetailCarte extends StatelessWidget {
     if (id == kCarteScript || id == kCarteNotes) {
       return _EditeurSeance(key: ValueKey(id), seance: s);
     }
+    for (final b in s.butins) {
+      if (b.id == id) return DetailButin(seance: s, butin: b);
+    }
     for (final m in s.joueurs) {
       if (m.uid == id) return _detailPj(context, m);
     }
@@ -438,6 +492,12 @@ class DetailCarte extends StatelessWidget {
           referentiel: ref,
           controller: contexte.personnages,
           onModifie: () => contexte.personnages.sauvegarder(f.personnage),
+          onEnvoyerObjet: s.joueurs.length < 2
+              ? null
+              : (o) => showDialog<void>(
+                    context: context,
+                    builder: (_) => DialogueEnvoiObjet(seance: s, objet: o),
+                  ),
         );
         final p = f.personnage;
         if (!s.etat.peutMonter(m.uid, p.niveau) || !MonteeNiveau.possible(p)) {

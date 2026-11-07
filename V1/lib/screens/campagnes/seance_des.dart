@@ -12,6 +12,7 @@ import '../../regles/savoirs.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
+import '../../widgets/voie_detail.dart';
 import '../de_screen.dart';
 import 'seance_messages.dart';
 
@@ -373,8 +374,107 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
               : jets.isEmpty
                   ? '$libelle : lancé'
                   : '$libelle : $total ($detail)'
-                      '${touche != null ? ' · ${touche ? 'Touché' : 'Raté'} (CA $ca)' : sansComparaison.isEmpty ? '' : ' · $sansComparaison'}');
+                      '${touche != null ? ' · ${touche ? 'Touché (CA $ca)' : 'Raté'}' : sansComparaison.isEmpty ? '' : ' · $sansComparaison'}');
     });
+  }
+
+  Widget _groupeCompetences(FicheCalculee fiche, bool pasDeCible) {
+    // Les jets d'un sort partent de son bouton, les attaques de « Combat ».
+    final nomsSorts = {for (final s in fiche.sorts) s.competence.nom};
+    final jets = [
+      for (final j in fiche.jetsCompetences)
+        if (j.attaque == null &&
+            !nomsSorts.contains(j.origine) &&
+            lireFormule(j.des) != null)
+          j,
+    ];
+    final actions = fiche.actionsEndurance;
+    return _GroupeJets(
+      cle: 'groupe-competences',
+      titre: 'Compétences',
+      icone: Icons.bolt_outlined,
+      children: [
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final (i, j) in jets.indexed)
+              ActionChip(
+                key: Key('competence-seance-$i'),
+                label: Text('${j.libelle} : ${formaterJet(j.des, j.bonus)}'),
+                onPressed: pasDeCible
+                    ? null
+                    : () => _lancerFormule(
+                          j.libelle,
+                          j.des,
+                          j.bonus,
+                          parAttaquant: true,
+                          genre: GenreJet.test,
+                        ),
+              ),
+            for (final (i, a) in actions.indexed)
+              ActionChip(
+                key: Key('endurance-seance-$i'),
+                label: Text('${a.libelle} : ${a.cout} PE'),
+                onPressed: pasDeCible || fiche.peActuels < a.cout
+                    ? null
+                    : () async {
+                        await _s.depenserAction(fiche, a);
+                        await _lancer(
+                          libelle: '${a.libelle} (${a.cout} PE)',
+                          jets: const [],
+                          modificateur: 0,
+                          parAttaquant: true,
+                        );
+                      },
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            key: const Key('detail-competences'),
+            onPressed: () => _afficherCompetences(fiche),
+            icon: const Icon(Icons.menu_book_outlined),
+            label: const Text('Détail des compétences et sorts'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Toutes les compétences et tous les sorts, avec leur effet.
+  void _afficherCompetences(FicheCalculee fiche) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Compétences et sorts'),
+        content: SizedBox(
+          width: 560,
+          child: ListView(
+            key: const Key('liste-competences-seance'),
+            shrinkWrap: true,
+            children: [
+              for (final c in fiche.competencesAcquises)
+                LigneCompetence(
+                  competence: c.competence,
+                  acquise: true,
+                  choixFaits: fiche.personnage.choix,
+                  sortsEnEndurance: fiche.sortsEnEndurance,
+                  mention: c.voie.nom,
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -501,14 +601,14 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           ),
         ],
         const SizedBox(height: 8),
-        if (attaques.isNotEmpty || (fiche != null && fiche.sorts.isNotEmpty))
+        if (attaques.isNotEmpty)
           _GroupeJets(
             cle: 'groupe-combat',
             titre: 'Combat · $nom',
             icone: Icons.sports_martial_arts,
             children: [
               // Attaques du personnage ou de la créature sélectionnée.
-              if (attaques.isNotEmpty) ...[
+              ...[
                 InputDecorator(
                   decoration: const InputDecoration(labelText: 'Cible'),
                   child: DropdownButtonHideUnderline(
@@ -564,30 +664,36 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   ],
                 ),
               ],
-              // Sorts : dépensent leur coût, puis lancent leurs dés.
-              if (fiche != null && fiche.sorts.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text('Sorts', style: theme.textTheme.titleSmall),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final (i, s) in fiche.sorts.indexed)
-                      ActionChip(
-                        key: Key('sort-seance-$i'),
-                        label: Text(
-                          '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
-                        ),
-                        onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
-                            ? null
-                            : () => _lancerSort(fiche, s),
-                      ),
-                  ],
-                ),
-              ],
             ],
           ),
+        // Sorts : dépensent leur coût, puis lancent leurs dés.
+        if (fiche != null && fiche.sorts.isNotEmpty)
+          _GroupeJets(
+            cle: 'groupe-sorts',
+            titre: 'Sorts',
+            icone: Icons.auto_awesome_outlined,
+            children: [
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final (i, s) in fiche.sorts.indexed)
+                    ActionChip(
+                      key: Key('sort-seance-$i'),
+                      label: Text(
+                        '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
+                      ),
+                      onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
+                          ? null
+                          : () => _lancerSort(fiche, s),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        // Compétences : leurs jets, leurs actions en endurance, leur détail.
+        if (fiche != null && fiche.competencesAcquises.isNotEmpty)
+          _groupeCompetences(fiche, pasDeCible),
         if (attaques.isEmpty && _s.estMj) ...[
           const SizedBox(height: 16),
           const Text('Sélectionne un personnage ou une créature pour lancer '
