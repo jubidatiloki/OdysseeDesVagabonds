@@ -77,6 +77,25 @@ class DetailButin extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(b.nom, style: theme.textTheme.headlineSmall),
+          if (s.estMj)
+            SwitchListTile(
+              key: const Key('butin-visible'),
+              contentPadding: EdgeInsets.zero,
+              secondary: Icon(
+                b.cache ? Icons.visibility_off_outlined : Icons.visibility,
+              ),
+              title: const Text('Visible des PJ'),
+              subtitle: Text(
+                b.cache
+                    ? 'Les PJ ne voient pas cette carte.'
+                    : 'Les PJ voient la carte et peuvent se servir.',
+              ),
+              value: !b.cache,
+              onChanged: (v) async {
+                final erreur = await s.montrerButin(b, visible: v);
+                if (context.mounted) _erreur(context, erreur);
+              },
+            ),
           const SizedBox(height: 12),
           BlocConsultation(
             titre: 'Argent',
@@ -334,8 +353,7 @@ class _DialogueArgentState extends State<_DialogueArgent> {
 
   int _lire(TextEditingController c) => int.tryParse(c.text.trim()) ?? 0;
 
-  Widget _champ(String cle, String libelle, TextEditingController c) =>
-      Padding(
+  Widget _champ(String cle, String libelle, TextEditingController c) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: TextField(
           key: Key('butin-$cle'),
@@ -449,9 +467,8 @@ class _DialogueEnvoiObjetState extends State<DialogueEnvoiObjet> {
                 const Expanded(child: Text('Quantité')),
                 IconButton(
                   key: const Key('envoi-moins'),
-                  onPressed: _quantite > 1
-                      ? () => setState(() => _quantite--)
-                      : null,
+                  onPressed:
+                      _quantite > 1 ? () => setState(() => _quantite--) : null,
                   icon: const Icon(Icons.remove_circle_outline),
                 ),
                 Text('$_quantite', key: const Key('envoi-quantite')),

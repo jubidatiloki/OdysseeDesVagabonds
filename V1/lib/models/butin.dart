@@ -13,10 +13,14 @@ class ButinSeance {
     this.argent = 0,
     this.cuivre = 0,
     this.objets = const [],
+    this.cache = false,
   });
 
   final String id;
   final String nom;
+
+  /// Le MJ cache la carte aux PJ (préparée à l'avance, révélée plus tard).
+  final bool cache;
   final int or;
   final int argent;
   final int cuivre;
@@ -34,10 +38,16 @@ class ButinSeance {
     return parties.isEmpty ? 'Vide' : parties.join(' · ');
   }
 
-  ButinSeance copie({String? id, Bourse? bourse, List<Objet>? objets}) =>
+  ButinSeance copie({
+    String? id,
+    Bourse? bourse,
+    List<Objet>? objets,
+    bool? cache,
+  }) =>
       ButinSeance(
         id: id ?? this.id,
         nom: nom,
+        cache: cache ?? this.cache,
         or: bourse?.or ?? or,
         argent: bourse?.argent ?? argent,
         cuivre: bourse?.cuivre ?? cuivre,
@@ -95,6 +105,7 @@ class ButinSeance {
         'argent': argent,
         'cuivre': cuivre,
         'objets': jsonEncode([for (final o in objets) o.versJson()]),
+        'cache': cache,
       };
 
   factory ButinSeance.depuisJson(String id, Map<String, dynamic> j) {
@@ -106,6 +117,7 @@ class ButinSeance {
       argent: v('argent'),
       cuivre: v('cuivre'),
       objets: _objets(j['objets']),
+      cache: j['cache'] as bool? ?? false,
     );
   }
 

@@ -10,6 +10,7 @@ import 'package:odyssee_vagabonds/data/personnage_repository.dart';
 import 'package:odyssee_vagabonds/data/referentiel.dart';
 import 'package:odyssee_vagabonds/data/seance.dart';
 import 'package:odyssee_vagabonds/models/butin.dart';
+import 'package:odyssee_vagabonds/screens/campagnes/creation_campagne_screen.dart';
 import 'package:odyssee_vagabonds/models/campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
@@ -916,6 +917,39 @@ void main() {
     });
   });
 
+  test('favoris et butin caché : gardés à l\'enregistrement', () {
+    final p = Personnage(id: 'p', nom: 'T', raceId: 'r', classeId: 'c')
+      ..favoris.add('Moulinet');
+    expect(Personnage.depuisJson(p.versJson()).favoris, {'Moulinet'});
+    const b = ButinSeance(nom: 'Coffre', or: 3, cache: true);
+    final relu = ButinSeance.depuisJson('b', b.versJson());
+    expect(relu.cache, isTrue);
+    expect(relu.prendre(demande: Bourse(or: 1)).reste.cache, isTrue);
+  });
+
+  testWidgets('permissions : hors séance puis pendant la séance',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: FormulairePermissions(
+              valeur: const ParametresCampagne(),
+              onChange: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+    double y(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
+    expect(
+        y('permissions-hors-seance'), lessThan(y('pj-inventaire-hors-seance')));
+    expect(y('fiches-visibles-joueurs'), lessThan(y('permissions-seance')));
+    expect(y('permissions-seance'), lessThan(y('pj-voient-ressources')));
+    expect(
+        y('pj-voient-ressources'), lessThan(y('pj-voient-fiches-creatures')));
+  });
+
   test('présence : absent sans nouvelle depuis 7 minutes', () {
     final t = DateTime(2026, 11, 4, 12);
     final p = PresenceSeance(vu: t);
@@ -1433,6 +1467,34 @@ void main() {
       expect(partie.butins[b.id]!.or, 12);
       expect(find.byKey(const Key('argent-butin')), findsOneWidget);
       expect(find.text('12 or'), findsWidgets);
+      // Le MJ cache la carte aux PJ, puis la montre.
+      await tap(tester, find.byKey(const Key('butin-visible')));
+      expect(partie.butins[b.id]!.cache, isTrue);
+      expect(partie.butins[b.id]!.or, 12);
+      expect(find.text('Caché aux PJ'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('butin-visible')));
+      expect(partie.butins[b.id]!.cache, isFalse);
+    });
+
+    testWidgets('PJ : un butin caché par le MJ n\'apparaît pas',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (base, c) async {
+          final mj = ServiceCampagnesMemoire(base, 'mj').seance;
+          await mj.ecrireButin(
+            c,
+            const ButinSeance(id: 'cache', nom: 'Trésor', cache: true),
+          );
+          await mj.ecrireButin(c, const ButinSeance(id: 'vu', nom: 'Bourse'));
+        },
+      );
+      expect(find.byKey(const Key('carte-cache')), findsNothing);
+      expect(find.byKey(const Key('carte-vu')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('PJ : prend l\'argent et les objets du butin', (tester) async {
@@ -1557,6 +1619,60 @@ void main() {
       expect(find.text('Frappe tout autour.'), findsOneWidget);
       await tester.tap(find.text('Fermer'));
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : compétences favorites en tête du panneau',
+        (tester) async {
+      final brom = _brom()..rangsVoies['brute'] = 1;
+      await ouvrir(tester, 'j1', fiches: [brom]);
+      final panneau = find.byType(Scrollable).last;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('endurance-seance-0')),
+        200,
+        scrollable: panneau,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const PageStorageKey<String>('groupe-favoris')),
+          findsNothing);
+      // Appui long : Moulinet passe dans les favoris, en tête.
+      await tester.longPress(find.byKey(const Key('endurance-seance-0')));
+      await tester.pumpAndSettle();
+      expect(find.text('Moulinet : ajouté aux favoris.'), findsOneWidget);
+      expect(find.byKey(const Key('endurance-seance-0')), findsNothing);
+      // Le groupe Favoris est en haut du panneau.
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('favori-endurance-0')),
+        -200,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('panneau-des')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const PageStorageKey<String>('groupe-favoris')),
+        findsOneWidget,
+      );
+      expect(find.text('Moulinet : 2 PE'), findsOneWidget);
+      // L'étoile du détail le retire des favoris.
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('detail-competences')),
+        200,
+        scrollable: panneau,
+      );
+      await tap(tester, find.byKey(const Key('detail-competences')));
+      final etoile = find.byIcon(Icons.star);
+      expect(etoile, findsOneWidget);
+      await tap(tester, etoile);
+      expect(find.byIcon(Icons.star), findsNothing);
+      await tester.tap(find.text('Fermer'));
+      await tester.pumpAndSettle();
+      // Moulinet est revenu parmi les compétences.
+      expect(find.byKey(const Key('endurance-seance-0')), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

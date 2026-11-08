@@ -205,7 +205,10 @@ service cloud.firestore {
         allow read: if connecte() && (mjDe(id) || membreDe(id));
         allow create, delete: if connecte() && mjDe(id);
         allow update: if connecte() && (mjDe(id)
-          || membreDe(id) && request.resource.data.nom == resource.data.nom);
+          || membreDe(id) && request.resource.data.nom == resource.data.nom
+            && request.resource.data.get('cache', false)
+              == resource.data.get('cache', false)
+            && resource.data.get('cache', false) == false);
       }
 
       // Objets envoyés entre joueurs, pris par leur destinataire.

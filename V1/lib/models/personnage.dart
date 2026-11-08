@@ -53,6 +53,7 @@ class Personnage {
     this.jetsMontee,
     Map<String, String>? choix,
     Set<String>? etats,
+    Set<String>? favoris,
     Map<String, int>? utilisations,
     Set<String>? objetsRecus,
     Map<String, String>? precisionsChoix,
@@ -74,6 +75,7 @@ class Personnage {
         historique = historique ?? [],
         choix = choix ?? {},
         etats = etats ?? {},
+        favoris = favoris ?? {},
         utilisations = utilisations ?? {},
         objetsRecus = objetsRecus ?? {},
         precisionsChoix = precisionsChoix ?? {},
@@ -259,6 +261,9 @@ class Personnage {
   /// monstrueuse » (Visage impensable).
   Set<String> etats;
 
+  /// Compétences et sorts favoris (noms) : en tête pendant une séance.
+  Set<String> favoris;
+
   /// Utilisations déjà faites des capacités limitées (« Faire jouer son
   /// titre » : RANG fois par aventure) : clé → nombre.
   Map<String, int> utilisations;
@@ -312,6 +317,7 @@ class Personnage {
         if (jetsMontee != null) 'jetsMontee': jetsMontee!.versJson(),
         if (choix.isNotEmpty) 'choix': choix,
         if (etats.isNotEmpty) 'etats': etats.toList(),
+        if (favoris.isNotEmpty) 'favoris': favoris.toList(),
         if (utilisations.isNotEmpty) 'utilisations': utilisations,
         if (objetsRecus.isNotEmpty) 'objetsRecus': objetsRecus.toList(),
         if (precisionsChoix.isNotEmpty) 'precisionsChoix': precisionsChoix,
@@ -378,6 +384,9 @@ class Personnage {
       },
       etats: {
         for (final e in j['etats'] as List<dynamic>? ?? const []) '$e',
+      },
+      favoris: {
+        for (final e in j['favoris'] as List<dynamic>? ?? const []) '$e',
       },
       utilisations: {
         for (final e

@@ -376,8 +376,31 @@ class FormulairePermissions extends StatelessWidget {
           value: v,
           onChanged: (x) => onChange(change(x)),
         );
+    Widget titre(String cle, IconData icone, String texte) => Padding(
+          key: Key(cle),
+          padding: const EdgeInsets.only(top: 12, bottom: 2),
+          child: Row(
+            children: [
+              Icon(icone,
+                  size: 18, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  texte,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+        );
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        titre('permissions-hors-seance', Icons.home_outlined, 'Hors séance'),
         ligne(
           'pj-inventaire-hors-seance',
           "Les PJ modifient l'inventaire en dehors d'une séance",
@@ -391,16 +414,17 @@ class FormulairePermissions extends StatelessWidget {
           (v) => p.copie(pjCompetencesHorsSeance: v),
         ),
         ligne(
-          'pj-voient-ressources',
-          'Les PJ voient leurs PV, PM et PE entre eux',
-          p.pjVoientRessources,
-          (v) => p.copie(pjVoientRessources: v),
-        ),
-        ligne(
           'fiches-visibles-joueurs',
           'Les PJ voient leurs fiches de personnage entre eux',
           p.fichesVisiblesJoueurs,
           (v) => p.copie(fichesVisiblesJoueurs: v),
+        ),
+        titre('permissions-seance', Icons.casino_outlined, 'Pendant la séance'),
+        ligne(
+          'pj-voient-ressources',
+          'Les PJ voient leurs PV, PM et PE entre eux',
+          p.pjVoientRessources,
+          (v) => p.copie(pjVoientRessources: v),
         ),
         ligne(
           'pj-voient-pv-creatures',
@@ -429,27 +453,45 @@ class ResumeParametres extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = parametres;
     String oui(bool v) => v ? 'oui' : 'non';
+    final style = Theme.of(context)
+        .textTheme
+        .titleSmall
+        ?.copyWith(fontWeight: FontWeight.w700);
+    Widget lignes(List<String> l) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final t in l)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(t),
+              ),
+          ],
+        );
     return Column(
       key: const Key('resume-parametres'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final l in [
+        lignes([
           'Joueurs au maximum : ${p.joueursMax}',
           'Fiches visibles par le MJ : ${oui(p.fichesVisiblesMj)}',
-          'Inventaire modifiable hors séance : '
-              '${oui(p.pjInventaireHorsSeance)}',
-          'Compétences modifiables hors séance : '
-              '${oui(p.pjCompetencesHorsSeance)}',
-          'PV, PM et PE visibles entre PJ : ${oui(p.pjVoientRessources)}',
+        ]),
+        const SizedBox(height: 8),
+        Text('Hors séance', style: style),
+        const SizedBox(height: 4),
+        lignes([
+          'Inventaire modifiable : ${oui(p.pjInventaireHorsSeance)}',
+          'Compétences modifiables : ${oui(p.pjCompetencesHorsSeance)}',
           'Fiches visibles entre PJ : ${oui(p.fichesVisiblesJoueurs)}',
+        ]),
+        const SizedBox(height: 8),
+        Text('Pendant la séance', style: style),
+        const SizedBox(height: 4),
+        lignes([
+          'PV, PM et PE visibles entre PJ : ${oui(p.pjVoientRessources)}',
           'PV des créatures visibles : ${oui(p.pjVoientPvCreatures)}',
           'Fiches des créatures visibles : '
               '${oui(p.pjVoientFichesCreatures)}',
-        ])
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(l),
-          ),
+        ]),
       ],
     );
   }

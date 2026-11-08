@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.41.0',
+    date: '08/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Permissions de campagne : les droits des PJ rangés en « Hors '
+            'séance » et « Pendant la séance ».',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : le MJ peut cacher la carte d\'un butin aux PJ, puis '
+            'la montrer.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : compétences et sorts favoris (appui long ou étoile), '
+            'réunis en tête du panneau.',
+      ),
+    ],
+  ),
+  (
     version: '0.40.1',
     date: '08/11/2026',
     changements: [

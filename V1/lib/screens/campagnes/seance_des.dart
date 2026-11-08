@@ -380,17 +380,161 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     });
   }
 
-  Widget _groupeCompetences(FicheCalculee fiche, bool pasDeCible) {
+  /// Jets de compétences (hors sorts et attaques), lançables ici.
+  List<JetDisponible> _jetsCompetences(FicheCalculee fiche) {
     // Les jets d'un sort partent de son bouton, les attaques de « Combat ».
     final nomsSorts = {for (final s in fiche.sorts) s.competence.nom};
-    final jets = [
+    return [
       for (final j in fiche.jetsCompetences)
         if (j.attaque == null &&
             !nomsSorts.contains(j.origine) &&
             lireFormule(j.des) != null)
           j,
     ];
-    final actions = fiche.actionsEndurance;
+  }
+
+  /// Appui long sur un bouton : met sa compétence en favori, ou l'en retire.
+  Widget _avecFavori(FicheCalculee fiche, String nom, Widget bouton) =>
+      GestureDetector(
+        onLongPress: () => _basculerFavori(fiche, nom),
+        child: bouton,
+      );
+
+  Future<void> _basculerFavori(FicheCalculee fiche, String nom) async {
+    final ajoute = !fiche.personnage.favoris.contains(nom);
+    final messager = ScaffoldMessenger.of(context);
+    await _s.basculerFavori(fiche, nom);
+    if (!mounted) return;
+    setState(() {});
+    messager
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            ajoute
+                ? '$nom : ajouté aux favoris.'
+                : '$nom : retiré des favoris.',
+          ),
+        ),
+      );
+  }
+
+  Widget _puceSort(
+    FicheCalculee fiche,
+    ({Competence competence, int rangSort, int cout}) s,
+    String cle,
+    bool pasDeCible,
+  ) =>
+      _avecFavori(
+        fiche,
+        s.competence.nom,
+        ActionChip(
+          key: Key(cle),
+          label: Text('${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}'),
+          onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
+              ? null
+              : () => _lancerSort(fiche, s),
+        ),
+      );
+
+  Widget _puceJet(
+    FicheCalculee fiche,
+    JetDisponible j,
+    String cle,
+    bool pasDeCible,
+  ) =>
+      _avecFavori(
+        fiche,
+        j.origine,
+        ActionChip(
+          key: Key(cle),
+          label: Text('${j.libelle} : ${formaterJet(j.des, j.bonus)}'),
+          onPressed: pasDeCible
+              ? null
+              : () => _lancerFormule(
+                    j.libelle,
+                    j.des,
+                    j.bonus,
+                    parAttaquant: true,
+                    genre: GenreJet.test,
+                  ),
+        ),
+      );
+
+  Widget _puceAction(
+    FicheCalculee fiche,
+    ({String libelle, int cout, String origine}) a,
+    String cle,
+    bool pasDeCible,
+  ) =>
+      _avecFavori(
+        fiche,
+        a.origine,
+        ActionChip(
+          key: Key(cle),
+          label: Text('${a.libelle} : ${a.cout} PE'),
+          onPressed: pasDeCible || fiche.peActuels < a.cout
+              ? null
+              : () async {
+                  await _s.depenserAction(fiche, a);
+                  await _lancer(
+                    libelle: '${a.libelle} (${a.cout} PE)',
+                    jets: const [],
+                    modificateur: 0,
+                    parAttaquant: true,
+                  );
+                },
+        ),
+      );
+
+  /// Favoris : sorts, jets et actions des compétences mises en favori.
+  Widget? _groupeFavoris(FicheCalculee fiche, bool pasDeCible) {
+    final fav = fiche.personnage.favoris;
+    if (fav.isEmpty) return null;
+    final sorts = [
+      for (final s in fiche.sorts)
+        if (fav.contains(s.competence.nom)) s,
+    ];
+    final jets = [
+      for (final j in _jetsCompetences(fiche))
+        if (fav.contains(j.origine)) j,
+    ];
+    final actions = [
+      for (final a in fiche.actionsEndurance)
+        if (fav.contains(a.origine)) a,
+    ];
+    if (sorts.isEmpty && jets.isEmpty && actions.isEmpty) return null;
+    return _GroupeJets(
+      cle: 'groupe-favoris',
+      titre: 'Favoris',
+      icone: Icons.star_outline,
+      children: [
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final (i, s) in sorts.indexed)
+              _puceSort(fiche, s, 'favori-sort-$i', pasDeCible),
+            for (final (i, j) in jets.indexed)
+              _puceJet(fiche, j, 'favori-competence-$i', pasDeCible),
+            for (final (i, a) in actions.indexed)
+              _puceAction(fiche, a, 'favori-endurance-$i', pasDeCible),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _groupeCompetences(FicheCalculee fiche, bool pasDeCible) {
+    final fav = fiche.personnage.favoris;
+    final jets = [
+      for (final j in _jetsCompetences(fiche))
+        if (!fav.contains(j.origine)) j,
+    ];
+    final actions = [
+      for (final a in fiche.actionsEndurance)
+        if (!fav.contains(a.origine)) a,
+    ];
     return _GroupeJets(
       cle: 'groupe-competences',
       titre: 'Compétences',
@@ -401,38 +545,19 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           runSpacing: 6,
           children: [
             for (final (i, j) in jets.indexed)
-              ActionChip(
-                key: Key('competence-seance-$i'),
-                label: Text('${j.libelle} : ${formaterJet(j.des, j.bonus)}'),
-                onPressed: pasDeCible
-                    ? null
-                    : () => _lancerFormule(
-                          j.libelle,
-                          j.des,
-                          j.bonus,
-                          parAttaquant: true,
-                          genre: GenreJet.test,
-                        ),
-              ),
+              _puceJet(fiche, j, 'competence-seance-$i', pasDeCible),
             for (final (i, a) in actions.indexed)
-              ActionChip(
-                key: Key('endurance-seance-$i'),
-                label: Text('${a.libelle} : ${a.cout} PE'),
-                onPressed: pasDeCible || fiche.peActuels < a.cout
-                    ? null
-                    : () async {
-                        await _s.depenserAction(fiche, a);
-                        await _lancer(
-                          libelle: '${a.libelle} (${a.cout} PE)',
-                          jets: const [],
-                          modificateur: 0,
-                          parAttaquant: true,
-                        );
-                      },
-              ),
+              _puceAction(fiche, a, 'endurance-seance-$i', pasDeCible),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
+        Text(
+          'Appui long sur un bouton, ou étoile du détail : favori.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        const SizedBox(height: 4),
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
@@ -454,19 +579,46 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         title: const Text('Compétences et sorts'),
         content: SizedBox(
           width: 560,
-          child: ListView(
-            key: const Key('liste-competences-seance'),
-            shrinkWrap: true,
-            children: [
-              for (final c in fiche.competencesAcquises)
-                LigneCompetence(
-                  competence: c.competence,
-                  acquise: true,
-                  choixFaits: fiche.personnage.choix,
-                  sortsEnEndurance: fiche.sortsEnEndurance,
-                  mention: c.voie.nom,
-                ),
-            ],
+          child: StatefulBuilder(
+            builder: (context, majDialogue) => ListView(
+              key: const Key('liste-competences-seance'),
+              shrinkWrap: true,
+              children: [
+                for (final (i, c) in fiche.competencesAcquises.indexed)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: LigneCompetence(
+                          competence: c.competence,
+                          acquise: true,
+                          choixFaits: fiche.personnage.choix,
+                          sortsEnEndurance: fiche.sortsEnEndurance,
+                          mention: c.voie.nom,
+                        ),
+                      ),
+                      IconButton(
+                        key: Key('favori-$i'),
+                        tooltip:
+                            fiche.personnage.favoris.contains(c.competence.nom)
+                                ? 'Retirer des favoris'
+                                : 'Mettre en favori',
+                        onPressed: () async {
+                          await _s.basculerFavori(fiche, c.competence.nom);
+                          majDialogue(() {});
+                          if (mounted) setState(() {});
+                        },
+                        icon: Icon(
+                          fiche.personnage.favoris.contains(c.competence.nom)
+                              ? Icons.star
+                              : Icons.star_outline,
+                          color: OdvCouleurs.or,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -488,7 +640,14 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final nom = attaquant.nom;
     final attaques = _attaques();
     final pasDeCible = _visibilite == VisibiliteJet.unJoueur && _cible == null;
+    final favoris = fiche == null ? null : _groupeFavoris(fiche, pasDeCible);
+    final sortsHorsFavoris = [
+      for (final s in fiche?.sorts ??
+          const <({Competence competence, int rangSort, int cout})>[])
+        if (!fiche!.personnage.favoris.contains(s.competence.nom)) s,
+    ];
     return ListView(
+      key: const Key('panneau-des'),
       padding: const EdgeInsets.all(12),
       children: [
         // Jets libres : MJ seulement ; les PJ passent par leurs boutons.
@@ -603,6 +762,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           ),
         ],
         const SizedBox(height: 8),
+        // Favoris en tête : les compétences et sorts les plus utilisés.
+        if (favoris != null) favoris,
         if (attaques.isNotEmpty)
           _GroupeJets(
             cle: 'groupe-combat',
@@ -669,7 +830,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             ],
           ),
         // Sorts : dépensent leur coût, puis lancent leurs dés.
-        if (fiche != null && fiche.sorts.isNotEmpty)
+        if (fiche != null && sortsHorsFavoris.isNotEmpty)
           _GroupeJets(
             cle: 'groupe-sorts',
             titre: 'Sorts',
@@ -679,16 +840,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  for (final (i, s) in fiche.sorts.indexed)
-                    ActionChip(
-                      key: Key('sort-seance-$i'),
-                      label: Text(
-                        '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
-                      ),
-                      onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
-                          ? null
-                          : () => _lancerSort(fiche, s),
-                    ),
+                  for (final (i, s) in sortsHorsFavoris.indexed)
+                    _puceSort(fiche, s, 'sort-seance-$i', pasDeCible),
                 ],
               ),
             ],

@@ -130,7 +130,10 @@ class ListeCartes extends StatelessWidget {
             icone: Icons.redeem_outlined,
             couleurIcone: OdvCouleurs.or,
             titre: b.nom,
-            lignes: [b.resume],
+            lignes: [
+              b.resume,
+              if (s.estMj && b.cache) 'Caché aux PJ',
+            ],
             onTap: () => _choisir(b.id),
             onRetirer: s.estMj
                 ? () async {

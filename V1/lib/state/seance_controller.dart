@@ -170,7 +170,18 @@ class SeanceController extends ChangeNotifier {
   List<CreatureSeance> get creatures => _creatures;
   Map<String, RessourcesPj> get ressources => _ressources;
   List<JetSeance> get jets => _jets;
-  List<ButinSeance> get butins => _butins;
+
+  /// Butins : tous pour le MJ, ceux qu'il n'a pas cachés pour les PJ.
+  List<ButinSeance> get butins => estMj
+      ? _butins
+      : [
+          for (final b in _butins)
+            if (!b.cache) b
+        ];
+
+  /// MJ : montre ou cache la carte d'un butin aux PJ.
+  Future<String?> montrerButin(ButinSeance butin, {required bool visible}) =>
+      modifierButin(butin.copie(cache: !visible));
 
   /// Joueurs acceptés.
   List<MembreCampagne> get joueurs => [
@@ -938,6 +949,19 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Action de compétence payée en endurance (Moulinet : 2 PE).
+  /// Met en favori une compétence ou un sort (par son nom), ou l'en retire :
+  /// en séance, les favoris sont réunis dans un groupe en tête.
+  Future<void> basculerFavori(FicheCalculee f, String nom) async {
+    final p = f.personnage;
+    if (!p.favoris.remove(nom)) p.favoris.add(nom);
+    notifyListeners();
+    if (p.id == moi?.personnageId) {
+      await personnages.sauvegarder(p);
+    } else {
+      await enregistrerFiche(p);
+    }
+  }
+
   Future<void> depenserAction(
     FicheCalculee f,
     ({String libelle, int cout, String origine}) a,
