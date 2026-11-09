@@ -187,10 +187,19 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       }
     }
     if (a.fiche case final f?) {
-      ajouter('Toucher CaC', '1d20', f.toucherCac);
-      ajouter('Toucher distance', '1d20', f.toucherDistance);
-      ajouter('Toucher magie', '1d20', f.toucherMagie);
-      for (final d in [f.detailDegatsCac, f.detailDegatsDistance]) {
+      // Attaque au contact : avec une arme de mêlée équipée, ou à mains nues
+      // quand aucune arme n'est équipée ; à distance : avec une arme à
+      // distance équipée. L'attaque magique passe par les sorts.
+      final cac = f.detailDegatsCac;
+      final dist = f.detailDegatsDistance;
+      final mainsNues = cac.mainsNues && dist.armes.isEmpty;
+      if (cac.armes.isNotEmpty || mainsNues) {
+        ajouter('Toucher CaC', '1d20', f.toucherCac);
+      }
+      if (dist.armes.isNotEmpty) {
+        ajouter('Toucher distance', '1d20', f.toucherDistance);
+      }
+      for (final d in [cac, dist]) {
         for (final arme in d.armes) {
           ajouter(
             'Dégâts · ${arme.nom}',
@@ -199,9 +208,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             type: arme.element.isEmpty ? 'physique' : arme.element,
           );
         }
-        if (d.mainsNues) {
-          ajouter('Dégâts · Mains nues', d.desMainsNuesAvec, d.bonusMainsNues);
-        }
+      }
+      if (mainsNues) {
+        ajouter(
+            'Dégâts · Mains nues', cac.desMainsNuesAvec, cac.bonusMainsNues);
       }
       // Attaques de compétence (Brutalité, Moulinet…).
       for (final j in f.jetsCompetences) {
@@ -416,7 +426,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         total: total,
         detail: detail,
         touche: touche,
-        ca: ca,
+        // La CA de la cible n'est jamais montrée aux PJ.
+        ca: _s.estMj ? ca : null,
         note: sansComparaison,
         critique: r?.reussiteCritique ?? false,
         echec: r?.echecCritique ?? false,
@@ -1196,7 +1207,7 @@ class _CarteResultat extends StatelessWidget {
     final verdict = [
       if (r.critique) 'Réussite critique !',
       if (r.echec) 'Échec critique !',
-      if (r.touche == true) 'Touché (CA ${r.ca})',
+      if (r.touche == true) r.ca == null ? 'Touché' : 'Touché (CA ${r.ca})',
       if (r.touche == false) 'Raté',
       if (r.note.isNotEmpty) r.note,
     ].join(' · ');

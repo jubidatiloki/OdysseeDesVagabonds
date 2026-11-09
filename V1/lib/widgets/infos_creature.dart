@@ -35,6 +35,12 @@ import '../theme.dart';
       icone: Icons.auto_awesome,
     );
   }
+  if (f.contains('démon') || f.contains('demon')) {
+    return (
+      couleur: sombre ? OdvCouleurs.lightRed : OdvCouleurs.darkRed,
+      icone: Icons.whatshot_outlined,
+    );
+  }
   // Invocations et compagnons des personnages : or.
   if (f.contains('invocation')) {
     return (

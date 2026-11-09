@@ -66,7 +66,10 @@ class _BestiaireScreenState extends State<BestiaireScreen> {
         largeurMin: widget.dansSeance ? double.infinity : 900,
         detailEnPlace: widget.dansSeance,
         detail: (c) => widget.action == null
-            ? CreatureDetail(creature: c)
+            ? CreatureDetail(
+                creature: c,
+                origines: widget.referentiel.originesCreature(c.id),
+              )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -74,7 +77,12 @@ class _BestiaireScreenState extends State<BestiaireScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: widget.action!(c),
                   ),
-                  Expanded(child: CreatureDetail(creature: c)),
+                  Expanded(
+                    child: CreatureDetail(
+                      creature: c,
+                      origines: widget.referentiel.originesCreature(c.id),
+                    ),
+                  ),
                 ],
               ),
         entete: Column(
@@ -144,9 +152,16 @@ class _BestiaireScreenState extends State<BestiaireScreen> {
 
 /// Fiche d'une créature : description, comportement, statistiques, voies.
 class CreatureDetail extends StatelessWidget {
-  const CreatureDetail({super.key, required this.creature});
+  const CreatureDetail({
+    super.key,
+    required this.creature,
+    this.origines = const [],
+  });
 
   final Creature creature;
+
+  /// Classes ou races qui la font apparaître (invocation, compagnon…).
+  final List<String> origines;
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +180,17 @@ class CreatureDetail extends StatelessWidget {
               Text(c.description)
             else
               const TexteAVenir('Description à venir.'),
+            if (origines.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Liée à : ${origines.join(' ; ')}. '
+                'Elle peut aussi se rencontrer ailleurs.',
+                key: const Key('creature-origines'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
           ],
         ),
         BlocConsultation(
@@ -297,30 +323,33 @@ class _CaseMod extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return Container(
-      key: Key('creature-mod-${carac.code}'),
-      width: 64,
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: scheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Text(carac.abrev,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          FittedBox(
-            child: Text(
-              formaterModificateur(mod),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: mod == 0
-                    ? scheme.onSurfaceVariant
-                    : couleurModificateur(mod, theme.brightness),
+    return Tooltip(
+      message: '${carac.nom}\n${carac.description}',
+      child: Container(
+        key: Key('creature-mod-${carac.code}'),
+        width: 64,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Text(carac.abrev,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            FittedBox(
+              child: Text(
+                formaterModificateur(mod),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: mod == 0
+                      ? scheme.onSurfaceVariant
+                      : couleurModificateur(mod, theme.brightness),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -335,22 +364,25 @@ class _CaseCarac extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: 72,
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: scheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Text(carac.abrev,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          FittedBox(
-            child:
-                Text('$valeur (${formaterModificateur(modificateur(valeur))})'),
-          ),
-        ],
+    return Tooltip(
+      message: '${carac.nom}\n${carac.description}',
+      child: Container(
+        width: 72,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Text(carac.abrev,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            FittedBox(
+              child: Text(
+                  '$valeur (${formaterModificateur(modificateur(valeur))})'),
+            ),
+          ],
+        ),
       ),
     );
   }

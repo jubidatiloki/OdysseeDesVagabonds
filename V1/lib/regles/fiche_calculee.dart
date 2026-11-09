@@ -238,6 +238,10 @@ class FicheCalculee {
   /// Noms des armes du catalogue par groupe de maîtrise (fenêtres de survol).
   static Map<String, List<String>> armesParGroupe = const {};
 
+  /// Armures de corps du catalogue par niveau (0 tissu, 1 cuir, 2 cotte de
+  /// mailles, 3 plaques) : fenêtres de détail des armures permises.
+  static Map<int, List<String>> armuresParNiveau = const {};
+
   /// Groupe des sorts de rang 0 sur la fiche.
   static const Voie voieSortsRang0 =
       Voie(id: 'sorts-rang-0', nom: 'Sorts de rang 0');

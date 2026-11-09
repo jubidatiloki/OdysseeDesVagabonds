@@ -70,8 +70,10 @@ void main() {
     for (final id in liees) {
       expect(catalogueCreatures, contains(id), reason: id);
     }
-    for (final c in _creatures.where((c) => c.famille == 'Invocations')) {
-      expect(liees, contains(c.id), reason: c.id);
+    // Plus de famille « Invocations » (09/11/2026) : chaque créature a sa
+    // vraie famille ; le lien à la classe ou à la race vient des compétences.
+    expect(_creatures.where((c) => c.famille == 'Invocations'), isEmpty);
+    for (final c in _creatures.where((c) => liees.contains(c.id))) {
       if (c.remplace.isNotEmpty) {
         expect(catalogueCreatures, contains(c.remplace), reason: c.id);
       }

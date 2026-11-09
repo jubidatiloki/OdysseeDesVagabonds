@@ -934,7 +934,7 @@ void main() {
     // Dragon générique retiré le 31/10/2026 : quatre âges de dragons.
     expect(creatures.any((c) => c.id == 'dragon'), isFalse);
     expect(creatures.where((c) => c.famille == 'Dragons'),
-        hasLength(5)); // + wyverne
+        hasLength(6)); // + wyverne et drake (monture du chevalier)
     expect(creatures.map((c) => c.id).toSet(), hasLength(creatures.length));
 
     final regles = DocumentMarkdown.lire(

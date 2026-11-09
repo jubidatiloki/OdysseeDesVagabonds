@@ -29,6 +29,42 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.43.0',
+    date: '09/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Glossaire : armures permises par famille (légères, '
+            'intermédiaires maximum, toutes).',
+      ),
+      (
+        type: _c,
+        texte: 'Glossaire : sur téléphone, un toucher sur une maîtrise ou une '
+            'armure ouvre son détail.',
+      ),
+      (
+        type: _a,
+        texte: 'Équipements : famille (arme civile, commune, à poudre, armure '
+            'légère…) et filtres par étiquette.',
+      ),
+      (
+        type: _m,
+        texte: 'Bestiaire : vraies familles au lieu de « Invocations », lien à '
+            'la classe ou à la race, aide des stats.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : la CA d\'une créature n\'est plus jamais montrée aux '
+            'PJ.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : attaques selon les armes équipées (distance, contact '
+            'ou mains nues), sans attaque magique.',
+      ),
+    ],
+  ),
+  (
     version: '0.42.0',
     date: '09/11/2026',
     changements: [

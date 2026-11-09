@@ -315,7 +315,7 @@ void main() {
         ),
       );
       expect(find.text('Civiles'), findsOneWidget);
-      expect(find.text('Jusqu\'au cuir'), findsOneWidget);
+      expect(find.text('Armures légères maximum'), findsOneWidget);
       expect(find.byKey(const Key('groupe-interdits')), findsNothing);
       final survol = tester.widget<Tooltip>(find.byType(Tooltip).first);
       expect(survol.message, contains('Bâton'));
@@ -361,7 +361,7 @@ void main() {
       );
       expect(find.text('Civiles'), findsOneWidget);
       expect(find.text('Mousquet'), findsOneWidget);
-      expect(find.text('Jusqu\'au cuir'), findsOneWidget);
+      expect(find.text('Armures légères maximum'), findsOneWidget);
     });
   });
 

@@ -7,9 +7,9 @@
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; mêlée communes (hors poudre).",
-    "restrictionArmure": "Pas de plaques.",
+    "restrictionArmure": "Armures intermédiaires maximum (pas de plaques).",
     "maitrisesArmes": ["civile", "commune-melee"],
-    "armureMax": "mailles",
+    "armureMax": "intermediaire",
     "inventaireBase": ["hache-de-guerre", "armure-peaux", "biere-naine", "sac-a-dos", "sac-de-couchage"],
     "voies": [
       {
@@ -310,9 +310,9 @@
     "lanceurDeSorts": false,
     "profil": "hybride",
     "maitrises": "Armes civiles ; 1 main communes.",
-    "restrictionArmure": "Pas de plaques.",
+    "restrictionArmure": "Armures intermédiaires maximum (pas de plaques).",
     "maitrisesArmes": ["civile", "commune-1-main"],
-    "armureMax": "mailles",
+    "armureMax": "intermediaire",
     "inventaireBase": ["rapiere", "armure-cuir", "lyre", "materiel-ecriture", "sac-a-dos"],
     "voies": [
       {
@@ -994,9 +994,9 @@
     "lanceurDeSorts": true,
     "profil": "lanceur",
     "maitrises": "Armes civiles ; communes.",
-    "restrictionArmure": "Pas de plaques.",
+    "restrictionArmure": "Armures intermédiaires maximum (pas de plaques).",
     "maitrisesArmes": ["civile", "commune"],
-    "armureMax": "mailles",
+    "armureMax": "intermediaire",
     "inventaireBase": ["baton", "fronde", "armure-matelassee", "potion-sante-1", "sac-a-dos"],
     "voies": [
       {
@@ -1690,9 +1690,9 @@
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; mêlée communes ; poudre ; siège.",
-    "restrictionArmure": "Pas de plaques.",
+    "restrictionArmure": "Armures intermédiaires maximum (pas de plaques).",
     "maitrisesArmes": ["civile", "commune-melee", "poudre", "siege"],
-    "armureMax": "mailles",
+    "armureMax": "intermediaire",
     "inventaireBase": ["petoire", "poudre-balles", "marteau-de-guerre", "armure-cuir", "potion-feu-gregeois"],
     "voies": [
       {
@@ -1969,9 +1969,9 @@
     "lanceurDeSorts": true,
     "profil": "lanceur",
     "maitrises": "Armes civiles.",
-    "restrictionArmure": "Cuir maximum.",
+    "restrictionArmure": "Armures légères maximum.",
     "maitrisesArmes": ["civile"],
-    "armureMax": "cuir",
+    "armureMax": "legere",
     "inventaireBase": ["baton", "dague", "vetement-tissu", "parchemin-magie", "materiel-ecriture", {"id": "bougie", "quantite": 3}],
     "voies": [
       {
@@ -2461,9 +2461,9 @@
     "lanceurDeSorts": false,
     "profil": "hybride",
     "maitrises": "Armes civiles ; mêlée communes.",
-    "restrictionArmure": "Cuir maximum.",
+    "restrictionArmure": "Armures légères maximum.",
     "maitrisesArmes": ["civile", "commune-melee"],
-    "armureMax": "cuir",
+    "armureMax": "legere",
     "inventaireBase": ["baton", "vetement-tissu", "potion-sante-1"],
     "voies": [
       {
@@ -2730,9 +2730,9 @@
     "lanceurDeSorts": true,
     "profil": "lanceur",
     "maitrises": "Armes civiles.",
-    "restrictionArmure": "Cuir maximum.",
+    "restrictionArmure": "Armures légères maximum.",
     "maitrisesArmes": ["civile"],
-    "armureMax": "cuir",
+    "armureMax": "legere",
     "inventaireBase": ["baton", "dague", "vetement-tissu", "materiel-ecriture", "potion-poison", {"id": "bougie", "quantite": 3}],
     "voies": [
       {
@@ -3022,9 +3022,9 @@
     "lanceurDeSorts": true,
     "profil": "lanceur",
     "maitrises": "Armes civiles ; mêlée communes.",
-    "restrictionArmure": "Cotte de mailles maximum.",
+    "restrictionArmure": "Armures intermédiaires maximum.",
     "maitrisesArmes": ["civile", "commune-melee"],
-    "armureMax": "mailles",
+    "armureMax": "intermediaire",
     "inventaireBase": ["masse-d-armes", "bouclier-en-bois", "cotte-de-mailles", "symbole-sacre", {"id": "potion-sante-1", "quantite": 2}],
     "voies": [
       {
@@ -3305,9 +3305,9 @@
     "lanceurDeSorts": false,
     "profil": "physique",
     "maitrises": "Armes civiles ; communes ; distance (hors poudre).",
-    "restrictionArmure": "Cuir maximum.",
+    "restrictionArmure": "Armures légères maximum.",
     "maitrisesArmes": ["civile", "commune", "commune-distance"],
-    "armureMax": "cuir",
+    "armureMax": "legere",
     "inventaireBase": ["arc-court", "fleches", "epee-courte", "armure-cuir", "corde-20m", "sac-de-couchage"],
     "voies": [
       {
@@ -3597,9 +3597,9 @@
     "lanceurDeSorts": false,
     "profil": "hybride",
     "maitrises": "Armes civiles ; communes.",
-    "restrictionArmure": "Cuir maximum.",
+    "restrictionArmure": "Armures légères maximum.",
     "maitrisesArmes": ["civile", "commune"],
-    "armureMax": "cuir",
+    "armureMax": "legere",
     "inventaireBase": ["rapiere", "dague", "armure-matelassee", "outils-crochetage", "grappin"],
     "voies": [
       {

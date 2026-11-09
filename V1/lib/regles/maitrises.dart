@@ -29,7 +29,28 @@ int? _niveauArmure(Objet o) => switch (o.poidsArmure) {
       PoidsArmure.nonPrecise => null,
     };
 
-const Map<String, int> _niveauxMax = {'tissu': 0, 'cuir': 1, 'mailles': 2};
+/// Limite d'armure (classe, race) → niveau le plus lourd permis. Familles
+/// (09/11/2026) : légère (tissu, cuir), intermédiaire (cotte de mailles),
+/// lourde (plaques). Les anciens codes « cuir » et « mailles » restent lus.
+const Map<String, int> _niveauxMax = {
+  'tissu': 0,
+  'legere': 1,
+  'cuir': 1,
+  'intermediaire': 2,
+  'mailles': 2,
+};
+
+/// Niveau d'une armure du catalogue (`null` : pas une armure de corps, ou
+/// poids non précisé).
+int? niveauArmure(Objet o) =>
+    o.categorie == CategorieObjet.armure ? _niveauArmure(o) : null;
+
+/// « Légère », « Intermédiaire », « Lourde » d'après le niveau d'armure.
+String familleArmure(int niveau) => switch (niveau) {
+      <= 1 => 'Légère',
+      2 => 'Intermédiaire',
+      _ => 'Lourde',
+    };
 
 /// Niveau d'une limite d'armure ; vide : aucune limite.
 int niveauArmureMax(String m) => _niveauxMax[m] ?? 3;
@@ -46,11 +67,11 @@ String libelleMaitriseArme(String m) => switch (m) {
       _ => m.isEmpty ? m : m[0].toUpperCase() + m.substring(1),
     };
 
-/// « Jusqu'au cuir » ; vide : toutes.
+/// « Armures légères maximum » ; vide : toutes.
 String libelleArmureMax(String m) => switch (m) {
-      'tissu' => 'Tissu seulement',
-      'cuir' => 'Jusqu\'au cuir',
-      'mailles' => 'Jusqu\'à la cotte de mailles',
+      'tissu' => 'Vêtements de tissu seulement',
+      'legere' || 'cuir' => 'Armures légères maximum',
+      'intermediaire' || 'mailles' => 'Armures intermédiaires maximum',
       _ => 'Toutes',
     };
 

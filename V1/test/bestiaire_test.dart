@@ -124,7 +124,7 @@ void main() {
       'Géants',
       'Dragons',
       'Morts-vivants',
-      'Invocations',
+      'Démons',
     };
     for (final c in creatures.values) {
       expect(familles, contains(c.famille), reason: c.id);
@@ -132,7 +132,6 @@ void main() {
       expect(c.pv, isNotNull, reason: c.id);
       // Compagnons non combattants (bouquetin, familier) : PV seulement.
       if (c.ca == null) {
-        expect(c.famille, 'Invocations', reason: c.id);
         expect(c.attaques, isEmpty, reason: c.id);
         continue;
       }

@@ -58,16 +58,31 @@ class MaitrisesRestrictions extends StatelessWidget {
     return noms == null || noms.isEmpty ? null : noms.join(', ');
   }
 
-  /// L'armure la plus lourde permise, la limite la plus stricte l'emporte.
-  String? get _armure {
+  /// L'armure la plus lourde permise, la limite la plus stricte l'emporte ;
+  /// le détail liste les armures du catalogue permises, par famille.
+  ({String texte, String? survol})? get _armure {
     final limites = [
       if (classe case final c?) c.armureMax,
       if (race case final r?) r.armureMax,
     ];
     final strictes = limites.where((l) => l.isNotEmpty).toList()
       ..sort((a, b) => niveauArmureMax(a).compareTo(niveauArmureMax(b)));
-    if (strictes.isNotEmpty) return libelleArmureMax(strictes.first);
-    return classe == null ? null : libelleArmureMax('');
+    if (strictes.isEmpty && classe == null) return null;
+    final code = strictes.isEmpty ? '' : strictes.first;
+    final max = niveauArmureMax(code);
+    final parFamille = <String, List<String>>{};
+    for (final e in FicheCalculee.armuresParNiveau.entries) {
+      if (e.key > max) continue;
+      (parFamille[familleArmure(e.key)] ??= []).addAll(e.value);
+    }
+    final survol = [
+      for (final f in ['Légère', 'Intermédiaire', 'Lourde'])
+        if (parFamille[f] case final noms?) '$f : ${noms.join(', ')}',
+    ].join('\n');
+    return (
+      texte: libelleArmureMax(code),
+      survol: survol.isEmpty ? null : survol,
+    );
   }
 
   List<String> get _interdits {
@@ -80,7 +95,8 @@ class MaitrisesRestrictions extends StatelessWidget {
   }
 
   List<String> get _malus => [
-        for (final e in race?.malusArmes.entries ?? const <MapEntry<String, int>>[])
+        for (final e
+            in race?.malusArmes.entries ?? const <MapEntry<String, int>>[])
           '${libelleMaitriseArme(e.key)} : '
               '${'${e.value}'.replaceFirst('-', '−')} au toucher',
       ];
@@ -111,9 +127,8 @@ class MaitrisesRestrictions extends StatelessWidget {
           icone: Icons.check_circle_outline,
           titre: 'Armes maîtrisées',
           couleur: vert,
-          pastilles: armes.isEmpty
-              ? const [(texte: 'Aucune', survol: null)]
-              : armes,
+          pastilles:
+              armes.isEmpty ? const [(texte: 'Aucune', survol: null)] : armes,
         ),
         if (armure != null)
           _Groupe(
@@ -121,7 +136,7 @@ class MaitrisesRestrictions extends StatelessWidget {
             icone: Icons.shield_outlined,
             titre: 'Armures permises',
             couleur: scheme.primary,
-            pastilles: [(texte: armure, survol: null)],
+            pastilles: [armure],
           ),
         if (interdits.isNotEmpty)
           _Groupe(
@@ -237,6 +252,29 @@ class _Pastille extends StatelessWidget {
       child: Text(texte, style: Theme.of(context).textTheme.bodySmall),
     );
     final s = survol;
-    return s == null ? pastille : Tooltip(message: s, child: pastille);
+    if (s == null) return pastille;
+    // Survol (ordinateur) ou toucher (téléphone) : le détail.
+    return Tooltip(
+      message: s,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(texte),
+            content: SingleChildScrollView(
+              child: Text(s, key: const Key('detail-pastille')),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Fermer'),
+              ),
+            ],
+          ),
+        ),
+        child: pastille,
+      ),
+    );
   }
 }

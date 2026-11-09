@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/referentiel.dart';
 import '../models/equipement.dart';
+import '../regles/inventaire.dart';
+import '../regles/maitrises.dart';
 import '../widgets/cadre_classe.dart';
 import '../widgets/carte_selection.dart';
 import '../widgets/consultation.dart';
@@ -68,6 +70,37 @@ Widget iconeCategorieEquipement(
       : IconeMotif(m, taille: taille, couleur: couleur);
 }
 
+/// Famille d'un équipement : celle des armes (« Arme civile », « Arme
+/// commune de mêlée »…) ou des armures (« Armure légère »…) ; `null` sinon.
+String? familleEquipement(Equipement e) {
+  if (e.groupeArme.isNotEmpty) {
+    return switch (e.groupeArme) {
+      'civile' => 'Arme civile',
+      'commune-melee' => 'Arme commune de mêlée',
+      'commune-distance' => 'Arme commune à distance',
+      'poudre' => 'Arme à poudre',
+      'siege' => 'Arme de siège',
+      final g => 'Arme : $g',
+    };
+  }
+  final n = niveauArmure(ObjetDuCatalogue.depuis(e));
+  return n == null ? null : 'Armure ${familleArmure(n).toLowerCase()}';
+}
+
+/// Étiquette ramenée à une forme commune (« Légère », « legère » →
+/// « legere » ; « deux main » → « deux mains »).
+String _cleEtiquette(String t) {
+  final n = ObjetDuCatalogue.normaliser(t);
+  return n == 'deux main' ? 'deux mains' : n;
+}
+
+/// Étiquettes d'un équipement pour le filtre : sa famille et ses
+/// étiquettes, ramenées à une forme commune.
+Set<String> _clesEquipement(Equipement e) => {
+      if (familleEquipement(e) case final f?) _cleEtiquette(f),
+      for (final t in e.etiquettes) _cleEtiquette(t),
+    };
+
 /// Page « Équipements » : index de tous les équipements, avec recherche et
 /// filtre par catégorie.
 class EquipementsScreen extends StatefulWidget {
@@ -84,13 +117,40 @@ class _EquipementsScreenState extends State<EquipementsScreen> {
   /// `null` : toutes les catégories.
   CategorieEquipement? _categorie;
 
+  /// Étiquettes choisies dans la catégorie (« lourde », « Armure légère »…) :
+  /// un équipement doit les avoir toutes.
+  final Set<String> _etiquettes = {};
+
   @override
   Widget build(BuildContext context) {
     final tous = widget.referentiel.equipements;
-    final liste = [
+    final dansCategorie = [
       for (final e in tous)
-        if ((_categorie == null || e.categorie == _categorie) &&
-            correspond(e.texteRecherche, _recherche))
+        if (_categorie == null || e.categorie == _categorie) e,
+    ];
+    // Étiquettes proposées : familles d'abord, puis les autres, par ordre
+    // alphabétique ; libellé de la première rencontrée.
+    final libelles = <String, String>{};
+    final familles = <String>{};
+    for (final e in dansCategorie) {
+      if (familleEquipement(e) case final f?) {
+        libelles.putIfAbsent(_cleEtiquette(f), () => f);
+        familles.add(_cleEtiquette(f));
+      }
+      for (final t in e.etiquettes) {
+        libelles.putIfAbsent(_cleEtiquette(t), () => t.toLowerCase());
+      }
+    }
+    final cles = libelles.keys.toList()
+      ..sort((a, b) {
+        final fa = familles.contains(a) ? 0 : 1;
+        final fb = familles.contains(b) ? 0 : 1;
+        return fa != fb ? fa - fb : a.compareTo(b);
+      });
+    final liste = [
+      for (final e in dansCategorie)
+        if (correspond(e.texteRecherche, _recherche) &&
+            _clesEquipement(e).containsAll(_etiquettes))
           e,
     ]..sort((a, b) {
         final c = a.categorie.index.compareTo(b.categorie.index);
@@ -121,7 +181,10 @@ class _EquipementsScreenState extends State<EquipementsScreen> {
                           key: const Key('categorie-toutes'),
                           label: Text('Tout (${tous.length})'),
                           selected: _categorie == null,
-                          onSelected: (_) => setState(() => _categorie = null),
+                          onSelected: (_) => setState(() {
+                            _categorie = null;
+                            _etiquettes.clear();
+                          }),
                         ),
                         for (final c in CategorieEquipement.values)
                           ChoiceChip(
@@ -132,10 +195,34 @@ class _EquipementsScreenState extends State<EquipementsScreen> {
                               '(${tous.where((e) => e.categorie == c).length})',
                             ),
                             selected: _categorie == c,
-                            onSelected: (_) => setState(() => _categorie = c),
+                            onSelected: (_) => setState(() {
+                              _categorie = c;
+                              _etiquettes.clear();
+                            }),
                           ),
                       ],
                     ),
+                    // Catégorie choisie : filtre plus fin par étiquette
+                    // (« lourde », « Arme à poudre »…).
+                    if (_categorie != null && cles.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        key: const Key('filtres-etiquettes'),
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          for (final k in cles)
+                            FilterChip(
+                              key: Key('etiquette-$k'),
+                              label: Text(libelles[k]!),
+                              selected: _etiquettes.contains(k),
+                              onSelected: (v) => setState(() {
+                                v ? _etiquettes.add(k) : _etiquettes.remove(k);
+                              }),
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -208,6 +295,8 @@ class _CarteEquipement extends StatelessWidget {
               runSpacing: 6,
               children: [
                 Etiquette(e.categorie.libelle),
+                if (familleEquipement(e) case final f?)
+                  Etiquette(f, icone: Icons.category_outlined),
                 for (final t in e.etiquettes) Etiquette(t),
               ],
             ),

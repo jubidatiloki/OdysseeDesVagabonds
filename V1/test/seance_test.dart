@@ -492,7 +492,7 @@ void main() {
             touche: touche,
           );
       expect(jet(touche: false).resultatCible, 'Raté');
-      expect(jet(touche: true).resultatCible, 'Touché (CA 14)');
+      expect(jet(touche: true).resultatCible, 'Touché');
     });
 
     test(
@@ -1391,6 +1391,10 @@ void main() {
           tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
       expect(find.byKey(const Key('attaque-0')), findsOneWidget);
       expect(find.textContaining('Toucher CaC'), findsOneWidget);
+      // Sans arme : mains nues ; ni arme à distance, ni attaque magique.
+      expect(find.textContaining('Toucher distance'), findsNothing);
+      expect(find.textContaining('Toucher magie'), findsNothing);
+      expect(find.textContaining('Mains nues'), findsOneWidget);
       // Bouton pour quitter en haut à droite.
       expect(find.byKey(const Key('quitter-seance')), findsOneWidget);
       // Attaque : cible par défaut, un autre que soi, notée dans l'historique.

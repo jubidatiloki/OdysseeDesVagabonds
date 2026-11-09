@@ -10,6 +10,7 @@ import '../models/race.dart';
 import '../models/voie.dart';
 import '../regles/fiche_calculee.dart';
 import '../regles/inventaire.dart';
+import '../regles/maitrises.dart';
 import '../regles/invocations.dart';
 
 /// Données de référence du jeu (races, classes, équipements, bestiaire,
@@ -140,6 +141,20 @@ class Referentiel {
 
   /// Rend les groupes des armes du catalogue connus des fiches
   /// ([FicheCalculee.groupesArmes]) ; renvoie la liste telle quelle.
+  /// Classes et races qui font apparaître la créature [id] (invocation,
+  /// compagnon, monture) : « Druide · Voie bestiale · Animal de compagnie »,
+  /// « Nain (race) · Acolyte des montagnes ».
+  List<String> originesCreature(String id) => [
+        for (final c in classes)
+          for (final v in c.voies)
+            for (final k in v.competences)
+              if (k.invocations.contains(id)) '${c.nom} · ${v.nom} · ${k.nom}',
+        for (final r in races)
+          if (r.voieRaciale case final v?)
+            for (final k in v.competences)
+              if (k.invocations.contains(id)) '${r.nom} (race) · ${k.nom}',
+      ];
+
   static List<Equipement> enregistrerGroupesArmes(List<Equipement> liste) {
     FicheCalculee.groupesArmes = {
       for (final e in liste)
@@ -160,6 +175,12 @@ class Referentiel {
       }
     }
     FicheCalculee.armesParGroupe = parGroupe;
+    final armures = <int, List<String>>{};
+    for (final e in liste) {
+      final n = niveauArmure(ObjetDuCatalogue.depuis(e));
+      if (n != null) (armures[n] ??= []).add(e.nom);
+    }
+    FicheCalculee.armuresParNiveau = armures;
     return liste;
   }
 

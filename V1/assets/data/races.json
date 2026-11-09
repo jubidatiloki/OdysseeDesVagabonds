@@ -725,7 +725,7 @@
 		"maitrises": "Armes civiles, épées fines et longues, arcs, bâton.",
 		"restrictions": "Pas d'armure de plaques ; méprise les armes à poudre (−2 AdT avec elles).",
 		"maitrisesArmes": ["civile", "épée", "arc", "bâton"],
-		"armureMax": "mailles",
+		"armureMax": "intermediaire",
 		"malusArmes": {"poudre": -2},
 		"voieRaciale": {
 			"id": "race-haut-elfe",
@@ -878,7 +878,7 @@
 		"maitrises": "Armes à 1 main communes.",
 		"restrictions": "Pas d'arme dépassant le d8 (2d6 autorisé) ; pas d'armure au-delà de la cotte de mailles (plaques ajustées possibles) ; armures moins chères.",
 		"maitrisesArmes": ["commune-1-main"],
-		"armureMax": "mailles",
+		"armureMax": "intermediaire",
 		"armuresPermises": ["ajustées"],
 		"desArmeMax": 8,
 		"voieRaciale": {

@@ -501,11 +501,11 @@ class JetSeance {
   /// Attaque qui n'a pas pu être comparée : la raison (« CA inconnue »).
   final String sansComparaison;
 
-  /// « Touché (CA 14) », « Raté » (la CA reste cachée), ou pourquoi l'attaque
+  /// « Touché », « Raté » (la CA de la cible reste toujours cachée), ou pourquoi l'attaque
   /// n'a pas été comparée ; vide : ce jet n'est pas une attaque.
   String get resultatCible => switch (touche) {
         null => sansComparaison,
-        true => 'Touché (CA $caCible)',
+        true => 'Touché',
         false => 'Raté',
       };
 
