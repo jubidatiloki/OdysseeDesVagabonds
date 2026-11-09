@@ -1,38 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
+    Chemin de base, remplacé par la valeur de `--base-href` au moment de
+    `flutter build web` (« / » par défaut).
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="L'odyssée des vagabonds : création et gestion de personnages de jeu de rôle, campagnes et séances.">
+  <meta name="theme-color" content="#1C1916">
 
-  <!-- iOS meta tags & icons -->
+  <!-- iPhone et iPad : ajoutée à l'écran d'accueil, l'appli s'ouvre en plein
+       écran, avec son nom et son icône. -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="odyssee_vagabonds">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="Odyssée">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>odyssee_vagabonds</title>
+  <title>L'odyssée des vagabonds</title>
   <link rel="manifest" href="manifest.json">
 </head>
-<body>
+<body style="background-color: #1C1916;">
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

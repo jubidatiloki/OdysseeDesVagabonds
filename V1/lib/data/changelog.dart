@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.46.0',
+    date: '09/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Web : version en ligne installable sur iPhone (Safari, « Sur '
+            'l\'écran d\'accueil »), avec son icône.',
+      ),
+    ],
+  ),
+  (
     version: '0.45.0',
     date: '09/11/2026',
     changements: [

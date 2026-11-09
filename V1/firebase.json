@@ -1,1 +1,52 @@
-{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"android":{"default":{"projectId":"odyssee-vagabonds","appId":"1:664803135219:android:b72ad536dae72a998bb186","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"odyssee-vagabonds","configurations":{"android":"1:664803135219:android:b72ad536dae72a998bb186","web":"1:664803135219:web:16248ae477549a158bb186"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.map"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "odyssee-vagabonds",
+          "appId": "1:664803135219:android:b72ad536dae72a998bb186",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "odyssee-vagabonds",
+          "configurations": {
+            "android": "1:664803135219:android:b72ad536dae72a998bb186",
+            "web": "1:664803135219:web:16248ae477549a158bb186"
+          }
+        }
+      }
+    }
+  }
+}
