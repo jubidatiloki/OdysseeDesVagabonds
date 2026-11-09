@@ -22,6 +22,18 @@ import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/models/voie.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/widgets/carte_choix.dart';
+import 'package:odyssee_vagabonds/state/historique_lancers.dart';
+
+/// Lancers de la page dé : ils ne vont plus dans l'historique du personnage
+/// (09/11/2026) ; les tests les lisent ici, après les autres événements.
+final _lancers = HistoriqueLancers();
+List<String> _messages(Personnage p) => [
+      ...p.historique.map((e) => e.message),
+      for (final r in _lancers.lancers.reversed)
+        'Lancer · ${r.libelle} : ${r.total} (${r.detail})'
+            '${r.reussiteCritique ? ' · réussite critique' : ''}'
+            '${r.echecCritique ? ' · échec critique' : ''}',
+    ];
 
 /// Races réelles (`assets/data/races.json`), options « reference » remplies
 /// comme au chargement de l'application.
@@ -83,6 +95,7 @@ FicheCalculee _fiche(
     );
 
 void main() {
+  setUp(_lancers.effacer);
   testsSangMelePolyglotte();
   final races = _races();
   Race race(String id) => races.firstWhere((r) => r.id == id);
@@ -234,6 +247,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: races, classes: const [_guerrier]),
           personnages: controller,
           preferences: PreferencesController(
@@ -255,7 +269,7 @@ void main() {
     await tester.tap(souffle);
     await tester.pumpAndSettle();
     // Dernier lancer : la recharge (1d4 tours) ; juste avant : les dégâts
-    final messages = p.historique.map((e) => e.message).toList();
+    final messages = _messages(p).toList();
     expect(messages[messages.length - 2],
         startsWith('Lancer · Souffle élémentaire (Feu) : '));
     expect(messages.last,
@@ -407,6 +421,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: races, classes: const [_mage]),
           personnages: controller,
           preferences: PreferencesController(
@@ -499,6 +514,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: races, classes: const [_mage]),
           personnages: controller,
           preferences: PreferencesController(
@@ -535,7 +551,7 @@ void main() {
     await tap(find.text('Cri sauvage'));
     expect(p.pmActuels, pmMax - 3); // sort de rang 2 : 3 PM
     expect(
-      p.historique.map((e) => e.message),
+      _messages(p),
       contains(startsWith('Sort lancé : Cri sauvage (−3 PM)')),
     );
     expect(
@@ -549,7 +565,7 @@ void main() {
       findsOneWidget,
     );
     await tap(find.text('Amis de la forêt'));
-    final messages = p.historique.map((e) => e.message).toList();
+    final messages = _messages(p).toList();
     expect(messages[messages.length - 2],
         startsWith('Lancer · Amis de la forêt : '));
     expect(messages.last, startsWith('Lancer · Amis de la forêt · dégâts ('));
@@ -573,6 +589,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: races, classes: const [_guerrier]),
           personnages: controller,
           preferences: PreferencesController(
@@ -594,8 +611,7 @@ void main() {
     expect(find.text('avantage'), findsOneWidget);
     await tester.tap(amis);
     await tester.pumpAndSettle();
-    final test = p.historique
-        .map((e) => e.message)
+    final test = _messages(p)
         .firstWhere((m) => m.startsWith('Lancer · Amis de la forêt : '));
     // Origine de l'avantage et du bonus (1d20 + mod CON) dans le détail
     expect(test, contains('Avantage (Harmonie avec la nature) : '));
@@ -708,6 +724,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: races, classes: const [_guerrier]),
           personnages: controller,
           preferences: PreferencesController(
@@ -746,7 +763,7 @@ void main() {
     expect(p.pvActuels, inInclusiveRange(2, 12));
     expect(p.inventaire.where((o) => o.nom == 'Porte-bonheur'), isEmpty);
     expect(
-      p.historique.map((e) => e.message),
+      _messages(p),
       contains('Objet détruit : Porte-bonheur (Chanceux)'),
     );
     // Plus de porte-bonheur : le bouton est grisé
@@ -951,6 +968,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: races, classes: const [_guerrier]),
           personnages: controller,
           preferences: PreferencesController(
@@ -983,7 +1001,7 @@ void main() {
       startsWith('Pip · Jouer : Luth'),
     );
     expect(
-      p.historique.last.message,
+      _messages(p).last,
       contains('+2 (DEX)'),
     );
   });

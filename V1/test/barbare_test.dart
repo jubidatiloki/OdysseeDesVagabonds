@@ -18,6 +18,18 @@ import 'package:odyssee_vagabonds/screens/de_screen.dart';
 import 'package:odyssee_vagabonds/state/personnages_controller.dart';
 import 'package:odyssee_vagabonds/state/preferences_controller.dart';
 import 'package:odyssee_vagabonds/widgets/resume_fiche.dart';
+import 'package:odyssee_vagabonds/state/historique_lancers.dart';
+
+/// Lancers de la page dé : ils ne vont plus dans l'historique du personnage
+/// (09/11/2026) ; les tests les lisent ici, après les autres événements.
+final _lancers = HistoriqueLancers();
+List<String> _messages(Personnage p) => [
+      ...p.historique.map((e) => e.message),
+      for (final r in _lancers.lancers.reversed)
+        'Lancer · ${r.libelle} : ${r.total} (${r.detail})'
+            '${r.reussiteCritique ? ' · réussite critique' : ''}'
+            '${r.echecCritique ? ' · échec critique' : ''}',
+    ];
 
 /// Barbare (classes_2, 24/10/2026) : Brutalité, Style barbaresque,
 /// Armement barbare, Moulinet, Légèreté animale, Assaut, rage, Frénésie.
@@ -65,6 +77,7 @@ FicheCalculee _fiche({
     );
 
 void main() {
+  setUp(_lancers.effacer);
   testsDeplacement();
   testsPageDeBerzerker();
 
@@ -255,6 +268,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: DeScreen(
+            historique: _lancers,
             referentiel: Referentiel(races: [_humain], classes: [_barbare]),
             personnages: controller,
             preferences: PreferencesController(personnageActifId: 'b'),
@@ -285,12 +299,12 @@ void main() {
     await tester.tap(bouton('Brutalité'));
     await tester.pumpAndSettle();
     // Attaque seule : les dégâts se lancent à part
-    expect(p.historique.map((e) => e.message),
+    expect(_messages(p),
         isNot(contains(startsWith('Lancer · Brutalité · dégâts'))));
     await tester.ensureVisible(bouton('Dégâts · Brutalité'));
     await tester.tap(bouton('Dégâts · Brutalité'));
     await tester.pumpAndSettle();
-    final messages = p.historique.map((e) => e.message).toList();
+    final messages = _messages(p).toList();
     expect(messages, contains(startsWith('Lancer · Brutalité · attaque')));
     expect(messages, contains(startsWith('Lancer · Brutalité · dégâts')));
     expect(
@@ -309,7 +323,7 @@ void main() {
     await tester.tap(bouton('Dégâts · Moulinet (cible 2)'));
     await tester.pumpAndSettle();
     expect(
-      p.historique.map((e) => e.message),
+      _messages(p),
       contains(contains('(Cible 2)')),
     );
     await tester.tap(find.textContaining('Terminer moulinet'));
@@ -341,6 +355,7 @@ void testsPageDeBerzerker() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: [_humain], classes: [_barbare]),
           personnages: controller,
           preferences: PreferencesController(personnageActifId: 'g'),

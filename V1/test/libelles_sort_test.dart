@@ -19,6 +19,18 @@ import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/theme.dart';
 import 'package:odyssee_vagabonds/widgets/libelles_sort.dart';
 import 'package:odyssee_vagabonds/widgets/voie_detail.dart';
+import 'package:odyssee_vagabonds/state/historique_lancers.dart';
+
+/// Lancers de la page dé : ils ne vont plus dans l'historique du personnage
+/// (09/11/2026) ; les tests les lisent ici, après les autres événements.
+final _lancers = HistoriqueLancers();
+List<String> _messages(Personnage p) => [
+      ...p.historique.map((e) => e.message),
+      for (final r in _lancers.lancers.reversed)
+        'Lancer · ${r.libelle} : ${r.total} (${r.detail})'
+            '${r.reussiteCritique ? ' · réussite critique' : ''}'
+            '${r.echecCritique ? ' · échec critique' : ''}',
+    ];
 
 /// Compétence `nom` des classes réelles.
 Competence _competence(String nom) {
@@ -37,6 +49,7 @@ Widget _app(Widget enfant) => MaterialApp(
     );
 
 void main() {
+  setUp(_lancers.effacer);
   testsReussite();
 
   test('données : dégâts, effet appliqué et coût des sorts', () {
@@ -177,6 +190,7 @@ void testsReussite() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: _races(), classes: [necro]),
           personnages: controller,
           preferences: PreferencesController(personnageActifId: 'n'),
@@ -200,7 +214,7 @@ void testsReussite() {
         .pmActuels;
     final pm = pmActuels();
     await tap(find.byKey(const Key('lancer-sort-0')));
-    final messages = p.historique.map((e) => e.message).toList();
+    final messages = _messages(p).toList();
     expect(messages, contains(startsWith('Sort lancé : Toucher nécrotique')));
     expect(messages,
         contains(startsWith('Lancer · Toucher nécrotique · Attaque magique')));
@@ -209,7 +223,7 @@ void testsReussite() {
 
     await tap(find.byKey(const Key('effet-sort-0')));
     expect(
-      p.historique.map((e) => e.message),
+      _messages(p),
       contains(startsWith('Lancer · Toucher nécrotique · dégâts')),
     );
     await tester.pumpWidget(const SizedBox());

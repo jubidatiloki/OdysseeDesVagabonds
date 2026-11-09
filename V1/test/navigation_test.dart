@@ -652,17 +652,16 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('jet-esquive')));
     await tester.pumpAndSettle();
-    expect(commentaire(), "Brom · Jet d'esquive");
-    // Les deux jets sont aussi dans l'historique du personnage
+    // Un 20 ou un 1 naturel ajoute « · Réussite critique ! » ou « · Échec… ».
+    expect(commentaire(), startsWith("Brom · Jet d'esquive"));
+    // Les jets de la page dé ne vont plus dans l'historique du personnage
+    // (seulement ceux d'une séance).
     final brom =
         tester.widget<DeScreen>(find.byType(DeScreen)).personnages!.parId('b')!;
-    final jets = brom.historique
-        .where((e) => e.categorie == CategorieHistorique.des)
-        .map((e) => e.message)
-        .toList();
-    expect(jets, hasLength(2));
-    expect(jets.first, startsWith('Lancer · Test de FOR : '));
-    expect(jets.last, startsWith("Lancer · Jet d'esquive : "));
+    expect(
+      brom.historique.where((e) => e.categorie == CategorieHistorique.des),
+      isEmpty,
+    );
     expect(find.byKey(const Key('lancer-1')), findsOneWidget);
 
     // Effacer l'historique

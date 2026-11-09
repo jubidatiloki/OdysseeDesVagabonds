@@ -18,7 +18,7 @@ class AnimationLancer extends StatefulWidget {
   });
 
   /// Durée totale : roulement, résultat, disparition.
-  static const Duration duree = Duration(milliseconds: 1400);
+  static const Duration duree = Duration(milliseconds: 2400);
 
   final int total;
   final String libelle;
@@ -107,8 +107,8 @@ class _AnimationLancerState extends State<AnimationLancer>
           animation: _ctrl,
           builder: (context, _) {
             final t = _ctrl.value;
-            // 0 → 0,55 : le dé roule ; 0,55 → 0,8 : résultat ; puis fondu.
-            const finRoulement = 0.55;
+            // 0,77 s : le dé roule ; puis le résultat reste ~1,4 s ; puis fondu.
+            const finRoulement = 0.32;
             final roule = t < finRoulement;
             final p = roule ? t / finRoulement : 1.0;
             final angle =
@@ -118,9 +118,9 @@ class _AnimationLancerState extends State<AnimationLancer>
                 : 1.0 +
                     0.15 *
                         math.sin(
-                            ((t - finRoulement) / 0.25).clamp(0, 1) * math.pi);
+                            ((t - finRoulement) / 0.15).clamp(0, 1) * math.pi);
             final opacite =
-                t < 0.8 ? 1.0 : (1 - (t - 0.8) / 0.2).clamp(0.0, 1.0);
+                t < 0.88 ? 1.0 : (1 - (t - 0.88) / 0.12).clamp(0.0, 1.0);
             final chiffre = roule
                 ? _defilement[(p * (_defilement.length - 1)).floor()]
                 : widget.total;

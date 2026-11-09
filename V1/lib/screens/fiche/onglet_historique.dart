@@ -93,7 +93,14 @@ class _OngletHistoriqueState extends State<OngletHistorique> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final tous = widget.personnage.historique;
+    // Anciens lancers de la page dé (« Lancer · … ») : plus affichés ; les
+    // jets de séance restent.
+    final tous = [
+      for (final e in widget.personnage.historique)
+        if (!(e.categorie == CategorieHistorique.des &&
+            e.message.startsWith('Lancer · ')))
+          e,
+    ];
     final presentes = {for (final e in tous) e.categorie};
     final evenements = [
       for (final e in tous.reversed)

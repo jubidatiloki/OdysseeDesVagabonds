@@ -17,6 +17,18 @@ import 'package:odyssee_vagabonds/screens/de_screen.dart';
 import 'package:odyssee_vagabonds/state/personnages_controller.dart';
 import 'package:odyssee_vagabonds/state/preferences_controller.dart';
 import 'package:odyssee_vagabonds/widgets/carte_choix.dart';
+import 'package:odyssee_vagabonds/state/historique_lancers.dart';
+
+/// Lancers de la page dé : ils ne vont plus dans l'historique du personnage
+/// (09/11/2026) ; les tests les lisent ici, après les autres événements.
+final _lancers = HistoriqueLancers();
+List<String> _messages(Personnage p) => [
+      ...p.historique.map((e) => e.message),
+      for (final r in _lancers.lancers.reversed)
+        'Lancer · ${r.libelle} : ${r.total} (${r.detail})'
+            '${r.reussiteCritique ? ' · réussite critique' : ''}'
+            '${r.echecCritique ? ' · échec critique' : ''}',
+    ];
 
 /// Barde (classes_2, 24/10/2026) : +2 par rang, Vagabond (6 stats),
 /// Diversité culturelle, musicien, acrobate, courtisan.
@@ -59,6 +71,7 @@ FicheCalculee _fiche({
     );
 
 void main() {
+  setUp(_lancers.effacer);
   testsAttaqueSautee();
   // Voies de toutes les classes (Diversité culturelle).
   Referentiel.completerReferences([_humain], _classes);
@@ -238,6 +251,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: DeScreen(
+            historique: _lancers,
             referentiel: Referentiel(races: [_humain], classes: _classes),
             personnages: controller,
             preferences: PreferencesController(personnageActifId: 'b'),
@@ -255,7 +269,7 @@ void main() {
       await tester.pumpAndSettle();
       if (p.bourse.cuivre > 0) {
         expect(
-          p.historique.map((e) => e.message),
+          _messages(p),
           contains(startsWith('Gain : +${p.bourse.cuivre} cuivre')),
         );
         return;
@@ -293,6 +307,7 @@ void testsAttaqueSautee() {
     await tester.pumpWidget(
       MaterialApp(
         home: DeScreen(
+          historique: _lancers,
           referentiel: Referentiel(races: [_humain], classes: _classes),
           personnages: controller,
           preferences: PreferencesController(personnageActifId: 'b'),
@@ -318,13 +333,13 @@ void testsAttaqueSautee() {
     await tester.ensureVisible(bouton('Attaque sautée'));
     await tester.tap(bouton('Attaque sautée'));
     await tester.pumpAndSettle();
-    var messages = p.historique.map((e) => e.message).toList();
+    var messages = _messages(p).toList();
     expect(messages.where((m) => m.contains('Attaque sautée · attaque')),
         hasLength(1));
     expect(messages.where((m) => m.contains('dégâts')), isEmpty);
     await tester.tap(bouton('Dégâts · Attaque sautée'));
     await tester.pumpAndSettle();
-    messages = p.historique.map((e) => e.message).toList();
+    messages = _messages(p).toList();
     // Un seul jet de dégâts, sans « dé bonus » à part
     expect(messages.where((m) => m.contains('Attaque sautée · dégâts')),
         hasLength(1));

@@ -29,6 +29,52 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.42.0',
+    date: '09/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : situations à cocher, bonus et avantage appliqués aux '
+            'jets, comme sur la page dé.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : avantages permanents et aptitudes maîtrisées en vert '
+            '(ex. gnome : CHAN · avantage).',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : toute action en favori (test de stat, aptitude, '
+            'attaque, compétence, sort).',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : résultat du jet plus lisible (grand total coloré, '
+            'touché ou raté, détail).',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : groupes ouverts selon le mode (combat : combat et '
+            'compétences ; exploration : stats et aptitudes).',
+      ),
+      (
+        type: _m,
+        texte: 'Dés : le résultat de l\'animation reste affiché une seconde de '
+            'plus.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : lieu, début de combat et montée de niveau notés dans '
+            'le récapitulatif de la séance.',
+      ),
+      (
+        type: _m,
+        texte: 'Historique du personnage : jets de séance au lieu des lancers '
+            'de la page dé.',
+      ),
+    ],
+  ),
+  (
     version: '0.41.0',
     date: '08/11/2026',
     changements: [

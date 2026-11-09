@@ -528,24 +528,73 @@ class SeanceController extends ChangeNotifier {
     return campagnes.agir((s) => action(s.seance, c));
   }
 
-  /// MJ : combat (ordre par initiative) ou exploration.
-  Future<String?> basculerMode() => _agir((s, c) => _etat.enCombat
-      ? s.passerEnExploration(c)
-      : s.demarrerCombat(c, ordreCombat(joueurs, _creatures)));
-
-  /// MJ : lieu de la scène.
-  Future<String?> changerLieu(String lieu) =>
-      _agir((s, c) => s.changerInfos(c, lieu: lieu.trim()));
-
-  /// MJ : autorise ou retire la montée de niveau d'un joueur.
-  Future<String?> basculerMontee(String joueur, int niveau) {
-    final montees = Map<String, int>.of(_etat.montees);
-    if (_etat.peutMonter(joueur, niveau)) {
-      montees.remove(joueur);
-    } else {
-      montees[joueur] = niveau + 1;
+  /// MJ : combat (ordre par initiative) ou exploration. Le début d'un
+  /// combat est noté dans le récapitulatif de la séance.
+  Future<String?> basculerMode() async {
+    final debut = !_etat.enCombat;
+    final erreur = await _agir((s, c) => _etat.enCombat
+        ? s.passerEnExploration(c)
+        : s.demarrerCombat(c, ordreCombat(joueurs, _creatures)));
+    if (erreur == null && debut) {
+      final noms = [for (final c in _creatures) c.nom];
+      await noterDansRecap(
+        noms.isEmpty
+            ? 'Début du combat'
+            : 'Début du combat : ${noms.join(', ')}',
+      );
     }
-    return _agir((s, c) => s.changerInfos(c, montees: montees));
+    return erreur;
+  }
+
+  /// MJ : lieu de la scène, noté dans le récapitulatif de la séance.
+  Future<String?> changerLieu(String lieu) async {
+    final nouveau = lieu.trim();
+    final change = nouveau != _etat.lieu;
+    final erreur = await _agir((s, c) => s.changerInfos(c, lieu: nouveau));
+    if (erreur == null && change && nouveau.isNotEmpty) {
+      await noterDansRecap('Lieu : $nouveau');
+    }
+    return erreur;
+  }
+
+  /// MJ : autorise ou retire la montée de niveau d'un joueur ; une montée
+  /// autorisée est notée dans le récapitulatif de la séance.
+  Future<String?> basculerMontee(String joueur, int niveau) async {
+    final montees = Map<String, int>.of(_etat.montees);
+    final autorise = !_etat.peutMonter(joueur, niveau);
+    if (autorise) {
+      montees[joueur] = niveau + 1;
+    } else {
+      montees.remove(joueur);
+    }
+    final erreur = await _agir((s, c) => s.changerInfos(c, montees: montees));
+    if (erreur == null && autorise) {
+      var nom = 'Un joueur';
+      for (final m in _membres) {
+        if (m.uid == joueur) nom = m.personnageNom;
+      }
+      await noterDansRecap('$nom peut passer au niveau ${niveau + 1}');
+    }
+    return erreur;
+  }
+
+  /// MJ : ajoute une ligne horodatée (« - 20:15 · Lieu : Taverne ») au
+  /// récapitulatif de la séance en cours (« Séances précédentes ») : les
+  /// notes de séance se rédigent toutes seules.
+  Future<void> noterDansRecap(String ligne, {DateTime? maintenant}) async {
+    final c = campagne;
+    if (c == null || !estMj) return;
+    final h = maintenant ?? DateTime.now();
+    String n(int v) => v.toString().padLeft(2, '0');
+    final entree = '- ${n(h.hour)}:${n(h.minute)} · $ligne';
+    await campagnes.agir((s) async {
+      final avant = (await s.lireRecaps(c.id))[_numero] ?? '';
+      await s.ecrireRecap(
+        c.id,
+        _numero,
+        avant.trim().isEmpty ? entree : '${avant.trimRight()}\n$entree',
+      );
+    });
   }
 
   /// CA d'une cible (créature ou joueur) ; `null` : inconnue.
@@ -955,6 +1004,22 @@ class SeanceController extends ChangeNotifier {
     final p = f.personnage;
     if (!p.favoris.remove(nom)) p.favoris.add(nom);
     notifyListeners();
+    if (p.id == moi?.personnageId) {
+      await personnages.sauvegarder(p);
+    } else {
+      await enregistrerFiche(p);
+    }
+  }
+
+  /// Jet lancé en séance : inscrit dans l'historique du personnage, avec le
+  /// nom de la séance.
+  Future<void> journaliserJet(FicheCalculee f, String texte) async {
+    final c = campagne;
+    final p = f.personnage;
+    p.journaliser(
+      '${c?.titreSeance(_numero) ?? 'Séance $_numero'} · $texte',
+      categorie: CategorieHistorique.des,
+    );
     if (p.id == moi?.personnageId) {
       await personnages.sauvegarder(p);
     } else {

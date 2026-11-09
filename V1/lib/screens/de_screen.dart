@@ -12,6 +12,7 @@ import '../regles/des.dart';
 import '../regles/etats.dart';
 import '../regles/fiche_calculee.dart';
 import '../regles/savoirs.dart';
+import '../regles/situations.dart';
 import '../state/historique_lancers.dart';
 import '../state/personnages_controller.dart';
 import '../state/preferences_controller.dart';
@@ -114,55 +115,23 @@ class _DeScreenState extends State<DeScreen> {
   /// repérées par [_cleSituation].
   final Set<String> _situations = {};
 
-  static String _cleSituation(SourceEffet s) => '${s.nom}|${s.effet.libelle}';
+  static String _cleSituation(SourceEffet s) => cleSituation(s);
 
-  /// Bonus et avantage des situations cochées pour un jet. Un bonus sans
-  /// caractéristique vaut pour **tous** les jets du personnage ; un bonus
-  /// lié à une caractéristique, seulement pour les tests de celle-ci
-  /// ([caracTest]).
+  /// Bonus et avantage des situations cochées pour un jet (règle commune à
+  /// la page dé et à la séance : `regles/situations.dart`).
   ({List<BonusSituation> bonus, List<String> avantage}) _effetsSituations(
     FicheCalculee fiche,
     Carac? caracTest, {
     bool initiative = false,
     String? savoir,
-  }) {
-    final bonus = <BonusSituation>[];
-    final avantage = <String>[];
-    for (final s in fiche.bonusTests) {
-      // Sans condition : toujours appliqué ; sinon, seulement si coché.
-      final permanent = s.effet.condition.isEmpty;
-      if (!permanent && !_situations.contains(_cleSituation(s))) continue;
-      final e = s.effet;
-      if (e.carac != null && e.carac != caracTest) continue;
-      // « INIT » : seulement le jet d'initiative (Vie sylvestre).
-      if (e.carac == null && (e.categorieNormalisee == 'init') != initiative) {
-        continue;
-      }
-      if (e.typeNormalise == 'avantage' ||
-          e.valeur.toLowerCase() == 'avantage') {
-        avantage.add(s.nom);
-      } else if ((e.valeurEntiere ?? 0) != 0) {
-        bonus.add((nom: s.nom, valeur: e.valeurEntiere!));
-      }
-    }
-    // Bonus cochés pour un savoir précis (« +5 Discrétion en nature ») ;
-    // avantage permanent (Survivaliste : Survie).
-    if (savoir != null) {
-      if (avantageSavoir(fiche, savoir) case final s?) avantage.add(s);
-      String n(String t) => t.trim().toLowerCase();
-      for (final s in fiche.situationsHorsTests) {
-        final e = s.effet;
-        if (e.typeNormalise != 'savoir' ||
-            !_situations.contains(_cleSituation(s)) ||
-            !e.categorie.split(',').any((c) => n(c) == n(savoir)) ||
-            (e.valeurEntiere ?? 0) == 0) {
-          continue;
-        }
-        bonus.add((nom: s.nom, valeur: e.valeurEntiere!));
-      }
-    }
-    return (bonus: bonus, avantage: avantage);
-  }
+  }) =>
+      effetsSituations(
+        fiche,
+        _situations,
+        caracTest,
+        initiative: initiative,
+        savoir: savoir,
+      );
 
   /// [brut] : ni modificateur libre, ni situation, ni avantage (recharge,
   /// dégâts des animaux). [caracTest] : caractéristique testée (pour les
@@ -280,17 +249,10 @@ class _DeScreenState extends State<DeScreen> {
       echec: r.echecCritique,
     );
     _historique.ajouter(r);
-    // Jet du personnage actif : aussi inscrit dans son historique.
-    final p = fiche?.personnage;
-    if (p != null) {
-      p.journaliser(
-        'Lancer · ${r.libelle} : ${r.total} (${r.detail})'
-        '${r.reussiteCritique ? ' · réussite critique' : ''}'
-        '${r.echecCritique ? ' · échec critique' : ''}',
-        categorie: CategorieHistorique.des,
-      );
-      widget.personnages?.sauvegarder(p, lancer: true);
-    }
+    // Les lancers de la page dé ne vont plus dans l'historique du
+    // personnage (ceux d'une séance, si : voir la séance). Un lancer envoie
+    // quand même les modifications en attente.
+    if (fiche != null) widget.personnages?.apresLancer?.call();
     return r;
   }
 

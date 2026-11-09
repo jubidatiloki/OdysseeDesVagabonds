@@ -14,6 +14,7 @@ import 'package:odyssee_vagabonds/screens/campagnes/creation_campagne_screen.dar
 import 'package:odyssee_vagabonds/models/campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
+import 'package:odyssee_vagabonds/models/carac.dart';
 import 'package:odyssee_vagabonds/models/effet.dart';
 import 'package:odyssee_vagabonds/models/equipement.dart';
 import 'package:odyssee_vagabonds/models/objet.dart';
@@ -97,8 +98,33 @@ const _loup = Creature(
   ],
 );
 
+/// Gnome : avantage permanent aux jets de CHAN, +2 en FOR « en montagne »
+/// (à cocher).
+const _gnome = Race(
+  id: 'gnome',
+  nom: 'Gnome',
+  deVie: 6,
+  deMana: 6,
+  passif: Passif(
+    nom: 'Chanceux',
+    description: 'Avantage aux jets de CHAN.',
+    effets: [
+      Effet(type: 'avantage', carac: Carac.chan),
+      Effet(
+        type: 'bonus',
+        carac: Carac.force,
+        valeur: '2',
+        condition: 'en montagne',
+      ),
+    ],
+  ),
+);
+
+Personnage _pip() =>
+    Personnage(id: 'brom', nom: 'Pip', raceId: 'gnome', classeId: 'guerrier');
+
 const _referentiel = Referentiel(
-  races: [_nain],
+  races: [_nain, _gnome],
   classes: [_guerrier],
   creatures: [_loup],
   equipements: [
@@ -1009,6 +1035,60 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    /// Déplie un groupe du panneau de dés replié selon le mode de jeu
+    /// (combat et compétences repliés en exploration).
+    Future<void> deplier(WidgetTester tester, String cle, Finder enfant) async {
+      if (enfant.evaluate().isNotEmpty) return;
+      final groupe = find.byWidgetPredicate(
+        (w) =>
+            w is ExpansionTile &&
+            w.key is PageStorageKey<String> &&
+            (w.key! as PageStorageKey<String>).value.startsWith(cle),
+      );
+      await tap(
+        tester,
+        find.descendant(of: groupe, matching: find.byType(ListTile)).first,
+      );
+    }
+
+    /// Touche un bouton du panneau de dés, après l'avoir fait défiler à l'écran.
+    Future<void> tapDes(WidgetTester tester, String cle) async {
+      final f = find.byKey(Key(cle));
+      // Groupe replié selon le mode de jeu : on le déplie d'abord.
+      final groupe = cle.startsWith('attaque-')
+          ? 'groupe-combat'
+          : cle.startsWith('test-seance-')
+              ? 'groupe-stats'
+              : cle.startsWith('aptitude-seance-')
+                  ? 'groupe-aptitudes'
+                  : null;
+      // Le panneau défile seul (pas ensureVisible : il ferait défiler les
+      // onglets de la séance). Groupe affiché mais sans le bouton : il est
+      // replié, on le déplie.
+      for (var i = 0; i < 40 && f.hitTestable().evaluate().isEmpty; i++) {
+        if (groupe != null && f.evaluate().isEmpty) {
+          final g = find.byWidgetPredicate(
+            (w) =>
+                w is ExpansionTile &&
+                w.key is PageStorageKey<String> &&
+                (w.key! as PageStorageKey<String>).value.startsWith(groupe),
+          );
+          final entete =
+              find.descendant(of: g, matching: find.byType(ListTile));
+          if (entete.hitTestable().evaluate().isNotEmpty) {
+            await tap(tester, entete.first);
+            continue;
+          }
+        }
+        await tester.drag(
+          find.byKey(const Key('panneau-des')),
+          const Offset(0, -80),
+        );
+        await tester.pumpAndSettle();
+      }
+      await tap(tester, f);
+    }
+
     testWidgets('MJ : navigation, créature ajoutée, combat', (tester) async {
       final x = await ouvrir(tester, 'mj');
       expect(find.byKey(const Key('seance-creatures')), findsOneWidget);
@@ -1044,15 +1124,17 @@ void main() {
       expect(partie.creatures[loup.id]!.pv, 11);
 
       // Créature sélectionnée : ses attaques dans le lancer de dés.
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       expect(partie.jets.single.libelle, 'Morsure · toucher');
       // Jet visible des PJ et nom caché : le vrai nom n'y figure pas.
       expect(partie.jets.single.auteurNom, CreatureSeance.nomInconnu);
-      await tap(tester, find.byKey(const Key('attaque-1')));
+      await tapDes(tester, 'attaque-1');
       expect(partie.jets.last.libelle, 'Morsure · dégâts');
       // Nom montré aux PJ : la créature dans l'historique, pas « MJ ».
       await tap(tester, find.byKey(const Key('creature-nom-cache')));
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       expect(partie.jets.last.auteurNom, 'Loup');
       await tap(tester, find.byKey(const Key('creature-nom-cache')));
 
@@ -1150,7 +1232,7 @@ void main() {
       // Jet caché pour le joueur aussi : le résultat ne s'affiche pas.
       await tap(tester, find.byKey(const Key('visibilite-jet')));
       await tap(tester, find.text('Caché pour moi aussi (MJ seul)').last);
-      await tap(tester, find.byKey(const Key('test-seance-FOR')));
+      await tapDes(tester, 'test-seance-FOR');
       expect(partie.jets.single.lecteurs, ['mj']);
       expect(find.text('Jet envoyé au MJ : résultat caché.'), findsOneWidget);
 
@@ -1186,7 +1268,9 @@ void main() {
       final partie = x.base.parties[x.campagne.id]!;
       // Créature sélectionnée : sa cible par défaut est le premier PJ.
       await tap(tester, find.byKey(const Key('carte-l')));
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       expect(partie.jets.last.cible, 'brom');
       // Un joueur frappe le loup : le MJ applique les dégâts.
       await ServiceCampagnesMemoire(x.base, 'j1').seance.envoyerDegats(
@@ -1303,12 +1387,14 @@ void main() {
       await tap(tester, find.byKey(const Key('vue-competences')));
       expect(find.byKey(const Key('points-disponibles')), findsOneWidget);
       await tap(tester, find.byKey(const Key('vue-inventaire')));
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
       expect(find.byKey(const Key('attaque-0')), findsOneWidget);
       expect(find.textContaining('Toucher CaC'), findsOneWidget);
       // Bouton pour quitter en haut à droite.
       expect(find.byKey(const Key('quitter-seance')), findsOneWidget);
       // Attaque : cible par défaut, un autre que soi, notée dans l'historique.
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       final x = dernierJet();
       expect(x.cible, 'aria');
       expect(x.auteurNom, 'Brom');
@@ -1349,15 +1435,16 @@ void main() {
       for (final k in ['lancer-seance', 'nombre-des', 'de-20']) {
         expect(find.byKey(Key(k)), findsNothing);
       }
-      expect(find.byKey(const PageStorageKey('groupe-combat')), findsOneWidget);
+      expect(find.byKey(const PageStorageKey('groupe-combat-exploration')),
+          findsOneWidget);
       expect(find.byKey(const Key('test-seance-FOR')), findsOneWidget);
       await tester.drag(
-        find.byKey(const PageStorageKey('groupe-stats')),
+        find.byKey(const PageStorageKey('groupe-stats-exploration')),
         const Offset(0, -600),
       );
       await tester.pumpAndSettle();
       expect(
-        find.byKey(const PageStorageKey('groupe-aptitudes')),
+        find.byKey(const PageStorageKey('groupe-aptitudes-exploration')),
         findsOneWidget,
       );
     });
@@ -1378,14 +1465,16 @@ void main() {
         },
       );
       final partie = x.base.parties[x.campagne.id]!;
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       final j = partie.jets.last;
       expect(j.caCible, 14);
       expect(j.touche, isNotNull);
       expect(j.attaquant, 'j1');
       expect(j.mode, ModeJeu.combat);
       expect(find.byKey(const Key('alerte-attaque')), findsNothing);
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       // Simple alerte : le jet est quand même lancé.
       expect(find.byKey(const Key('alerte-attaque')), findsOneWidget);
       expect(partie.jets.length, 2);
@@ -1396,6 +1485,8 @@ void main() {
       expect(find.text(j.resultatCible), findsWidgets);
       final h = j.date.hour.toString().padLeft(2, '0');
       expect(find.textContaining('$h:', findRichText: true), findsWidgets);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('montée de niveau : possible après l\'accord du MJ',
@@ -1604,9 +1695,14 @@ void main() {
       final x = await ouvrir(tester, 'j1', fiches: [brom]);
       final panneau = find.byType(Scrollable).last;
       await tester.scrollUntilVisible(
-        find.byKey(const Key('endurance-seance-0')),
+        find.byKey(const PageStorageKey('groupe-competences-exploration')),
         200,
         scrollable: panneau,
+      );
+      await deplier(
+        tester,
+        'groupe-competences',
+        find.byKey(const Key('endurance-seance-0')),
       );
       await tester.pumpAndSettle();
       expect(find.text('Moulinet : 2 PE'), findsOneWidget);
@@ -1629,9 +1725,14 @@ void main() {
       await ouvrir(tester, 'j1', fiches: [brom]);
       final panneau = find.byType(Scrollable).last;
       await tester.scrollUntilVisible(
-        find.byKey(const Key('endurance-seance-0')),
+        find.byKey(const PageStorageKey('groupe-competences-exploration')),
         200,
         scrollable: panneau,
+      );
+      await deplier(
+        tester,
+        'groupe-competences',
+        find.byKey(const Key('endurance-seance-0')),
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const PageStorageKey<String>('groupe-favoris')),
@@ -1677,6 +1778,94 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets(
+        'PJ : avantage permanent en vert, situation cochée, résultat lisible, '
+        'jet dans l\'historique', (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_pip()]);
+      // CHAN : avantage permanent du gnome, annoncé sur le bouton.
+      await tapDes(tester, 'test-seance-CHAN');
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(partie.jets.last.detail, startsWith('Avantage (Chanceux)'));
+      expect(find.byKey(const Key('resultat-seance')), findsOneWidget);
+      expect(find.byKey(const Key('resultat-total')), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('resultat-total'))).data,
+        '${partie.jets.last.total}',
+      );
+      expect(find.textContaining('CHAN +0 · avantage'), findsOneWidget);
+      // Situation « en montagne » cochée : +2 au test de FOR.
+      await tester.drag(
+        find.byKey(const Key('panneau-des')),
+        const Offset(0, 2000),
+      );
+      await tester.pumpAndSettle();
+      await deplier(
+        tester,
+        'groupe-situations',
+        find.byKey(const Key('bloc-situations')),
+      );
+      await tap(tester, find.textContaining('en montagne').first);
+      await tapDes(tester, 'test-seance-FOR');
+      expect(partie.jets.last.detail, contains('+2 (Chanceux)'));
+      // Le jet de séance est dans l'historique du personnage.
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+      final enregistre = tester
+          .widget<SeanceScreen>(find.byType(SeanceScreen))
+          .contexte
+          .personnages
+          .parId('brom')!;
+      expect(
+        enregistre.historique.map((e) => e.message),
+        contains(startsWith('Séance 1 · Test de CHAN : ')),
+      );
+    });
+
+    testWidgets(
+        'PJ : n\'importe quelle action en favori ; groupes selon le '
+        'mode', (tester) async {
+      await ouvrir(tester, 'j1', fiches: [_brom()]);
+      // Exploration : statistiques ouvertes, combat replié.
+      expect(find.byKey(const Key('test-seance-FOR')), findsOneWidget);
+      expect(find.byKey(const Key('attaque-0')), findsNothing);
+      // Appui long sur le test de FOR : favori, en tête.
+      await tester.longPress(find.byKey(const Key('test-seance-FOR')));
+      await tester.pumpAndSettle();
+      expect(find.text('Test de FOR : ajouté aux favoris.'), findsOneWidget);
+      expect(find.byKey(const Key('test-seance-FOR')), findsNothing);
+      await tester.drag(
+        find.byKey(const Key('panneau-des')),
+        const Offset(0, 2000),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('favori-stat-0')), findsOneWidget);
+      // Une attaque aussi.
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      await tester.longPress(find.byKey(const Key('attaque-0')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('favori-attaque-0')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : lieu, combat et montée notés dans le récapitulatif',
+        (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      await tap(tester, find.byKey(const Key('modifier-lieu')));
+      await tester.enterText(find.byKey(const Key('champ-lieu')), 'Taverne');
+      await tester.pump();
+      await tap(tester, find.byKey(const Key('valider-lieu')));
+      await tap(tester, find.byKey(const Key('basculer-mode')));
+      final recap = x.base.recaps[x.campagne.id]![1]!;
+      final lignes = recap.split('\n');
+      expect(lignes, hasLength(2));
+      expect(lignes.first, matches(RegExp(r'^- \d\d:\d\d · Lieu : Taverne$')));
+      expect(lignes.last, contains('· Début du combat'));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('MJ : nomme la séance, le numéro reste', (tester) async {
       final x = await ouvrir(tester, 'mj');
       await tap(tester, find.byKey(const Key('nommer-seance')));
@@ -1701,18 +1890,22 @@ void main() {
             .ajouterCreature(c, const CreatureSeance(id: 'o', nom: 'Ombre')),
       );
       final partie = x.base.parties[x.campagne.id]!;
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       expect(partie.jets.last.touche, isNull);
       expect(partie.jets.last.resultatCible, 'CA de la cible inconnue');
       await tap(tester, find.byKey(const Key('cible-attaque')));
       await tap(tester, find.text('Aucune cible').last);
-      await tap(tester, find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
       expect(
         partie.jets.last.resultatCible,
         'Sans cible : pas de comparaison',
       );
       await tap(tester, find.byKey(const Key('onglet-historique')));
       expect(find.text('CA de la cible inconnue'), findsWidgets);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('MJ : la CA manquante d\'une créature est complétée',

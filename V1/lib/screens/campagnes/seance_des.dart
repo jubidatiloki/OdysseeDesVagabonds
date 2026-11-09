@@ -9,6 +9,7 @@ import '../../models/voie.dart';
 import '../../regles/des.dart';
 import '../../regles/fiche_calculee.dart';
 import '../../regles/savoirs.dart';
+import '../../regles/situations.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/animation_lancer.dart';
@@ -121,7 +122,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   String? _cibleAttaque;
 
   /// Dernier résultat affiché.
-  String? _resultat;
+  _Resultat? _dernier;
+
+  /// Situations cochées (« +1 en forêt »…), comme sur la page dé.
+  final Set<String> _situations = {};
 
   /// Alerte : deuxième attaque du tour (rien n'est bloqué).
   String? _alerte;
@@ -266,8 +270,6 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     if (jets.isEmpty) {
       await _lancer(
         libelle: sort.nom,
-        jets: const [],
-        modificateur: 0,
         parAttaquant: true,
         avecCible: true,
         genre: GenreJet.sort,
@@ -275,7 +277,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  /// Lance une formule (« 1d8 + 1d6 + 2 »).
+  /// Lance une formule (« 1d8 + 1d6 + 2 »). Pour un d20 du personnage :
+  /// bonus des situations (cochées ou permanentes) et avantage, comme sur la
+  /// page dé ; [carac] : caractéristique testée, [savoir] : aptitude.
   Future<void> _lancerFormule(
     String libelle,
     String des,
@@ -286,31 +290,54 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     String type = 'physique',
     GenreJet genre = GenreJet.libre,
     bool contreCa = false,
+    Carac? carac,
+    String? savoir,
   }) async {
     final f = lireFormule(des);
     if (f == null) return;
+    final d20 = f.groupes.length == 1 &&
+        f.groupes.first.nombre == 1 &&
+        f.groupes.first.faces == 20;
+    final fiche = parAttaquant ? _s.attaquant.fiche : null;
+    final situ = fiche != null && d20
+        ? effetsSituations(
+            fiche,
+            _situations,
+            carac,
+            initiative: libelle == 'Initiative',
+            savoir: savoir,
+          )
+        : (bonus: const <BonusSituation>[], avantage: const <String>[]);
+    final seuils = fiche != null && contreCa ? fiche.seuilsAttaques : null;
+    final r = ResultatLancer.lancer(
+      libelle: libelle,
+      de: des,
+      bonus: bonus,
+      situations: situ.bonus,
+      mode: situ.avantage.isEmpty ? ModeLancer.normal : ModeLancer.avantage,
+      origineMode: situ.avantage.join(', '),
+      aleatoire: widget.aleatoire,
+      seuilCritique: seuils?.critique ?? 20,
+      seuilEchec: seuils?.echec ?? 1,
+    );
+    if (r == null) return;
     await _lancer(
       libelle: libelle,
-      jets: [
-        for (final g in f.groupes)
-          for (var i = 0; i < g.nombre; i++)
-            lancerDe(g.faces, aleatoire: widget.aleatoire),
-      ],
-      modificateur: f.bonus + bonus,
+      resultat: r,
       parAttaquant: parAttaquant,
       avecCible: avecCible,
       degats: degats,
       type: type,
       genre: genre,
-      contreCa:
-          contreCa && f.groupes.length == 1 && f.groupes.first.faces == 20,
+      contreCa: contreCa && d20,
     );
   }
 
+  /// Enregistre le jet ; [resultat] `null` : action sans dés (sort sans jet,
+  /// action en endurance).
   Future<void> _lancer({
     required String libelle,
-    required List<int> jets,
-    required int modificateur,
+    ResultatLancer? resultat,
     bool parAttaquant = false,
     bool avecCible = false,
     bool degats = false,
@@ -318,11 +345,21 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     GenreJet genre = GenreJet.libre,
     bool contreCa = false,
   }) async {
-    final total = jets.fold(0, (a, b) => a + b) + modificateur;
-    AnimationLancer.montrer(context, total: total, libelle: libelle);
+    final r = resultat;
+    final total = r?.total ?? 0;
+    if (r != null) {
+      AnimationLancer.montrer(
+        context,
+        total: total,
+        libelle: libelle,
+        critique: r.reussiteCritique,
+        echec: r.echecCritique,
+      );
+    }
+    final fiche = parAttaquant ? _s.attaquant.fiche : null;
     // Attaque : comparée à la CA de la cible, si elle est connue.
     final cibleCa = _cibleEnCours == 'soi' ? '' : _cibleEnCours;
-    final attaque = contreCa && jets.length == 1;
+    final attaque = contreCa && r != null && r.d20;
     final ca = attaque && cibleCa.isNotEmpty ? _s.caDe(cibleCa) : null;
     // Pas de comparaison : le jet dit pourquoi.
     final sansComparaison = !attaque || ca != null
@@ -330,15 +367,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         : cibleCa.isEmpty
             ? 'Sans cible : pas de comparaison'
             : 'CA de la cible inconnue';
-    final touche = ca == null
+    final touche = ca == null || r == null
         ? null
-        : attaqueTouche(naturel: jets.first, total: total, ca: ca);
-    final detail = jets.isEmpty
-        ? ''
-        : [
-            jets.join(' + '),
-            if (modificateur != 0) formaterModificateur(modificateur),
-          ].join(' ');
+        : attaqueTouche(naturel: r.garde, total: total, ca: ca);
+    final detail = r?.detail ?? '';
     final erreur = await _s.lancer(
       libelle: libelle,
       detail: detail,
@@ -367,16 +399,32 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         type: type,
       );
     }
+    // Jet du personnage : inscrit dans son historique, avec la séance.
+    if (erreur == null && r != null && fiche != null) {
+      await _s.journaliserJet(
+        fiche,
+        '$libelle : $total ($detail)'
+        '${r.reussiteCritique ? ' · réussite critique' : ''}'
+        '${r.echecCritique ? ' · échec critique' : ''}'
+        '${touche == null ? '' : touche ? ' · touché' : ' · raté'}',
+      );
+    }
     if (!mounted) return;
-    final secret = !_s.estMj && _visibilite == VisibiliteJet.mjSeul;
     setState(() {
-      _resultat = erreur ??
-          (secret
-              ? 'Jet envoyé au MJ : résultat caché.'
-              : jets.isEmpty
-                  ? '$libelle : lancé'
-                  : '$libelle : $total ($detail)'
-                      '${touche != null ? ' · ${touche ? 'Touché (CA $ca)' : 'Raté'}' : sansComparaison.isEmpty ? '' : ' · $sansComparaison'}');
+      _dernier = _Resultat(
+        libelle: libelle,
+        total: total,
+        detail: detail,
+        touche: touche,
+        ca: ca,
+        note: sansComparaison,
+        critique: r?.reussiteCritique ?? false,
+        echec: r?.echecCritique ?? false,
+        avantage: r != null && r.mode == ModeLancer.avantage,
+        secret: !_s.estMj && _visibilite == VisibiliteJet.mjSeul,
+        sansDes: r == null,
+        erreur: erreur,
+      );
     });
   }
 
@@ -393,17 +441,27 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     ];
   }
 
-  /// Appui long sur un bouton : met sa compétence en favori, ou l'en retire.
-  Widget _avecFavori(FicheCalculee fiche, String nom, Widget bouton) =>
+  /// Appui long sur un bouton : met l'action en favori, ou l'en retire.
+  /// [cle] : nom de la compétence, ou « stat:FOR », « apt:… », « att:… ».
+  Widget _avecFavori(
+    FicheCalculee fiche,
+    String cle,
+    String nom,
+    Widget bouton,
+  ) =>
       GestureDetector(
-        onLongPress: () => _basculerFavori(fiche, nom),
+        onLongPress: () => _basculerFavori(fiche, cle, nom),
         child: bouton,
       );
 
-  Future<void> _basculerFavori(FicheCalculee fiche, String nom) async {
-    final ajoute = !fiche.personnage.favoris.contains(nom);
+  Future<void> _basculerFavori(
+    FicheCalculee fiche,
+    String cle,
+    String nom,
+  ) async {
+    final ajoute = !fiche.personnage.favoris.contains(cle);
     final messager = ScaffoldMessenger.of(context);
-    await _s.basculerFavori(fiche, nom);
+    await _s.basculerFavori(fiche, cle);
     if (!mounted) return;
     setState(() {});
     messager
@@ -419,6 +477,25 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       );
   }
 
+  /// Bouton mis en avant (avantage, maîtrise) : bordure et texte verts.
+  Widget _puce({
+    required String cle,
+    required String texte,
+    required VoidCallback? onPressed,
+    Color? vert,
+  }) =>
+      ActionChip(
+        key: Key(cle),
+        side: vert == null ? null : BorderSide(color: vert, width: 2),
+        label: Text(
+          texte,
+          style: vert == null
+              ? null
+              : TextStyle(color: vert, fontWeight: FontWeight.w700),
+        ),
+        onPressed: onPressed,
+      );
+
   Widget _puceSort(
     FicheCalculee fiche,
     ({Competence competence, int rangSort, int cout}) s,
@@ -428,9 +505,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _avecFavori(
         fiche,
         s.competence.nom,
-        ActionChip(
-          key: Key(cle),
-          label: Text('${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}'),
+        s.competence.nom,
+        _puce(
+          cle: cle,
+          texte: '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
           onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
               ? null
               : () => _lancerSort(fiche, s),
@@ -446,9 +524,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _avecFavori(
         fiche,
         j.origine,
-        ActionChip(
-          key: Key(cle),
-          label: Text('${j.libelle} : ${formaterJet(j.des, j.bonus)}'),
+        j.origine,
+        _puce(
+          cle: cle,
+          texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
           onPressed: pasDeCible
               ? null
               : () => _lancerFormule(
@@ -470,58 +549,189 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _avecFavori(
         fiche,
         a.origine,
-        ActionChip(
-          key: Key(cle),
-          label: Text('${a.libelle} : ${a.cout} PE'),
+        a.origine,
+        _puce(
+          cle: cle,
+          texte: '${a.libelle} : ${a.cout} PE',
           onPressed: pasDeCible || fiche.peActuels < a.cout
               ? null
               : () async {
                   await _s.depenserAction(fiche, a);
                   await _lancer(
                     libelle: '${a.libelle} (${a.cout} PE)',
-                    jets: const [],
-                    modificateur: 0,
                     parAttaquant: true,
                   );
                 },
         ),
       );
 
-  /// Favoris : sorts, jets et actions des compétences mises en favori.
-  Widget? _groupeFavoris(FicheCalculee fiche, bool pasDeCible) {
+  /// Test de caractéristique ; avantage permanent (gnome : CHAN) en vert.
+  Widget _puceStat(
+    FicheCalculee fiche,
+    Carac c,
+    String cle,
+    bool pasDeCible,
+  ) {
+    final avantage = avantagesPermanents(fiche)[c];
+    final vert = avantage == null
+        ? null
+        : couleurModificateur(1, Theme.of(context).brightness);
+    return _avecFavori(
+      fiche,
+      'stat:${c.code}',
+      'Test de ${c.abrev}',
+      // Pas d'infobulle : elle capterait l'appui long (favori).
+      Builder(
+        builder: (_) => _puce(
+          cle: cle,
+          texte: '${c.abrev} ${formaterModificateur(fiche.mod(c))}'
+              '${avantage == null ? '' : ' · avantage'}',
+          vert: vert,
+          onPressed: pasDeCible
+              ? null
+              : () => _lancerFormule(
+                    'Test de ${c.abrev}',
+                    '1d20',
+                    fiche.mod(c),
+                    parAttaquant: true,
+                    genre: GenreJet.test,
+                    carac: c,
+                  ),
+        ),
+      ),
+    );
+  }
+
+  /// Jet d'aptitude ; maîtrisée ou avec avantage : en vert.
+  Widget _puceAptitude(
+    FicheCalculee fiche,
+    JetSavoir j,
+    String cle,
+    bool pasDeCible,
+  ) {
+    final avantage = j.avantage ?? avantageSavoir(fiche, j.aptitude.nom);
+    final vert = avantage != null || j.maitrise
+        ? couleurModificateur(1, Theme.of(context).brightness)
+        : null;
+    return _avecFavori(
+      fiche,
+      'apt:${j.libelle}',
+      j.libelle,
+      _puce(
+        cle: cle,
+        texte: '${j.libelle} '
+            '${formaterModificateur(fiche.mod(j.carac) + j.total)}'
+            '${avantage == null ? '' : ' · avantage'}',
+        vert: vert,
+        onPressed: pasDeCible
+            ? null
+            : () => _lancerFormule(
+                  j.libelle,
+                  '1d20',
+                  fiche.mod(j.carac) + j.total,
+                  parAttaquant: true,
+                  genre: GenreJet.test,
+                  carac: j.carac,
+                  savoir: j.aptitude.nom,
+                ),
+      ),
+    );
+  }
+
+  /// Attaque ou dégâts ; en favori seulement pour un personnage.
+  Widget _puceAttaque(
+    FicheCalculee? fiche,
+    ({String libelle, String des, int bonus, bool degats, String type}) a,
+    String cle,
+    bool pasDeCible,
+  ) {
+    final bouton = _puce(
+      cle: cle,
+      texte: '${a.libelle} : ${formaterJet(a.des, a.bonus)}',
+      onPressed: pasDeCible
+          ? null
+          : () {
+              if (!a.degats) _verifierAttaque();
+              _lancerFormule(
+                a.libelle,
+                a.des,
+                a.bonus,
+                contreCa: !a.degats,
+                parAttaquant: true,
+                avecCible: true,
+                degats: a.degats,
+                type: a.type,
+                genre: a.degats ? GenreJet.degats : GenreJet.attaque,
+              );
+            },
+    );
+    return fiche == null
+        ? bouton
+        : _avecFavori(fiche, 'att:${a.libelle}', a.libelle, bouton);
+  }
+
+  /// Jets d'aptitudes (savoirs, savoir-faire) du personnage.
+  List<JetSavoir> _aptitudes(FicheCalculee fiche) => [
+        ...jetsSavoirs(
+          fiche,
+          _s.referentiel.aptitudes,
+          FamilleAptitude.savoir,
+        ),
+        ...jetsSavoirs(
+          fiche,
+          _s.referentiel.aptitudes,
+          FamilleAptitude.savoirFaire,
+        ),
+      ];
+
+  /// Favoris : toutes les actions mises en favori, réunies en tête.
+  Widget? _groupeFavoris(
+    FicheCalculee fiche,
+    bool pasDeCible,
+    List<({String libelle, String des, int bonus, bool degats, String type})>
+        attaques,
+    List<JetSavoir> aptitudes,
+  ) {
     final fav = fiche.personnage.favoris;
     if (fav.isEmpty) return null;
-    final sorts = [
-      for (final s in fiche.sorts)
-        if (fav.contains(s.competence.nom)) s,
+    final puces = <Widget>[
+      for (final (i, a) in [
+        for (final a in attaques)
+          if (fav.contains('att:${a.libelle}')) a,
+      ].indexed)
+        _puceAttaque(fiche, a, 'favori-attaque-$i', pasDeCible),
+      for (final (i, s) in [
+        for (final s in fiche.sorts)
+          if (fav.contains(s.competence.nom)) s,
+      ].indexed)
+        _puceSort(fiche, s, 'favori-sort-$i', pasDeCible),
+      for (final (i, j) in [
+        for (final j in _jetsCompetences(fiche))
+          if (fav.contains(j.origine)) j,
+      ].indexed)
+        _puceJet(fiche, j, 'favori-competence-$i', pasDeCible),
+      for (final (i, a) in [
+        for (final a in fiche.actionsEndurance)
+          if (fav.contains(a.origine)) a,
+      ].indexed)
+        _puceAction(fiche, a, 'favori-endurance-$i', pasDeCible),
+      for (final (i, c) in [
+        for (final c in Carac.values)
+          if (fav.contains('stat:${c.code}')) c,
+      ].indexed)
+        _puceStat(fiche, c, 'favori-stat-$i', pasDeCible),
+      for (final (i, j) in [
+        for (final j in aptitudes)
+          if (fav.contains('apt:${j.libelle}')) j,
+      ].indexed)
+        _puceAptitude(fiche, j, 'favori-aptitude-$i', pasDeCible),
     ];
-    final jets = [
-      for (final j in _jetsCompetences(fiche))
-        if (fav.contains(j.origine)) j,
-    ];
-    final actions = [
-      for (final a in fiche.actionsEndurance)
-        if (fav.contains(a.origine)) a,
-    ];
-    if (sorts.isEmpty && jets.isEmpty && actions.isEmpty) return null;
+    if (puces.isEmpty) return null;
     return _GroupeJets(
       cle: 'groupe-favoris',
       titre: 'Favoris',
       icone: Icons.star_outline,
-      children: [
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final (i, s) in sorts.indexed)
-              _puceSort(fiche, s, 'favori-sort-$i', pasDeCible),
-            for (final (i, j) in jets.indexed)
-              _puceJet(fiche, j, 'favori-competence-$i', pasDeCible),
-            for (final (i, a) in actions.indexed)
-              _puceAction(fiche, a, 'favori-endurance-$i', pasDeCible),
-          ],
-        ),
-      ],
+      children: [Wrap(spacing: 6, runSpacing: 6, children: puces)],
     );
   }
 
@@ -537,6 +747,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     ];
     return _GroupeJets(
       cle: 'groupe-competences',
+      memoire: 'groupe-competences-${_s.etat.mode.name}',
+      ouvert: _s.etat.enCombat,
       titre: 'Compétences',
       icone: Icons.bolt_outlined,
       children: [
@@ -640,11 +852,23 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final nom = attaquant.nom;
     final attaques = _attaques();
     final pasDeCible = _visibilite == VisibiliteJet.unJoueur && _cible == null;
-    final favoris = fiche == null ? null : _groupeFavoris(fiche, pasDeCible);
+    final fav = fiche?.personnage.favoris ?? const <String>{};
+    final aptitudes = fiche == null ? const <JetSavoir>[] : _aptitudes(fiche);
+    final favoris = fiche == null
+        ? null
+        : _groupeFavoris(fiche, pasDeCible, attaques, aptitudes);
+    // Groupes ouverts au départ selon le mode : combat et compétences en
+    // combat, statistiques et aptitudes en exploration.
+    final combat = _s.etat.enCombat;
+    final mode = _s.etat.mode.name;
+    final attaquesAffichees = [
+      for (final a in attaques)
+        if (fiche == null || !fav.contains('att:${a.libelle}')) a,
+    ];
     final sortsHorsFavoris = [
       for (final s in fiche?.sorts ??
           const <({Competence competence, int rangSort, int cout})>[])
-        if (!fiche!.personnage.favoris.contains(s.competence.nom)) s,
+        if (!fav.contains(s.competence.nom)) s,
     ];
     return ListView(
       key: const Key('panneau-des'),
@@ -733,13 +957,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             label: const Text('Lancer'),
           ),
         ],
-        if (_resultat != null) ...[
+        if (_dernier case final d?) ...[
           const SizedBox(height: 12),
-          Text(
-            _resultat!,
-            key: const Key('resultat-seance'),
-            style: theme.textTheme.titleMedium,
-          ),
+          _CarteResultat(resultat: d),
         ],
         if (_alerte != null) ...[
           const SizedBox(height: 8),
@@ -762,71 +982,69 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           ),
         ],
         const SizedBox(height: 8),
-        // Favoris en tête : les compétences et sorts les plus utilisés.
+        // Favoris en tête : les actions les plus utilisées.
         if (favoris != null) favoris,
+        // Situations à cocher (comme sur la page dé) : ajoutées aux jets.
+        if (fiche != null && BlocSituations.aDuContenu(fiche))
+          _GroupeJets(
+            cle: 'groupe-situations',
+            titre: _situations.isEmpty
+                ? 'Situations'
+                : 'Situations (${_situations.length})',
+            icone: Icons.tune,
+            ouvert: false,
+            children: [
+              BlocSituations(
+                fiche: fiche,
+                situations: _situations,
+                cleSituation: cleSituation,
+                onSituation: (cle) => setState(() {
+                  if (!_situations.remove(cle)) _situations.add(cle);
+                }),
+              ),
+            ],
+          ),
         if (attaques.isNotEmpty)
           _GroupeJets(
             cle: 'groupe-combat',
+            memoire: 'groupe-combat-$mode',
+            ouvert: combat,
             titre: 'Combat · $nom',
             icone: Icons.sports_martial_arts,
             children: [
               // Attaques du personnage ou de la créature sélectionnée.
-              ...[
-                InputDecorator(
-                  decoration: const InputDecoration(labelText: 'Cible'),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      key: const Key('cible-attaque'),
-                      isDense: true,
-                      isExpanded: true,
-                      value: _cibleEnCours,
-                      items: [
-                        for (final c in _s.cibles)
-                          DropdownMenuItem(
-                            value: c.id,
-                            child: Text(c.nom, overflow: TextOverflow.ellipsis),
-                          ),
-                        const DropdownMenuItem(
-                            value: 'soi', child: Text('Soi-même')),
-                        const DropdownMenuItem(
-                            value: '', child: Text('Aucune cible')),
-                      ],
-                      onChanged: (v) => setState(() => _cibleAttaque = v),
-                    ),
+              InputDecorator(
+                decoration: const InputDecoration(labelText: 'Cible'),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    key: const Key('cible-attaque'),
+                    isDense: true,
+                    isExpanded: true,
+                    value: _cibleEnCours,
+                    items: [
+                      for (final c in _s.cibles)
+                        DropdownMenuItem(
+                          value: c.id,
+                          child: Text(c.nom, overflow: TextOverflow.ellipsis),
+                        ),
+                      const DropdownMenuItem(
+                          value: 'soi', child: Text('Soi-même')),
+                      const DropdownMenuItem(
+                          value: '', child: Text('Aucune cible')),
+                    ],
+                    onChanged: (v) => setState(() => _cibleAttaque = v),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final (i, a) in attaques.indexed)
-                      ActionChip(
-                        key: Key('attaque-$i'),
-                        label: Text(
-                            '${a.libelle} : ${formaterJet(a.des, a.bonus)}'),
-                        onPressed: pasDeCible
-                            ? null
-                            : () {
-                                if (!a.degats) _verifierAttaque();
-                                _lancerFormule(
-                                  a.libelle,
-                                  a.des,
-                                  a.bonus,
-                                  contreCa: !a.degats,
-                                  parAttaquant: true,
-                                  avecCible: true,
-                                  degats: a.degats,
-                                  type: a.type,
-                                  genre: a.degats
-                                      ? GenreJet.degats
-                                      : GenreJet.attaque,
-                                );
-                              },
-                      ),
-                  ],
-                ),
-              ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final (i, a) in attaquesAffichees.indexed)
+                    _puceAttaque(fiche, a, 'attaque-$i', pasDeCible),
+                ],
+              ),
             ],
           ),
         // Sorts : dépensent leur coût, puis lancent leurs dés.
@@ -858,6 +1076,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         if (fiche != null) ...[
           _GroupeJets(
             cle: 'groupe-stats',
+            memoire: 'groupe-stats-$mode',
+            ouvert: !combat,
             titre: 'Statistiques',
             icone: Icons.bar_chart,
             children: [
@@ -866,69 +1086,186 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 runSpacing: 6,
                 children: [
                   for (final c in Carac.values)
-                    ActionChip(
-                      key: Key('test-seance-${c.code}'),
-                      label: Text(
-                        '${c.abrev} ${formaterModificateur(fiche.mod(c))}',
-                      ),
-                      onPressed: pasDeCible
-                          ? null
-                          : () => _lancerFormule(
-                                'Test de ${c.abrev}',
-                                '1d20',
-                                fiche.mod(c),
-                                parAttaquant: true,
-                                genre: GenreJet.test,
-                              ),
-                    ),
+                    if (!fav.contains('stat:${c.code}'))
+                      _puceStat(fiche, c, 'test-seance-${c.code}', pasDeCible),
                 ],
               ),
             ],
           ),
-          // Connaissances et aptitudes : replié, la liste est longue.
+          // Connaissances et aptitudes.
           _GroupeJets(
             cle: 'groupe-aptitudes',
+            memoire: 'groupe-aptitudes-$mode',
+            ouvert: !combat,
             titre: 'Aptitudes',
             icone: Icons.school_outlined,
-            ouvert: false,
             children: [
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: [
                   for (final (i, j) in [
-                    ...jetsSavoirs(
-                      fiche,
-                      _s.referentiel.aptitudes,
-                      FamilleAptitude.savoir,
-                    ),
-                    ...jetsSavoirs(
-                      fiche,
-                      _s.referentiel.aptitudes,
-                      FamilleAptitude.savoirFaire,
-                    ),
+                    for (final j in aptitudes)
+                      if (!fav.contains('apt:${j.libelle}')) j,
                   ].indexed)
-                    ActionChip(
-                      key: Key('aptitude-seance-$i'),
-                      label: Text(
-                        '${j.libelle} ${formaterModificateur(fiche.mod(j.carac) + j.total)}',
-                      ),
-                      onPressed: pasDeCible
-                          ? null
-                          : () => _lancerFormule(
-                                j.libelle,
-                                '1d20',
-                                fiche.mod(j.carac) + j.total,
-                                parAttaquant: true,
-                                genre: GenreJet.test,
-                              ),
-                    ),
+                    _puceAptitude(fiche, j, 'aptitude-seance-$i', pasDeCible),
                 ],
               ),
             ],
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Dernier jet lancé depuis le panneau.
+class _Resultat {
+  const _Resultat({
+    required this.libelle,
+    required this.total,
+    required this.detail,
+    required this.touche,
+    required this.ca,
+    required this.note,
+    required this.critique,
+    required this.echec,
+    required this.avantage,
+    required this.secret,
+    required this.sansDes,
+    required this.erreur,
+  });
+
+  final String libelle;
+  final int total;
+  final String detail;
+  final bool? touche;
+  final int? ca;
+
+  /// Pourquoi l'attaque n'est pas comparée à une CA.
+  final String note;
+  final bool critique;
+  final bool echec;
+  final bool avantage;
+
+  /// Jet caché au joueur lui-même (MJ seul).
+  final bool secret;
+  final bool sansDes;
+  final String? erreur;
+}
+
+/// Résultat lisible : grand total coloré, libellé, détail, touché ou raté.
+class _CarteResultat extends StatelessWidget {
+  const _CarteResultat({required this.resultat});
+
+  final _Resultat resultat;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final r = resultat;
+    final sombre = theme.brightness == Brightness.dark;
+    final vert = sombre ? OdvCouleurs.lightGreen : OdvCouleurs.darkGreen;
+    final rouge = scheme.error;
+    if (r.erreur case final e?) {
+      return Text(
+        e,
+        key: const Key('resultat-seance'),
+        style: TextStyle(color: rouge),
+      );
+    }
+    if (r.secret || r.sansDes) {
+      return Card(
+        key: const Key('resultat-seance'),
+        margin: EdgeInsets.zero,
+        child: ListTile(
+          leading: Icon(r.secret ? Icons.lock_outline : Icons.check),
+          title: Text(
+            r.secret ? 'Jet envoyé au MJ : résultat caché.' : r.libelle,
+          ),
+          subtitle: r.secret ? null : const Text('Action lancée'),
+        ),
+      );
+    }
+    final couleur = r.critique || r.touche == true
+        ? vert
+        : r.echec || r.touche == false
+            ? rouge
+            : OdvCouleurs.or;
+    final verdict = [
+      if (r.critique) 'Réussite critique !',
+      if (r.echec) 'Échec critique !',
+      if (r.touche == true) 'Touché (CA ${r.ca})',
+      if (r.touche == false) 'Raté',
+      if (r.note.isNotEmpty) r.note,
+    ].join(' · ');
+    return Card(
+      key: const Key('resultat-seance'),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: couleur, width: 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: couleur.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: FittedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    '${r.total}',
+                    key: const Key('resultat-total'),
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: couleur,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    r.libelle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  if (verdict.isNotEmpty)
+                    Text(
+                      verdict,
+                      key: const Key('resultat-verdict'),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: couleur,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  const SizedBox(height: 2),
+                  Text(
+                    r.detail,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -941,9 +1278,14 @@ class _GroupeJets extends StatelessWidget {
     required this.icone,
     required this.children,
     this.ouvert = true,
+    this.memoire,
   });
 
   final String cle;
+
+  /// Clé de l'état ouvert / replié (par mode de jeu : chaque mode garde le
+  /// sien) ; [cle] par défaut.
+  final String? memoire;
   final String titre;
   final IconData icone;
   final List<Widget> children;
@@ -956,7 +1298,7 @@ class _GroupeJets extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
-        key: PageStorageKey(cle),
+        key: PageStorageKey(memoire ?? cle),
         initiallyExpanded: ouvert,
         leading: Icon(icone, color: scheme.primary),
         title: Text(titre, overflow: TextOverflow.ellipsis),
