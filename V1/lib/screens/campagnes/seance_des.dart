@@ -124,6 +124,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   /// Dernier résultat affiché.
   _Resultat? _dernier;
 
+  /// Dégâts des attaques de créature sans jet d'attaque (libellé → note) :
+  /// le joueur visé peut esquiver.
+  final Map<String, String> _sansJet = {};
+
   /// Situations cochées (« +1 en forêt »…), comme sur la page dé.
   final Set<String> _situations = {};
 
@@ -179,11 +183,18 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       }
     }
 
+    _sansJet.clear();
     if (a.creature case final c?) {
       for (final x in c.attaques) {
         ajouter('${x.nom} · toucher', x.toucher, 0);
-        ajouter('${x.nom} · dégâts', x.degats, 0,
-            type: typeDegatsDepuis(x.degats));
+        // « 4d6 (de son élément) » : la formule en tête suffit.
+        final des = lireFormule(x.degats) != null
+            ? x.degats
+            : RegExp(r'^\d+d\d+(\s*[+-]\s*\d+)?').stringMatch(x.degats) ?? '';
+        ajouter('${x.nom} · dégâts', des, 0, type: typeDegatsDepuis(x.degats));
+        if (x.toucher.isEmpty && des.isNotEmpty) {
+          _sansJet['${x.nom} · dégâts'] = x.note;
+        }
       }
     }
     if (a.fiche case final f?) {
@@ -402,11 +413,21 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     );
     if (erreur == null && degats) {
       final cible = _cibleEnCours == 'soi' ? _s.idAttaquant : _cibleEnCours;
+      // Attaque sans jet d'attaque sur un joueur : il pourra esquiver.
+      int? esquive;
+      var moitie = false;
+      final note = _sansJet[libelle];
+      if (note != null && _s.joueurs.any((m) => m.uid == cible)) {
+        esquive = await _demanderDifficulte(libelle);
+        moitie = note.toLowerCase().contains('moitié');
+      }
       await _s.infligerDegats(
         cible,
         total,
         '${_s.attaquant.nom} · $libelle',
         type: type,
+        esquive: esquive,
+        moitie: moitie,
       );
     }
     // Jet du personnage : inscrit dans son historique, avec la séance.
@@ -437,6 +458,46 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         erreur: erreur,
       );
     });
+  }
+
+  /// Difficulté du jet d'esquive demandé au joueur (15 par défaut) ;
+  /// `null` : dégâts appliqués sans esquive.
+  Future<int?> _demanderDifficulte(String libelle) {
+    final champ = TextEditingController(text: '15');
+    return showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(libelle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Pas de jet d'attaque : le joueur peut esquiver. "
+                "Difficulté du jet d'esquive :"),
+            const SizedBox(height: 8),
+            TextField(
+              key: const Key('difficulte-esquive'),
+              controller: champ,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            key: const Key('sans-esquive'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Sans esquive'),
+          ),
+          FilledButton(
+            key: const Key('demander-esquive'),
+            onPressed: () =>
+                Navigator.pop(context, int.tryParse(champ.text.trim()) ?? 15),
+            child: const Text("Demander l'esquive"),
+          ),
+        ],
+      ),
+    ).whenComplete(champ.dispose);
   }
 
   /// Jets de compétences (hors sorts et attaques), lançables ici.
@@ -667,6 +728,11 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 a.libelle,
                 a.des,
                 a.bonus,
+                carac: a.libelle == 'Toucher CaC'
+                    ? Carac.adc
+                    : a.libelle == 'Toucher distance'
+                        ? Carac.adt
+                        : null,
                 contreCa: !a.degats,
                 parAttaquant: true,
                 avecCible: true,

@@ -13,6 +13,7 @@ import '../models/historique.dart';
 import '../models/objet.dart';
 import '../models/personnage.dart';
 import '../models/seance.dart';
+import '../regles/des.dart';
 import '../regles/fiche_calculee.dart';
 import 'campagnes_controller.dart';
 import 'personnages_controller.dart';
@@ -901,11 +902,15 @@ class SeanceController extends ChangeNotifier {
 
   /// Envoie des dégâts à la cible : retirés de ses PV par le joueur (sa
   /// fiche, après sa RD) ou par le MJ (créature : pas de RD au bestiaire).
+  /// [esquive] : difficulté du jet d'esquive du joueur visé (attaque sans
+  /// jet d'attaque) ; [moitie] : esquive réussie = moitié des dégâts.
   Future<String?> infligerDegats(
     String cible,
     int montant,
     String source, {
     String type = 'physique',
+    int? esquive,
+    bool moitie = false,
   }) {
     return _agir((s, c) async {
       if (montant <= 0 || cible.isEmpty) return;
@@ -918,15 +923,99 @@ class SeanceController extends ChangeNotifier {
           montant: montant,
           source: source,
           type: type,
+          difficulteEsquive: esquive,
+          moitieSiEsquive: moitie,
         ),
       );
     });
+  }
+
+  /// Attaques sans jet d'attaque qui visent ce joueur : il choisit
+  /// d'esquiver ou de subir les dégâts.
+  final List<DegatsSeance> _esquives = [];
+  List<DegatsSeance> get esquivesEnAttente => List.unmodifiable(_esquives);
+
+  /// Une seule esquive par tour de combat (règles §3.3).
+  bool get esquiveUtilisee =>
+      _etat.enCombat &&
+      _jets.any(
+        (j) =>
+            j.auteur == uid &&
+            j.libelle.startsWith("Jet d'esquive") &&
+            j.mode == ModeJeu.combat &&
+            j.manche == _etat.manche,
+      );
+
+  /// Réponse du joueur à une attaque sans jet : [esquiver] lance
+  /// 1d20 + bonus d'esquive contre la difficulté ; réussi, aucun dégât (ou
+  /// la moitié pour un souffle). Renvoie le jet et les dégâts subis.
+  Future<({ResultatLancer? jet, int subis})> repondreEsquive(
+    DegatsSeance d, {
+    required bool esquiver,
+    math.Random? aleatoire,
+  }) async {
+    _esquives.removeWhere((x) => x.id == d.id);
+    _degatsPris.add(d.id);
+    final f = maFiche;
+    ResultatLancer? r;
+    var montant = d.montant;
+    if (esquiver && f != null && !esquiveUtilisee) {
+      r = ResultatLancer.lancer(
+        libelle: "Jet d'esquive",
+        de: '1d20',
+        bonus: f.bonusJetEsquive,
+        origineBonus: 'esquive',
+        difficulte: d.difficulteEsquive,
+        aleatoire: aleatoire,
+      );
+      if (r != null) {
+        final ok = r.reussite ?? false;
+        montant = !ok
+            ? d.montant
+            : d.moitieSiEsquive
+                ? d.montant ~/ 2
+                : 0;
+        final issue = !ok
+            ? 'esquive ratée'
+            : d.moitieSiEsquive
+                ? 'esquive réussie : moitié des dégâts'
+                : 'esquive réussie : aucun dégât';
+        await lancer(
+          libelle: "Jet d'esquive · ${d.source}",
+          detail: '${r.detail} · $issue',
+          total: r.total,
+          visibilite: VisibiliteJet.tous,
+          genre: GenreJet.test,
+        );
+        await journaliserJet(
+            f, "Jet d'esquive : ${r.total} (${r.detail}) · $issue");
+      }
+    }
+    notifyListeners();
+    if (montant <= 0) {
+      await _agir((s, c) async {
+        await s.prendreDegats(c, d.id);
+      });
+    } else {
+      _fileDegats =
+          _fileDegats.then((_) => _appliquerDegats(d.copie(montant: montant)));
+      await _fileDegats;
+    }
+    return (jet: r, subis: montant);
   }
 
   void _traiterDegats() {
     for (final d in _degats) {
       // Sa fiche doit être chargée pour lui retirer des PV.
       if (d.cible == uid && maFiche == null) continue;
+      // Attaque sans jet : le joueur répond d'abord (esquive).
+      if (d.cible == uid && d.difficulteEsquive != null) {
+        if (!_degatsPris.contains(d.id) &&
+            !_esquives.any((x) => x.id == d.id)) {
+          _esquives.add(d);
+        }
+        continue;
+      }
       if (!_degatsPris.add(d.id)) continue;
       _fileDegats = _fileDegats.then((_) => _appliquerDegats(d));
     }

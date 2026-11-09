@@ -300,6 +300,18 @@ class VoieDetail extends StatelessWidget {
       titre: voie.nom,
       sousTitre: _sousTitre,
       enfants: [
+        if (voie.description.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              voie.description,
+              key: Key('description-${voie.id}'),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontStyle: FontStyle.italic),
+            ),
+          ),
         for (final c in voie.competences) ...[
           LigneCompetence(
             competence: c,
@@ -405,7 +417,21 @@ IconData iconeEffet(Effet e) {
     case 'renforcement':
       return Icons.add_circle_outline;
   }
-  return Icons.chevron_right;
+  // Effet sans icône propre : un simple point.
+  return Icons.circle;
+}
+
+/// Icône d'un effet à la taille voulue ; le point est plus petit.
+Widget iconeEffetWidget(Effet e, {required double taille, Color? couleur}) {
+  final icone = iconeEffet(e);
+  if (icone != Icons.circle) {
+    return Icon(icone, size: taille, color: couleur);
+  }
+  return SizedBox(
+    width: taille,
+    height: taille,
+    child: Center(child: Icon(Icons.circle, size: 6, color: couleur)),
+  );
 }
 
 /// Effets détaillés d'un passif ou d'une compétence, en puces à icône.
@@ -432,10 +458,10 @@ class ListeEffets extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Icon(
-                    iconeEffet(e),
-                    size: 15,
-                    color: attenue ? scheme.outline : scheme.primary,
+                  child: iconeEffetWidget(
+                    e,
+                    taille: 15,
+                    couleur: attenue ? scheme.outline : scheme.primary,
                   ),
                 ),
                 const SizedBox(width: 6),

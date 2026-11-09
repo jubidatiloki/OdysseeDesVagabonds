@@ -893,10 +893,14 @@ class Voie {
     required this.nom,
     this.competences = const [],
     this.univers = kUniversParDefaut,
+    this.description = '',
   });
 
   final String id;
   final String nom;
+
+  /// Présentation de la voie (facultative).
+  final String description;
   final List<Competence> competences;
 
   /// Univers de la voie (id, voir `Univers`).
@@ -927,6 +931,7 @@ class Voie {
             .toList()
           ..sort((a, b) => a.rang.compareTo(b.rang)),
         univers: universDepuisJson(j['univers']),
+        description: j['description'] as String? ?? '',
       );
 }
 

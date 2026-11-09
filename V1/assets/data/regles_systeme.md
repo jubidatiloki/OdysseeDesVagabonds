@@ -116,7 +116,7 @@
 | Cotte de mailles | +3 | +2 |
 | Plaques | +6 | +1 |
 
-Le bonus de DEX à la CA et à l'esquive ne dépasse pas la limite de l'armure portée (un malus de DEX compte en entier). Casque et bouclier ajoutent leur CA sans limiter la DEX.
+Le bonus de DEX à la CA et à l'esquive ne dépasse pas la limite de l'armure portée (un malus de DEX compte en entier). Le casque ajoute sa CA sans limiter la DEX ; le bouclier aussi, sauf s'il a une limite de DEX (pavois : +1), que la compétence « Formation » du guerrier annule.
 
 ### Esquive
 

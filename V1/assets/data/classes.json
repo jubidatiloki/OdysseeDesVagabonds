@@ -1403,14 +1403,15 @@
       {
         "id": "guerrier-bouclier",
         "nom": "Voie du bouclier",
+        "description": "Le guerrier fait de son bouclier un rempart : il le porte sans gêne, se met à couvert, protège ses alliés et finit par arrêter jusqu'aux sorts.",
         "competences": [
           {
             "rang": 1,
             "nom": "Formation",
             "type": "passif",
-            "effet": "Le bouclier n'applique pas d'encombrement de CA.",
+            "effet": "Le bouclier n'applique pas d'encombrement de CA : sa limite de DEX (pavois : +1) ne compte pas, ni pour la CA ni pour l'esquive.",
             "effets": [
-              {"type": "texte", "effet": "Le bouclier n'applique pas d'encombrement de CA."}
+              {"type": "bouclier", "valeur": "sans-limite-dex", "effet": "La limite de DEX du bouclier ne compte pas (CA et esquive)."}
             ]
           },
           {
@@ -1472,14 +1473,15 @@
       {
         "id": "guerrier-melee",
         "nom": "Voie de la mêlée",
+        "description": "L'art de frapper juste au corps à corps : entraînement au toucher, attaques précises ou brutales, arme de prédilection, puis combat à deux armes.",
         "competences": [
           {
             "rang": 1,
             "nom": "Entraînement martial",
             "type": "passif",
-            "effet": "+1 AdC par rang (au toucher).",
+            "effet": "+1 par rang au test d'aptitude de combat (AdC) pour toucher au corps à corps.",
             "effets": [
-              {"type": "test", "categorie": "ADC", "valeur": "RANG"}
+              {"type": "toucher", "valeur": "RANG", "si": "cac", "effet": "+1 par rang au test d'aptitude de combat (AdC) pour toucher au corps à corps."}
             ]
           },
           {
@@ -1487,7 +1489,7 @@
             "endurance": 1,
             "nom": "Frappe de précision",
             "type": "actif",
-            "effet": "Attaque avec un d12 ; si touche, +2D6 DMG.",
+            "effet": "Attaque : jet pour toucher avec un d12 (au lieu du d20) ; si elle touche, +2D6 DMG.",
             "jets": [
               {"libelle": "Frappe de précision", "des": "1d12", "carac": "ADC", "attaque": {"degatsEnPlus": "2d6"}}
             ]
@@ -1543,6 +1545,7 @@
       {
         "id": "guerrier-guerre",
         "nom": "Voie de la guerre",
+        "description": "Le soldat des lignes de front : il tient sa place dans les rangs, punit chaque attaque manquée et ne recule jamais d'un pas.",
         "competences": [
           {
             "rang": 1,
@@ -1557,7 +1560,7 @@
             "rang": 2,
             "nom": "Contre-attaque",
             "type": "passif",
-            "effet": "Si une attaque de contact contre lui rate d'au moins 5 sous sa CA : attaque gratuite avec un d12 (1×/tour max).",
+            "effet": "Si une attaque de contact contre lui rate d'au moins 5 sous sa CA : attaque gratuite, avec un d12 (au lieu du d20) pour toucher (1×/tour max).",
             "jets": [
               {"libelle": "Contre-attaque", "des": "1d12", "carac": "ADC", "attaque": {}}
             ]
@@ -1566,9 +1569,9 @@
             "rang": 3,
             "nom": "Contre-attaque améliorée",
             "type": "renforcement",
-            "effet": "Idem avec un d20, jusqu'à 2×/tour.",
+            "effet": "Idem, mais le jet pour toucher se fait avec un d20, jusqu'à 2×/tour.",
             "effets": [
-              {"type": "renforcement", "nom": "Contre-attaque", "effet": "Attaque gratuite avec un d20, jusqu'à 2×/tour."}
+              {"type": "renforcement", "nom": "Contre-attaque", "effet": "Attaque gratuite, jet pour toucher avec un d20, jusqu'à 2×/tour."}
             ],
             "jets": [
               {"libelle": "Contre-attaque", "des": "1d20", "carac": "ADC", "attaque": {}}
@@ -1614,6 +1617,7 @@
       {
         "id": "guerrier-polyvalence",
         "nom": "Voie de la polyvalence",
+        "description": "Le combattant à toutes armes : il maîtrise le tir, passe d'une posture à l'autre et change d'arme pour surprendre l'adversaire.",
         "competences": [
           {
             "rang": 1,

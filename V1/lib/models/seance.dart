@@ -580,9 +580,30 @@ class DegatsSeance {
     required this.montant,
     required this.source,
     this.type = 'physique',
+    this.difficulteEsquive,
+    this.moitieSiEsquive = false,
   });
 
   final String id;
+
+  /// Attaque sans jet d'attaque (souffle, bond…) : le joueur visé fait
+  /// d'abord un jet d'esquive contre cette difficulté, donnée par le MJ.
+  final int? difficulteEsquive;
+
+  /// Esquive réussie : moitié des dégâts (souffle) ; sinon, aucun dégât.
+  final bool moitieSiEsquive;
+
+  DegatsSeance copie({String? id, int? montant}) => DegatsSeance(
+        id: id ?? this.id,
+        cible: cible,
+        destinataire: destinataire,
+        auteur: auteur,
+        montant: montant ?? this.montant,
+        source: source,
+        type: type,
+        difficulteEsquive: difficulteEsquive,
+        moitieSiEsquive: moitieSiEsquive,
+      );
 
   /// uid du joueur, ou id de la créature.
   final String cible;
@@ -605,6 +626,8 @@ class DegatsSeance {
         'montant': montant,
         'source': source,
         'type': type,
+        if (difficulteEsquive != null) 'esquive': difficulteEsquive,
+        if (moitieSiEsquive) 'moitie': true,
       };
 
   factory DegatsSeance.depuisJson(String id, Map<String, dynamic> j) =>
@@ -616,6 +639,8 @@ class DegatsSeance {
         montant: (j['montant'] as num?)?.toInt() ?? 0,
         source: j['source'] as String? ?? '',
         type: j['type'] as String? ?? 'physique',
+        difficulteEsquive: (j['esquive'] as num?)?.toInt(),
+        moitieSiEsquive: j['moitie'] as bool? ?? false,
       );
 }
 

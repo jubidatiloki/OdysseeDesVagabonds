@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import '../../models/aptitude.dart';
 import '../../models/langues.dart';
 import '../../models/classe.dart';
+import '../../models/personnage.dart';
 import '../../models/race.dart';
 import '../../models/voie.dart';
+import '../../regles/fiche_calculee.dart';
+import '../../regles/maitrises.dart';
 import '../../regles/progression.dart';
 import '../../widgets/cadre_repliable.dart';
 import '../../widgets/libelles_sort.dart';
@@ -116,11 +119,21 @@ class EtapeCompetences extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              restants == 0
-                  ? 'Tous les points sont dépensés'
-                  : 'Points disponibles',
-              style: theme.textTheme.titleMedium,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  restants == 0
+                      ? 'Tous les points sont dépensés'
+                      : 'Points disponibles',
+                  style: theme.textTheme.titleMedium,
+                ),
+                Text(
+                  'Les points non dépensés pourront être utilisés plus tard.',
+                  key: const Key('points-plus-tard'),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
             ),
           ),
           Text(
@@ -302,6 +315,35 @@ class EtapeCompetences extends StatelessWidget {
             ],
         ];
 
+    // Maîtrises du personnage : armes, instruments, langues (classe, race
+    // et compétences choisies).
+    final fiche = FicheCalculee(
+      personnage: Personnage(
+        id: 'creation',
+        nom: '',
+        raceId: race.id,
+        classeId: classe.id,
+        niveau: niveau,
+        rangsVoies: rangsVoies,
+        aptitudes: aptitudes,
+      ),
+      race: race,
+      classe: classe,
+    );
+    final armes = <String>[];
+    for (final m in [
+      ...classe.maitrisesArmes,
+      ...race.maitrisesArmes,
+      ...fiche.armesMaitrisees,
+    ]) {
+      final l = libelleMaitriseArme(m);
+      if (!armes.contains(l)) armes.add(l);
+    }
+    ajouter('Armes maîtrisées', Icons.gavel, armes);
+    ajouter('Instruments', Icons.music_note_outlined, [
+      for (final i in fiche.instrumentsMaitrises) i.nom,
+    ]);
+    ajouter('Langues', Icons.translate, fiche.langues);
     if (race.voieRaciale case final v?) {
       ajouter(
           v.nom, _iconeRace, competences(v, Progression.rangRacial(niveau)));

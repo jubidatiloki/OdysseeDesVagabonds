@@ -29,6 +29,36 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.45.0',
+    date: '09/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : attaque sans jet (souffle, bond) sur un PJ : esquive '
+            'de réaction contre la difficulté du MJ.',
+      ),
+      (
+        type: _c,
+        texte: 'Guerrier : Entraînement martial ajoute bien +RANG au toucher '
+            'au contact ; Formation gérée.',
+      ),
+      (
+        type: _m,
+        texte: 'Guerrier : textes précisés (d12 pour toucher, aptitude de '
+            'combat) et descriptions des voies.',
+      ),
+      (
+        type: _m,
+        texte: 'Voies : puces en points au lieu de flèches.',
+      ),
+      (
+        type: _m,
+        texte: 'Création : armes, instruments et langues maîtrisés à gauche ; '
+            'points gardés pour plus tard.',
+      ),
+    ],
+  ),
+  (
     version: '0.44.0',
     date: '09/11/2026',
     changements: [

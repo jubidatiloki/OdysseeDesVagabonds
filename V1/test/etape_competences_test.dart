@@ -52,6 +52,10 @@ void main() {
     ));
     await tester.pumpAndSettle();
     final haut = tester.getTopLeft(find.byKey(const Key('bandeau-points'))).dy;
+    // Les points restants servent plus tard ; maîtrises listées à gauche.
+    expect(find.byKey(const Key('points-plus-tard')), findsOneWidget);
+    expect(find.textContaining('Armes maîtrisées ('), findsWidgets);
+    expect(find.textContaining('Langues ('), findsWidgets);
 
     // Trois cadres : connaissances, aptitudes (savoir-faire), maîtrises.
     for (final f in FamilleAptitude.values) {

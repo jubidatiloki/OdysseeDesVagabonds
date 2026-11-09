@@ -1324,6 +1324,52 @@ void main() {
       expect(find.byKey(const Key('pj-voient-ressources')), findsNothing);
     });
 
+    testWidgets('attaque sans jet : le joueur subit ou esquive',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      final mj = ServiceCampagnesMemoire(x.base, 'mj').seance;
+      Future<void> souffle(int montant) async {
+        await mj.envoyerDegats(
+          x.campagne,
+          DegatsSeance(
+            cible: 'j1',
+            destinataire: 'j1',
+            auteur: 'mj',
+            montant: montant,
+            source: 'Dragon · Souffle · dégâts',
+            type: 'feu',
+            difficulteEsquive: 15,
+            moitieSiEsquive: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      final partie = x.base.parties[x.campagne.id]!;
+      // Rien n'est retiré tant que le joueur n'a pas répondu.
+      await souffle(4);
+      final id = partie.degats.single.id;
+      expect(find.byKey(Key('esquive-$id')), findsOneWidget);
+      expect(find.text('10/10'), findsOneWidget);
+      await tap(tester, find.byKey(Key('subir-$id')));
+      expect(partie.degats, isEmpty);
+      expect(find.text('6/10'), findsOneWidget);
+      // Esquive : jet lancé contre 15, noté dans les logs.
+      await souffle(4);
+      final id2 = partie.degats.single.id;
+      await tap(tester, find.byKey(Key('esquiver-$id2')));
+      await tester.pumpAndSettle();
+      expect(partie.degats, isEmpty);
+      final jet = partie.jets.last;
+      expect(jet.libelle, "Jet d'esquive · Dragon · Souffle · dégâts");
+      expect(jet.detail, contains('diff. 15'));
+      final reussi = jet.detail.contains('esquive réussie');
+      expect(find.text(reussi ? '4/10' : '2/10'), findsOneWidget);
+      expect(find.byKey(Key('esquive-$id2')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('dégâts reçus : retirés de la fiche du joueur, carte à jour',
         (tester) async {
       final x = await ouvrir(tester, 'j1', fiches: [_brom()]);

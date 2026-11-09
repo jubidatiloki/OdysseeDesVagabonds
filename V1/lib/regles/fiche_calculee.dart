@@ -1055,6 +1055,14 @@ class FicheCalculee {
         for (final s in effetsActifs)
           if (s.effet.typeNormalise == 'toucher' && s.effet.si.isEmpty)
             (nom: s.nom, valeur: s.effet.valeurEntiere ?? 0)
+          // « cac » / « distance » : seulement les attaques de cette portée
+          // (Entraînement martial : +RANG au toucher au contact).
+          else if (s.effet.typeNormalise == 'toucher' &&
+              (s.effet.si == 'cac' || s.effet.si == 'distance'))
+            if ((s.effet.si == 'distance') == distance)
+              (nom: s.nom, valeur: s.effet.valeurEntiere ?? 0)
+            else
+              ...const <BonusSituation>[]
           // Pugilat : +RANG au toucher à mains nues (aucune arme de CaC).
           else if (s.effet.typeNormalise == 'toucher' &&
               s.effet.si == 'mains-nues')
@@ -1769,8 +1777,15 @@ class FicheCalculee {
   /// +1) ; `null` : aucune limite.
   int? get limiteDex {
     int? limite;
+    // Formation (guerrier) : la limite de DEX du bouclier ne compte pas.
+    final sansBouclier = effetsActifs.any(
+      (s) =>
+          s.effet.typeNormalise == 'bouclier' &&
+          s.effet.valeur == 'sans-limite-dex',
+    );
     for (final o in personnage.inventaire) {
       final m = o.dexMax;
+      if (sansBouclier && o.categorie == CategorieObjet.bouclier) continue;
       if (o.equipe && o.categorie.protection && m != null) {
         limite = limite == null ? m : math.min(limite, m);
       }

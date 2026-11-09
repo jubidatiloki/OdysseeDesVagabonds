@@ -15,6 +15,7 @@ import 'package:odyssee_vagabonds/regles/des.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/screens/de_screen.dart';
 import 'package:odyssee_vagabonds/state/historique_lancers.dart';
+import 'package:odyssee_vagabonds/widgets/voie_detail.dart';
 import 'package:odyssee_vagabonds/state/personnages_controller.dart';
 import 'package:odyssee_vagabonds/state/preferences_controller.dart';
 
@@ -111,18 +112,51 @@ void main() {
     expect(sansBouclier.usages.single.periode, 'par combat');
   });
 
+  test('bouclier : Formation annule la limite de DEX du pavois', () {
+    final pavois = Objet(
+      nom: 'Pavois',
+      categorie: CategorieObjet.bouclier,
+      bonusCA: 3,
+      dexMax: 1,
+      equipe: true,
+    );
+    final sans = _fiche(inventaire: [_epee(), pavois]);
+    expect(sans.limiteDex, 1);
+    final avec = _fiche(
+      rangs: {'guerrier-bouclier': 1},
+      inventaire: [_epee(), pavois],
+    );
+    expect(avec.limiteDex, isNull);
+    expect(avec.classeArmure, greaterThanOrEqualTo(sans.classeArmure));
+  });
+
+  testWidgets('voies : description et puces en points', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: VoieDetail(voie: _guerrier.voies.first),
+        ),
+      ),
+    ));
+    if (find
+        .byKey(const Key('description-guerrier-bouclier'))
+        .evaluate()
+        .isEmpty) {
+      await tester.tap(find.text('Voie du bouclier'));
+      await tester.pumpAndSettle();
+    }
+    expect(
+        find.byKey(const Key('description-guerrier-bouclier')), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsNothing);
+  });
+
   test('mêlée : entraînement martial, frappe au d12, coup de boucher', () {
     final r3 = _fiche(rangs: {'guerrier-melee': 3});
     // « Formation » renommée : un seul nom par compétence.
     expect(_guerrier.voies[1].competence(1)!.nom, 'Entraînement martial');
-    expect(
-      r3.bonusTestsPermanents
-          .where((s) => s.effet.carac == Carac.adc)
-          .single
-          .effet
-          .valeurEntiere,
-      3,
-    );
+    // +RANG au toucher au contact (09/11/2026), pas à distance.
+    expect(r3.toucherCac, base.toucherCac + 3);
+    expect(r3.toucherDistance, base.toucherDistance);
     // Toucher seulement : l'esquive ne bouge pas.
     expect(r3.caCac, base.caCac);
     final frappe = r3.jetsCompetences

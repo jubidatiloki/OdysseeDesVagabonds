@@ -1222,10 +1222,10 @@ class _LigneBonus extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Icon(
-              iconeEffet(source.effet),
-              size: 16,
-              color: scheme.primary,
+            child: iconeEffetWidget(
+              source.effet,
+              taille: 16,
+              couleur: scheme.primary,
             ),
           ),
           const SizedBox(width: 8),

@@ -302,14 +302,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
 
   @override
   Future<void> envoyerDegats(Campagne c, DegatsSeance degats) async {
-    _partie(c).degats.add(DegatsSeance(
-          id: base.nouvelId(),
-          cible: degats.cible,
-          destinataire: degats.destinataire,
-          auteur: degats.auteur,
-          montant: degats.montant,
-          source: degats.source,
-        ));
+    _partie(c).degats.add(degats.copie(id: base.nouvelId()));
     base.signaler();
   }
 
