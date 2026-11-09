@@ -147,6 +147,16 @@ Le bonus de DEX à la CA et à l'esquive ne dépasse pas la limite de l'armure p
 | Immobilisation | Action de mouvement impossible |
 | Réduit au silence | Incapable de produire un son |
 | Réduit au silence magique | Incapable de lancer un sort |
+| Empoisonné | Perd 1D4 PV au début de chaque tour ; test de CON (diff. 12) pour s'en défaire |
+| En feu | 1D6 dégâts de feu par tour ; une action pour l'éteindre |
+| Saignement | Perd 1 PV par tour jusqu'à des soins |
+| Effrayé | −2 à tous les jets ; ne peut pas s'approcher de la source de sa peur |
+| À terre | −5 au toucher au contact ; +5 pour les attaques au contact contre lui ; se relever = action de mouvement |
+| Assourdi | N'entend rien ; −5 aux tests liés à l'ouïe |
+| Endormi | Aucune action ; se réveille s'il subit des dégâts |
+| Paralysé | Aucune action ni mouvement ; défense réduite à 5 |
+| Affaibli | Dégâts infligés divisés par 2 |
+| Charmé | Ne peut pas attaquer celui qui l'a charmé |
 
 ## Tailles de créatures
 

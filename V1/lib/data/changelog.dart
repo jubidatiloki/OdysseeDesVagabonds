@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.44.0',
+    date: '09/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Afflictions : empoisonné, en feu, saignement, effrayé, à terre, '
+            'assourdi, endormi, paralysé, affaibli, charmé.',
+      ),
+    ],
+  ),
+  (
     version: '0.43.0',
     date: '09/11/2026',
     changements: [

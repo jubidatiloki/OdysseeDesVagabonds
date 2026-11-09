@@ -20,6 +20,50 @@ const List<EntreeEffet> kAfflictions = [
     nom: 'Réduit au silence magique',
     effet: 'Incapable de lancer un sort.',
   ),
+  // Ajoutées le 09/11/2026 (proposées et validées).
+  (
+    nom: 'Empoisonné',
+    effet:
+        'Perd 1D4 PV au début de chaque tour ; test de CON (diff. 12) pour s\'en défaire.',
+  ),
+  (
+    nom: 'En feu',
+    effet: '1D6 dégâts de feu par tour ; une action pour l\'éteindre.',
+  ),
+  (
+    nom: 'Saignement',
+    effet: 'Perd 1 PV par tour jusqu\'à des soins.',
+  ),
+  (
+    nom: 'Effrayé',
+    effet:
+        '−2 à tous les jets ; ne peut pas s\'approcher de la source de sa peur.',
+  ),
+  (
+    nom: 'À terre',
+    effet:
+        '−5 au toucher au contact ; +5 pour les attaques au contact contre lui ; se relever = action de mouvement.',
+  ),
+  (
+    nom: 'Assourdi',
+    effet: 'N\'entend rien ; −5 aux tests liés à l\'ouïe.',
+  ),
+  (
+    nom: 'Endormi',
+    effet: 'Aucune action ; se réveille s\'il subit des dégâts.',
+  ),
+  (
+    nom: 'Paralysé',
+    effet: 'Aucune action ni mouvement ; défense réduite à 5.',
+  ),
+  (
+    nom: 'Affaibli',
+    effet: 'Dégâts infligés divisés par 2.',
+  ),
+  (
+    nom: 'Charmé',
+    effet: 'Ne peut pas attaquer celui qui l\'a charmé.',
+  ),
 ];
 
 const List<EntreeEffet> kEffetsDegats = [
