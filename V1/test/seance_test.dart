@@ -1583,7 +1583,7 @@ void main() {
       expect(find.byKey(const Key('fenetre-creature-loup')), findsOneWidget);
     });
 
-    testWidgets('MJ : le compagnon entre dans la partie (PV, combat)',
+    testWidgets('MJ : le compagnon entre dans la partie (PV, tour du maître)',
         (tester) async {
       final brom = _brom()..rangsVoies['meute'] = 1;
       final x = await ouvrir(
@@ -1606,8 +1606,12 @@ void main() {
       final loup = partie.creatures['compagnon-j1-loup']!;
       expect(loup.proprietaire, 'j1');
       expect((loup.pv, loup.initiative), (12, 14));
-      // Place dans l'ordre de combat, selon son initiative.
-      expect(partie.etat.ordre, ['compagnon-j1-loup', 'j1', 'j2']);
+      // Pas de tour à lui : il agit au tour de son maître (11/11/2026),
+      // sa carte s'allume avec celle de j1.
+      expect(partie.etat.ordre, ['j1', 'j2']);
+      expect(partie.etat.actif, 'j1');
+      expect(find.byKey(const Key('carte-compagnon-j1-loup-tour')),
+          findsOneWidget);
       // Sous son propriétaire, pas dans les créatures du MJ.
       final joueur = tester.getRect(find.byKey(const Key('carte-j1')));
       final carte =

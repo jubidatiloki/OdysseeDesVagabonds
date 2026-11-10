@@ -99,7 +99,8 @@ class ListeCartes extends StatelessWidget {
               child: _Carte(
                 cle: 'carte-${c.id}',
                 selectionnee: s.carte == c.id,
-                actif: s.etat.actif == c.id,
+                // Compagnon : il agit au tour de son maître.
+                actif: s.etat.actif == (c.estCompagnon ? m.uid : c.id),
                 icone: c.toursRestants != null
                     ? Icons.hourglass_bottom
                     : typeCompagnon(s.ficheCreature(c)) == 'Familier'
@@ -107,7 +108,8 @@ class ListeCartes extends StatelessWidget {
                         : Icons.pets_outlined,
                 couleurIcone: OdvCouleurs.or,
                 titre: c.nom,
-                initiative: s.etat.enCombat ? c.initiative : null,
+                initiative:
+                    s.etat.enCombat && !c.estCompagnon ? c.initiative : null,
                 ressources: [
                   if (c.pv != null)
                     _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),

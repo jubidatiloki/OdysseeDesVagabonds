@@ -150,7 +150,8 @@ class EtatJeu {
 }
 
 /// Ordre de combat : initiative décroissante ; à égalité, les PJ avant les
-/// créatures (règle du 03/11/2026), puis par nom.
+/// créatures (règle du 03/11/2026), puis par nom. Les compagnons et familiers
+/// n'y sont pas : ils agissent au tour de leur maître (décision du 11/11/2026).
 List<String> ordreCombat(
   List<MembreCampagne> joueurs,
   List<CreatureSeance> creatures,
@@ -158,7 +159,7 @@ List<String> ordreCombat(
   final liste = [
     for (final m in joueurs) (id: m.uid, init: m.initiative, pj: 0, nom: m.nom),
     for (final c in creatures)
-      (id: c.id, init: c.initiative, pj: 1, nom: c.nom),
+      if (!c.estCompagnon) (id: c.id, init: c.initiative, pj: 1, nom: c.nom),
   ]..sort((a, b) {
       final i = b.init.compareTo(a.init);
       if (i != 0) return i;
