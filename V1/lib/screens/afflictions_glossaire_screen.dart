@@ -113,7 +113,6 @@ class AfflictionsGlossaireScreen extends StatelessWidget {
           causes: causes[a.nom] ?? const [],
         );
     return LargeurLimitee(
-      max: 1200,
       child: ListView(
         key: const Key('glossaire-afflictions'),
         padding: const EdgeInsets.all(16),
@@ -189,8 +188,7 @@ typedef _Fiche = ({
   List<String> causes,
 });
 
-/// Une famille : titre, puis une carte par entrée, autant de colonnes que la
-/// largeur le permet (cartes d'au moins 260 px, 4 au plus).
+/// Une famille : titre, puis une carte par entrée, sur toute la largeur.
 class _Famille extends StatelessWidget {
   const _Famille({
     required this.titre,
@@ -230,21 +228,11 @@ class _Famille extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          LayoutBuilder(
-            builder: (context, contraintes) {
-              final colonnes = (contraintes.maxWidth / 260).floor().clamp(1, 4);
-              final largeur =
-                  (contraintes.maxWidth - (colonnes - 1) * 8) / colonnes;
-              return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final f in fiches)
-                    SizedBox(width: largeur, child: _Carte(fiche: f)),
-                ],
-              );
-            },
-          ),
+          // Une carte par ligne, sur toute la largeur.
+          for (final (n, f) in fiches.indexed) ...[
+            if (n > 0) const SizedBox(height: 8),
+            _Carte(fiche: f),
+          ],
         ],
       ),
     );

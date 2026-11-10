@@ -69,13 +69,33 @@ const List<EntreeEffet> kAfflictions = [
 const List<EntreeEffet> kEffetsDegats = [
   (
     nom: 'Physique',
-    effet: 'Corps à corps et distance ; réduits par la RD physique.'
+    effet: 'Type par défaut : tout dégât est physique sauf indication '
+        'contraire. Corps à corps et distance, armes tranchantes, contondantes '
+        'ou perçantes. La RD physique se retire du total (minimum 0).',
   ),
-  (nom: 'Magique', effet: 'Réduits par la RD magique.'),
-  (nom: 'Feu', effet: 'Attaque élémentaire ; réduits par la RD feu.'),
-  (nom: 'Glace', effet: 'Attaque élémentaire ; réduits par la RD glace.'),
-  (nom: 'Foudre', effet: 'Attaque élémentaire ; réduits par la RD foudre.'),
-  (nom: 'Chaos', effet: 'Ignore toute RD.'),
+  (
+    nom: 'Magique',
+    effet: 'Attaque magique. La RD magique se retire du total (minimum 0).',
+  ),
+  (
+    nom: 'Feu',
+    effet: 'Attaque élémentaire de feu. La RD feu se retire du total '
+        '(minimum 0).',
+  ),
+  (
+    nom: 'Glace',
+    effet: 'Attaque élémentaire de glace. La RD glace se retire du total '
+        '(minimum 0).',
+  ),
+  (
+    nom: 'Foudre',
+    effet: 'Attaque élémentaire de foudre. La RD foudre se retire du total '
+        '(minimum 0).',
+  ),
+  (
+    nom: 'Chaos',
+    effet: 'Ignore toute RD : les dégâts sont subis en entier.',
+  ),
 ];
 
 /// Éléments possibles pour les dégâts d'une arme (vide : physiques).

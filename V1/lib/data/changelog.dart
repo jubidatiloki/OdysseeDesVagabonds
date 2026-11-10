@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.48.1',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Afflictions et types de dégâts : une carte par ligne, sur toute '
+            'la largeur.',
+      ),
+      (
+        type: _c,
+        texte: 'Types de dégâts : descriptions complètes (RD retirée du total, '
+            'minimum 0 ; armes du physique).',
+      ),
+    ],
+  ),
+  (
     version: '0.48.0',
     date: '10/11/2026',
     changements: [

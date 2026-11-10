@@ -147,10 +147,11 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('causes-Charmé')), findsOneWidget);
-    // Plusieurs cartes sur une même ligne.
-    final a = tester.getTopLeft(find.byKey(const Key('affliction-Étourdi')));
-    final b = tester.getTopLeft(find.byKey(const Key('affliction-Paralysé')));
-    expect(a.dy, b.dy);
+    // Une carte par ligne, sur toute la largeur.
+    final a = tester.getRect(find.byKey(const Key('affliction-Étourdi')));
+    final b = tester.getRect(find.byKey(const Key('affliction-Paralysé')));
+    expect(b.top, greaterThan(a.bottom));
+    expect(a.width, b.width);
     // Types de dégâts au même style (cartes).
     await tester.scrollUntilVisible(
       find.byKey(const Key('affliction-Chaos')),
@@ -158,6 +159,11 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.byKey(const Key('affliction-Chaos')), findsOneWidget);
+    // Description complète des types de dégâts.
+    expect(
+      find.textContaining('tout dégât est physique sauf indication'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('bestiaire : plus de famille Invocations, origine affichée',
