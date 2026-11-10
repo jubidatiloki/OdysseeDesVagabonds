@@ -29,6 +29,21 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.49.2',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Règles système : types de dégâts alignés sur le glossaire.',
+      ),
+      (
+        type: _c,
+        texte: 'Esquive réussie : moitié des dégâts par défaut (aucun dégât '
+            'seulement si l\'attaque le précise), aussi en séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.49.1',
     date: '10/11/2026',
     changements: [

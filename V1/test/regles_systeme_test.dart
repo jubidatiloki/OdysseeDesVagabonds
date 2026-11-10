@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
+import 'package:odyssee_vagabonds/models/seance.dart';
 import 'package:odyssee_vagabonds/widgets/markdown_simple.dart';
 
 /// Règles système (10/11/2026) : écrites pour les novices, avec les parties
@@ -59,6 +60,20 @@ void main() {
           l.sublist(1, 4), ['d${r.deVie}', 'd${r.deMana}', 'd${r.deEndurance}'],
           reason: r.nom);
     }
+  });
+
+  test('esquive réussie : moitié des dégâts par défaut', () {
+    expect(
+        esquiveDonneMoitie(
+            "pas de jet d'attaque ; esquive réussie : moitié des dégâts"),
+        isTrue);
+    expect(esquiveDonneMoitie("pas de jet d'attaque"), isTrue);
+    expect(
+        esquiveDonneMoitie("pas de jet d'attaque ; esquive réussie = rien, "
+            'sinon dégâts et projeté à 6 m'),
+        isFalse);
+    expect(texte, contains('### Types de dégâts'));
+    expect(texte, contains('par défaut, que **la moitié des dégâts**'));
   });
 
   test('modificateurs de chaque classe', () {

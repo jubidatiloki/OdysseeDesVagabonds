@@ -419,7 +419,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       final note = _sansJet[libelle];
       if (note != null && _s.joueurs.any((m) => m.uid == cible)) {
         esquive = await _demanderDifficulte(libelle);
-        moitie = note.toLowerCase().contains('moitié');
+        moitie = esquiveDonneMoitie(note);
       }
       await _s.infligerDegats(
         cible,

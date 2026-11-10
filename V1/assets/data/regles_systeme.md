@@ -211,9 +211,14 @@ Un combat se joue **tour par tour**, dans l'ordre d'initiative. À son tour, un 
 ### Attaques et défenses
 
 - **Attaquer** : on lance le **toucher** (1d20 + AdC, AdT ou AdM + bonus). Si le total est **égal ou supérieur à la CA** de la cible, l'attaque touche : on lance alors les **dégâts**. Un 20 naturel touche toujours, un 1 naturel rate toujours.
-- **Types d'attaque** : physique (corps à corps ou distance), magique, feu, glace, foudre et **chaos** (ignore toute RD).
-- **Deux défenses** : la **CA** protège contre tout ce qui demande un **jet pour toucher** (coups, flèches, sorts d'attaque) ; l'**esquive** protège contre ce qui n'en demande pas (souffle de dragon, explosion…). Certaines compétences donnent de la CA contre un seul type d'attaque (« +2 CA contre les sorts »).
-- **Types de dégâts des armes** : tranchant, contondant, perçant.
+- **Deux défenses** : la **CA** protège contre tout ce qui demande un **jet pour toucher** (coups, flèches, sorts d'attaque) ; l'**esquive** protège contre ce qui n'en demande pas, principalement les **attaques de zone** (souffle de dragon, explosion…) : la ou les cibles font un jet d'esquive pour ne subir, par défaut, que **la moitié des dégâts**. Certaines compétences donnent de la CA contre un seul type d'attaque (« +2 CA contre les sorts »).
+
+### Types de dégâts
+
+- **Physique** : dégâts « naturels », sans magie ni élément. Le jet d'attaque est comparé à la CA de la cible (sauf mention contraire) ; les dégâts sont réduits par la **RD physique**. C'est le type le plus courant pour les classes physiques et hybrides. Ils peuvent être **tranchants** (épée, dague…), **contondants** (marteau, mains nues…) ou **perçants** (lance, flèches…).
+- **Magique** : dégâts d'arcanes purs. La plupart des sorts des lanceurs de sorts font des dégâts magiques (sauf mention contraire). Le jet d'attaque est comparé à la CA de la cible (sauf mention contraire) ; les dégâts sont réduits par la **RD magique**. C'est le type le plus courant pour les lanceurs de sorts (sauf le magicien, qui peut se spécialiser dans un élément).
+- **Élémentaire** : dégâts liés aux éléments, magiques ou non (sort de boule de feu, torche…). Les dégâts de souffle élémentaire ne sont pas comparés à la CA : la cible fait un jet d'esquive pour les diminuer ou les annuler. Trois éléments : **feu** (réduits par la RD feu), **glace** (RD glace) et **foudre** (RD foudre).
+- **Chaos** : dégâts impossibles à arrêter ; il n'existe aucune résistance contre eux.
 - **À mains nues** : **1d4** dégâts physiques + FOR (sauf indication contraire).
 - Une attaque bien choisie peut « percer » une RD (une masse contre une grosse armure, le feu contre un arbre animé…), selon le MJ.
 
@@ -233,7 +238,7 @@ Un combat se joue **tour par tour**, dans l'ordre d'initiative. À son tour, un 
 ### Esquive
 
 - Contre ce qui n'a **pas de jet pour toucher** (souffle, bond, tourbillon…), la cible fait un **jet d'esquive** : 1d20 + mod(DEX) (dans la limite de l'armure) + bonus d'esquive, contre la difficulté donnée par le MJ.
-- **Réussite** : l'esquive **annule** les dégâts et l'effet, sauf si la créature dit autre chose (souffle de dragon : moitié des dégâts).
+- **Réussite** : la cible ne subit, par défaut, que **la moitié des dégâts**. Certaines attaques précisent qu'une esquive réussie les évite entièrement (« esquive réussie = rien »).
 - **Une seule esquive par tour** (sauf mention contraire).
 - **Contrecoup** : après une esquive, pas d'action de mouvement au tour suivant, qu'elle réussisse ou non. Certaines compétences l'annulent en cas de réussite (voleur, barde, moine).
 - En séance, l'application propose « Esquiver » ou « Subir » au joueur visé.

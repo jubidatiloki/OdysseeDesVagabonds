@@ -590,7 +590,8 @@ class DegatsSeance {
   /// d'abord un jet d'esquive contre cette difficulté, donnée par le MJ.
   final int? difficulteEsquive;
 
-  /// Esquive réussie : moitié des dégâts (souffle) ; sinon, aucun dégât.
+  /// Esquive réussie : moitié des dégâts (cas par défaut) ; sinon, aucun
+  /// dégât (attaque dont la note le précise, voir [esquiveDonneMoitie]).
   final bool moitieSiEsquive;
 
   DegatsSeance copie({String? id, int? montant}) => DegatsSeance(
@@ -725,4 +726,14 @@ class MessageSeance {
         date: DateTime.tryParse('${j['date']}') ?? DateTime(2026),
         seance: (j['seance'] as num?)?.toInt() ?? 0,
       );
+}
+
+/// Esquive réussie contre une attaque sans jet d'attaque : moitié des dégâts
+/// par défaut (décision du 10/11/2026), sauf si la note de l'attaque dit
+/// qu'elle ne fait alors rien (« esquive réussie = rien », « aucun dégât »).
+bool esquiveDonneMoitie(String note) {
+  final n = note.toLowerCase();
+  return !(RegExp(r'esquive réussie\s*[=:]\s*rien').hasMatch(n) ||
+      n.contains('aucun dégât') ||
+      n.contains('annule'));
 }
