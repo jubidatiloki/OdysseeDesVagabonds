@@ -8,8 +8,10 @@ import 'package:odyssee_vagabonds/models/affliction.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/models/equipement.dart';
+import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/regles/causes_afflictions.dart';
+import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/regles/invocations.dart';
 import 'package:odyssee_vagabonds/screens/classes_screen.dart';
 import 'package:odyssee_vagabonds/widgets/voie_detail.dart';
@@ -55,6 +57,39 @@ void main() {
     final causes =
         causesAfflictions(classes: classes, races: races, creatures: creatures);
     expect(causes['Nécrose'], contains('Nécromancien · Toucher nécrotique'));
+  });
+
+  test('séance : compagnons et familiers qui se battent', () {
+    FicheCalculee fiche(String classe, Map<String, int> rangs,
+            [Map<String, String> choix = const {}]) =>
+        FicheCalculee(
+          personnage: Personnage(
+            id: 'p',
+            nom: 'P',
+            raceId: 'humain',
+            classeId: classe,
+            rangsVoies: rangs,
+            choix: choix,
+          ),
+          race: races.firstWhere((r) => r.id == 'humain'),
+          classe: classes.firstWhere((c) => c.id == classe),
+        );
+    // Rôdeur : compagnon adulte (rang 3) avec une attaque.
+    final rodeur = compagnonsCombattants(
+      fiche('rodeur', {'rodeur-animaux': 3}, {'compagnon-rodeur': 'loup'}),
+    );
+    expect(rodeur.map((x) => (x.creature.id, x.type)),
+        [('rodeur-loup-adulte', 'Compagnon')]);
+    // Nécromancien : invocations temporaires exclues, serviteur permanent
+    // gardé ; familiers sans attaque exclus.
+    final necroFiche = fiche('necromancien', {
+      'necromancien-morts-vivants': 4,
+      'necromancien-invocation': 3,
+    });
+    expect(
+      compagnonsCombattants(necroFiche).map((x) => x.creature.id),
+      ['serviteur-permanent'],
+    );
   });
 
   test('Requiem : 1d4 + INT morts-vivants', () {

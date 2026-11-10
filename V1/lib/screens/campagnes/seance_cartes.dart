@@ -70,7 +70,7 @@ class ListeCartes extends StatelessWidget {
             titre: 'Mes notes de séance',
             onTap: () => _choisir(kCarteNotes),
           ),
-        for (final m in s.joueurs)
+        for (final m in s.joueurs) ...[
           _Carte(
             cle: 'carte-${m.uid}',
             selectionnee: s.carte == m.uid,
@@ -89,6 +89,31 @@ class ListeCartes extends StatelessWidget {
             ],
             onTap: () => _choisir(m.uid),
           ),
+          // Compagnons et familiers qui se battent : sous leur propriétaire,
+          // en retrait, avec sa mention.
+          for (final x in s.compagnonsDe(m.uid))
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: _Carte(
+                cle: 'carte-compagnon-${m.uid}-${x.creature.id}',
+                selectionnee: false,
+                icone: x.type == 'Familier'
+                    ? Icons.auto_awesome_outlined
+                    : Icons.pets_outlined,
+                couleurIcone: OdvCouleurs.or,
+                titre: x.creature.nom,
+                lignes: [
+                  '${x.type} de ${m.personnageNom}',
+                  if (x.creature.ca != null || x.creature.pv != null)
+                    [
+                      if (x.creature.ca != null) 'CA ${x.creature.ca}',
+                      if (x.creature.pv != null) 'PV ${x.creature.pv}',
+                    ].join(' · '),
+                ],
+                onTap: () => afficherCreature(context, x.creature),
+              ),
+            ),
+        ],
         for (final c in s.creatures)
           _Carte(
             cle: 'carte-${c.id}',

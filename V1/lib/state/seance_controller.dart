@@ -14,6 +14,7 @@ import '../models/objet.dart';
 import '../models/personnage.dart';
 import '../models/seance.dart';
 import '../regles/des.dart';
+import '../regles/invocations.dart';
 import '../regles/fiche_calculee.dart';
 import 'campagnes_controller.dart';
 import 'personnages_controller.dart';
@@ -219,6 +220,17 @@ class SeanceController extends ChangeNotifier {
       return FicheCalculee(personnage: p, race: race, classe: classe);
     }
     return null;
+  }
+
+  /// Compagnons et familiers d'un joueur qui peuvent se battre (si ce
+  /// compte peut lire sa fiche), affichés sous lui.
+  List<({Creature creature, String type})> compagnonsDe(String joueur) {
+    final f = ficheDe(joueur);
+    if (f == null) return const [];
+    return compagnonsCombattants(
+      f,
+      {for (final x in referentiel.creatures) x.id: x},
+    );
   }
 
   /// Fiche du bestiaire d'une créature de la partie.

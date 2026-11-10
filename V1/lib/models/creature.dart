@@ -77,6 +77,7 @@ class Creature {
     this.note = '',
     this.siChoix = '',
     this.remplace = '',
+    this.permanente = false,
   });
 
   /// Invocation ou compagnon propre à une option choisie : « cle:option »
@@ -86,6 +87,9 @@ class Creature {
   /// Fiche d'un stade précédent qu'elle remplace (animal de combat au rang 3
   /// à la place de l'animal de compagnie).
   final String remplace;
+
+  /// Invocation qui reste (serviteur permanent), même lancée par un sort.
+  final bool permanente;
 
   final String id;
   final String nom;
@@ -159,5 +163,6 @@ class Creature {
         note: j['note'] as String? ?? '',
         siChoix: j['siChoix'] as String? ?? '',
         remplace: j['remplace'] as String? ?? '',
+        permanente: j['permanente'] as bool? ?? false,
       );
 }

@@ -1,4 +1,5 @@
 import '../models/creature.dart';
+import '../models/type_sort.dart';
 import '../models/voie.dart';
 import 'fiche_calculee.dart';
 
@@ -57,5 +58,32 @@ List<({Creature creature, String competence})> invocationsDe(
   return [
     for (final r in res)
       if (!remplacees.contains(r.creature.id)) r,
+  ];
+}
+
+/// Compagnons et familiers du personnage qui peuvent se battre (au moins une
+/// attaque), affichés sous lui en séance : créatures qui restent (pas les
+/// invocations temporaires lancées par un sort, sauf le serviteur
+/// permanent). [type] : « Familier » ou « Compagnon ».
+List<({Creature creature, String type})> compagnonsCombattants(
+  FicheCalculee f, [
+  Map<String, Creature>? catalogue,
+]) {
+  final sortsInvocation = {
+    for (final c in f.competencesAcquises)
+      if (c.competence.typesSort.contains(TypeSort.invocation))
+        c.competence.nom,
+  };
+  return [
+    for (final r in invocationsDe(f, catalogue))
+      if (r.creature.attaques.isNotEmpty &&
+          (r.creature.permanente || !sortsInvocation.contains(r.competence)))
+        (
+          creature: r.creature,
+          type: r.creature.archetype.toLowerCase().contains('familier') ||
+                  r.competence.toLowerCase().contains('familier')
+              ? 'Familier'
+              : 'Compagnon',
+        ),
   ];
 }

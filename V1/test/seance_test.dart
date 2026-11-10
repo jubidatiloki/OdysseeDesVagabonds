@@ -81,6 +81,20 @@ const _guerrier = Classe(
         ),
       ],
     ),
+    // Compagnon qui se bat : affiché sous son propriétaire en séance.
+    Voie(
+      id: 'meute',
+      nom: 'Voie de la meute',
+      competences: [
+        Competence(
+          rang: 1,
+          nom: 'Compagnon loup',
+          type: 'soutien',
+          effet: 'Un loup l\'accompagne.',
+          invocations: ['loup'],
+        ),
+      ],
+    ),
   ],
 );
 const _loup = Creature(
@@ -1551,6 +1565,22 @@ void main() {
       );
       await tap(tester, find.byKey(const Key('carte-j1')));
       expect(find.byKey(const Key('monter-niveau-seance')), findsOneWidget);
+    });
+
+    testWidgets('compagnon qui se bat : carte sous son propriétaire',
+        (tester) async {
+      final brom = _brom()..rangsVoies['meute'] = 1;
+      await ouvrir(tester, 'j1', fiches: [brom]);
+      final joueur = tester.getRect(find.byKey(const Key('carte-j1')));
+      final cle = find.byKey(const Key('carte-compagnon-j1-loup'));
+      expect(cle, findsOneWidget);
+      final compagnon = tester.getRect(cle);
+      // Juste dessous, en retrait.
+      expect(compagnon.top, greaterThanOrEqualTo(joueur.bottom));
+      expect(compagnon.left, greaterThan(joueur.left));
+      expect(find.text('Compagnon de brom'), findsOneWidget);
+      await tap(tester, cle);
+      expect(find.byKey(const Key('fenetre-creature-loup')), findsOneWidget);
     });
 
     testWidgets('sans accord du MJ : pas de montée de niveau', (tester) async {
