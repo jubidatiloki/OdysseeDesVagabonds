@@ -211,6 +211,7 @@ class CreatureSeance {
     this.cachee = false,
     this.nomCache = false,
     this.proprietaire = '',
+    this.toursRestants,
   });
 
   /// Nom montré aux PJ quand le MJ cache le vrai nom.
@@ -243,11 +244,25 @@ class CreatureSeance {
   /// visibles de tous ; vide : créature du MJ.
   final String proprietaire;
 
-  bool get estCompagnon => proprietaire.isNotEmpty;
+  /// Invocation temporaire : tours restants avant qu'elle disparaisse
+  /// (un de moins à chaque manche de combat) ; `null` : pas de limite.
+  final int? toursRestants;
+
+  /// Compagnon ou familier qui reste (pas une invocation temporaire).
+  bool get estCompagnon => proprietaire.isNotEmpty && toursRestants == null;
+
+  /// Créature d'un joueur (compagnon ou invocation) : PV visibles de tous.
+  bool get estAUnJoueur => proprietaire.isNotEmpty;
 
   String get nomPublic => nomCache ? nomInconnu : nom;
 
-  CreatureSeance copie({int? pv, int? ca, bool? cachee, bool? nomCache}) {
+  CreatureSeance copie({
+    int? pv,
+    int? ca,
+    bool? cachee,
+    bool? nomCache,
+    int? toursRestants,
+  }) {
     final v = pv ?? this.pv;
     return CreatureSeance(
       id: id,
@@ -263,6 +278,7 @@ class CreatureSeance {
       cachee: cachee ?? this.cachee,
       nomCache: nomCache ?? this.nomCache,
       proprietaire: proprietaire,
+      toursRestants: toursRestants ?? this.toursRestants,
     );
   }
 
@@ -271,30 +287,32 @@ class CreatureSeance {
   CreatureSeance pourJoueur(ParametresCampagne p) => CreatureSeance(
         id: id,
         nom: nomPublic,
-        creatureId: (p.pjVoientFichesCreatures || estCompagnon) && !nomCache
+        creatureId: (p.pjVoientFichesCreatures || estAUnJoueur) && !nomCache
             ? creatureId
             : '',
         famille: nomCache ? '' : famille,
         description: description,
         initiative: initiative,
-        pv: p.pjVoientPvCreatures || estCompagnon ? pv : null,
-        pvMax: p.pjVoientPvCreatures || estCompagnon ? pvMax : null,
+        pv: p.pjVoientPvCreatures || estAUnJoueur ? pv : null,
+        pvMax: p.pjVoientPvCreatures || estAUnJoueur ? pvMax : null,
         ca: ca,
         etat: etat,
         nomCache: nomCache,
         proprietaire: proprietaire,
+        toursRestants: toursRestants,
       );
 
   /// Partie lisible par les PJ (si la carte n'est pas cachée).
   Map<String, dynamic> versPublic(ParametresCampagne p) => {
         'nom': nomPublic,
-        if ((p.pjVoientFichesCreatures || estCompagnon) && !nomCache)
+        if ((p.pjVoientFichesCreatures || estAUnJoueur) && !nomCache)
           'creatureId': creatureId,
         if (!nomCache && famille.isNotEmpty) 'famille': famille,
-        if ((p.pjVoientPvCreatures || estCompagnon) && pv != null) 'pv': pv,
-        if ((p.pjVoientPvCreatures || estCompagnon) && pvMax != null)
+        if ((p.pjVoientPvCreatures || estAUnJoueur) && pv != null) 'pv': pv,
+        if ((p.pjVoientPvCreatures || estAUnJoueur) && pvMax != null)
           'pvMax': pvMax,
-        if (estCompagnon) 'proprietaire': proprietaire,
+        if (estAUnJoueur) 'proprietaire': proprietaire,
+        if (toursRestants != null) 'toursRestants': toursRestants,
         if (ca != null) 'ca': ca,
         'description': description,
         'initiative': initiative,
@@ -332,6 +350,7 @@ class CreatureSeance {
         cachee: public['cachee'] as bool? ?? false,
         nomCache: public['nomCache'] as bool? ?? false,
         proprietaire: public['proprietaire'] as String? ?? '',
+        toursRestants: (public['toursRestants'] as num?)?.toInt(),
       );
 }
 
@@ -479,6 +498,9 @@ class JetSeance {
     this.caCible,
     this.touche,
     this.sansComparaison = '',
+    this.invocation = '',
+    this.nombre = 1,
+    this.tours,
   });
 
   final String id;
@@ -516,6 +538,12 @@ class JetSeance {
   /// Attaque qui n'a pas pu être comparée : la raison (« CA inconnue »).
   final String sansComparaison;
 
+  /// Invocation temporaire demandée au MJ (fiche du bestiaire), [nombre]
+  /// créatures pendant [tours] tours ; vide : pas d'invocation.
+  final String invocation;
+  final int nombre;
+  final int? tours;
+
   /// « Touché », « Raté » (la CA de la cible reste toujours cachée), ou pourquoi l'attaque
   /// n'a pas été comparée ; vide : ce jet n'est pas une attaque.
   String get resultatCible => switch (touche) {
@@ -551,6 +579,9 @@ class JetSeance {
         if (caCible != null) 'caCible': caCible,
         if (touche != null) 'touche': touche,
         if (sansComparaison.isNotEmpty) 'sansComparaison': sansComparaison,
+        if (invocation.isNotEmpty) 'invocation': invocation,
+        if (invocation.isNotEmpty) 'nombre': nombre,
+        if (tours != null) 'tours': tours,
       };
 
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
@@ -572,6 +603,9 @@ class JetSeance {
         caCible: (j['caCible'] as num?)?.toInt(),
         touche: j['touche'] as bool?,
         sansComparaison: j['sansComparaison'] as String? ?? '',
+        invocation: j['invocation'] as String? ?? '',
+        nombre: (j['nombre'] as num?)?.toInt() ?? 1,
+        tours: (j['tours'] as num?)?.toInt(),
       );
 }
 

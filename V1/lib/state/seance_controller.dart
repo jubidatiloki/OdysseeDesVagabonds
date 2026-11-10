@@ -46,7 +46,9 @@ class SeanceController extends ChangeNotifier {
         }, onError: (Object _) {}));
     suivre(seance.ecouterEtat(c), (v) {
       final debutCombat = v.enCombat && !_etat.enCombat;
+      final ancien = _etat;
       _etat = v;
+      unawaited(_decompterTours(ancien, v));
       // Début du combat : les PV en attente partent sans attendre.
       if (debutCombat && _minuteriePublication != null) {
         _minuteriePublication!.cancel();
@@ -54,7 +56,10 @@ class SeanceController extends ChangeNotifier {
         unawaited(_publier(force: true));
       }
     });
-    suivre(seance.ecouterJets(c, _numero), (v) => _jets = v);
+    suivre(seance.ecouterJets(c, _numero), (v) {
+      _jets = v;
+      _traiterInvocations();
+    });
     suivre(seance.ecouterPresences(c), (v) => _presences = v);
     suivre(seance.ecouterMessages(c, _numero), (v) => _messages = v);
     // Joueur : signale sa présence (toutes les 3 minutes).
@@ -234,7 +239,132 @@ class SeanceController extends ChangeNotifier {
     );
   }
 
-  /// Compagnons d'un joueur entrés dans la partie (PV suivis, initiative).
+  /// Demande d'invocation temporaire : [creature] × [nombre] pendant [tours]
+  /// tours, pour qui agit. Le MJ l'ajoute tout de suite ; un joueur passe
+  /// par un jet (ligne des logs) que l'application du MJ transforme en
+  /// créatures.
+  Future<String?> invoquer(
+    Creature creature, {
+    int nombre = 1,
+    int? tours,
+  }) {
+    final proprietaire = idAttaquant;
+    final n = nombre.clamp(1, 12);
+    if (estMj) {
+      return _agir((s, c) async {
+        await _ajouterInvocation(
+            s, c, '${DateTime.now().microsecondsSinceEpoch}', creature,
+            nombre: n, tours: tours, proprietaire: proprietaire);
+      });
+    }
+    return _agir(
+      (s, c) => s.lancer(
+        c,
+        JetSeance(
+          auteur: uid,
+          auteurNom: moi?.personnageNom ?? 'Joueur',
+          libelle: 'Invocation : ${creature.nom}${n > 1 ? ' ×$n' : ''}',
+          detail: tours == null ? '' : '$tours tour${tours > 1 ? 's' : ''}',
+          total: tours ?? 0,
+          date: DateTime.now(),
+          seance: _numero,
+          lecteurs: lecteursDuJet(c, VisibiliteJet.tous, auteur: uid),
+          mode: _etat.mode,
+          manche: _etat.manche,
+          attaquant: proprietaire,
+          invocation: creature.id,
+          nombre: n,
+          tours: tours,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _ajouterInvocation(
+    ServiceSeance s,
+    Campagne c,
+    String cle,
+    Creature cr, {
+    required int nombre,
+    required int? tours,
+    required String proprietaire,
+  }) async {
+    // Noms numérotés : Diablotin, Diablotin 2…
+    final noms = [for (final x in _creatures) x.nom];
+    for (var i = 0; i < nombre; i++) {
+      final nom = nomNumerote(cr.nom, noms);
+      noms.add(nom);
+      await s.ajouterCreature(
+        c,
+        CreatureSeance(
+          id: 'invocation-$cle-$i',
+          nom: nom,
+          creatureId: cr.id,
+          famille: cr.famille,
+          description: cr.description,
+          initiative: cr.initiative ?? 0,
+          pv: cr.pv,
+          pvMax: cr.pv,
+          ca: cr.ca,
+          proprietaire: proprietaire,
+          toursRestants: tours,
+        ),
+      );
+    }
+    await _reordonner(s, c);
+  }
+
+  /// MJ : jets d'invocation des joueurs arrivés pendant la séance (ceux
+  /// déjà là à l'ouverture ont été traités avant).
+  final Set<String> _invocationsVues = {};
+  bool _jetsLus = false;
+  void _traiterInvocations() {
+    final nouveaux = [
+      for (final j in _jets)
+        if (j.invocation.isNotEmpty && _invocationsVues.add(j.id)) j,
+    ];
+    final premiers = !_jetsLus;
+    _jetsLus = true;
+    if (premiers || !estMj) return;
+    for (final j in nouveaux) {
+      Creature? cr;
+      for (final x in referentiel.creatures) {
+        if (x.id == j.invocation) cr = x;
+      }
+      if (cr == null) continue;
+      final fiche = cr;
+      unawaited(_agir((s, c) => _ajouterInvocation(s, c, j.id, fiche,
+          nombre: j.nombre, tours: j.tours, proprietaire: j.attaquant)));
+    }
+  }
+
+  /// MJ : à chaque nouvelle manche de combat, les invocations temporaires
+  /// perdent un tour ; à 0, elles disparaissent.
+  Future<void> _decompterTours(EtatJeu avant, EtatJeu apres) async {
+    if (!estMj || !apres.enCombat || !avant.enCombat) return;
+    if (apres.manche <= avant.manche) return;
+    final passees = apres.manche - avant.manche;
+    final temporaires = [
+      for (final x in _creatures)
+        if (x.toursRestants != null) x,
+    ];
+    if (temporaires.isEmpty) return;
+    await _agir((s, c) async {
+      for (final x in temporaires) {
+        final reste = x.toursRestants! - passees;
+        if (reste <= 0) {
+          await s.retirerCreature(c, x.id);
+          if (_carte == x.id) _carte = kCarteScript;
+        } else {
+          await s.modifierCreature(c, x.copie(toursRestants: reste));
+        }
+      }
+      await _reordonner(s, c);
+    });
+  }
+
+  /// Compagnons et invocations d'un joueur entrés dans la partie (PV
+  /// suivis, initiative).
   List<CreatureSeance> compagnonsEnJeu(String joueur) => [
         for (final x in _creatures)
           if (x.proprietaire == joueur) x,
@@ -252,7 +382,7 @@ class SeanceController extends ChangeNotifier {
     final aRetirer = <CreatureSeance>[];
     final uids = {for (final m in joueurs) m.uid};
     for (final x in _creatures) {
-      if (x.estCompagnon && !uids.contains(x.proprietaire)) aRetirer.add(x);
+      if (x.estAUnJoueur && !uids.contains(x.proprietaire)) aRetirer.add(x);
     }
     for (final m in joueurs) {
       if (ficheDe(m.uid) == null) continue;
@@ -260,7 +390,10 @@ class SeanceController extends ChangeNotifier {
         for (final x in compagnonsDe(m.uid))
           'compagnon-${m.uid}-${x.creature.id}': x.creature,
       };
-      final presents = compagnonsEnJeu(m.uid);
+      final presents = [
+        for (final x in compagnonsEnJeu(m.uid))
+          if (x.estCompagnon) x,
+      ];
       for (final x in presents) {
         if (!voulus.containsKey(x.id)) aRetirer.add(x);
       }

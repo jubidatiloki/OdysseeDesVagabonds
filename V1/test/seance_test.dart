@@ -1629,6 +1629,69 @@ void main() {
       expect((vu.pv, vu.creatureId, vu.proprietaire), (11, 'loup', 'j1'));
     });
 
+    testWidgets('invocation temporaire : sous le lanceur, tours décomptés',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .demarrerCombat(c, ['j1', 'j2']),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      // Le joueur lance son sort : un jet d'invocation (2 loups, 2 tours).
+      await ServiceCampagnesMemoire(x.base, 'j1').seance.lancer(
+            x.base.campagnes[x.campagne.id]!,
+            JetSeance(
+              auteur: 'j1',
+              auteurNom: 'brom',
+              libelle: 'Invocation : Loup ×2',
+              detail: '2 tours',
+              total: 2,
+              date: DateTime.now(),
+              seance: 1,
+              lecteurs: const ['j1', 'mj'],
+              attaquant: 'j1',
+              invocation: 'loup',
+              nombre: 2,
+              tours: 2,
+            ),
+          );
+      await tester.pumpAndSettle();
+      final invoques = [
+        for (final c in partie.creatures.values)
+          if (c.toursRestants != null) c,
+      ];
+      expect(invoques.map((c) => c.nom).toSet(), {'Loup', 'Loup 2'});
+      expect(invoques.every((c) => c.proprietaire == 'j1'), isTrue);
+      expect(partie.etat.ordre, hasLength(4));
+      // Carte sous le lanceur, avec les tours restants.
+      final id = invoques.first.id;
+      expect(find.byKey(Key('tours-$id')), findsOneWidget);
+      expect(find.text('2 tours'), findsNWidgets(2));
+      await tap(tester, find.byKey(Key('carte-$id')));
+      expect(
+        tester.widget<Text>(find.byKey(const Key('mention-compagnon'))).data,
+        'Invocation de brom · 2 tours restants',
+      );
+      // Une manche passe : un tour de moins ; deux manches : disparus.
+      final mj = ServiceCampagnesMemoire(x.base, 'mj').seance;
+      Future<void> manche() async {
+        final debut = partie.etat.manche;
+        while (partie.etat.manche == debut) {
+          await mj.passerTour(x.base.campagnes[x.campagne.id]!);
+          await tester.pumpAndSettle();
+        }
+      }
+
+      await manche();
+      expect(partie.creatures[id]!.toursRestants, 1);
+      expect(find.text('1 tour'), findsNWidgets(2));
+      await manche();
+      expect(partie.creatures.containsKey(id), isFalse);
+      expect(partie.etat.ordre, ['j1', 'j2']);
+    });
+
     testWidgets('sans accord du MJ : pas de montée de niveau', (tester) async {
       await ouvrir(tester, 'j1', fiches: [_brom()]);
       await tap(tester, find.byKey(const Key('carte-j1')));

@@ -1,4 +1,5 @@
 import '../models/creature.dart';
+import '../models/seance.dart';
 import '../models/type_sort.dart';
 import '../models/voie.dart';
 import 'fiche_calculee.dart';
@@ -93,3 +94,8 @@ String typeCompagnon(Creature? c) =>
     (c?.archetype ?? '').toLowerCase().contains('familier')
         ? 'Familier'
         : 'Compagnon';
+
+/// Nature d'une créature d'un joueur dans la séance : « Invocation »
+/// (temporaire), « Familier » ou « Compagnon ».
+String libelleCreatureJoueur(CreatureSeance c, Creature? fiche) =>
+    c.toursRestants != null ? 'Invocation' : typeCompagnon(fiche);

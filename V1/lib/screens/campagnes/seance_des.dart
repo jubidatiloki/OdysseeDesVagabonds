@@ -8,6 +8,7 @@ import '../../models/seance.dart';
 import '../../models/voie.dart';
 import '../../regles/des.dart';
 import '../../regles/fiche_calculee.dart';
+import '../../regles/invocations.dart';
 import '../../regles/savoirs.dart';
 import '../../regles/situations.dart';
 import '../../state/seance_controller.dart';
@@ -275,8 +276,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       if (f.jetReussite(sort) case final j?) j,
       ...f.jetsEffetSort(sort),
     ].where((j) => lireFormule(j.des) != null).toList();
+    // Totaux des jets (durée et nombre d'une invocation).
+    final totaux = <String, int>{};
     for (final j in jets) {
-      await _lancerFormule(
+      final t = await _lancerFormule(
         j.libelle,
         j.des,
         j.bonus,
@@ -287,6 +290,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         genre: GenreJet.sort,
         contreCa: j.attaqueMagique && j.difficulte == null,
       );
+      if (t != null) totaux[j.libelle.toLowerCase()] = t;
     }
     if (jets.isEmpty) {
       await _lancer(
@@ -296,12 +300,33 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         genre: GenreJet.sort,
       );
     }
+    // Invocation temporaire : elle entre dans la partie, sous le lanceur,
+    // pour la durée lancée (en tours).
+    final temporaires = [
+      for (final x in invocationsDeCompetence(sort, choix: f.personnage.choix))
+        if (!x.permanente) x,
+    ];
+    if (temporaires.isNotEmpty) {
+      int? total(String mot) {
+        for (final e in totaux.entries) {
+          if (e.key.contains(mot)) return e.value;
+        }
+        return null;
+      }
+
+      await _s.invoquer(
+        temporaires.first,
+        nombre: total('nombre') ?? 1,
+        tours: total('durée'),
+      );
+    }
   }
 
   /// Lance une formule (« 1d8 + 1d6 + 2 »). Pour un d20 du personnage :
   /// bonus des situations (cochées ou permanentes) et avantage, comme sur la
   /// page dé ; [carac] : caractéristique testée, [savoir] : aptitude.
-  Future<void> _lancerFormule(
+  /// Renvoie le total lancé (`null` : rien lancé).
+  Future<int?> _lancerFormule(
     String libelle,
     String des,
     int bonus, {
@@ -315,7 +340,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     String? savoir,
   }) async {
     final f = lireFormule(des);
-    if (f == null) return;
+    if (f == null) return null;
     final d20 = f.groupes.length == 1 &&
         f.groupes.first.nombre == 1 &&
         f.groupes.first.faces == 20;
@@ -341,7 +366,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       seuilCritique: seuils?.critique ?? 20,
       seuilEchec: seuils?.echec ?? 1,
     );
-    if (r == null) return;
+    if (r == null) return null;
     await _lancer(
       libelle: libelle,
       resultat: r,
@@ -352,6 +377,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       genre: genre,
       contreCa: contreCa && d20,
     );
+    return r.total;
   }
 
   /// Enregistre le jet ; [resultat] `null` : action sans dés (sort sans jet,

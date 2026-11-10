@@ -100,25 +100,53 @@ class ListeCartes extends StatelessWidget {
                 cle: 'carte-${c.id}',
                 selectionnee: s.carte == c.id,
                 actif: s.etat.actif == c.id,
-                icone: typeCompagnon(s.ficheCreature(c)) == 'Familier'
-                    ? Icons.auto_awesome_outlined
-                    : Icons.pets_outlined,
+                icone: c.toursRestants != null
+                    ? Icons.hourglass_bottom
+                    : typeCompagnon(s.ficheCreature(c)) == 'Familier'
+                        ? Icons.auto_awesome_outlined
+                        : Icons.pets_outlined,
                 couleurIcone: OdvCouleurs.or,
                 titre: c.nom,
                 initiative: s.etat.enCombat ? c.initiative : null,
                 ressources: [
                   if (c.pv != null)
                     _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+                  // Invocation temporaire : tours restants.
+                  if (c.toursRestants case final t?)
+                    Tooltip(
+                      message: 'Tours d\'invocation restants',
+                      child: Row(
+                        key: Key('tours-${c.id}'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.hourglass_bottom,
+                            size: 14,
+                            color: OdvCouleurs.or,
+                          ),
+                          Text(
+                            '$t tour${t > 1 ? 's' : ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
                 lignes: [
-                  '${typeCompagnon(s.ficheCreature(c))} de ${m.personnageNom}',
+                  '${libelleCreatureJoueur(c, s.ficheCreature(c))} de '
+                      '${m.personnageNom}',
                 ],
                 onTap: () => _choisir(c.id),
+                // Invocation temporaire : le MJ peut la renvoyer avant la fin.
+                onRetirer: s.estMj && c.toursRestants != null
+                    ? () => s.retirerCreature(c)
+                    : null,
+                cleRetirer: 'retirer-${c.id}',
               ),
             ),
           // Pas encore dans la partie (fiche que le MJ ne lit pas) : fiche
           // du bestiaire seule.
-          if (s.compagnonsEnJeu(m.uid).isEmpty)
+          if (s.compagnonsEnJeu(m.uid).where((c) => c.estCompagnon).isEmpty)
             for (final x in s.compagnonsDe(m.uid))
               Padding(
                 padding: const EdgeInsets.only(left: 20),
@@ -143,7 +171,7 @@ class ListeCartes extends StatelessWidget {
               ),
         ],
         for (final c in s.creatures)
-          if (!c.estCompagnon)
+          if (!c.estAUnJoueur)
             _Carte(
               cle: 'carte-${c.id}',
               selectionnee: s.carte == c.id,
@@ -532,8 +560,11 @@ class DetailCarte extends StatelessWidget {
         String? mention;
         for (final m in s.joueurs) {
           if (m.uid == c.proprietaire) {
-            mention =
-                '${typeCompagnon(s.ficheCreature(c))} de ${m.personnageNom}';
+            final t = c.toursRestants;
+            final s2 = (t ?? 0) > 1 ? 's' : '';
+            mention = '${libelleCreatureJoueur(c, s.ficheCreature(c))} de '
+                '${m.personnageNom}'
+                '${t == null ? '' : ' · $t tour$s2 restant$s2'}';
           }
         }
         return s.estMj
@@ -871,7 +902,7 @@ class _CreatureMj extends StatelessWidget {
                     ),
                   ],
                 ),
-              if (!c.estCompagnon) ...[
+              if (!c.estAUnJoueur) ...[
                 SwitchListTile(
                   key: const Key('creature-cachee'),
                   contentPadding: EdgeInsets.zero,
