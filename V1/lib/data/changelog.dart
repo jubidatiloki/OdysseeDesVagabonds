@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.49.1',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Types de dégâts : explication du jet d\'attaque et de '
+            'l\'esquive, descriptions réécrites, sans sous-titre.',
+      ),
+      (
+        type: _c,
+        texte: 'Types de dégâts : feu, glace et foudre regroupés dans '
+            '« Élémentaire ».',
+      ),
+    ],
+  ),
+  (
     version: '0.49.0',
     date: '10/11/2026',
     changements: [

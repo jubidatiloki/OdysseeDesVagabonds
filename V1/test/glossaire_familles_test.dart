@@ -160,10 +160,15 @@ void main() {
     );
     expect(find.byKey(const Key('affliction-Chaos')), findsOneWidget);
     // Description complète des types de dégâts.
+    expect(find.textContaining('tranchants (épée'), findsOneWidget);
+    expect(find.textContaining('résistance à la foudre'), findsOneWidget);
+    // Plus de sous-titre ; explication des jets d'attaque en tête.
     expect(
-      find.textContaining('tout dégât est physique sauf indication'),
-      findsOneWidget,
+      find.byKey(
+          const Key('famille-affliction-Physiques, magiques et élémentaires')),
+      findsNothing,
     );
+    expect(find.byKey(const Key('intro-degats')), findsOneWidget);
   });
 
   testWidgets('bestiaire : plus de famille Invocations, origine affichée',

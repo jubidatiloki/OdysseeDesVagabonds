@@ -64,15 +64,10 @@ IconData? _icone(String nom) => switch (nom) {
           icone: Icons.auto_awesome,
           couleur: sombre ? OdvCouleurs.lightBlue : OdvCouleurs.blue,
         ),
-      'Feu' => (
+      'Élémentaire' => (
           icone: Icons.local_fire_department_outlined,
           couleur: sombre ? OdvCouleurs.lightRed : OdvCouleurs.darkRed,
         ),
-      'Glace' => (
-          icone: Icons.ac_unit,
-          couleur: sombre ? OdvCouleurs.lightBlue : OdvCouleurs.blue,
-        ),
-      'Foudre' => (icone: Icons.bolt, couleur: OdvCouleurs.or),
       'Chaos' => (
           icone: Icons.cyclone,
           couleur: sombre ? OdvCouleurs.lightRed : OdvCouleurs.darkRed,
@@ -151,9 +146,15 @@ class AfflictionsGlossaireScreen extends StatelessWidget {
             titre: 'Types de dégâts',
             icone: Icons.local_fire_department_outlined,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  kIntroDegats,
+                  key: const Key('intro-degats'),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
               _Famille(
-                titre: 'Physiques, magiques et élémentaires',
-                icone: Icons.flash_on_outlined,
                 fiches: [
                   for (final e in kEffetsDegats)
                     (
@@ -191,13 +192,14 @@ typedef _Fiche = ({
 /// Une famille : titre, puis une carte par entrée, sur toute la largeur.
 class _Famille extends StatelessWidget {
   const _Famille({
-    required this.titre,
-    required this.icone,
+    this.titre,
+    this.icone,
     required this.fiches,
   });
 
-  final String titre;
-  final IconData icone;
+  /// Sans titre : les cartes seules.
+  final String? titre;
+  final IconData? icone;
   final List<_Fiche> fiches;
 
   @override
@@ -210,24 +212,26 @@ class _Famille extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Icon(icone, size: 18, color: scheme.primary),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  titre,
-                  key: Key('famille-affliction-$titre'),
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: scheme.primary,
-                    fontWeight: FontWeight.w700,
+          if (titre != null) ...[
+            Row(
+              children: [
+                Icon(icone, size: 18, color: scheme.primary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    titre!,
+                    key: Key('famille-affliction-$titre'),
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
+              ],
+            ),
+            const SizedBox(height: 6),
+          ],
           // Une carte par ligne, sur toute la largeur.
           for (final (n, f) in fiches.indexed) ...[
             if (n > 0) const SizedBox(height: 8),

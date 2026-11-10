@@ -66,35 +66,51 @@ const List<EntreeEffet> kAfflictions = [
   ),
 ];
 
+/// Explication générale des jets d'attaque, en tête des types de dégâts.
+const String kIntroDegats =
+    'Une attaque demande par défaut un jet d\'attaque (pour toucher) : on '
+    'lance un dé pour savoir si le personnage atteint ou non sa cible. Le '
+    'résultat est comparé à la Classe d\'Armure (CA) de la cible. Certaines '
+    'attaques ne demandent pas de jet, principalement les attaques de zone : '
+    'la ou les cibles font alors un jet d\'esquive pour ne subir, par défaut, '
+    'que la moitié des dégâts.';
+
 const List<EntreeEffet> kEffetsDegats = [
   (
     nom: 'Physique',
-    effet: 'Type par défaut : tout dégât est physique sauf indication '
-        'contraire. Corps à corps et distance, armes tranchantes, contondantes '
-        'ou perçantes. La RD physique se retire du total (minimum 0).',
+    effet: 'Dégâts « naturels », sans magie ni élément. Un jet d\'attaque '
+        'physique est comparé à la Classe d\'Armure (CA) de la cible (sauf '
+        'mention contraire). Ces dégâts sont réduits par la résistance '
+        'physique (RD physique) de la cible. C\'est le type de dégâts le plus '
+        'courant pour les classes physiques et hybrides. Ils peuvent être :\n'
+        '• tranchants (épée, dague…) ;\n'
+        '• contondants (marteau, mains nues…) ;\n'
+        '• perçants (lance, flèches…).',
   ),
   (
     nom: 'Magique',
-    effet: 'Attaque magique. La RD magique se retire du total (minimum 0).',
+    effet: 'Dégâts d\'arcanes purs. La plupart des sorts des lanceurs de sorts '
+        'causent des dégâts magiques (sauf mention contraire). Un jet '
+        'd\'attaque magique est comparé à la Classe d\'Armure (CA) de la cible '
+        '(sauf mention contraire). Ces dégâts sont réduits par la résistance '
+        'magique (RD magique) de la cible. C\'est le type de dégâts le plus '
+        'courant pour les lanceurs de sorts (sauf le magicien, qui peut se '
+        'spécialiser dans un élément).',
   ),
   (
-    nom: 'Feu',
-    effet: 'Attaque élémentaire de feu. La RD feu se retire du total '
-        '(minimum 0).',
-  ),
-  (
-    nom: 'Glace',
-    effet: 'Attaque élémentaire de glace. La RD glace se retire du total '
-        '(minimum 0).',
-  ),
-  (
-    nom: 'Foudre',
-    effet: 'Attaque élémentaire de foudre. La RD foudre se retire du total '
-        '(minimum 0).',
+    nom: 'Élémentaire',
+    effet: 'Dégâts liés aux éléments, magiques ou non (ex. : sort de boule de '
+        'feu ou torche). Les dégâts de souffle élémentaire ne sont pas '
+        'comparés à la Classe d\'Armure (CA) de la cible : elle fait un jet '
+        'd\'esquive pour les diminuer ou les annuler. Il existe 3 éléments :\n'
+        '• feu, réduits par la résistance au feu (RD feu) ;\n'
+        '• glace, réduits par la résistance à la glace (RD glace) ;\n'
+        '• foudre, réduits par la résistance à la foudre (RD foudre).',
   ),
   (
     nom: 'Chaos',
-    effet: 'Ignore toute RD : les dégâts sont subis en entier.',
+    effet: 'Dégâts impossibles à arrêter : il n\'existe aucune résistance '
+        'contre eux.',
   ),
 ];
 
