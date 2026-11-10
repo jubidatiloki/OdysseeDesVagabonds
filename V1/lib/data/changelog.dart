@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.49.0',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Règles système : réécrites pour les débutants, avec des '
+            'exemples.',
+      ),
+      (
+        type: _a,
+        texte: 'Règles système : le jeu en bref, vocabulaire et abréviations, '
+            'campagne et séance.',
+      ),
+      (
+        type: _a,
+        texte: 'Règles système : créer un personnage, avec les DV, DM et DE de '
+            'chaque race et classe.',
+      ),
+    ],
+  ),
+  (
     version: '0.48.1',
     date: '10/11/2026',
     changements: [
