@@ -6,6 +6,7 @@ import '../../models/campagne.dart';
 import '../../models/creature.dart';
 import '../../models/objet.dart';
 import '../../models/seance.dart';
+import '../../regles/invocations.dart';
 import '../../regles/montee_niveau.dart';
 import '../../regles/objet_aleatoire.dart';
 import '../../state/seance_controller.dart';
@@ -90,64 +91,92 @@ class ListeCartes extends StatelessWidget {
             onTap: () => _choisir(m.uid),
           ),
           // Compagnons et familiers qui se battent : sous leur propriétaire,
-          // en retrait, avec sa mention.
-          for (final x in s.compagnonsDe(m.uid))
+          // en retrait, avec sa mention. Entrés dans la partie (ajoutés par
+          // le MJ) : PV suivis, initiative, tour, détail au centre.
+          for (final c in s.compagnonsEnJeu(m.uid))
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: _Carte(
-                cle: 'carte-compagnon-${m.uid}-${x.creature.id}',
-                selectionnee: false,
-                icone: x.type == 'Familier'
+                cle: 'carte-${c.id}',
+                selectionnee: s.carte == c.id,
+                actif: s.etat.actif == c.id,
+                icone: typeCompagnon(s.ficheCreature(c)) == 'Familier'
                     ? Icons.auto_awesome_outlined
                     : Icons.pets_outlined,
                 couleurIcone: OdvCouleurs.or,
-                titre: x.creature.nom,
-                lignes: [
-                  '${x.type} de ${m.personnageNom}',
-                  if (x.creature.ca != null || x.creature.pv != null)
-                    [
-                      if (x.creature.ca != null) 'CA ${x.creature.ca}',
-                      if (x.creature.pv != null) 'PV ${x.creature.pv}',
-                    ].join(' · '),
+                titre: c.nom,
+                initiative: s.etat.enCombat ? c.initiative : null,
+                ressources: [
+                  if (c.pv != null)
+                    _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
                 ],
-                onTap: () => afficherCreature(context, x.creature),
+                lignes: [
+                  '${typeCompagnon(s.ficheCreature(c))} de ${m.personnageNom}',
+                ],
+                onTap: () => _choisir(c.id),
               ),
             ),
+          // Pas encore dans la partie (fiche que le MJ ne lit pas) : fiche
+          // du bestiaire seule.
+          if (s.compagnonsEnJeu(m.uid).isEmpty)
+            for (final x in s.compagnonsDe(m.uid))
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: _Carte(
+                  cle: 'carte-compagnon-${m.uid}-${x.creature.id}',
+                  selectionnee: false,
+                  icone: x.type == 'Familier'
+                      ? Icons.auto_awesome_outlined
+                      : Icons.pets_outlined,
+                  couleurIcone: OdvCouleurs.or,
+                  titre: x.creature.nom,
+                  lignes: [
+                    '${x.type} de ${m.personnageNom}',
+                    if (x.creature.ca != null || x.creature.pv != null)
+                      [
+                        if (x.creature.ca != null) 'CA ${x.creature.ca}',
+                        if (x.creature.pv != null) 'PV ${x.creature.pv}',
+                      ].join(' · '),
+                  ],
+                  onTap: () => afficherCreature(context, x.creature),
+                ),
+              ),
         ],
         for (final c in s.creatures)
-          _Carte(
-            cle: 'carte-${c.id}',
-            selectionnee: s.carte == c.id,
-            actif: s.etat.actif == c.id,
-            cleIcone: 'icone-${c.id}',
-            icone: _styleCreature(context, c)?.icone ?? Icons.pets_outlined,
-            couleurIcone: _styleCreature(context, c)?.couleur,
-            titre: c.nom,
-            initiative: s.etat.enCombat ? c.initiative : null,
-            ressources: [
-              if (c.pv != null)
-                _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
-            ],
-            lignes: [
-              if (c.pv == null) c.etat.libelle,
-              if (s.estMj && c.cachee)
-                'Carte cachée aux PJ'
-              else if (s.estMj && c.nomCache)
-                'Nom caché aux PJ',
-            ],
-            onTap: () => _choisir(c.id),
-            // Petite croix rouge : retirer la créature de la partie.
-            onRetirer: s.estMj
-                ? () async {
-                    final erreur = await s.retirerCreature(c);
-                    if (erreur != null && context.mounted) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(erreur)));
+          if (!c.estCompagnon)
+            _Carte(
+              cle: 'carte-${c.id}',
+              selectionnee: s.carte == c.id,
+              actif: s.etat.actif == c.id,
+              cleIcone: 'icone-${c.id}',
+              icone: _styleCreature(context, c)?.icone ?? Icons.pets_outlined,
+              couleurIcone: _styleCreature(context, c)?.couleur,
+              titre: c.nom,
+              initiative: s.etat.enCombat ? c.initiative : null,
+              ressources: [
+                if (c.pv != null)
+                  _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+              ],
+              lignes: [
+                if (c.pv == null) c.etat.libelle,
+                if (s.estMj && c.cachee)
+                  'Carte cachée aux PJ'
+                else if (s.estMj && c.nomCache)
+                  'Nom caché aux PJ',
+              ],
+              onTap: () => _choisir(c.id),
+              // Petite croix rouge : retirer la créature de la partie.
+              onRetirer: s.estMj
+                  ? () async {
+                      final erreur = await s.retirerCreature(c);
+                      if (erreur != null && context.mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text(erreur)));
+                      }
                     }
-                  }
-                : null,
-            cleRetirer: 'retirer-${c.id}',
-          ),
+                  : null,
+              cleRetirer: 'retirer-${c.id}',
+            ),
         for (final b in s.butins)
           _Carte(
             cle: 'carte-${b.id}',
@@ -499,9 +528,26 @@ class DetailCarte extends StatelessWidget {
     }
     for (final c in s.creatures) {
       if (c.id == id) {
+        // Compagnon : à qui il appartient.
+        String? mention;
+        for (final m in s.joueurs) {
+          if (m.uid == c.proprietaire) {
+            mention =
+                '${typeCompagnon(s.ficheCreature(c))} de ${m.personnageNom}';
+          }
+        }
         return s.estMj
-            ? _CreatureMj(key: ValueKey(c.id), seance: s, creature: c)
-            : _CreaturePj(creature: c, fiche: s.ficheCreature(c));
+            ? _CreatureMj(
+                key: ValueKey(c.id),
+                seance: s,
+                creature: c,
+                mention: mention,
+              )
+            : _CreaturePj(
+                creature: c,
+                fiche: s.ficheCreature(c),
+                mention: mention,
+              );
       }
     }
     return const Center(child: TexteAVenir('Choisis une carte.'));
@@ -760,10 +806,18 @@ class _EditeurSeanceState extends State<_EditeurSeance> {
 
 /// Créature côté MJ : PV, ce que voient les PJ, fiche du bestiaire.
 class _CreatureMj extends StatelessWidget {
-  const _CreatureMj({super.key, required this.seance, required this.creature});
+  const _CreatureMj({
+    super.key,
+    required this.seance,
+    required this.creature,
+    this.mention,
+  });
 
   final SeanceController seance;
   final CreatureSeance creature;
+
+  /// Compagnon : « Compagnon de Brom ».
+  final String? mention;
 
   @override
   Widget build(BuildContext context) {
@@ -780,6 +834,13 @@ class _CreatureMj extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(c.nom, style: styleAmbiance(theme.textTheme.titleLarge)),
+              if (mention != null)
+                Text(
+                  mention!,
+                  key: const Key('mention-compagnon'),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(color: OdvCouleurs.or),
+                ),
               if (c.pv != null)
                 Row(
                   children: [
@@ -810,24 +871,26 @@ class _CreatureMj extends StatelessWidget {
                     ),
                   ],
                 ),
-              SwitchListTile(
-                key: const Key('creature-cachee'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: const Text('Cacher la carte aux PJ'),
-                value: c.cachee,
-                onChanged: (v) => s.modifierCreature(c.copie(cachee: v)),
-              ),
-              SwitchListTile(
-                key: const Key('creature-nom-cache'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: const Text('Cacher son nom aux PJ'),
-                value: c.nomCache,
-                onChanged: c.cachee
-                    ? null
-                    : (v) => s.modifierCreature(c.copie(nomCache: v)),
-              ),
+              if (!c.estCompagnon) ...[
+                SwitchListTile(
+                  key: const Key('creature-cachee'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text('Cacher la carte aux PJ'),
+                  value: c.cachee,
+                  onChanged: (v) => s.modifierCreature(c.copie(cachee: v)),
+                ),
+                SwitchListTile(
+                  key: const Key('creature-nom-cache'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text('Cacher son nom aux PJ'),
+                  value: c.nomCache,
+                  onChanged: c.cachee
+                      ? null
+                      : (v) => s.modifierCreature(c.copie(nomCache: v)),
+                ),
+              ],
             ],
           ),
         ),
@@ -844,9 +907,12 @@ class _CreatureMj extends StatelessWidget {
 
 /// Créature côté PJ : nom affiché, description et état approximatif.
 class _CreaturePj extends StatelessWidget {
-  const _CreaturePj({required this.creature, this.fiche});
+  const _CreaturePj({required this.creature, this.fiche, this.mention});
 
   final CreatureSeance creature;
+
+  /// Compagnon : « Compagnon de Brom ».
+  final String? mention;
 
   /// Fiche du bestiaire, si le MJ la montre aux PJ.
   final Creature? fiche;
@@ -871,6 +937,16 @@ class _CreaturePj extends StatelessWidget {
               style: styleAmbiance(theme.textTheme.titleLarge),
             ),
           ),
+          if (mention != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 2, 16, 0),
+              child: Text(
+                mention!,
+                key: const Key('mention-compagnon'),
+                style:
+                    theme.textTheme.titleSmall?.copyWith(color: OdvCouleurs.or),
+              ),
+            ),
           Expanded(child: CreatureDetail(creature: f)),
         ],
       );

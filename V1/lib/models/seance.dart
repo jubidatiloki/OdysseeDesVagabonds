@@ -210,6 +210,7 @@ class CreatureSeance {
     this.etat = EtatCreature.indemne,
     this.cachee = false,
     this.nomCache = false,
+    this.proprietaire = '',
   });
 
   /// Nom montré aux PJ quand le MJ cache le vrai nom.
@@ -238,6 +239,12 @@ class CreatureSeance {
   /// Carte visible, mais sous le nom « Créature inconnue ».
   final bool nomCache;
 
+  /// Compagnon ou familier d'un joueur (son uid) : affiché sous lui, PV
+  /// visibles de tous ; vide : créature du MJ.
+  final String proprietaire;
+
+  bool get estCompagnon => proprietaire.isNotEmpty;
+
   String get nomPublic => nomCache ? nomInconnu : nom;
 
   CreatureSeance copie({int? pv, int? ca, bool? cachee, bool? nomCache}) {
@@ -255,6 +262,7 @@ class CreatureSeance {
       etat: EtatCreature.depuisPv(v, pvMax),
       cachee: cachee ?? this.cachee,
       nomCache: nomCache ?? this.nomCache,
+      proprietaire: proprietaire,
     );
   }
 
@@ -263,24 +271,30 @@ class CreatureSeance {
   CreatureSeance pourJoueur(ParametresCampagne p) => CreatureSeance(
         id: id,
         nom: nomPublic,
-        creatureId: p.pjVoientFichesCreatures && !nomCache ? creatureId : '',
+        creatureId: (p.pjVoientFichesCreatures || estCompagnon) && !nomCache
+            ? creatureId
+            : '',
         famille: nomCache ? '' : famille,
         description: description,
         initiative: initiative,
-        pv: p.pjVoientPvCreatures ? pv : null,
-        pvMax: p.pjVoientPvCreatures ? pvMax : null,
+        pv: p.pjVoientPvCreatures || estCompagnon ? pv : null,
+        pvMax: p.pjVoientPvCreatures || estCompagnon ? pvMax : null,
         ca: ca,
         etat: etat,
         nomCache: nomCache,
+        proprietaire: proprietaire,
       );
 
   /// Partie lisible par les PJ (si la carte n'est pas cachée).
   Map<String, dynamic> versPublic(ParametresCampagne p) => {
         'nom': nomPublic,
-        if (p.pjVoientFichesCreatures && !nomCache) 'creatureId': creatureId,
+        if ((p.pjVoientFichesCreatures || estCompagnon) && !nomCache)
+          'creatureId': creatureId,
         if (!nomCache && famille.isNotEmpty) 'famille': famille,
-        if (p.pjVoientPvCreatures && pv != null) 'pv': pv,
-        if (p.pjVoientPvCreatures && pvMax != null) 'pvMax': pvMax,
+        if ((p.pjVoientPvCreatures || estCompagnon) && pv != null) 'pv': pv,
+        if ((p.pjVoientPvCreatures || estCompagnon) && pvMax != null)
+          'pvMax': pvMax,
+        if (estCompagnon) 'proprietaire': proprietaire,
         if (ca != null) 'ca': ca,
         'description': description,
         'initiative': initiative,
@@ -317,6 +331,7 @@ class CreatureSeance {
         etat: EtatCreature.depuisCode(public['etat']),
         cachee: public['cachee'] as bool? ?? false,
         nomCache: public['nomCache'] as bool? ?? false,
+        proprietaire: public['proprietaire'] as String? ?? '',
       );
 }
 

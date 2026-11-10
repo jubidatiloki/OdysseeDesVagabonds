@@ -1583,6 +1583,52 @@ void main() {
       expect(find.byKey(const Key('fenetre-creature-loup')), findsOneWidget);
     });
 
+    testWidgets('MJ : le compagnon entre dans la partie (PV, combat)',
+        (tester) async {
+      final brom = _brom()..rangsVoies['meute'] = 1;
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          b.fiches['brom'] = (
+            fiche: brom,
+            proprietaire: 'j1',
+            partage: ['mj'],
+            editeurs: ['mj'],
+          );
+          await ServiceCampagnesMemoire(b, 'mj')
+              .seance
+              .demarrerCombat(c, ['j1', 'j2']);
+        },
+      );
+      await tester.pumpAndSettle();
+      final partie = x.base.parties[x.campagne.id]!;
+      final loup = partie.creatures['compagnon-j1-loup']!;
+      expect(loup.proprietaire, 'j1');
+      expect((loup.pv, loup.initiative), (12, 14));
+      // Place dans l'ordre de combat, selon son initiative.
+      expect(partie.etat.ordre, ['compagnon-j1-loup', 'j1', 'j2']);
+      // Sous son propriétaire, pas dans les créatures du MJ.
+      final joueur = tester.getRect(find.byKey(const Key('carte-j1')));
+      final carte =
+          tester.getRect(find.byKey(const Key('carte-compagnon-j1-loup')));
+      expect(carte.top, greaterThanOrEqualTo(joueur.bottom));
+      expect(find.byKey(const Key('retirer-compagnon-j1-loup')), findsNothing);
+      // Détail : à qui il appartient ; PV modifiables par le MJ.
+      await tap(tester, find.byKey(const Key('carte-compagnon-j1-loup')));
+      expect(
+        tester.widget<Text>(find.byKey(const Key('mention-compagnon'))).data,
+        'Compagnon de brom',
+      );
+      expect(find.byKey(const Key('creature-cachee')), findsNothing);
+      await tap(tester, find.byKey(const Key('creature-pv-moins')));
+      expect(partie.creatures['compagnon-j1-loup']!.pv, 11);
+      // Les PJ voient ses PV et sa fiche.
+      final vu = partie.creatures['compagnon-j1-loup']!
+          .pourJoueur(const ParametresCampagne(pjVoientPvCreatures: false));
+      expect((vu.pv, vu.creatureId, vu.proprietaire), (11, 'loup', 'j1'));
+    });
+
     testWidgets('sans accord du MJ : pas de montée de niveau', (tester) async {
       await ouvrir(tester, 'j1', fiches: [_brom()]);
       await tap(tester, find.byKey(const Key('carte-j1')));

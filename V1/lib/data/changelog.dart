@@ -29,6 +29,23 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.53.0',
+    date: '11/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : les compagnons entrent dans la partie (ajoutés '
+            'automatiquement par le MJ) : PV suivis, initiative, ordre de '
+            'combat, dégâts.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : détail d\'un compagnon avec « Compagnon de … » ; ses '
+            'PV et sa fiche sont visibles de tous.',
+      ),
+    ],
+  ),
+  (
     version: '0.52.0',
     date: '11/11/2026',
     changements: [

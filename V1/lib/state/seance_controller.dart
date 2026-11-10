@@ -83,6 +83,7 @@ class SeanceController extends ChangeNotifier {
       _traiterEnvois();
       unawaited(_publier());
       unawaited(_ajusterOrdre());
+      unawaited(_synchroniserCompagnons());
     });
     _suivreSelonPermissions();
     campagnes.addListener(_campagneChangee);
@@ -231,6 +232,70 @@ class SeanceController extends ChangeNotifier {
       f,
       {for (final x in referentiel.creatures) x.id: x},
     );
+  }
+
+  /// Compagnons d'un joueur entrés dans la partie (PV suivis, initiative).
+  List<CreatureSeance> compagnonsEnJeu(String joueur) => [
+        for (final x in _creatures)
+          if (x.proprietaire == joueur) x,
+      ];
+
+  /// MJ : les compagnons qui se battent entrent dans la partie comme des
+  /// créatures (identifiant fixe, sans doublon) et en sortent quand le
+  /// personnage ne les a plus ; seulement pour les fiches que le MJ lit.
+  bool _synchronisation = false;
+  Future<void> _synchroniserCompagnons() async {
+    if (!estMj || _synchronisation || _service == null) return;
+    final c = campagne;
+    if (c == null) return;
+    final aAjouter = <CreatureSeance>[];
+    final aRetirer = <CreatureSeance>[];
+    final uids = {for (final m in joueurs) m.uid};
+    for (final x in _creatures) {
+      if (x.estCompagnon && !uids.contains(x.proprietaire)) aRetirer.add(x);
+    }
+    for (final m in joueurs) {
+      if (ficheDe(m.uid) == null) continue;
+      final voulus = {
+        for (final x in compagnonsDe(m.uid))
+          'compagnon-${m.uid}-${x.creature.id}': x.creature,
+      };
+      final presents = compagnonsEnJeu(m.uid);
+      for (final x in presents) {
+        if (!voulus.containsKey(x.id)) aRetirer.add(x);
+      }
+      for (final e in voulus.entries) {
+        if (presents.any((x) => x.id == e.key)) continue;
+        final cr = e.value;
+        aAjouter.add(CreatureSeance(
+          id: e.key,
+          nom: cr.nom,
+          creatureId: cr.id,
+          famille: cr.famille,
+          description: cr.description,
+          initiative: cr.initiative ?? 0,
+          pv: cr.pv,
+          pvMax: cr.pv,
+          ca: cr.ca,
+          proprietaire: m.uid,
+        ));
+      }
+    }
+    if (aAjouter.isEmpty && aRetirer.isEmpty) return;
+    _synchronisation = true;
+    try {
+      await _agir((s, c) async {
+        for (final x in aAjouter) {
+          await s.ajouterCreature(c, x);
+        }
+        for (final x in aRetirer) {
+          await s.retirerCreature(c, x.id);
+        }
+        await _reordonner(s, c);
+      });
+    } finally {
+      _synchronisation = false;
+    }
   }
 
   /// Fiche du bestiaire d'une créature de la partie.
@@ -399,6 +464,7 @@ class SeanceController extends ChangeNotifier {
     _creaturesFlux = s.seance.ecouterCreatures(c).listen((v) {
       _creatures = v;
       _completerCa();
+      unawaited(_synchroniserCompagnons());
       notifyListeners();
     }, onError: (Object _) {});
     _ressourcesFlux = s.seance.ecouterRessources(c).listen((v) {
@@ -454,6 +520,7 @@ class SeanceController extends ChangeNotifier {
           _fiches[id] = p;
         }
         notifyListeners();
+        unawaited(_synchroniserCompagnons());
       }, onError: (Object _) {});
     }
   }

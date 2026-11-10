@@ -246,6 +246,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
       etat: creature.etat,
       cachee: creature.cachee,
       nomCache: creature.nomCache,
+      proprietaire: creature.proprietaire,
     );
     base.signaler();
   }

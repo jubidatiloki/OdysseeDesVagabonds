@@ -87,3 +87,9 @@ List<({Creature creature, String type})> compagnonsCombattants(
         ),
   ];
 }
+
+/// « Familier » ou « Compagnon », d'après la fiche du bestiaire.
+String typeCompagnon(Creature? c) =>
+    (c?.archetype ?? '').toLowerCase().contains('familier')
+        ? 'Familier'
+        : 'Compagnon';
