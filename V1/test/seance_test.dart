@@ -1865,10 +1865,13 @@ void main() {
           .contexte
           .personnages
           .parId('brom')!;
-      expect(
-        enregistre.historique.map((e) => e.message),
-        contains(startsWith('Séance 1 · Test de CHAN : ')),
-      );
+      // Rattaché à la séance (regroupé dans l'historique).
+      final jet = enregistre.historique
+          .firstWhere((e) => e.message.startsWith('Test de CHAN : '));
+      expect(jet.seance, endsWith('Séance 1'));
+      // Fin de séance : plus rien n'y est rattaché.
+      await tester.pumpWidget(const SizedBox());
+      expect(Personnage.seancesEnCours, isEmpty);
     });
 
     testWidgets(

@@ -1479,9 +1479,9 @@
             "rang": 1,
             "nom": "Entraînement martial",
             "type": "passif",
-            "effet": "+1 par rang au test d'aptitude de combat (AdC) pour toucher au corps à corps.",
+            "effet": "+1 par rang au modificateur d'aptitude de combat (AdC) : il s'ajoute au toucher au corps à corps et aux jets d'AdC.",
             "effets": [
-              {"type": "toucher", "valeur": "RANG", "si": "cac", "effet": "+1 par rang au test d'aptitude de combat (AdC) pour toucher au corps à corps."}
+              {"type": "modificateur", "categorie": "ADC", "valeur": "RANG", "effet": "+1 par rang au modificateur d'AdC (toucher au corps à corps, jets d'AdC)."}
             ]
           },
           {

@@ -170,12 +170,23 @@ void main() {
       home: Scaffold(body: AfflictionsGlossaireScreen()),
     ));
     for (final a in [...kAfflictions, ...kEffetsDegats]) {
-      expect(
-        find.textContaining(a.effet, findRichText: true),
-        findsWidgets,
-        reason: a.nom,
-      );
+      final f = find.textContaining(a.effet, findRichText: true);
+      for (var i = 0; i < 20 && f.evaluate().isEmpty; i++) {
+        await tester.drag(
+          find.byKey(const Key('glossaire-afflictions')),
+          const Offset(0, -300),
+        );
+        await tester.pumpAndSettle();
+      }
+      expect(f, findsWidgets, reason: a.nom);
     }
+    // Afflictions rangées par famille, une carte chacune.
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('famille-affliction-Hors de combat')),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(const Key('affliction-Étourdi')), findsOneWidget);
   });
 
   testWidgets('arme personnalisée : élément et affliction', (tester) async {

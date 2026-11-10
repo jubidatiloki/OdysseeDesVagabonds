@@ -74,6 +74,17 @@ IconData iconeHistorique(CategorieHistorique c) {
   }
 }
 
+/// « Séance 3 · Test de FOR : 15 » (anciens jets de séance) → « Séance 3 ».
+final RegExp _prefixeSeance = RegExp(r'^(Séance \d+[^·]*?) · ');
+
+/// Séance d'un événement : celle enregistrée, sinon le préfixe des anciens
+/// jets de séance ; `null` hors séance.
+String? seanceDe(EvenementHistorique e) =>
+    e.seance ?? _prefixeSeance.firstMatch(e.message)?.group(1);
+
+/// Message sans le préfixe « Séance 3 · » (il est dans le titre du cadre).
+String sansPrefixeSeance(String m) => m.replaceFirst(_prefixeSeance, '');
+
 /// Journal des modifications du personnage, du plus récent au plus ancien,
 /// regroupé par jour, avec un filtre par catégorie.
 class OngletHistorique extends StatefulWidget {
@@ -107,25 +118,7 @@ class _OngletHistoriqueState extends State<OngletHistorique> {
         if (_filtre == null || e.categorie == _filtre) e,
     ];
 
-    final lignes = <Widget>[];
-    String? jourCourant;
-    for (final e in evenements) {
-      final jour = formaterJour(e.date);
-      if (jour != jourCourant) {
-        jourCourant = jour;
-        lignes.add(
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 4),
-            child: Text(
-              jour[0].toUpperCase() + jour.substring(1),
-              style:
-                  theme.textTheme.titleSmall?.copyWith(color: scheme.primary),
-            ),
-          ),
-        );
-      }
-      lignes.add(
-        Padding(
+    Widget ligne(EvenementHistorique e, String message) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +137,62 @@ class _OngletHistoriqueState extends State<OngletHistorique> {
                 color: scheme.onSurfaceVariant,
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(e.message)),
+              Expanded(child: Text(message)),
+            ],
+          ),
+        );
+
+    // Événements d'une même séance, à la suite : un seul cadre repliable.
+    final lignes = <Widget>[];
+    String? jourCourant;
+    var i = 0;
+    while (i < evenements.length) {
+      final e = evenements[i];
+      final jour = formaterJour(e.date);
+      if (jour != jourCourant) {
+        jourCourant = jour;
+        lignes.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 4),
+            child: Text(
+              jour[0].toUpperCase() + jour.substring(1),
+              style:
+                  theme.textTheme.titleSmall?.copyWith(color: scheme.primary),
+            ),
+          ),
+        );
+      }
+      final seance = seanceDe(e);
+      if (seance == null) {
+        lignes.add(ligne(e, e.message));
+        i++;
+        continue;
+      }
+      final groupe = <EvenementHistorique>[];
+      while (i < evenements.length && seanceDe(evenements[i]) == seance) {
+        groupe.add(evenements[i]);
+        i++;
+      }
+      lignes.add(
+        Card(
+          key: Key(
+              'groupe-seance-$seance-${groupe.first.date.toIso8601String()}'),
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            leading: Icon(Icons.groups_outlined, color: scheme.primary),
+            title: Text(seance, overflow: TextOverflow.ellipsis),
+            subtitle: Text(
+              '${groupe.length} événement${groupe.length > 1 ? 's' : ''} · '
+              '${formaterHeure(groupe.last.date)} – '
+              '${formaterHeure(groupe.first.date)}',
+            ),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            shape: const Border(),
+            collapsedShape: const Border(),
+            children: [
+              for (final x in groupe) ligne(x, sansPrefixeSeance(x.message)),
             ],
           ),
         ),

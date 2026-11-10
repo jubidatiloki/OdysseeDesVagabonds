@@ -397,7 +397,25 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Suit les fiches des autres joueurs que ce compte peut lire.
+  /// Personnages dont les événements sont rattachés à cette séance.
+  final Set<String> _personnagesMarques = {};
+
+  /// Rattache à la séance les événements des fiches qu'elle touche (la
+  /// sienne pour un joueur, celles des joueurs pour le MJ) : l'historique
+  /// du personnage les regroupe.
+  void _marquerSeance() {
+    final c = campagne;
+    if (c == null) return;
+    final titre = '${c.nom} · ${c.titreSeance(_numero)}';
+    for (final m in _membres) {
+      if (m.personnageId.isEmpty || (!estMj && m.uid != uid)) continue;
+      Personnage.seancesEnCours[m.personnageId] = titre;
+      _personnagesMarques.add(m.personnageId);
+    }
+  }
+
   void _suivreFiches() {
+    _marquerSeance();
     final c = campagne;
     final s = _service;
     if (c == null || s == null) return;
@@ -1105,10 +1123,13 @@ class SeanceController extends ChangeNotifier {
   Future<void> journaliserJet(FicheCalculee f, String texte) async {
     final c = campagne;
     final p = f.personnage;
-    p.journaliser(
-      '${c?.titreSeance(_numero) ?? 'Séance $_numero'} · $texte',
-      categorie: CategorieHistorique.des,
-    );
+    // Rattaché à la séance par `Personnage.seancesEnCours`.
+    if (c != null) {
+      Personnage.seancesEnCours[p.id] ??=
+          '${c.nom} · ${c.titreSeance(_numero)}';
+      _personnagesMarques.add(p.id);
+    }
+    p.journaliser(texte, categorie: CategorieHistorique.des);
     if (p.id == moi?.personnageId) {
       await personnages.sauvegarder(p);
     } else {
@@ -1194,6 +1215,9 @@ class SeanceController extends ChangeNotifier {
 
   @override
   void dispose() {
+    for (final id in _personnagesMarques) {
+      Personnage.seancesEnCours.remove(id);
+    }
     _minuteriePresence?.cancel();
     _minuterieAbsences?.cancel();
     _minuteriePublication?.cancel();

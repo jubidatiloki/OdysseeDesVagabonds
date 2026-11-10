@@ -109,6 +109,16 @@ void main() {
   testWidgets('bestiaire : plus de famille Invocations, origine affichée',
       (tester) async {
     expect(creatures.where((c) => c.famille == 'Invocations'), isEmpty);
+    // Plus d'archétype « Compagnon » ni de rang entre parenthèses.
+    expect(creatures.where((c) => c.archetype == 'Compagnon'), isEmpty);
+    expect(
+      creatures.where((c) => RegExp(r'\(rang \d\)').hasMatch(c.description)),
+      isEmpty,
+    );
+    expect(
+      creatures.firstWhere((c) => c.id == 'druide-aigle').archetype,
+      'Rapide, Volant',
+    );
     expect(
       ref.originesCreature('druide-loup'),
       ['Druide · Voie bestiale · Animal de compagnie'],

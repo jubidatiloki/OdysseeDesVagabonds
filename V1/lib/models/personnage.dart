@@ -157,6 +157,10 @@ class Personnage {
   /// Ajoute une ligne à l'historique. Si [fusion] est donné et que la
   /// dernière ligne a la même clé et date de moins de [delaiFusion], elle est
   /// remplacée (message et date mis à jour) au lieu d'en ajouter une.
+  /// Séance ouverte pour un personnage (id → « Campagne · Séance 3 ») : ses
+  /// événements y sont rattachés. Rempli par l'écran de séance.
+  static final Map<String, String> seancesEnCours = {};
+
   void journaliser(
     String message, {
     CategorieHistorique categorie = CategorieHistorique.autre,
@@ -177,6 +181,7 @@ class Personnage {
         categorie: categorie,
         message: message,
         fusion: fusion,
+        seance: seancesEnCours[id],
       ),
     );
   }
@@ -218,6 +223,7 @@ class Personnage {
             '${note.isEmpty ? '' : ' — $note'}',
         fusion: regrouper ? cle : null,
         avant: regrouper ? depart : null,
+        seance: seancesEnCours[id],
       ),
     );
   }

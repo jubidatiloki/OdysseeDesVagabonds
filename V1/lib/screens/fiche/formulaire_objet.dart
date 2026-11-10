@@ -127,7 +127,10 @@ class _FormulaireObjetState extends State<FormulaireObjet> {
       ..tenueDeuxMains = polyvalente && objet.tenueDeuxMains
       ..distance = estArme && _distance
       ..bonusCA = _categorie.protection ? _bonusCA : 0
-      ..dexMax = _categorie == CategorieObjet.armure ? _dexMax : null
+      ..dexMax = _categorie == CategorieObjet.armure ||
+              _categorie == CategorieObjet.bouclier
+          ? _dexMax
+          : null
       ..matiere = _matiere
       ..poidsArmure = _categorie == CategorieObjet.armure
           ? _poidsArmure
@@ -369,14 +372,19 @@ class _FormulaireObjetState extends State<FormulaireObjet> {
                     signe: true,
                     onChange: (v) => setState(() => _bonusCA = v),
                   ),
-                  // Armure : limite du bonus de DEX à la CA et à l'esquive.
-                  if (_categorie == CategorieObjet.armure) ...[
+                  // Armure ou bouclier : limite du bonus de DEX à la CA et à
+                  // l'esquive (la plus basse des protections portées compte).
+                  if (_categorie == CategorieObjet.armure ||
+                      _categorie == CategorieObjet.bouclier) ...[
                     SwitchListTile(
                       key: const Key('limite-dex'),
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Limite le bonus de DEX'),
-                      subtitle: const Text(
-                          'Cuir +3, cotte de mailles +2, plaques +1'),
+                      subtitle: Text(
+                        _categorie == CategorieObjet.bouclier
+                            ? 'Pavois +1 ; la limite la plus basse compte'
+                            : 'Cuir +3, cotte de mailles +2, plaques +1',
+                      ),
                       value: _dexMax != null,
                       onChanged: (v) => setState(() => _dexMax = v ? 1 : null),
                     ),

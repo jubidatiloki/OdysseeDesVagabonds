@@ -128,6 +128,30 @@ void main() {
     );
     expect(avec.limiteDex, isNull);
     expect(avec.classeArmure, greaterThanOrEqualTo(sans.classeArmure));
+    // Armure et bouclier : la limite la plus basse compte.
+    final cotte = Objet(
+      nom: 'Cotte de mailles',
+      categorie: CategorieObjet.armure,
+      bonusCA: 3,
+      dexMax: 2,
+      equipe: true,
+    );
+    final deux = _fiche(inventaire: [_epee(), cotte, pavois]);
+    expect(deux.limiteDex, 1);
+    expect(deux.origineLimiteDex, 'Pavois');
+    final formation = _fiche(
+      rangs: {'guerrier-bouclier': 1},
+      inventaire: [_epee(), cotte, pavois],
+    );
+    expect(formation.limiteDex, 2);
+    expect(formation.origineLimiteDex, 'Cotte de mailles');
+  });
+
+  test('mêlée : Entraînement martial = +RANG au modificateur d\'AdC', () {
+    final r2 = _fiche(rangs: {'guerrier-melee': 2});
+    expect(r2.mod(Carac.adc), base.mod(Carac.adc) + 2);
+    expect(r2.carac(Carac.adc), base.carac(Carac.adc));
+    expect(r2.toucherCac, base.toucherCac + 2);
   });
 
   testWidgets('voies : description et puces en points', (tester) async {

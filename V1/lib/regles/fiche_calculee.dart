@@ -1590,8 +1590,17 @@ class FicheCalculee {
       modificateurRacial(c) +
       bonusEffets(c);
 
-  /// Modificateur de la valeur finale d'une caractéristique.
-  int mod(Carac c) => modificateur(carac(c));
+  /// Modificateur de la valeur finale d'une caractéristique, plus les bonus
+  /// donnés directement au modificateur (Entraînement martial : +RANG AdC).
+  int mod(Carac c) => modificateur(carac(c)) + bonusModificateur(c);
+
+  /// Bonus ajoutés au modificateur d'une caractéristique (effet
+  /// `{"type": "modificateur", "categorie": "ADC", "valeur": "RANG"}`).
+  int bonusModificateur(Carac c) => [
+        for (final s in effetsActifs)
+          if (s.effet.typeNormalise == 'modificateur' && s.effet.carac == c)
+            s.effet.valeurEntiere ?? 0,
+      ].fold(0, (a, b) => a + b);
 
   // --- Vie et mana ---------------------------------------------------------
 
@@ -1791,6 +1800,24 @@ class FicheCalculee {
       }
     }
     return limite;
+  }
+
+  /// Protection qui fixe la limite de DEX (la plus basse) : « Pavois ».
+  String? get origineLimiteDex {
+    final l = limiteDex;
+    if (l == null) return null;
+    for (final o in personnage.inventaire) {
+      if (o.equipe && o.categorie.protection && o.dexMax == l) {
+        if (o.categorie == CategorieObjet.bouclier &&
+            effetsActifs.any((s) =>
+                s.effet.typeNormalise == 'bouclier' &&
+                s.effet.valeur == 'sans-limite-dex')) {
+          continue;
+        }
+        return o.nom;
+      }
+    }
+    return null;
   }
 
   /// Mod de DEX compté en défense : plafonné par l'armure (un malus de DEX

@@ -204,7 +204,8 @@ class ResumeFiche extends StatelessWidget {
             detail: [
               ...f.caContre,
               if (f.limiteDex != null)
-                'DEX max ${formaterModificateur(f.limiteDex!)}',
+                'DEX max ${formaterModificateur(f.limiteDex!)}'
+                    '${f.origineLimiteDex == null ? '' : ' (${f.origineLimiteDex})'}',
             ].join(', '),
             infobulle: [
               'CA ${f.classeArmure} = 10'

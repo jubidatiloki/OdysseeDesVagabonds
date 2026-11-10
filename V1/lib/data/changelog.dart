@@ -29,6 +29,36 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.47.0',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Fiche : historique regroupé par séance (un cadre repliable par '
+            'séance).',
+      ),
+      (
+        type: _c,
+        texte: 'Guerrier : Entraînement martial ajoute +1 par rang au '
+            'modificateur d\'AdC (+2 au rang 2).',
+      ),
+      (
+        type: _m,
+        texte: 'Boucliers : limite de DEX possible sur un objet personnalisé ; '
+            'la plus basse compte, son origine est affichée.',
+      ),
+      (
+        type: _m,
+        texte: 'Bestiaire : archétypes des compagnons (ex. aigle : rapide, '
+            'volant), sans rang entre parenthèses.',
+      ),
+      (
+        type: _m,
+        texte: 'Afflictions : rangées par famille, une carte chacune.',
+      ),
+    ],
+  ),
+  (
     version: '0.46.0',
     date: '09/11/2026',
     changements: [

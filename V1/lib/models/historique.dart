@@ -30,7 +30,12 @@ class EvenementHistorique {
     required this.message,
     this.fusion,
     this.avant,
+    this.seance,
   });
+
+  /// Séance pendant laquelle l'événement a eu lieu (« Les Brumes · Séance
+  /// 3 ») : l'historique les regroupe.
+  final String? seance;
 
   final DateTime date;
   final CategorieHistorique categorie;
@@ -49,6 +54,7 @@ class EvenementHistorique {
         'message': message,
         if (fusion != null) 'fusion': fusion,
         if (avant != null) 'avant': avant,
+        if (seance != null) 'seance': seance,
       };
 
   factory EvenementHistorique.depuisJson(Map<String, dynamic> j) =>
@@ -58,6 +64,7 @@ class EvenementHistorique {
         message: j['message'] as String? ?? '',
         fusion: j['fusion'] as String?,
         avant: (j['avant'] as num?)?.toInt(),
+        seance: j['seance'] as String?,
       );
 }
 
