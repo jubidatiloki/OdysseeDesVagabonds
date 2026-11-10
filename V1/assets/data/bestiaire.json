@@ -601,7 +601,10 @@
     "taille": "standard",
     "description": "Bouquetin des montagnes dompté par le nain : cornes recourbées, sabots sûrs, il galope comme un cheval et grimpe partout.",
     "pv": 15,
-    "note": "Non combattant. Monté : +10 en escalade."
+    "note": "Monté : +10 en escalade.",
+    "attaques": [
+      {"nom": "Coup de cornes", "portee": "CaC", "toucher": "1d20 + AdC du nain", "degats": "1d6 contondant"}
+    ]
   },
   {
     "id": "ecuyer-chevalier",
@@ -611,7 +614,9 @@
     "taille": "standard",
     "description": "Jeune écuyer au service du chevalier : porte jusqu'à 30 kg, aide à revêtir l'armure et entretient l'équipement.",
     "pv": 8,
-    "note": "Non combattant."
+    "attaques": [
+      {"nom": "Dague", "portee": "CaC", "toucher": "1d20 + AdC du chevalier", "degats": "1d4 perçant"}
+    ]
   },
   {
     "id": "petit-automate",
@@ -621,7 +626,9 @@
     "taille": "petite",
     "description": "Petit automate d'engrenages et de métal fabriqué par l'ingénieur ; porte du matériel.",
     "pv": 10,
-    "note": "Non combattant."
+    "attaques": [
+      {"nom": "Pince", "portee": "CaC", "toucher": "1d20 + AdC de l'ingénieur", "degats": "1d4 contondant"}
+    ]
   },
   {
     "id": "familier-corbeau",
@@ -632,7 +639,10 @@
     "siChoix": "familier-necromancien:corbeau",
     "description": "Familier du nécromancien : Corbeau aux yeux luisants.",
     "pv": 3,
-    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+    "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
+    "attaques": [
+      {"nom": "Coup de bec", "portee": "CaC", "toucher": "1d20 + AdM du nécromancien", "degats": "1d4 perçant"}
+    ]
   },
   {
     "id": "familier-rat",
@@ -643,7 +653,10 @@
     "siChoix": "familier-necromancien:rat",
     "description": "Familier du nécromancien : Rat furtif.",
     "pv": 3,
-    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+    "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdM du nécromancien", "degats": "1d4 perçant"}
+    ]
   },
   {
     "id": "familier-chat-noir",
@@ -654,7 +667,10 @@
     "siChoix": "familier-necromancien:chat-noir",
     "description": "Familier du nécromancien : Chat noir silencieux.",
     "pv": 3,
-    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+    "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
+    "attaques": [
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 + AdM du nécromancien", "degats": "1d4 tranchant"}
+    ]
   },
   {
     "id": "familier-crane-flottant",
@@ -665,7 +681,10 @@
     "siChoix": "familier-necromancien:crane-flottant",
     "description": "Familier du nécromancien : Crâne qui flotte dans les airs.",
     "pv": 3,
-    "note": "Non combattant. Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m."
+    "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
+    "attaques": [
+      {"nom": "Rayon nécrotique (10 m)", "portee": "distance", "toucher": "1d20 + AdM du nécromancien", "degats": "1d4 magique"}
+    ]
   },
   {
     "id": "druide-jeune-ours",
@@ -676,7 +695,10 @@
     "siChoix": "animal-druide:jeune-ours",
     "description": "Animal de compagnie du druide.",
     "pv": 12,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+    "note": "Attaque faible avant le rang 3 (Animal de combat).",
+    "attaques": [
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-jeune-ours-combat",
@@ -703,7 +725,10 @@
     "siChoix": "animal-druide:panthere",
     "description": "Animal de compagnie du druide.",
     "pv": 10,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+    "note": "Attaque faible avant le rang 3 (Animal de combat).",
+    "attaques": [
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-panthere-combat",
@@ -730,7 +755,10 @@
     "siChoix": "animal-druide:sanglier",
     "description": "Animal de compagnie du druide.",
     "pv": 12,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+    "note": "Attaque faible avant le rang 3 (Animal de combat).",
+    "attaques": [
+      {"nom": "Défenses", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-sanglier-combat",
@@ -757,7 +785,10 @@
     "siChoix": "animal-druide:chouette",
     "description": "Animal de compagnie du druide.",
     "pv": 4,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat). Vole, voit dans le noir."
+    "note": "Attaque faible avant le rang 3 (Animal de combat). Vole, voit dans le noir.",
+    "attaques": [
+      {"nom": "Serres", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-chouette-combat",
@@ -785,7 +816,10 @@
     "siChoix": "animal-druide:aigle",
     "description": "Animal de compagnie du druide.",
     "pv": 5,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat). Vole."
+    "note": "Attaque faible avant le rang 3 (Animal de combat). Vole.",
+    "attaques": [
+      {"nom": "Serres", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-aigle-combat",
@@ -813,7 +847,10 @@
     "siChoix": "animal-druide:chien",
     "description": "Animal de compagnie du druide.",
     "pv": 8,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+    "note": "Attaque faible avant le rang 3 (Animal de combat).",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-chien-combat",
@@ -840,7 +877,10 @@
     "siChoix": "animal-druide:loup",
     "description": "Animal de compagnie du druide.",
     "pv": 9,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+    "note": "Attaque faible avant le rang 3 (Animal de combat).",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-loup-combat",
@@ -867,7 +907,10 @@
     "siChoix": "animal-druide:lievre",
     "description": "Animal de compagnie du druide.",
     "pv": 3,
-    "note": "Ne combat pas avant le rang 3 (Animal de combat)."
+    "note": "Attaque faible avant le rang 3 (Animal de combat).",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdC du druide", "degats": "1d4"}
+    ]
   },
   {
     "id": "druide-lievre-combat",
@@ -894,7 +937,10 @@
     "siChoix": "compagnon-rodeur:loup",
     "description": "Compagnon animal du rôdeur, encore jeune.",
     "pv": 9,
-    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+    "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdC du rôdeur", "degats": "1d4"}
+    ]
   },
   {
     "id": "rodeur-loup-adulte",
@@ -937,7 +983,10 @@
     "siChoix": "compagnon-rodeur:chien",
     "description": "Compagnon animal du rôdeur, encore jeune.",
     "pv": 8,
-    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+    "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdC du rôdeur", "degats": "1d4"}
+    ]
   },
   {
     "id": "rodeur-chien-adulte",
@@ -980,7 +1029,10 @@
     "siChoix": "compagnon-rodeur:lynx",
     "description": "Compagnon animal du rôdeur, encore jeune.",
     "pv": 8,
-    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+    "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
+    "attaques": [
+      {"nom": "Griffes", "portee": "CaC", "toucher": "1d20 + AdC du rôdeur", "degats": "1d4"}
+    ]
   },
   {
     "id": "rodeur-lynx-adulte",
@@ -1023,7 +1075,10 @@
     "siChoix": "compagnon-rodeur:renard",
     "description": "Compagnon animal du rôdeur, encore jeune.",
     "pv": 5,
-    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+    "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
+    "attaques": [
+      {"nom": "Morsure", "portee": "CaC", "toucher": "1d20 + AdC du rôdeur", "degats": "1d4"}
+    ]
   },
   {
     "id": "rodeur-renard-adulte",
@@ -1066,7 +1121,10 @@
     "siChoix": "compagnon-rodeur:jeune-sanglier",
     "description": "Compagnon animal du rôdeur, encore jeune.",
     "pv": 10,
-    "note": "Ne combat pas avant le rang 3 (Compagnon adulte)."
+    "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
+    "attaques": [
+      {"nom": "Défenses", "portee": "CaC", "toucher": "1d20 + AdC du rôdeur", "degats": "1d4"}
+    ]
   },
   {
     "id": "rodeur-jeune-sanglier-adulte",

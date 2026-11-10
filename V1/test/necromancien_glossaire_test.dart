@@ -92,6 +92,24 @@ void main() {
     );
   });
 
+  test('invocations, compagnons et familiers : tous ont une attaque', () {
+    final ids = {
+      for (final c in classes)
+        for (final v in c.voies)
+          for (final k in v.competences) ...k.invocations,
+      for (final r in races)
+        if (r.voieRaciale case final v?)
+          for (final k in v.competences) ...k.invocations,
+    };
+    for (final x in creatures.where((x) => ids.contains(x.id))) {
+      expect(x.attaques, isNotEmpty, reason: x.id);
+      expect(x.note, isNot(contains('Non combattant')), reason: x.id);
+    }
+    // Familier du nécromancien : attaque à l'AdM du nécromancien.
+    final corbeau = creatures.firstWhere((x) => x.id == 'familier-corbeau');
+    expect(corbeau.attaques.single.toucher, '1d20 + AdM du nécromancien');
+  });
+
   test('Requiem : 1d4 + INT morts-vivants', () {
     expect(mortsVivants.competence(5)!.effet, contains('1d4 + INT'));
   });

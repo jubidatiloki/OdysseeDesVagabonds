@@ -130,9 +130,10 @@ void main() {
       expect(familles, contains(c.famille), reason: c.id);
       expect(c.description, isNotEmpty, reason: c.id);
       expect(c.pv, isNotNull, reason: c.id);
-      // Compagnons non combattants (bouquetin, familier) : PV seulement.
+      // Petits compagnons (bouquetin, familier, jeune animal) : PV et une
+      // attaque faible (11/11/2026), sans CA ni initiative pour l'instant.
       if (c.ca == null) {
-        expect(c.attaques, isEmpty, reason: c.id);
+        expect(c.attaques, hasLength(1), reason: c.id);
         continue;
       }
       expect(c.initiative, isNotNull, reason: c.id);

@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.55.0',
+    date: '11/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Bestiaire : une attaque faible pour les familiers, jeunes '
+            'animaux, écuyer, petit automate et bouquetin.',
+      ),
+    ],
+  ),
+  (
     version: '0.54.0',
     date: '11/11/2026',
     changements: [
