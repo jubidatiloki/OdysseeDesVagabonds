@@ -34,9 +34,8 @@ const List<VersionChangelog> kChangelog = [
     changements: [
       (
         type: _a,
-        texte: 'Séance : les compagnons entrent dans la partie (ajoutés '
-            'automatiquement par le MJ) : PV suivis, initiative, ordre de '
-            'combat, dégâts.',
+        texte: 'Séance : les compagnons entrent dans la partie (ajoutés par '
+            'le MJ) : PV suivis, initiative, ordre de combat.',
       ),
       (
         type: _a,
