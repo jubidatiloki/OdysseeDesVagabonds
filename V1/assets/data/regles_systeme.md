@@ -277,6 +277,7 @@ Une **affliction** est un état qui gêne un personnage ou une créature (poison
 | Paralysé | Aucune action ni mouvement ; défense réduite à 5 |
 | Affaibli | Dégâts infligés divisés par 2 |
 | Charmé | Ne peut pas attaquer celui qui l'a charmé |
+| Nécrose | Ne peut pas regagner de PV (soins, potions, repos) pendant la durée indiquée |
 
 ## Tailles de créatures
 

@@ -606,6 +606,10 @@ class OngletFiche extends StatelessWidget {
             mention: mention(c),
             choixFaits: fiche.personnage.choix,
             sortsEnEndurance: fiche.sortsEnEndurance,
+            // Autre compétence du même rang : pas de second numéro de rang.
+            sousCompetence: c.voie.competences.any(
+              (k) => k.aussi.any((a) => a.nom == c.competence.nom),
+            ),
           ),
         );
       }

@@ -425,7 +425,7 @@ Maîtrises : armes civiles. Restriction : armure de cuir max. Origine : connaiss
 ### Voie de la mort
 | Rang | Compétence | Effet |
 |---|---|---|
-| 1 | 🆕 Toucher nécrotique *(actif, sort)* | Attaque magique au contact : 1d6 DM ; la cible ne peut pas regagner de PV jusqu'à la fin de son prochain tour. |
+| 1 | 🆕 Toucher nécrotique *(actif, sort)* | Attaque magique au contact : 1d6 DM ; la cible subit la **nécrose** (ne peut pas regagner de PV) jusqu'à la fin de son prochain tour. |
 | 2 | Siphon d'âme *(renforcement)* | Quand une créature meurt près de lui, son âme est visible ; une action de mouvement pour l'absorber et se soigner (soin selon la taille : petite 1d4, moyenne 1d6, grande 2d6). |
 | 3 | Récits du passé *(actif + maintien)* | Appelle un fantôme depuis un cadavre pour lui parler. |
 | 4 | Afflux mortuaire | Vague d'énergie funèbre : rend 3D6 + INT à un être non vivant ou démoniaque, ou inflige 3D6 + INT à une créature vivante non démoniaque. |
@@ -438,7 +438,7 @@ Maîtrises : armes civiles. Restriction : armure de cuir max. Origine : connaiss
 | 2 | Fidèle serviteur *(actif)* | Relève un cadavre de taille moyenne (temporaire). |
 | 3 | 🆕 Maître des cadavres *(renforcement)* | « Fidèle serviteur » relève jusqu'à 2 cadavres moyens ; les serviteurs gagnent +2 AdC et +5 PV. |
 | 4 | Fidèle et puissant serviteur *(actif)* | Relève un cadavre de grande taille (temporaire). **Serviteur permanent** : en sacrifiant 1d4 PV max, relève de façon permanente un serviteur plus grand et plus fort. Un seul serviteur permanent à la fois ; s'il est tué, le nécromancien récupère les PV max sacrifiés. |
-| 5 | Requiem *(complexe)* | Chant ramenant les morts : petite armée de morts-vivants. |
+| 5 | Requiem *(complexe)* | Chant ramenant les morts : relève **1d4 + INT** morts-vivants (11/11/2026). |
 
 ### Voie de l'invocation
 | Rang | Compétence | Effet |
@@ -459,7 +459,7 @@ Rituels hors combat.
 | 4 | Rituel de la lune *(actif)* | De nuit en extérieur, coûte du mana : surface réfléchissante pour trouver une personne/objet, test d'AdM diff. 10 à 30 (selon le MJ). |
 | 5 | Rituel abominable | Invoque une abomination à partir de cadavres. |
 
-> Avancement 16/20 : les rangs « Démon » (invocation 5), « Requiem » (morts-vivants 5) et « Rituel abominable » (rituels 5) ont un titre mais pas encore de chiffrage.
+> Avancement 16/20 : les rangs « Démon » (invocation 5) et « Rituel abominable » (rituels 5) ont un titre mais pas encore de chiffrage.
 
 ---
 

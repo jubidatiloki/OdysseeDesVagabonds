@@ -22,9 +22,14 @@ class LigneCompetence extends StatelessWidget {
     this.action,
     this.choixFaits,
     this.sortsEnEndurance = false,
+    this.sousCompetence = false,
   });
 
   final Competence competence;
+
+  /// Autre compétence du même rang (`aussi`) : flèche au lieu du numéro de
+  /// rang, pour ne pas afficher deux fois le même rang.
+  final bool sousCompetence;
 
   /// Personnage d'une classe sans mana : coût des sorts en PE.
   final bool sortsEnEndurance;
@@ -59,26 +64,37 @@ class LigneCompetence extends StatelessWidget {
         children: [
           // Rang : petit cercle à contour, numéro orange (pastille discrète,
           // le nom de la compétence porte l'attention).
-          Container(
-            width: 22,
-            height: 22,
-            margin: const EdgeInsets.only(top: 1),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: acquise ? scheme.primary : scheme.outlineVariant,
-                width: acquise ? 1.5 : 1,
-              ),
-            ),
-            child: Text(
-              '${c.rang}',
-              style: theme.textTheme.labelSmall?.copyWith(
+          if (sousCompetence)
+            Padding(
+              padding: const EdgeInsets.only(top: 1),
+              child: Icon(
+                Icons.subdirectory_arrow_right,
+                key: Key('sous-competence-${c.nom}'),
+                size: 22,
                 color: acquise ? scheme.primary : scheme.outline,
-                fontWeight: FontWeight.w700,
+              ),
+            )
+          else
+            Container(
+              width: 22,
+              height: 22,
+              margin: const EdgeInsets.only(top: 1),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: acquise ? scheme.primary : scheme.outlineVariant,
+                  width: acquise ? 1.5 : 1,
+                ),
+              ),
+              child: Text(
+                '${c.rang}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: acquise ? scheme.primary : scheme.outline,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -326,7 +342,11 @@ class VoieDetail extends StatelessWidget {
           ),
           // Autres compétences du même rang.
           for (final a in c.aussi)
-            LigneCompetence(competence: a, acquise: c.rang <= rangAcquis),
+            LigneCompetence(
+              competence: a,
+              acquise: c.rang <= rangAcquis,
+              sousCompetence: true,
+            ),
         ],
       ],
     );
@@ -503,9 +523,7 @@ class BoutonsStatistiques extends StatelessWidget {
               'Statistiques : ${x.nom}',
               overflow: TextOverflow.ellipsis,
             ),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
-              builder: (_) => CreatureDetailScreen(creature: x),
-            )),
+            onPressed: () => afficherCreature(context, x),
           ),
       ],
     );

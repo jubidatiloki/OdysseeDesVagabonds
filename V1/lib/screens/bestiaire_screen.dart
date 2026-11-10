@@ -301,23 +301,50 @@ class CreatureDetail extends StatelessWidget {
 }
 
 /// Fiche d'une créature en page entière (téléphone, ouverture directe).
-class CreatureDetailScreen extends StatelessWidget {
-  const CreatureDetailScreen({super.key, required this.creature});
-
-  final Creature creature;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          creature.nom,
-          style: const TextStyle(fontFamily: kPoliceAmbiance),
+/// Statistiques d'une créature (invocation, compagnon…) dans une fenêtre,
+/// sans quitter la page en cours.
+Future<void> afficherCreature(BuildContext context, Creature creature) {
+  return showDialog<void>(
+    context: context,
+    builder: (context) {
+      final hauteur = MediaQuery.sizeOf(context).height;
+      return Dialog(
+        key: Key('fenetre-creature-${creature.id}'),
+        insetPadding: const EdgeInsets.all(16),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 640, maxHeight: hauteur * 0.85),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 8, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        creature.nom,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontFamily: kPoliceAmbiance,
+                            ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Fermer',
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(child: CreatureDetail(creature: creature)),
+            ],
+          ),
         ),
-      ),
-      body: LargeurLimitee(child: CreatureDetail(creature: creature)),
-    );
-  }
+      );
+    },
+  );
 }
 
 /// Modificateur d'une caractéristique de créature (« FOR +3 »).

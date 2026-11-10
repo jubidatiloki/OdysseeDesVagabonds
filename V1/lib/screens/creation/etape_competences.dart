@@ -180,7 +180,11 @@ class EtapeCompetences extends StatelessWidget {
                 if (c.rang <= rangRacial) ...[
                   LigneCompetence(competence: c, acquise: true),
                   for (final a in c.aussi)
-                    LigneCompetence(competence: a, acquise: true),
+                    LigneCompetence(
+                      competence: a,
+                      acquise: true,
+                      sousCompetence: true,
+                    ),
                 ],
             ],
           ),

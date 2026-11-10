@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/referentiel.dart';
 import '../models/classe.dart';
+import '../models/equipement.dart';
+import '../regles/inventaire.dart';
 import '../theme.dart';
 import '../widgets/carte_selection.dart';
 import '../widgets/consultation.dart';
@@ -40,7 +42,10 @@ class ClassesScreen extends StatelessWidget {
               contenu: (c) => InfosClasse(c),
               couleurAvatar: (c) =>
                   couleurProfil(c.profil, Theme.of(context).brightness),
-              detail: (c) => ClasseDetail(classe: c),
+              detail: (c) => ClasseDetail(
+                classe: c,
+                equipements: referentiel.equipements,
+              ),
             ),
     );
   }
@@ -48,13 +53,21 @@ class ClassesScreen extends StatelessWidget {
 
 /// Détail d'une classe : description, dés, maîtrises, restrictions, voies.
 class ClasseDetail extends StatelessWidget {
-  const ClasseDetail({super.key, required this.classe});
+  const ClasseDetail({
+    super.key,
+    required this.classe,
+    this.equipements = const [],
+  });
 
   final Classe classe;
+
+  /// Catalogue, pour nommer les objets de l'inventaire de base.
+  final List<Equipement> equipements;
 
   @override
   Widget build(BuildContext context) {
     final c = classe;
+    final inventaire = ObjetDuCatalogue.inventaireBase(c, equipements);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -137,6 +150,29 @@ class ClasseDetail extends StatelessWidget {
           icone: Icons.gavel_outlined,
           children: [MaitrisesRestrictions(classe: c)],
         ),
+        if (inventaire.isNotEmpty)
+          BlocConsultation(
+            key: const Key('inventaire-base-classe'),
+            titre: 'Inventaire de base',
+            icone: Icons.backpack_outlined,
+            children: [
+              Text(
+                'Reçu à la création du personnage (case à cocher du '
+                'récapitulatif).',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              for (final o in inventaire)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    '• ${o.quantite > 1 ? '${o.nom} ×${o.quantite}' : o.nom}',
+                  ),
+                ),
+            ],
+          ),
         if (c.note.isNotEmpty)
           BlocConsultation(
             titre: 'À savoir',

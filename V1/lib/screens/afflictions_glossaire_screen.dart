@@ -34,7 +34,7 @@ const List<({String titre, IconData icone, List<String> noms})> _familles = [
   (
     titre: 'Dégâts sur la durée',
     icone: Icons.water_drop_outlined,
-    noms: ['Empoisonné', 'En feu', 'Saignement'],
+    noms: ['Empoisonné', 'En feu', 'Saignement', 'Nécrose'],
   ),
   (
     titre: 'Esprit et force',
@@ -48,6 +48,7 @@ IconData? _icone(String nom) => switch (nom) {
       'Empoisonné' => Icons.science_outlined,
       'En feu' => Icons.local_fire_department_outlined,
       'Saignement' => Icons.water_drop_outlined,
+      'Nécrose' => Icons.heart_broken_outlined,
       'Effrayé' => Icons.sentiment_very_dissatisfied_outlined,
       'Charmé' => Icons.favorite_border,
       'Affaibli' => Icons.trending_down,

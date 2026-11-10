@@ -2749,10 +2749,10 @@
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "degats": "1d6",
             "typeDegats": "physique",
-            "effetApplique": "Pas de PV regagnés jusqu'à son prochain tour",
+            "effetApplique": "Nécrose (aucun PV regagné) jusqu'à la fin de son prochain tour",
             "type": "actif, sort",
             "typesSort": ["offensif"],
-            "effet": "Attaque magique au contact : 1d6 DM ; la cible ne peut pas regagner de PV jusqu'à la fin de son prochain tour."
+            "effet": "Attaque magique au contact : 1d6 DM ; la cible subit la nécrose (elle ne peut pas regagner de PV) jusqu'à la fin de son prochain tour."
           },
           {
             "rang": 2,
@@ -2838,7 +2838,7 @@
             "type": "actif, sort",
             "typesSort": ["invocation"],
             "effetApplique": "Relève un cadavre de grande taille (temporaire)",
-            "effet": "Relève un cadavre de grande taille (temporaire). Serviteur permanent : en sacrifiant 1d4 PV max, relève de façon permanente un serviteur plus grand et plus fort. Un seul serviteur permanent à la fois ; s'il est tué, le nécromancien récupère les PV max sacrifiés.",
+            "effet": "Relève un cadavre de grande taille (temporaire). Donne aussi « Serviteur permanent » (ci-dessous).",
             "aussi": [
               {
                 "nom": "Serviteur permanent",
@@ -2857,8 +2857,8 @@
             "jets": [{"libelle": "Requiem : nombre de morts-vivants", "des": "1d4", "carac": "INT"}, {"libelle": "Requiem : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "complexe, sort",
             "typesSort": ["invocation"],
-            "effetApplique": "Petite armée de morts-vivants",
-            "effet": "Chant ramenant les morts : petite armée de morts-vivants."
+            "effetApplique": "Relève 1d4 + INT morts-vivants",
+            "effet": "Chant ramenant les morts : relève 1d4 + INT morts-vivants."
           }
         ]
       },

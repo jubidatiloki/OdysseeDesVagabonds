@@ -64,6 +64,12 @@ const List<EntreeEffet> kAfflictions = [
     nom: 'Charmé',
     effet: 'Ne peut pas attaquer celui qui l\'a charmé.',
   ),
+  // Ajoutée le 11/11/2026 (Toucher nécrotique du nécromancien).
+  (
+    nom: 'Nécrose',
+    effet: 'Ne peut pas regagner de PV (soins, potions, repos) pendant la '
+        'durée indiquée par ce qui l\'a causée.',
+  ),
 ];
 
 /// Explication générale des jets d'attaque, en tête des types de dégâts.

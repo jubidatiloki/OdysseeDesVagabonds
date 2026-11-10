@@ -29,6 +29,35 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.51.0',
+    date: '11/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Afflictions : Nécrose (aucun PV regagné), causée par le '
+            'Toucher nécrotique.',
+      ),
+      (
+        type: _a,
+        texte: 'Glossaire des classes : inventaire de base reçu à la création.',
+      ),
+      (
+        type: _m,
+        texte: 'Invocations et familiers : statistiques dans une fenêtre, sans '
+            'changer de page.',
+      ),
+      (
+        type: _c,
+        texte: 'Voie des morts-vivants : Serviteur permanent affiché comme '
+            'option du rang 4 (plus de second rang 4).',
+      ),
+      (
+        type: _c,
+        texte: 'Requiem : relève 1d4 + INT morts-vivants.',
+      ),
+    ],
+  ),
+  (
     version: '0.50.0',
     date: '10/11/2026',
     changements: [

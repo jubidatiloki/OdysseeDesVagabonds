@@ -23,6 +23,7 @@ const Map<String, List<String>> _motsAffliction = {
   'Paralysé': ['paralys'],
   'Affaibli': ['affaibli'],
   'Charmé': ['charm'],
+  'Nécrose': ['necrose'],
 };
 
 /// Le mot est présent, et pas juste après « insensible », « immunisé » ou
