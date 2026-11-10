@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.48.0',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Bestiaire : noms des créatures de classe et de race sans '
+            'parenthèses ; leur origine en fin de ligne.',
+      ),
+      (
+        type: _a,
+        texte: 'Afflictions : ce qui peut les causer (compétences, créatures), '
+            'jusqu\'à 4 cartes par ligne.',
+      ),
+      (
+        type: _m,
+        texte: 'Types de dégâts : cartes avec icône et couleur, comme les '
+            'afflictions.',
+      ),
+    ],
+  ),
+  (
     version: '0.47.0',
     date: '10/11/2026',
     changements: [

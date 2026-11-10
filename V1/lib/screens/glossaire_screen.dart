@@ -142,7 +142,7 @@ class _GlossaireScreenState extends State<GlossaireScreen>
           AptitudesGlossaireScreen(referentiel: ref),
           EquipementsScreen(referentiel: ref),
           BestiaireScreen(referentiel: ref),
-          const AfflictionsGlossaireScreen(),
+          AfflictionsGlossaireScreen(referentiel: ref),
         ],
       ),
     );

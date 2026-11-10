@@ -59,7 +59,15 @@ class _BestiaireScreenState extends State<BestiaireScreen> {
       body: ListeDetail<Creature>(
         elements: liste,
         nom: (c) => c.nom,
-        sousTitre: (c) => '${c.famille} · ${c.archetype} · ${c.taille.libelle}',
+        // Créature d'une classe ou d'une race : son origine en fin de ligne
+        // (distingue le loup du druide du loup sauvage).
+        sousTitre: (c) => [
+          c.famille,
+          c.archetype,
+          c.taille.libelle,
+          if (widget.referentiel.originesCreature(c.id) case [final o, ...])
+            o.split(' · ').first.replaceFirst(' (race)', ''),
+        ].join(' · '),
         contenu: (c) => InfosCreature(c),
         couleurAvatar: (c) =>
             styleFamille(c.famille, Theme.of(context).brightness).couleur,

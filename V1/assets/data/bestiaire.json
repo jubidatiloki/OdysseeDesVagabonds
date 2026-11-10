@@ -595,7 +595,7 @@
   },
   {
     "id": "bouquetin-nain",
-    "nom": "Bouquetin (monture du nain)",
+    "nom": "Bouquetin",
     "famille": "Bêtes",
     "archetype": "Monture",
     "taille": "standard",
@@ -625,7 +625,7 @@
   },
   {
     "id": "familier-corbeau",
-    "nom": "Corbeau (familier)",
+    "nom": "Corbeau",
     "famille": "Bêtes",
     "archetype": "Familier",
     "taille": "petite",
@@ -636,7 +636,7 @@
   },
   {
     "id": "familier-rat",
-    "nom": "Rat (familier)",
+    "nom": "Rat",
     "famille": "Bêtes",
     "archetype": "Familier",
     "taille": "minuscule",
@@ -647,7 +647,7 @@
   },
   {
     "id": "familier-chat-noir",
-    "nom": "Chat noir (familier)",
+    "nom": "Chat noir",
     "famille": "Bêtes",
     "archetype": "Familier",
     "taille": "petite",
@@ -658,7 +658,7 @@
   },
   {
     "id": "familier-crane-flottant",
-    "nom": "Crâne flottant (familier)",
+    "nom": "Crâne flottant",
     "famille": "Morts-vivants",
     "archetype": "Familier",
     "taille": "minuscule",
@@ -669,7 +669,7 @@
   },
   {
     "id": "druide-jeune-ours",
-    "nom": "Jeune ours (compagnon du druide)",
+    "nom": "Jeune ours",
     "famille": "Bêtes",
     "archetype": "Puissant",
     "taille": "petite",
@@ -680,7 +680,7 @@
   },
   {
     "id": "druide-jeune-ours-combat",
-    "nom": "Jeune ours (animal de combat)",
+    "nom": "Jeune ours de combat",
     "famille": "Bêtes",
     "archetype": "Puissant",
     "taille": "petite",
@@ -696,7 +696,7 @@
   },
   {
     "id": "druide-panthere",
-    "nom": "Panthère (compagnon du druide)",
+    "nom": "Panthère",
     "famille": "Bêtes",
     "archetype": "Rapide, Furtif",
     "taille": "standard",
@@ -707,7 +707,7 @@
   },
   {
     "id": "druide-panthere-combat",
-    "nom": "Panthère (animal de combat)",
+    "nom": "Panthère de combat",
     "famille": "Bêtes",
     "archetype": "Rapide, Furtif",
     "taille": "standard",
@@ -723,7 +723,7 @@
   },
   {
     "id": "druide-sanglier",
-    "nom": "Sanglier (compagnon du druide)",
+    "nom": "Sanglier",
     "famille": "Bêtes",
     "archetype": "Puissant",
     "taille": "standard",
@@ -734,7 +734,7 @@
   },
   {
     "id": "druide-sanglier-combat",
-    "nom": "Sanglier (animal de combat)",
+    "nom": "Sanglier de combat",
     "famille": "Bêtes",
     "archetype": "Puissant",
     "taille": "standard",
@@ -750,7 +750,7 @@
   },
   {
     "id": "druide-chouette",
-    "nom": "Chouette (compagnon du druide)",
+    "nom": "Chouette",
     "famille": "Bêtes",
     "archetype": "Volant, Furtif",
     "taille": "minuscule",
@@ -761,7 +761,7 @@
   },
   {
     "id": "druide-chouette-combat",
-    "nom": "Chouette (animal de combat)",
+    "nom": "Chouette de combat",
     "famille": "Bêtes",
     "archetype": "Volant, Furtif",
     "taille": "minuscule",
@@ -778,7 +778,7 @@
   },
   {
     "id": "druide-aigle",
-    "nom": "Aigle (compagnon du druide)",
+    "nom": "Aigle",
     "famille": "Bêtes",
     "archetype": "Rapide, Volant",
     "taille": "petite",
@@ -789,7 +789,7 @@
   },
   {
     "id": "druide-aigle-combat",
-    "nom": "Aigle (animal de combat)",
+    "nom": "Aigle de combat",
     "famille": "Bêtes",
     "archetype": "Rapide, Volant",
     "taille": "petite",
@@ -806,7 +806,7 @@
   },
   {
     "id": "druide-chien",
-    "nom": "Chien (compagnon du druide)",
+    "nom": "Chien",
     "famille": "Bêtes",
     "archetype": "Rapide",
     "taille": "petite",
@@ -817,7 +817,7 @@
   },
   {
     "id": "druide-chien-combat",
-    "nom": "Chien (animal de combat)",
+    "nom": "Chien de combat",
     "famille": "Bêtes",
     "archetype": "Rapide",
     "taille": "petite",
@@ -833,7 +833,7 @@
   },
   {
     "id": "druide-loup",
-    "nom": "Loup (compagnon du druide)",
+    "nom": "Loup",
     "famille": "Bêtes",
     "archetype": "Meute",
     "taille": "standard",
@@ -844,7 +844,7 @@
   },
   {
     "id": "druide-loup-combat",
-    "nom": "Loup (animal de combat)",
+    "nom": "Loup de combat",
     "famille": "Bêtes",
     "archetype": "Meute",
     "taille": "standard",
@@ -860,7 +860,7 @@
   },
   {
     "id": "druide-lievre",
-    "nom": "Lièvre (compagnon du druide)",
+    "nom": "Lièvre",
     "famille": "Bêtes",
     "archetype": "Rapide, Furtif",
     "taille": "minuscule",
@@ -871,7 +871,7 @@
   },
   {
     "id": "druide-lievre-combat",
-    "nom": "Lièvre (animal de combat)",
+    "nom": "Lièvre de combat",
     "famille": "Bêtes",
     "archetype": "Rapide, Furtif",
     "taille": "minuscule",
@@ -887,7 +887,7 @@
   },
   {
     "id": "rodeur-loup",
-    "nom": "Loup (compagnon du rôdeur)",
+    "nom": "Loup",
     "famille": "Bêtes",
     "archetype": "Meute",
     "taille": "standard",
@@ -898,7 +898,7 @@
   },
   {
     "id": "rodeur-loup-adulte",
-    "nom": "Loup adulte (compagnon du rôdeur)",
+    "nom": "Loup adulte",
     "famille": "Bêtes",
     "archetype": "Meute",
     "taille": "standard",
@@ -914,7 +914,7 @@
   },
   {
     "id": "rodeur-loup-geant",
-    "nom": "Loup géant (compagnon du rôdeur)",
+    "nom": "Loup géant",
     "famille": "Bêtes",
     "archetype": "Monture",
     "taille": "grande",
@@ -930,7 +930,7 @@
   },
   {
     "id": "rodeur-chien",
-    "nom": "Chien (compagnon du rôdeur)",
+    "nom": "Chien",
     "famille": "Bêtes",
     "archetype": "Rapide",
     "taille": "standard",
@@ -941,7 +941,7 @@
   },
   {
     "id": "rodeur-chien-adulte",
-    "nom": "Chien adulte (compagnon du rôdeur)",
+    "nom": "Chien adulte",
     "famille": "Bêtes",
     "archetype": "Rapide",
     "taille": "standard",
@@ -957,7 +957,7 @@
   },
   {
     "id": "rodeur-chien-geant",
-    "nom": "Chien géant (compagnon du rôdeur)",
+    "nom": "Chien géant",
     "famille": "Bêtes",
     "archetype": "Monture",
     "taille": "grande",
@@ -973,7 +973,7 @@
   },
   {
     "id": "rodeur-lynx",
-    "nom": "Lynx (compagnon du rôdeur)",
+    "nom": "Lynx",
     "famille": "Bêtes",
     "archetype": "Rapide, Furtif",
     "taille": "standard",
@@ -984,7 +984,7 @@
   },
   {
     "id": "rodeur-lynx-adulte",
-    "nom": "Lynx adulte (compagnon du rôdeur)",
+    "nom": "Lynx adulte",
     "famille": "Bêtes",
     "archetype": "Rapide, Furtif",
     "taille": "standard",
@@ -1000,7 +1000,7 @@
   },
   {
     "id": "rodeur-lynx-geant",
-    "nom": "Lynx géant (compagnon du rôdeur)",
+    "nom": "Lynx géant",
     "famille": "Bêtes",
     "archetype": "Monture",
     "taille": "grande",
@@ -1016,7 +1016,7 @@
   },
   {
     "id": "rodeur-renard",
-    "nom": "Renard (compagnon du rôdeur)",
+    "nom": "Renard",
     "famille": "Bêtes",
     "archetype": "Furtif",
     "taille": "petite",
@@ -1027,7 +1027,7 @@
   },
   {
     "id": "rodeur-renard-adulte",
-    "nom": "Renard adulte (compagnon du rôdeur)",
+    "nom": "Renard adulte",
     "famille": "Bêtes",
     "archetype": "Furtif",
     "taille": "petite",
@@ -1043,7 +1043,7 @@
   },
   {
     "id": "rodeur-renard-geant",
-    "nom": "Renard géant (compagnon du rôdeur)",
+    "nom": "Renard géant",
     "famille": "Bêtes",
     "archetype": "Monture",
     "taille": "grande",
@@ -1059,7 +1059,7 @@
   },
   {
     "id": "rodeur-jeune-sanglier",
-    "nom": "Jeune sanglier (compagnon du rôdeur)",
+    "nom": "Jeune sanglier",
     "famille": "Bêtes",
     "archetype": "Puissant",
     "taille": "standard",
@@ -1070,7 +1070,7 @@
   },
   {
     "id": "rodeur-jeune-sanglier-adulte",
-    "nom": "Sanglier adulte (compagnon du rôdeur)",
+    "nom": "Sanglier adulte",
     "famille": "Bêtes",
     "archetype": "Puissant",
     "taille": "standard",
@@ -1086,7 +1086,7 @@
   },
   {
     "id": "rodeur-jeune-sanglier-geant",
-    "nom": "Sanglier géant (compagnon du rôdeur)",
+    "nom": "Sanglier géant",
     "famille": "Bêtes",
     "archetype": "Monture",
     "taille": "grande",

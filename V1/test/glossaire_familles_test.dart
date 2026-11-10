@@ -8,6 +8,8 @@ import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/models/equipement.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
+import 'package:odyssee_vagabonds/regles/causes_afflictions.dart';
+import 'package:odyssee_vagabonds/screens/afflictions_glossaire_screen.dart';
 import 'package:odyssee_vagabonds/screens/bestiaire_screen.dart';
 import 'package:odyssee_vagabonds/screens/equipements_screen.dart';
 import 'package:odyssee_vagabonds/widgets/maitrises_restrictions.dart';
@@ -104,6 +106,58 @@ void main() {
     expect(find.text('Armure de cuir'), findsNothing);
     // Famille affichée sur la carte.
     expect(find.text('Armure lourde'), findsWidgets);
+  });
+
+  test('bestiaire : noms sans précision entre parenthèses', () {
+    for (final c in creatures) {
+      if (ref.originesCreature(c.id).isEmpty) continue;
+      expect(c.nom, isNot(contains('(')), reason: c.id);
+    }
+    expect(
+      creatures.firstWhere((c) => c.id == 'druide-loup-combat').nom,
+      'Loup de combat',
+    );
+  });
+
+  test('afflictions : causes repérées dans les compétences et créatures', () {
+    final causes = causesAfflictions(
+      classes: classes,
+      races: races,
+      creatures: creatures,
+    );
+    expect(causes['Charmé'], contains('Harpie (Chant envoûtant)'));
+    expect(
+        causes['Immobilisation'], contains('Druide · Lianes immobilisantes'));
+    // « Libérés de la peur » : une protection, pas une cause.
+    expect(causes['Effrayé'], isNot(contains('Chevalier · Cri de ralliement')));
+    // « Insensible à la mise au sol » non plus.
+    expect(
+      causes['À terre']!.where((s) => s.startsWith('Barbare')),
+      isEmpty,
+    );
+  });
+
+  testWidgets('afflictions et dégâts : cartes, causes affichées',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: AfflictionsGlossaireScreen(referentiel: ref)),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('causes-Charmé')), findsOneWidget);
+    // Plusieurs cartes sur une même ligne.
+    final a = tester.getTopLeft(find.byKey(const Key('affliction-Étourdi')));
+    final b = tester.getTopLeft(find.byKey(const Key('affliction-Paralysé')));
+    expect(a.dy, b.dy);
+    // Types de dégâts au même style (cartes).
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('affliction-Chaos')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(const Key('affliction-Chaos')), findsOneWidget);
   });
 
   testWidgets('bestiaire : plus de famille Invocations, origine affichée',
