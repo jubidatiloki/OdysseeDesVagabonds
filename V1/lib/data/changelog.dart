@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.56.0',
+    date: '11/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : les attaques du compagnon dans les dés de son maître, '
+            'toucher calculé selon sa fiche (AdC, AdM, RANG).',
+      ),
+    ],
+  ),
+  (
     version: '0.55.1',
     date: '11/11/2026',
     changements: [

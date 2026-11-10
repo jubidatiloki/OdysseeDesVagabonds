@@ -110,6 +110,33 @@ void main() {
     expect(corbeau.attaques.single.toucher, '1d20 + AdM du nécromancien');
   });
 
+  test('attaque de compagnon : toucher chiffré selon le maître', () {
+    final f = FicheCalculee(
+      personnage: Personnage(
+        id: 'p',
+        nom: 'P',
+        raceId: 'humain',
+        classeId: 'druide',
+        rangsVoies: {'druide-bestiale': 3},
+        choix: {'animal-druide': 'loup'},
+      ),
+      race: races.firstWhere((r) => r.id == 'humain'),
+      classe: classes.firstWhere((c) => c.id == 'druide'),
+    );
+    final k = compagnonsCombattants(f).single;
+    expect(k.creature.id, 'druide-loup-combat');
+    final rang = f.rangCompetence(k.competence);
+    expect(rang, 3);
+    expect(
+      bonusToucherSelonMaitre(k.creature.attaques.single.toucher, f, rang),
+      f.toucherCac + 3,
+    );
+    expect(bonusToucherSelonMaitre('1d20 + AdM du nécromancien', f, 0),
+        f.toucherMagie);
+    // Formule déjà chiffrée : rien à calculer.
+    expect(bonusToucherSelonMaitre('1d20 +4', f, 0), isNull);
+  });
+
   test('Requiem : 1d4 + INT morts-vivants', () {
     expect(mortsVivants.competence(5)!.effet, contains('1d4 + INT'));
   });

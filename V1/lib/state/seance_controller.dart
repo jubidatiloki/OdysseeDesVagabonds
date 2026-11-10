@@ -230,7 +230,8 @@ class SeanceController extends ChangeNotifier {
 
   /// Compagnons et familiers d'un joueur qui peuvent se battre (si ce
   /// compte peut lire sa fiche), affichés sous lui.
-  List<({Creature creature, String type})> compagnonsDe(String joueur) {
+  List<({Creature creature, String type, String competence})> compagnonsDe(
+      String joueur) {
     final f = ficheDe(joueur);
     if (f == null) return const [];
     return compagnonsCombattants(

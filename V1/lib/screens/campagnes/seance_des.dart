@@ -186,8 +186,20 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
 
     _sansJet.clear();
     if (a.creature case final c?) {
+      // Compagnon choisi par le MJ : toucher d'après la fiche de son maître.
+      final maitre = _s.ficheDe(_s.creatureChoisie?.proprietaire ?? '');
+      final rang = maitre == null
+          ? 0
+          : maitre.rangCompetence(_competenceDe(maitre, c.id));
       for (final x in c.attaques) {
-        ajouter('${x.nom} · toucher', x.toucher, 0);
+        final b = maitre == null
+            ? null
+            : bonusToucherSelonMaitre(x.toucher, maitre, rang);
+        if (b != null) {
+          ajouter('${x.nom} · toucher', '1d20', b);
+        } else {
+          ajouter('${x.nom} · toucher', x.toucher, 0);
+        }
         // « 4d6 (de son élément) » : la formule en tête suffit.
         final des = lireFormule(x.degats) != null
             ? x.degats
@@ -244,8 +256,36 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           g.bonus + g.fixes.fold(0, (s, b) => s + b.valeur),
         );
       }
+      // Compagnons et familiers : ils attaquent au tour de leur maître,
+      // toucher chiffré d'après sa fiche (« 1d20 + RANG + AdC du druide »).
+      for (final k in compagnonsCombattants(
+          f, {for (final x in _s.referentiel.creatures) x.id: x})) {
+        final rang = f.rangCompetence(k.competence);
+        for (final x in k.creature.attaques) {
+          final nom = '${k.creature.nom} · ${x.nom}';
+          final b = bonusToucherSelonMaitre(x.toucher, f, rang);
+          if (b != null) {
+            ajouter('$nom · toucher', '1d20', b);
+          } else {
+            ajouter('$nom · toucher', x.toucher, 0);
+          }
+          final des = lireFormule(x.degats) != null
+              ? x.degats
+              : RegExp(r'^\d+d\d+(\s*[+-]\s*\d+)?').stringMatch(x.degats) ?? '';
+          ajouter('$nom · dégâts', des, 0, type: typeDegatsDepuis(x.degats));
+        }
+      }
     }
     return res;
+  }
+
+  /// Compétence qui donne la créature [id] au personnage (pour son RANG).
+  String _competenceDe(FicheCalculee f, String id) {
+    for (final k in compagnonsCombattants(
+        f, {for (final x in _s.referentiel.creatures) x.id: x})) {
+      if (k.creature.id == id) return k.competence;
+    }
+    return '';
   }
 
   /// Jet de dégâts : son total est retiré des PV de la cible.

@@ -66,7 +66,8 @@ List<({Creature creature, String competence})> invocationsDe(
 /// attaque), affichés sous lui en séance : créatures qui restent (pas les
 /// invocations temporaires lancées par un sort, sauf le serviteur
 /// permanent). [type] : « Familier » ou « Compagnon ».
-List<({Creature creature, String type})> compagnonsCombattants(
+List<({Creature creature, String type, String competence})>
+    compagnonsCombattants(
   FicheCalculee f, [
   Map<String, Creature>? catalogue,
 ]) {
@@ -81,6 +82,7 @@ List<({Creature creature, String type})> compagnonsCombattants(
           (r.creature.permanente || !sortsInvocation.contains(r.competence)))
         (
           creature: r.creature,
+          competence: r.competence,
           type: r.creature.archetype.toLowerCase().contains('familier') ||
                   r.competence.toLowerCase().contains('familier')
               ? 'Familier'
@@ -99,3 +101,21 @@ String typeCompagnon(Creature? c) =>
 /// (temporaire), « Familier » ou « Compagnon ».
 String libelleCreatureJoueur(CreatureSeance c, Creature? fiche) =>
     c.toursRestants != null ? 'Invocation' : typeCompagnon(fiche);
+
+/// Toucher d'une attaque de compagnon écrit selon son maître (« 1d20 + RANG
+/// + AdC du druide ») : bonus chiffré d'après la fiche du maître ([rang] :
+/// rang atteint dans la voie de la compétence) ; `null` si la formule ne
+/// dépend pas du maître.
+int? bonusToucherSelonMaitre(String toucher, FicheCalculee maitre, int rang) {
+  final t = toucher.replaceAll(' ', '');
+  if (!t.startsWith('1d20')) return null;
+  final base = t.contains('AdC')
+      ? maitre.toucherCac
+      : t.contains('AdT')
+          ? maitre.toucherDistance
+          : t.contains('AdM')
+              ? maitre.toucherMagie
+              : null;
+  if (base == null) return null;
+  return base + (t.contains('RANG') ? rang : 0);
+}

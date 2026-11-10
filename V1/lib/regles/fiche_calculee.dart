@@ -1290,6 +1290,15 @@ class FicheCalculee {
     return (principale: principale, secondaire: secondaire);
   }
 
+  /// Rang atteint dans la voie de la compétence acquise [nom] (0 : pas
+  /// acquise) : « RANG » d'une attaque de compagnon.
+  int rangCompetence(String nom) {
+    for (final c in competencesAcquises) {
+      if (c.competence.nom == nom) return _rangAtteint(c);
+    }
+    return 0;
+  }
+
   /// Rang atteint dans la voie d'une compétence (« RANG » des données).
   int _rangAtteint(({Voie voie, Competence competence, bool raciale}) c) =>
       c.raciale

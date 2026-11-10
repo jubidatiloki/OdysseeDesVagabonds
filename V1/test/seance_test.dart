@@ -1583,6 +1583,21 @@ void main() {
       expect(find.byKey(const Key('fenetre-creature-loup')), findsOneWidget);
     });
 
+    testWidgets('joueur : les attaques de son compagnon dans ses dés',
+        (tester) async {
+      final brom = _brom()..rangsVoies['meute'] = 1;
+      final x = await ouvrir(tester, 'j1', fiches: [brom]);
+      final partie = x.base.parties[x.campagne.id]!;
+      // Mains nues (toucher, dégâts), puis la morsure du loup.
+      await tapDes(tester, 'attaque-2');
+      expect(partie.jets.last.libelle, 'Loup · Morsure · toucher');
+      expect(partie.jets.last.attaquant, 'j1');
+      await tapDes(tester, 'attaque-3');
+      expect(partie.jets.last.libelle, 'Loup · Morsure · dégâts');
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('MJ : le compagnon entre dans la partie (PV, tour du maître)',
         (tester) async {
       final brom = _brom()..rangsVoies['meute'] = 1;
