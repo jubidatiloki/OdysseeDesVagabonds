@@ -5,6 +5,7 @@ import '../models/affliction.dart';
 import '../regles/causes_afflictions.dart';
 import '../theme.dart';
 import '../widgets/consultation.dart';
+import '../widgets/icones_armes.dart';
 
 /// Familles d'afflictions, pour l'affichage (les règles ne les classent pas) :
 /// titre, icône et noms des afflictions de la famille.
@@ -281,7 +282,7 @@ class _Carte extends StatelessWidget {
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
-                Text(f.effet, style: theme.textTheme.bodyMedium),
+                _Effet(texte: f.effet),
                 if (f.causes.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(
@@ -299,6 +300,88 @@ class _Carte extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Icône d'une ligne à puce des types de dégâts (« • tranchants… »), avec
+/// sa couleur ; `null` : puce simple.
+Widget? iconeSousType(String ligne, bool sombre, Color neutre) {
+  final mot = ligne.replaceFirst('• ', '').toLowerCase();
+  const t = 18.0;
+  if (mot.startsWith('tranchant')) {
+    return IconeEpee(
+        key: const Key('icone-tranchant'), taille: t, couleur: neutre);
+  }
+  if (mot.startsWith('contondant')) {
+    return Icon(Icons.hardware,
+        key: const Key('icone-contondant'), size: t, color: neutre);
+  }
+  if (mot.startsWith('perçant')) {
+    return IconeFleche(
+        key: const Key('icone-perçant'), taille: t, couleur: neutre);
+  }
+  if (mot.startsWith('feu')) {
+    return Icon(
+      Icons.local_fire_department,
+      key: const Key('icone-feu'),
+      size: t,
+      color: sombre ? OdvCouleurs.lightRed : OdvCouleurs.darkRed,
+    );
+  }
+  if (mot.startsWith('glace')) {
+    return Icon(
+      Icons.ac_unit,
+      key: const Key('icone-glace'),
+      size: t,
+      color: sombre ? OdvCouleurs.lightBlue : OdvCouleurs.blue,
+    );
+  }
+  if (mot.startsWith('foudre')) {
+    return const Icon(Icons.bolt,
+        key: Key('icone-foudre'), size: t, color: OdvCouleurs.or);
+  }
+  return null;
+}
+
+/// Texte d'une carte : les lignes « • … » deviennent une liste, avec une
+/// icône pour les sous-types de dégâts connus.
+class _Effet extends StatelessWidget {
+  const _Effet({required this.texte});
+
+  final String texte;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodyMedium;
+    final lignes = texte.split('\n');
+    if (lignes.length == 1) return Text(texte, style: style);
+    final sombre = theme.brightness == Brightness.dark;
+    final neutre = theme.colorScheme.onSurfaceVariant;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final l in lignes)
+          if (!l.startsWith('• '))
+            Text(l, style: style)
+          else
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 22,
+                    child: iconeSousType(l, sombre, neutre) ??
+                        Text('•', style: style),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(child: Text(l.substring(2), style: style)),
+                ],
+              ),
+            ),
+      ],
     );
   }
 }

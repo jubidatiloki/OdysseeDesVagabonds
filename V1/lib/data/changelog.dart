@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.50.0',
+    date: '10/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Types de dégâts : une icône par sous-type (épée, marteau, '
+            'flèche, flamme, flocon, éclair).',
+      ),
+    ],
+  ),
+  (
     version: '0.49.2',
     date: '10/11/2026',
     changements: [

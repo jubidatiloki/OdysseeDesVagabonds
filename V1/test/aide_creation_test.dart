@@ -170,7 +170,9 @@ void main() {
       home: Scaffold(body: AfflictionsGlossaireScreen()),
     ));
     for (final a in [...kAfflictions, ...kEffetsDegats]) {
-      final f = find.textContaining(a.effet, findRichText: true);
+      // Première ligne : les puces sont affichées à part (avec une icône).
+      final f =
+          find.textContaining(a.effet.split('\n').first, findRichText: true);
       for (var i = 0; i < 20 && f.evaluate().isEmpty; i++) {
         await tester.drag(
           find.byKey(const Key('glossaire-afflictions')),

@@ -169,6 +169,17 @@ void main() {
       findsNothing,
     );
     expect(find.byKey(const Key('intro-degats')), findsOneWidget);
+    // Une icône par sous-type : épée, marteau, flèche, flamme, flocon, éclair.
+    for (final s in [
+      'tranchant',
+      'contondant',
+      'perçant',
+      'feu',
+      'glace',
+      'foudre',
+    ]) {
+      expect(find.byKey(Key('icone-$s')), findsOneWidget, reason: s);
+    }
   });
 
   testWidgets('bestiaire : plus de famille Invocations, origine affichée',
