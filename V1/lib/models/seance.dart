@@ -502,6 +502,7 @@ class JetSeance {
     this.invocation = '',
     this.nombre = 1,
     this.tours,
+    this.renvoi = '',
   });
 
   final String id;
@@ -545,6 +546,10 @@ class JetSeance {
   final int nombre;
   final int? tours;
 
+  /// Invocation que son lanceur renvoie avant la fin (id de la créature de
+  /// la partie) ; vide : rien à renvoyer.
+  final String renvoi;
+
   /// « Touché », « Raté » (la CA de la cible reste toujours cachée), ou pourquoi l'attaque
   /// n'a pas été comparée ; vide : ce jet n'est pas une attaque.
   String get resultatCible => switch (touche) {
@@ -583,6 +588,7 @@ class JetSeance {
         if (invocation.isNotEmpty) 'invocation': invocation,
         if (invocation.isNotEmpty) 'nombre': nombre,
         if (tours != null) 'tours': tours,
+        if (renvoi.isNotEmpty) 'renvoi': renvoi,
       };
 
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
@@ -607,6 +613,7 @@ class JetSeance {
         invocation: j['invocation'] as String? ?? '',
         nombre: (j['nombre'] as num?)?.toInt() ?? 1,
         tours: (j['tours'] as num?)?.toInt(),
+        renvoi: j['renvoi'] as String? ?? '',
       );
 }
 

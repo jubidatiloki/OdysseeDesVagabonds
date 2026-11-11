@@ -71,6 +71,14 @@ class ListeCartes extends StatelessWidget {
             titre: 'Mes notes de séance',
             onTap: () => _choisir(kCarteNotes),
           ),
+        // Deux parties bien séparées : les personnages des joueurs (et
+        // leurs compagnons), puis les créatures rencontrées.
+        if (s.joueurs.isNotEmpty)
+          const _TitrePartie(
+            cle: 'partie-personnages',
+            icone: Icons.groups_outlined,
+            titre: 'Personnages',
+          ),
         for (final m in s.joueurs) ...[
           _Carte(
             cle: 'carte-${m.uid}',
@@ -139,9 +147,11 @@ class ListeCartes extends StatelessWidget {
                       '${m.personnageNom}',
                 ],
                 onTap: () => _choisir(c.id),
-                // Invocation temporaire : le MJ peut la renvoyer avant la fin.
-                onRetirer: s.estMj && c.toursRestants != null
-                    ? () => s.retirerCreature(c)
+                // Invocation temporaire : son lanceur ou le MJ peut la
+                // renvoyer avant la fin (après confirmation).
+                onRetirer: c.toursRestants != null &&
+                        (s.estMj || c.proprietaire == s.uid)
+                    ? () => _renvoyer(context, c)
                     : null,
                 cleRetirer: 'retirer-${c.id}',
               ),
@@ -172,6 +182,13 @@ class ListeCartes extends StatelessWidget {
                 ),
               ),
         ],
+        if (s.creatures.any((c) => !c.estAUnJoueur))
+          const _TitrePartie(
+            cle: 'partie-creatures',
+            icone: Icons.pets_outlined,
+            titre: 'Créatures rencontrées',
+            separe: true,
+          ),
         for (final c in s.creatures)
           if (!c.estAUnJoueur)
             _Carte(
@@ -242,6 +259,35 @@ class ListeCartes extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  /// Renvoie une invocation avant la fin, après confirmation.
+  Future<void> _renvoyer(BuildContext context, CreatureSeance c) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Renvoyer « ${c.nom} » ?'),
+        content: const Text(
+            'L\'invocation disparaît tout de suite, avant la fin de sa durée.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Garder'),
+          ),
+          FilledButton(
+            key: const Key('confirmer-renvoi'),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Renvoyer'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final erreur = await seance.renvoyerInvocation(c);
+    if (erreur != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(erreur)));
+    }
   }
 
   Future<void> _creerButin(BuildContext context) async {
@@ -1000,6 +1046,58 @@ class _CreaturePj extends StatelessWidget {
         const SizedBox(height: 12),
         if (creature.description.isNotEmpty) Text(creature.description),
       ],
+    );
+  }
+}
+
+/// Titre d'une partie de la liste de gauche (« Personnages », « Créatures
+/// rencontrées ») ; [separe] : un trait la sépare de la partie d'avant.
+class _TitrePartie extends StatelessWidget {
+  const _TitrePartie({
+    required this.cle,
+    required this.icone,
+    required this.titre,
+    this.separe = false,
+  });
+
+  final String cle;
+  final IconData icone;
+  final String titre;
+  final bool separe;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Padding(
+      key: Key(cle),
+      padding: EdgeInsets.only(top: separe ? 6 : 4, bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (separe) ...[
+            Divider(height: 1, thickness: 1.5, color: scheme.outlineVariant),
+            const SizedBox(height: 10),
+          ],
+          Row(
+            children: [
+              Icon(icone, size: 16, color: scheme.primary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  titre.toUpperCase(),
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

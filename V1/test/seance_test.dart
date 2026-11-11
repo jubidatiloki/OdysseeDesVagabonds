@@ -1545,7 +1545,10 @@ void main() {
 
       await tap(tester, find.byKey(const Key('onglet-historique')));
       expect(find.byKey(const Key('logs-combat')), findsOneWidget);
-      expect(find.byKey(Key('touche-jet-${j.id}')), findsNWidgets(2));
+      // Les deux attaques dans les logs, chacune avec son résultat.
+      for (final x in partie.jets) {
+        expect(find.byKey(Key('touche-jet-${x.id}')), findsOneWidget);
+      }
       expect(find.text(j.resultatCible), findsWidgets);
       final h = j.date.hour.toString().padLeft(2, '0');
       expect(find.textContaining('$h:', findRichText: true), findsWidgets);
@@ -1693,6 +1696,19 @@ void main() {
         tester.widget<Text>(find.byKey(const Key('mention-compagnon'))).data,
         'Invocation de brom · 2 tours restants',
       );
+      // Dégâts envoyés par un joueur : retirés de ses PV (loup : 12).
+      await ServiceCampagnesMemoire(x.base, 'j2').seance.envoyerDegats(
+            x.base.campagnes[x.campagne.id]!,
+            DegatsSeance(
+              cible: id,
+              destinataire: 'mj',
+              auteur: 'j2',
+              montant: 5,
+              source: 'Aria · Épée · dégâts',
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(partie.creatures[id]!.pv, 7);
       // Une manche passe : un tour de moins ; deux manches : disparus.
       final mj = ServiceCampagnesMemoire(x.base, 'mj').seance;
       Future<void> manche() async {
@@ -1706,9 +1722,93 @@ void main() {
       await manche();
       expect(partie.creatures[id]!.toursRestants, 1);
       expect(find.text('1 tour'), findsNWidgets(2));
-      await manche();
+      // Le lanceur renvoie le second loup (jet de renvoi) ; un autre joueur
+      // ne peut pas renvoyer l'invocation d'autrui.
+      final second = invoques.last.id;
+      JetSeance renvoi(String auteur) => JetSeance(
+            auteur: auteur,
+            auteurNom: auteur,
+            libelle: 'Renvoi : Loup 2',
+            detail: '',
+            total: 0,
+            date: DateTime.now(),
+            seance: 1,
+            lecteurs: [auteur, 'mj'],
+            renvoi: second,
+          );
+      await ServiceCampagnesMemoire(x.base, 'j2')
+          .seance
+          .lancer(x.base.campagnes[x.campagne.id]!, renvoi('j2'));
+      await tester.pumpAndSettle();
+      expect(partie.creatures.containsKey(second), isTrue);
+      await ServiceCampagnesMemoire(x.base, 'j1')
+          .seance
+          .lancer(x.base.campagnes[x.campagne.id]!, renvoi('j1'));
+      await tester.pumpAndSettle();
+      expect(partie.creatures.containsKey(second), isFalse);
+      // À 0 PV, l'invocation se dissipe (et sort de l'ordre).
+      await ServiceCampagnesMemoire(x.base, 'j2').seance.envoyerDegats(
+            x.base.campagnes[x.campagne.id]!,
+            DegatsSeance(
+              cible: id,
+              destinataire: 'mj',
+              auteur: 'j2',
+              montant: 9,
+              source: 'Aria · Épée · dégâts',
+            ),
+          );
+      await tester.pumpAndSettle();
       expect(partie.creatures.containsKey(id), isFalse);
       expect(partie.etat.ordre, ['j1', 'j2']);
+    });
+
+    testWidgets('joueur : renvoie son invocation après confirmation',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(
+              id: 'invocation-x-0',
+              nom: 'Loup',
+              creatureId: 'loup',
+              pv: 12,
+              pvMax: 12,
+              proprietaire: 'j1',
+              toursRestants: 3,
+            ),
+          );
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(id: 'gob', nom: 'Gobelin', pv: 7, pvMax: 7),
+          );
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      // Deux parties : personnages (et leurs invocations), puis créatures.
+      final perso = tester.getRect(find.byKey(const Key('partie-personnages')));
+      final creatures =
+          tester.getRect(find.byKey(const Key('partie-creatures')));
+      final loup =
+          tester.getRect(find.byKey(const Key('carte-invocation-x-0')));
+      final gob = tester.getRect(find.byKey(const Key('carte-gob')));
+      expect(perso.bottom, lessThanOrEqualTo(loup.top));
+      expect(loup.bottom, lessThanOrEqualTo(creatures.top));
+      expect(creatures.bottom, lessThanOrEqualTo(gob.top));
+      // Pas de croix sur la créature du MJ ; sur son invocation, oui.
+      expect(find.byKey(const Key('retirer-gob')), findsNothing);
+      await tap(tester, find.byKey(const Key('retirer-invocation-x-0')));
+      // Fenêtre de confirmation : « Garder » ne fait rien.
+      await tap(tester, find.text('Garder'));
+      expect(partie.jets.where((j) => j.renvoi.isNotEmpty), isEmpty);
+      await tap(tester, find.byKey(const Key('retirer-invocation-x-0')));
+      await tap(tester, find.byKey(const Key('confirmer-renvoi')));
+      expect(partie.jets.last.renvoi, 'invocation-x-0');
+      expect(partie.jets.last.libelle, 'Renvoi : Loup');
     });
 
     testWidgets('sans accord du MJ : pas de montée de niveau', (tester) async {

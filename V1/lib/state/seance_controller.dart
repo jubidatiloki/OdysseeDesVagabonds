@@ -281,6 +281,31 @@ class SeanceController extends ChangeNotifier {
     );
   }
 
+  /// Renvoie une invocation temporaire avant la fin : le MJ la retire tout
+  /// de suite ; son lanceur passe par un jet (ligne des logs) que
+  /// l'application du MJ applique.
+  Future<String?> renvoyerInvocation(CreatureSeance x) {
+    if (estMj) return retirerCreature(x);
+    return _agir(
+      (s, c) => s.lancer(
+        c,
+        JetSeance(
+          auteur: uid,
+          auteurNom: moi?.personnageNom ?? 'Joueur',
+          libelle: 'Renvoi : ${x.nom}',
+          detail: '',
+          total: 0,
+          date: DateTime.now(),
+          seance: _numero,
+          lecteurs: lecteursDuJet(c, VisibiliteJet.tous, auteur: uid),
+          mode: _etat.mode,
+          manche: _etat.manche,
+          renvoi: x.id,
+        ),
+      ),
+    );
+  }
+
   Future<void> _ajouterInvocation(
     ServiceSeance s,
     Campagne c,
@@ -322,12 +347,25 @@ class SeanceController extends ChangeNotifier {
   void _traiterInvocations() {
     final nouveaux = [
       for (final j in _jets)
-        if (j.invocation.isNotEmpty && _invocationsVues.add(j.id)) j,
+        if ((j.invocation.isNotEmpty || j.renvoi.isNotEmpty) &&
+            _invocationsVues.add(j.id))
+          j,
     ];
     final premiers = !_jetsLus;
     _jetsLus = true;
     if (premiers || !estMj) return;
     for (final j in nouveaux) {
+      // Renvoi par son lanceur : seulement sa propre invocation.
+      if (j.renvoi.isNotEmpty) {
+        for (final x in _creatures) {
+          if (x.id == j.renvoi &&
+              x.proprietaire == j.auteur &&
+              x.toursRestants != null) {
+            unawaited(retirerCreature(x));
+          }
+        }
+        continue;
+      }
       Creature? cr;
       for (final x in referentiel.creatures) {
         if (x.id == j.invocation) cr = x;
@@ -1281,7 +1319,15 @@ class SeanceController extends ChangeNotifier {
       for (final x in liste) {
         final pv = x.pv;
         if (x.id != d.cible || pv == null) continue;
-        await s.modifierCreature(c, x.copie(pv: math.max(0, pv - d.montant)));
+        final reste = math.max(0, pv - d.montant);
+        // Invocation temporaire à 0 PV : elle se dissipe.
+        if (reste == 0 && x.toursRestants != null) {
+          await s.retirerCreature(c, x.id);
+          if (_carte == x.id) _carte = kCarteScript;
+          await _reordonner(s, c);
+        } else {
+          await s.modifierCreature(c, x.copie(pv: reste));
+        }
       }
     });
   }

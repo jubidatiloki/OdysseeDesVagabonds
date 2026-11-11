@@ -268,7 +268,10 @@ class ServiceSeanceMemoire implements ServiceSeance {
 
   @override
   Future<void> lancer(Campagne c, JetSeance jet) async {
-    _partie(c).jets.add(jet);
+    // Identifiant attribué comme en ligne.
+    _partie(c).jets.add(jet.id.isNotEmpty
+        ? jet
+        : JetSeance.depuisJson(base.nouvelId(), jet.versJson()));
     base.signaler();
   }
 
