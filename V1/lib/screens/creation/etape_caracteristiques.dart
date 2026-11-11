@@ -248,34 +248,48 @@ class EtapeCaracteristiques extends StatelessWidget {
             Row(
               children: [
                 const SizedBox(width: 46),
-                IconButton(
-                  key: Key('moins-${c.code}'),
-                  tooltip: 'Retirer un point',
-                  visualDensity: VisualDensity.compact,
-                  onPressed: RepartitionCreation.peutDiminuer(base, c)
-                      ? () => _modifier(c, -1)
-                      : null,
-                  icon: const Icon(Icons.remove_circle_outline),
-                ),
-                SizedBox(
-                  width: 30,
-                  child: Text(
-                    '$valeur',
-                    key: Key('valeur-${c.code}'),
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium,
+                // Chance : ne se répartit pas, pas de boutons (12/11/2026).
+                if (!modifiable)
+                  Flexible(
+                    child: Text(
+                      'Ne se répartit pas',
+                      key: Key('fixe-${c.code}'),
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   ),
-                ),
-                IconButton(
-                  key: Key('plus-${c.code}'),
-                  tooltip:
-                      modifiable ? 'Ajouter un point' : 'Ne se répartit pas',
-                  visualDensity: VisualDensity.compact,
-                  onPressed: RepartitionCreation.peutAugmenter(base, c)
-                      ? () => _modifier(c, 1)
-                      : null,
-                  icon: const Icon(Icons.add_circle_outline),
-                ),
+                if (modifiable) ...[
+                  IconButton(
+                    key: Key('moins-${c.code}'),
+                    tooltip: 'Retirer un point',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: RepartitionCreation.peutDiminuer(base, c)
+                        ? () => _modifier(c, -1)
+                        : null,
+                    icon: const Icon(Icons.remove_circle_outline),
+                  ),
+                  SizedBox(
+                    width: 30,
+                    child: Text(
+                      '$valeur',
+                      key: Key('valeur-${c.code}'),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  IconButton(
+                    key: Key('plus-${c.code}'),
+                    tooltip: 'Ajouter un point',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: RepartitionCreation.peutAugmenter(base, c)
+                        ? () => _modifier(c, 1)
+                        : null,
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
+                ],
                 if (race != 0)
                   Container(
                     margin: const EdgeInsets.only(left: 4),

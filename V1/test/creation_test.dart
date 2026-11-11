@@ -153,14 +153,15 @@ void main() {
     final plusFor =
         tester.widget<IconButton>(find.byKey(const Key('plus-FOR')));
     expect(plusFor.onPressed, isNull);
+    // Chance : fixe, sans boutons − et + (12/11/2026).
     await tester.scrollUntilVisible(
-      find.byKey(const Key('plus-CHAN')),
+      find.byKey(const Key('total-CHAN')),
       200,
       scrollable: find.byType(Scrollable).last,
     );
-    final plusChan =
-        tester.widget<IconButton>(find.byKey(const Key('plus-CHAN')));
-    expect(plusChan.onPressed, isNull);
+    expect(find.byKey(const Key('plus-CHAN')), findsNothing);
+    expect(find.byKey(const Key('moins-CHAN')), findsNothing);
+    expect(find.byKey(const Key('fixe-CHAN')), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const Key('plus-CON')),
       -200,

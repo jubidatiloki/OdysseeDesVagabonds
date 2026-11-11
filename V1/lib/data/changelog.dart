@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.58.1',
+    date: '12/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Création : la chance n\'a plus de boutons − et + (elle ne se '
+            'répartit pas).',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : plus d\'appui long pour les favoris, la fenêtre '
+            '« Gérer les favoris » suffit.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : compagnons et invocations visent par défaut la '
+            'première créature rencontrée.',
+      ),
+    ],
+  ),
+  (
     version: '0.58.0',
     date: '11/11/2026',
     changements: [

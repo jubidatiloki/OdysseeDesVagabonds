@@ -579,42 +579,6 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     ];
   }
 
-  /// Appui long sur un bouton : met l'action en favori, ou l'en retire.
-  /// [cle] : nom de la compétence, ou « stat:FOR », « apt:… », « att:… ».
-  Widget _avecFavori(
-    FicheCalculee fiche,
-    String cle,
-    String nom,
-    Widget bouton,
-  ) =>
-      GestureDetector(
-        onLongPress: () => _basculerFavori(fiche, cle, nom),
-        child: bouton,
-      );
-
-  Future<void> _basculerFavori(
-    FicheCalculee fiche,
-    String cle,
-    String nom,
-  ) async {
-    final ajoute = !fiche.personnage.favoris.contains(cle);
-    final messager = ScaffoldMessenger.of(context);
-    await _s.basculerFavori(fiche, cle);
-    if (!mounted) return;
-    setState(() {});
-    messager
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            ajoute
-                ? '$nom : ajouté aux favoris.'
-                : '$nom : retiré des favoris.',
-          ),
-        ),
-      );
-  }
-
   /// Bouton mis en avant (avantage, maîtrise) : bordure et texte verts.
   Widget _puce({
     required String cle,
@@ -640,17 +604,12 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     String cle,
     bool pasDeCible,
   ) =>
-      _avecFavori(
-        fiche,
-        s.competence.nom,
-        s.competence.nom,
-        _puce(
-          cle: cle,
-          texte: '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
-          onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
-              ? null
-              : () => _lancerSort(fiche, s),
-        ),
+      _puce(
+        cle: cle,
+        texte: '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
+        onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
+            ? null
+            : () => _lancerSort(fiche, s),
       );
 
   Widget _puceJet(
@@ -659,23 +618,18 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     String cle,
     bool pasDeCible,
   ) =>
-      _avecFavori(
-        fiche,
-        j.origine,
-        j.origine,
-        _puce(
-          cle: cle,
-          texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
-          onPressed: pasDeCible
-              ? null
-              : () => _lancerFormule(
-                    j.libelle,
-                    j.des,
-                    j.bonus,
-                    parAttaquant: true,
-                    genre: GenreJet.test,
-                  ),
-        ),
+      _puce(
+        cle: cle,
+        texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
+        onPressed: pasDeCible
+            ? null
+            : () => _lancerFormule(
+                  j.libelle,
+                  j.des,
+                  j.bonus,
+                  parAttaquant: true,
+                  genre: GenreJet.test,
+                ),
       );
 
   Widget _puceAction(
@@ -684,23 +638,18 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     String cle,
     bool pasDeCible,
   ) =>
-      _avecFavori(
-        fiche,
-        a.origine,
-        a.origine,
-        _puce(
-          cle: cle,
-          texte: '${a.libelle} : ${a.cout} PE',
-          onPressed: pasDeCible || fiche.peActuels < a.cout
-              ? null
-              : () async {
-                  await _s.depenserAction(fiche, a);
-                  await _lancer(
-                    libelle: '${a.libelle} (${a.cout} PE)',
-                    parAttaquant: true,
-                  );
-                },
-        ),
+      _puce(
+        cle: cle,
+        texte: '${a.libelle} : ${a.cout} PE',
+        onPressed: pasDeCible || fiche.peActuels < a.cout
+            ? null
+            : () async {
+                await _s.depenserAction(fiche, a);
+                await _lancer(
+                  libelle: '${a.libelle} (${a.cout} PE)',
+                  parAttaquant: true,
+                );
+              },
       );
 
   /// Test de caractéristique ; avantage permanent (gnome : CHAN) en vert.
@@ -714,28 +663,22 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final vert = avantage == null
         ? null
         : couleurModificateur(1, Theme.of(context).brightness);
-    return _avecFavori(
-      fiche,
-      'stat:${c.code}',
-      'Test de ${c.abrev}',
-      // Pas d'infobulle : elle capterait l'appui long (favori).
-      Builder(
-        builder: (_) => _puce(
-          cle: cle,
-          texte: '${c.abrev} ${formaterModificateur(fiche.mod(c))}'
-              '${avantage == null ? '' : ' · avantage'}',
-          vert: vert,
-          onPressed: pasDeCible
-              ? null
-              : () => _lancerFormule(
-                    'Test de ${c.abrev}',
-                    '1d20',
-                    fiche.mod(c),
-                    parAttaquant: true,
-                    genre: GenreJet.test,
-                    carac: c,
-                  ),
-        ),
+    return Builder(
+      builder: (_) => _puce(
+        cle: cle,
+        texte: '${c.abrev} ${formaterModificateur(fiche.mod(c))}'
+            '${avantage == null ? '' : ' · avantage'}',
+        vert: vert,
+        onPressed: pasDeCible
+            ? null
+            : () => _lancerFormule(
+                  'Test de ${c.abrev}',
+                  '1d20',
+                  fiche.mod(c),
+                  parAttaquant: true,
+                  genre: GenreJet.test,
+                  carac: c,
+                ),
       ),
     );
   }
@@ -751,32 +694,27 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final vert = avantage != null || j.maitrise
         ? couleurModificateur(1, Theme.of(context).brightness)
         : null;
-    return _avecFavori(
-      fiche,
-      'apt:${j.libelle}',
-      j.libelle,
-      _puce(
-        cle: cle,
-        texte: '${j.libelle} '
-            '${formaterModificateur(fiche.mod(j.carac) + j.total)}'
-            '${avantage == null ? '' : ' · avantage'}',
-        vert: vert,
-        onPressed: pasDeCible
-            ? null
-            : () => _lancerFormule(
-                  j.libelle,
-                  '1d20',
-                  fiche.mod(j.carac) + j.total,
-                  parAttaquant: true,
-                  genre: GenreJet.test,
-                  carac: j.carac,
-                  savoir: j.aptitude.nom,
-                ),
-      ),
+    return _puce(
+      cle: cle,
+      texte: '${j.libelle} '
+          '${formaterModificateur(fiche.mod(j.carac) + j.total)}'
+          '${avantage == null ? '' : ' · avantage'}',
+      vert: vert,
+      onPressed: pasDeCible
+          ? null
+          : () => _lancerFormule(
+                j.libelle,
+                '1d20',
+                fiche.mod(j.carac) + j.total,
+                parAttaquant: true,
+                genre: GenreJet.test,
+                carac: j.carac,
+                savoir: j.aptitude.nom,
+              ),
     );
   }
 
-  /// Attaque ou dégâts ; en favori seulement pour un personnage.
+  /// Attaque ou dégâts.
   Widget _puceAttaque(
     FicheCalculee? fiche,
     ({String libelle, String des, int bonus, bool degats, String type}) a,
@@ -808,9 +746,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
               );
             },
     );
-    return fiche == null
-        ? bouton
-        : _avecFavori(fiche, 'att:${a.libelle}', a.libelle, bouton);
+    return bouton;
   }
 
   /// Jets d'aptitudes (savoirs, savoir-faire) du personnage.
@@ -1093,7 +1029,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         ),
         const SizedBox(height: 4),
         Text(
-          'Favoris : bouton « Gérer les favoris » (ou appui long).',
+          'Favoris : bouton « Gérer les favoris ».',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

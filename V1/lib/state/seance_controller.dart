@@ -1156,21 +1156,26 @@ class SeanceController extends ChangeNotifier {
   String get idAttaquant => estMj ? creatureChoisie?.id ?? _carte : uid;
 
   /// Cibles possibles d'une attaque ou d'un sort, sauf celui qui agit. La
-  /// première sert de cible par défaut : une créature pour un PJ, un PJ pour
-  /// une créature.
+  /// première sert de cible par défaut : une créature rencontrée pour un PJ
+  /// ou pour un compagnon / une invocation, un PJ pour une créature du MJ.
   List<({String id, String nom})> get cibles {
     final soi = idAttaquant;
-    final lesCreatures = [
+    final rencontrees = [
       for (final c in _creatures)
-        if (c.id != soi) (id: c.id, nom: c.nom),
+        if (c.id != soi && !c.estAUnJoueur) (id: c.id, nom: c.nom),
+    ];
+    final desJoueurs = [
+      for (final c in _creatures)
+        if (c.id != soi && c.estAUnJoueur) (id: c.id, nom: c.nom),
     ];
     final lesJoueurs = [
       for (final m in joueurs)
         if (m.uid != soi) (id: m.uid, nom: m.personnageNom),
     ];
-    return estMj && creatureChoisie != null
-        ? [...lesJoueurs, ...lesCreatures]
-        : [...lesCreatures, ...lesJoueurs];
+    final choisie = estMj ? creatureChoisie : null;
+    return choisie != null && !choisie.estAUnJoueur
+        ? [...lesJoueurs, ...desJoueurs, ...rencontrees]
+        : [...rencontrees, ...lesJoueurs, ...desJoueurs];
   }
 
   /// PV, PM, PE d'une carte, à jour : la fiche suivie en direct quand ce

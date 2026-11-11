@@ -1617,6 +1617,9 @@ void main() {
           await ServiceCampagnesMemoire(b, 'mj')
               .seance
               .demarrerCombat(c, ['j1', 'j2']);
+          await ServiceCampagnesMemoire(b, 'mj')
+              .seance
+              .ajouterCreature(c, _creature('rat', 3));
         },
       );
       await tester.pumpAndSettle();
@@ -1626,7 +1629,7 @@ void main() {
       expect((loup.pv, loup.initiative), (12, 14));
       // Pas de tour à lui : il agit au tour de son maître (11/11/2026),
       // sa carte s'allume avec celle de j1.
-      expect(partie.etat.ordre, ['j1', 'j2']);
+      expect(partie.etat.ordre, ['j1', 'j2', 'rat']);
       expect(partie.etat.actif, 'j1');
       expect(find.byKey(const Key('carte-compagnon-j1-loup-tour')),
           findsOneWidget);
@@ -1645,6 +1648,14 @@ void main() {
       expect(find.byKey(const Key('creature-cachee')), findsNothing);
       await tap(tester, find.byKey(const Key('creature-pv-moins')));
       expect(partie.creatures['compagnon-j1-loup']!.pv, 11);
+      // Cible par défaut de ses attaques : la créature rencontrée.
+      expect(
+        tester
+            .widget<DropdownButton<String>>(
+                find.byKey(const Key('cible-attaque')))
+            .value,
+        'rat',
+      );
       // Les PJ voient ses PV et sa fiche.
       final vu = partie.creatures['compagnon-j1-loup']!
           .pourJoueur(const ParametresCampagne(pjVoientPvCreatures: false));
@@ -2132,10 +2143,20 @@ void main() {
         find.byKey(const Key('endurance-seance-0')),
       );
       await tester.pumpAndSettle();
-      // Appui long : Moulinet passe dans les favoris, en tête.
+      // Plus d'appui long (12/11/2026) : rien ne change.
       await tester.longPress(find.byKey(const Key('endurance-seance-0')));
       await tester.pumpAndSettle();
-      expect(find.text('Moulinet : ajouté aux favoris.'), findsOneWidget);
+      expect(find.textContaining('aux favoris'), findsNothing);
+      expect(find.byKey(const Key('endurance-seance-0')), findsOneWidget);
+      // La fenêtre des favoris : Moulinet passe en tête.
+      await tester.drag(
+        find.byKey(const Key('panneau-des')),
+        const Offset(0, 2000),
+      );
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('gerer-favoris')));
+      await tap(tester, find.byKey(const Key('etoile-Moulinet')));
+      await tap(tester, find.byTooltip('Fermer'));
       expect(find.byKey(const Key('endurance-seance-0')), findsNothing);
       // Le groupe Favoris est en haut du panneau.
       await tester.scrollUntilVisible(
@@ -2226,22 +2247,30 @@ void main() {
       // Exploration : statistiques ouvertes, combat replié.
       expect(find.byKey(const Key('test-seance-FOR')), findsOneWidget);
       expect(find.byKey(const Key('attaque-0')), findsNothing);
-      // Appui long sur le test de FOR : favori, en tête.
-      await tester.longPress(find.byKey(const Key('test-seance-FOR')));
-      await tester.pumpAndSettle();
-      expect(find.text('Test de FOR : ajouté aux favoris.'), findsOneWidget);
-      expect(find.byKey(const Key('test-seance-FOR')), findsNothing);
-      await tester.drag(
-        find.byKey(const Key('panneau-des')),
-        const Offset(0, 2000),
+      // Le test de FOR en favori (fenêtre) : en tête.
+      await tap(tester, find.byKey(const Key('gerer-favoris')));
+      final fenetre = find
+          .descendant(
+            of: find.byKey(const Key('fenetre-favoris')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('etoile-stat:FOR')),
+        100,
+        scrollable: fenetre,
       );
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('favori-stat-0')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('etoile-stat:FOR')));
       // Une attaque aussi.
-      await deplier(
-          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
-      await tester.longPress(find.byKey(const Key('attaque-0')));
-      await tester.pumpAndSettle();
+      final etoileAttaque = find.byWidgetPredicate((w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith('etoile-att:'));
+      await tester.scrollUntilVisible(etoileAttaque.first, -100,
+          scrollable: fenetre);
+      await tap(tester, etoileAttaque.first);
+      await tap(tester, find.byTooltip('Fermer'));
+      expect(find.byKey(const Key('test-seance-FOR')), findsNothing);
+      expect(find.byKey(const Key('favori-stat-0')), findsOneWidget);
       expect(find.byKey(const Key('favori-attaque-0')), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
