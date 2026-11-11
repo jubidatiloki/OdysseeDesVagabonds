@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.56.1',
+    date: '11/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Campagnes : après un changement de personnage, la nouvelle '
+            'fiche est bien partagée avec le MJ.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : une fiche pas encore partagée est relue chaque '
+            'minute côté MJ.',
+      ),
+    ],
+  ),
+  (
     version: '0.56.0',
     date: '11/11/2026',
     changements: [

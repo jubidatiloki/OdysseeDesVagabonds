@@ -205,6 +205,52 @@ void main() {
   });
 
   group('contrôleur', () {
+    test('changement de personnage : fiche partagée une fois en ligne',
+        () async {
+      final base = BaseCampagnesMemoire(Random(6));
+      final brom = _brom();
+      final aria = Personnage(
+          id: 'aria', nom: 'Aria', raceId: 'nain', classeId: 'guerrier');
+      base.fiches['brom'] =
+          (fiche: brom, proprietaire: 'j1', partage: [], editeurs: []);
+      final mj =
+          await _connecter(base, const Utilisateur(uid: 'mj', nom: 'Ben'));
+      final j = await _connecter(base, const Utilisateur(uid: 'j1', nom: 'Léa'),
+          fiches: [brom, aria]);
+      final s = mj.campagnes.serviceActuel!;
+      final c = await s.creer(nom: 'Loup', mjNom: 'Ben');
+      final sj = j.campagnes.serviceActuel!;
+      await sj.demander(c, _membre('j1', 'Léa', brom));
+      await s.accepter(base.campagnes[c.id]!, 'j1');
+      await pumpEventQueue();
+      expect(base.fiches['brom']!.partage, ['mj']);
+
+      // Changement pour Aria, pas encore en ligne (envoi différé) : le
+      // partage échoue, sans bloquer.
+      await sj.quitter(base.campagnes[c.id]!);
+      await sj.demander(base.campagnes[c.id]!, _membre('j1', 'Léa', aria));
+      await s.accepter(base.campagnes[c.id]!, 'j1');
+      await pumpEventQueue();
+      expect(base.fiches['aria'], isNull);
+      expect(base.fiches['brom']!.partage, isEmpty);
+
+      // La fiche arrive en ligne ; à la synchronisation suivante, elle est
+      // partagée avec le MJ (lecture et modification).
+      base.fiches['aria'] =
+          (fiche: aria, proprietaire: 'j1', partage: [], editeurs: []);
+      await j.compte.synchroniser();
+      await pumpEventQueue();
+      expect(base.fiches['aria']!.partage, ['mj']);
+      expect(base.fiches['aria']!.editeurs, ['mj']);
+      expect(await s.lireFiche('aria'), isNotNull);
+
+      for (final x in [mj, j]) {
+        x.campagnes.dispose();
+        x.compte.dispose();
+        x.personnages.dispose();
+      }
+    });
+
     test('MJ / joueur, séance signalée, fiche partagée avec le MJ', () async {
       final base = BaseCampagnesMemoire(Random(5));
       final brom = _brom();

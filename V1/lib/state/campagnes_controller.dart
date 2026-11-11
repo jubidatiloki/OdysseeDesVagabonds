@@ -46,6 +46,13 @@ class CampagnesController extends ChangeNotifier {
   /// réécrire que ce qui change.
   final Map<String, List<String>> _partages = {};
 
+  /// Fiches dont le partage a échoué (souvent : pas encore envoyée en
+  /// ligne, envoi différé) ; réessayé après chaque synchronisation.
+  final Set<String> _partagesEchoues = {};
+
+  /// Mises à jour des partages l'une après l'autre (jamais en même temps).
+  Future<void> _filePartages = Future.value();
+
   /// Campagnes où chaque fiche du joueur est engagée (joueur accepté).
   Map<String, List<Campagne>> _engagees = const {};
 
@@ -87,12 +94,17 @@ class CampagnesController extends ChangeNotifier {
 
   void _suivreCompte() {
     final u = compte.utilisateur;
-    if (u?.uid == _service?.uid) return;
+    if (u?.uid == _service?.uid) {
+      // Une synchronisation a pu mettre en ligne une fiche à partager.
+      if (_partagesEchoues.isNotEmpty) unawaited(_mettreAJourPartages());
+      return;
+    }
     _ecoute?.cancel();
     _ecoute = null;
     _campagnes = const [];
     _seancesVues.clear();
     _partages.clear();
+    _partagesEchoues.clear();
     _engagees = const {};
     _charge = false;
     _service = u == null ? null : service(u);
@@ -138,7 +150,10 @@ class CampagnesController extends ChangeNotifier {
   /// Joueur : le MJ (et les autres joueurs selon les paramètres) peuvent
   /// lire la fiche engagée dans chaque campagne ; le MJ peut la modifier
   /// une fois le joueur accepté.
-  Future<void> _mettreAJourPartages() async {
+  Future<void> _mettreAJourPartages() =>
+      _filePartages = _filePartages.then((_) => _partager());
+
+  Future<void> _partager() async {
     final s = _service;
     if (s == null) return;
     final voulu = <String, Set<String>>{};
@@ -173,12 +188,35 @@ class CampagnesController extends ChangeNotifier {
       final ed = (editeurs[e.key] ?? const <String>{}).toList()..sort();
       final cle = [...liste, '|', ...ed];
       if (listEquals(_partages[e.key], cle)) continue;
-      try {
-        await s.partagerFiche(e.key, liste, editeurs: ed);
+      if (await _essayerPartage(s, e.key, liste, ed)) {
         _partages[e.key] = cle;
-      } catch (_) {
-        // Réessayé au prochain changement.
+        _partagesEchoues.remove(e.key);
+        continue;
       }
+      // Fiche pas encore en ligne (envoi différé) : on envoie ce qui attend,
+      // puis on réessaie ; sinon, après la prochaine synchronisation.
+      if (compte.nbEnAttente > 0 &&
+          await compte.synchroniser() != null &&
+          await _essayerPartage(s, e.key, liste, ed)) {
+        _partages[e.key] = cle;
+        _partagesEchoues.remove(e.key);
+      } else {
+        _partagesEchoues.add(e.key);
+      }
+    }
+  }
+
+  Future<bool> _essayerPartage(
+    ServiceCampagnes s,
+    String id,
+    List<String> lecteurs,
+    List<String> editeurs,
+  ) async {
+    try {
+      await s.partagerFiche(id, lecteurs, editeurs: editeurs);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

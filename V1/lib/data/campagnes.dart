@@ -456,7 +456,10 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
     List<String> editeurs = const [],
   }) async {
     final f = base.fiches[personnageId];
-    if (f == null || f.proprietaire != uid) return;
+    // Comme Firestore : une fiche pas encore en ligne ne peut pas être
+    // partagée (envoi différé).
+    if (f == null) throw StateError('fiche absente en ligne');
+    if (f.proprietaire != uid) return;
     base.fiches[personnageId] = (
       fiche: f.fiche,
       proprietaire: f.proprietaire,

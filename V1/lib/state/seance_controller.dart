@@ -68,10 +68,10 @@ class SeanceController extends ChangeNotifier {
       _signalerPresence(true);
     });
     // Tous : les absents sont réévalués chaque minute, sans rien écrire.
-    _minuterieAbsences = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => notifyListeners(),
-    );
+    _minuterieAbsences = Timer.periodic(const Duration(minutes: 1), (_) {
+      _suivreFiches();
+      notifyListeners();
+    });
     suivre(seance.ecouterDegats(c), (v) {
       _degats = v;
       _traiterDegats();
@@ -655,7 +655,11 @@ class SeanceController extends ChangeNotifier {
         }
         notifyListeners();
         unawaited(_synchroniserCompagnons());
-      }, onError: (Object _) {});
+      }, onError: (Object _) {
+        // Pas encore partagée (le joueur vient de changer de personnage) :
+        // on réessaiera, à la minute ou au prochain changement.
+        _fichesFlux.remove(id)?.cancel();
+      });
     }
   }
 
