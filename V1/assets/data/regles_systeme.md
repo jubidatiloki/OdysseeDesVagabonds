@@ -140,7 +140,7 @@ Chaque personnage a onze statistiques. Leur valeur (souvent entre 8 et 18) donne
 | PER | Perception | Remarquer les choses | Repérer un piège ou une embuscade, trouver un objet ou une personne |
 | SOC | Social | Parler aux autres | Baratiner, bluffer, convaincre, mentir, distraire |
 | MEN | Mental | Volonté, conviction | Résister à l'intimidation, au contrôle de l'esprit et à la peur |
-| CHAN | Chance | Le hasard pur | Ne se répartit pas : **10 par défaut** |
+| CHAN | Chance | Le hasard pur : un jet qui ne dépend d'aucune compétence ni d'aucun talent du personnage (le MJ le demande quand seul le hasard décide) | Ne se répartit pas : **10 par défaut** |
 
 ### Création des statistiques
 

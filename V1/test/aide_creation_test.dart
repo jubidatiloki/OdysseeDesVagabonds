@@ -76,6 +76,16 @@ void main() {
       expect(find.byKey(Key('explication-${c.code}')), findsOneWidget);
       expect(find.text(c.description), findsOneWidget);
     }
+    // Rangées par famille (11/11/2026), avec l'aide en tête.
+    expect(find.byKey(const Key('aide-repartition')), findsOneWidget);
+    for (final f in ['Combat', 'Corps', 'Esprit', 'Hasard']) {
+      expect(find.byKey(Key('famille-carac-$f')), findsOneWidget);
+    }
+    // Nain : bonus de race affiché, total et modificateur.
+    expect(find.byKey(const Key('race-CON')), findsOneWidget);
+    expect(find.byKey(const Key('total-CON')), findsOneWidget);
+    // La chance : un jet qui ne dépend d'aucune compétence.
+    expect(Carac.chan.description, contains('aucune compétence'));
   });
 
   Widget competences({required Map<String, int> rangs}) => MaterialApp(

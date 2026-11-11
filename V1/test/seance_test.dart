@@ -1762,6 +1762,60 @@ void main() {
       expect(partie.etat.ordre, ['j1', 'j2']);
     });
 
+    testWidgets('invocation d\'un autre PJ : selon les permissions',
+        (tester) async {
+      Future<void> avecInvocation(
+          BaseCampagnesMemoire b, Campagne c, ParametresCampagne p) async {
+        b.campagnes[c.id] = c.copie(parametres: p);
+        await ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
+              b.campagnes[c.id]!,
+              const CreatureSeance(
+                id: 'invocation-x-0',
+                nom: 'Loup',
+                creatureId: 'loup',
+                pv: 12,
+                pvMax: 12,
+                proprietaire: 'j1',
+                toursRestants: 3,
+              ),
+            );
+      }
+
+      // Permissions par défaut : ni ses PV ni sa fiche pour j2.
+      await ouvrir(tester, 'j2',
+          avant: (b, c) => avecInvocation(b, c, const ParametresCampagne()));
+      expect(find.byKey(const Key('carte-invocation-x-0')), findsOneWidget);
+      expect(find.text('12/12'), findsNothing);
+      await tap(tester, find.byKey(const Key('carte-invocation-x-0')));
+      expect(find.byKey(const Key('creature-etat')), findsOneWidget);
+      expect(find.byKey(const Key('creature-pv')), findsNothing);
+      // Nouvel écran (sinon l'ancien garde sa séance).
+      await tester.pumpWidget(const SizedBox());
+      // PV et fiches visibles entre PJ : il voit tout.
+      await ouvrir(tester, 'j2',
+          avant: (b, c) => avecInvocation(
+              b,
+              c,
+              const ParametresCampagne(
+                pjVoientRessources: true,
+                fichesVisiblesJoueurs: true,
+              )));
+      expect(find.text('12/12'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('carte-invocation-x-0')));
+      expect(find.byKey(const Key('creature-etat')), findsNothing);
+      expect(find.text('Loup · PV 12/12'), findsOneWidget);
+    });
+
+    testWidgets('téléphone, joueur : en-tête réduit, sans bouton quitter',
+        (tester) async {
+      await ouvrir(tester, 'j1',
+          taille: const Size(400, 900), fiches: [_brom()]);
+      expect(find.byKey(const Key('quitter-seance')), findsNothing);
+      expect(tester.getSize(find.byKey(const Key('seance-tableau'))).height,
+          lessThanOrEqualTo(40));
+      expect(tester.getSize(find.byType(AppBar)).height, lessThan(120));
+    });
+
     testWidgets('joueur : renvoie son invocation après confirmation',
         (tester) async {
       final x = await ouvrir(
@@ -2027,6 +2081,41 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('PJ : fenêtre « Gérer les favoris »', (tester) async {
+      final brom = _brom()..rangsVoies['brute'] = 1;
+      await ouvrir(tester, 'j1', fiches: [brom]);
+      // Groupe Favoris toujours là, même vide, avec son bouton.
+      expect(find.byKey(const PageStorageKey<String>('groupe-favoris')),
+          findsOneWidget);
+      expect(find.textContaining('Aucun favori'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('gerer-favoris')));
+      expect(find.byKey(const Key('fenetre-favoris')), findsOneWidget);
+      // Toutes les familles d'actions : compétence, statistique…
+      await tap(tester, find.byKey(const Key('etoile-Moulinet')));
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('etoile-stat:FOR')),
+        100,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('fenetre-favoris')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tap(tester, find.byKey(const Key('etoile-stat:FOR')));
+      Finder dansFenetre(String t) => find.descendant(
+          of: find.byKey(const Key('fenetre-favoris')), matching: find.text(t));
+      expect(dansFenetre('Favoris (2)'), findsOneWidget);
+      // Toucher encore : retiré.
+      await tap(tester, find.byKey(const Key('etoile-stat:FOR')));
+      expect(dansFenetre('Favoris (1)'), findsOneWidget);
+      await tap(tester, find.byTooltip('Fermer'));
+      // Moulinet en tête, dans le groupe Favoris.
+      expect(find.byKey(const Key('favori-endurance-0')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('PJ : compétences favorites en tête du panneau',
         (tester) async {
       final brom = _brom()..rangsVoies['brute'] = 1;
@@ -2043,8 +2132,6 @@ void main() {
         find.byKey(const Key('endurance-seance-0')),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const PageStorageKey<String>('groupe-favoris')),
-          findsNothing);
       // Appui long : Moulinet passe dans les favoris, en tête.
       await tester.longPress(find.byKey(const Key('endurance-seance-0')));
       await tester.pumpAndSettle();

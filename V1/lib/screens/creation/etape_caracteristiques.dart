@@ -4,6 +4,30 @@ import '../../models/carac.dart';
 import '../../models/race.dart';
 import '../../regles/fiche_calculee.dart';
 
+/// Familles de caractéristiques, pour l'affichage seulement (11/11/2026).
+const List<({String titre, IconData icone, List<Carac> caracs})> _familles = [
+  (
+    titre: 'Combat',
+    icone: Icons.sports_martial_arts,
+    caracs: [Carac.adc, Carac.adt, Carac.adm],
+  ),
+  (
+    titre: 'Corps',
+    icone: Icons.fitness_center,
+    caracs: [Carac.force, Carac.dex, Carac.con],
+  ),
+  (
+    titre: 'Esprit',
+    icone: Icons.psychology_outlined,
+    caracs: [Carac.intel, Carac.per, Carac.soc, Carac.men],
+  ),
+  (
+    titre: 'Hasard',
+    icone: Icons.casino_outlined,
+    caracs: [Carac.chan],
+  ),
+];
+
 /// Répartition des 12 points (règles : AVANCEMENT.md §7, n°1 et 13).
 class EtapeCaracteristiques extends StatelessWidget {
   const EtapeCaracteristiques({
@@ -33,55 +57,127 @@ class EtapeCaracteristiques extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final restants = RepartitionCreation.pointsRestants(base);
+    const total = RepartitionCreation.pointsTotal;
+    final fini = restants == 0;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text('Répartis tes points', style: theme.textTheme.titleLarge),
-        const SizedBox(height: 4),
-        const Text(
-          'Toutes les caractéristiques partent de 10. '
-          'Maximum 16 avant les bonus de race, qui s\'ajoutent à la fin. '
-          'La chance ne se modifie pas.',
+        const SizedBox(height: 8),
+        // Comment ça marche, en trois points.
+        Container(
+          key: const Key('aide-repartition'),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final (icone, texte) in [
+                (
+                  Icons.flag_outlined,
+                  'Chaque caractéristique part de 10. Tu as $total points : '
+                      '1 point = +1.'
+                ),
+                (
+                  Icons.vertical_align_top,
+                  'Maximum 16 avant les bonus de ta race, qui s\'ajoutent '
+                      'ensuite (pastille « Race »).'
+                ),
+                (
+                  Icons.calculate_outlined,
+                  'Les jets utilisent le modificateur : 10 = +0, puis +1 tous '
+                      'les 2 points (12 = +1, 14 = +2, 16 = +3).'
+                ),
+              ])
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(icone, size: 18, color: scheme.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(texte, style: theme.textTheme.bodySmall),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
         const SizedBox(height: 12),
+        // Points restants, avec une barre.
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: BoxDecoration(
-            color: restants == 0
-                ? scheme.primaryContainer
-                : scheme.secondaryContainer,
+            color: fini ? scheme.primaryContainer : scheme.secondaryContainer,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                restants == 0 ? Icons.check_circle : Icons.casino_outlined,
-                color: restants == 0
-                    ? scheme.onPrimaryContainer
-                    : scheme.onSecondaryContainer,
+              Row(
+                children: [
+                  Icon(
+                    fini ? Icons.check_circle : Icons.casino_outlined,
+                    color: fini
+                        ? scheme.onPrimaryContainer
+                        : scheme.onSecondaryContainer,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      fini
+                          ? 'Tous les points sont répartis'
+                          : 'Points restants',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  Text(
+                    '$restants / $total',
+                    key: const Key('points-restants'),
+                    style: theme.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  restants == 0
-                      ? 'Tous les points sont répartis'
-                      : 'Points restants',
-                  style: theme.textTheme.titleMedium,
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: (total - restants) / total,
+                  minHeight: 6,
                 ),
-              ),
-              Text(
-                '$restants / ${RepartitionCreation.pointsTotal}',
-                key: const Key('points-restants'),
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
-        const _EnTete(),
-        for (final c in Carac.values) _ligne(context, c),
+        for (final f in _familles) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 18, 4, 6),
+            child: Row(
+              children: [
+                Icon(f.icone, size: 18, color: scheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  f.titre.toUpperCase(),
+                  key: Key('famille-carac-${f.titre}'),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          for (final c in f.caracs) _ligne(context, c),
+        ],
       ],
     );
   }
@@ -93,126 +189,149 @@ class EtapeCaracteristiques extends StatelessWidget {
     final race = _modRacial(c);
     final total = valeur + race;
     final modifiable = RepartitionCreation.estModifiable(c);
+    final mod = modificateur(total);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+    return Card(
+      key: Key('ligne-carac-${c.code}'),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Abréviation dans une pastille.
+                Container(
+                  width: 48,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: FittedBox(
+                    child: Text(
                       c.abrev,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                    Text(
-                      modifiable ? c.nom : '${c.nom} (fixe)',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: scheme.onSurfaceVariant),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                key: Key('moins-${c.code}'),
-                tooltip: 'Retirer un point',
-                onPressed: RepartitionCreation.peutDiminuer(base, c)
-                    ? () => _modifier(c, -1)
-                    : null,
-                icon: const Icon(Icons.remove_circle_outline),
-              ),
-              SizedBox(
-                width: 28,
-                child: Text(
-                  '$valeur',
-                  key: Key('valeur-${c.code}'),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium,
-                ),
-              ),
-              IconButton(
-                key: Key('plus-${c.code}'),
-                tooltip: 'Ajouter un point',
-                onPressed: RepartitionCreation.peutAugmenter(base, c)
-                    ? () => _modifier(c, 1)
-                    : null,
-                icon: const Icon(Icons.add_circle_outline),
-              ),
-              SizedBox(
-                width: 40,
-                child: Text(
-                  race == 0 ? '' : formaterModificateur(race),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: race > 0
-                        ? scheme.primary
-                        : (race < 0 ? scheme.error : null),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 36,
-                child: Text(
-                  '$total',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        modifiable ? c.nom : '${c.nom} (fixe)',
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      // À quoi sert cette caractéristique.
+                      Text(
+                        c.description,
+                        key: Key('explication-${c.code}'),
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 36,
-                child: Text(
-                  formaterModificateur(modificateur(total)),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-          // À quoi sert cette caractéristique.
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              c.description,
-              key: Key('explication-${c.code}'),
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EnTete extends StatelessWidget {
-  const _EnTete();
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        );
-    Widget col(String t, double w) => SizedBox(
-        width: w, child: Text(t, textAlign: TextAlign.center, style: style));
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          const Expanded(child: SizedBox()),
-          col('Points', 124),
-          col('Race', 40),
-          col('Total', 36),
-          col('Mod.', 36),
-        ],
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const SizedBox(width: 46),
+                IconButton(
+                  key: Key('moins-${c.code}'),
+                  tooltip: 'Retirer un point',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: RepartitionCreation.peutDiminuer(base, c)
+                      ? () => _modifier(c, -1)
+                      : null,
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                SizedBox(
+                  width: 30,
+                  child: Text(
+                    '$valeur',
+                    key: Key('valeur-${c.code}'),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  key: Key('plus-${c.code}'),
+                  tooltip:
+                      modifiable ? 'Ajouter un point' : 'Ne se répartit pas',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: RepartitionCreation.peutAugmenter(base, c)
+                      ? () => _modifier(c, 1)
+                      : null,
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
+                if (race != 0)
+                  Container(
+                    margin: const EdgeInsets.only(left: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: race > 0 ? scheme.primary : scheme.error,
+                      ),
+                    ),
+                    child: Text(
+                      'Race ${formaterModificateur(race)}',
+                      key: Key('race-${c.code}'),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: race > 0 ? scheme.primary : scheme.error,
+                      ),
+                    ),
+                  ),
+                const Spacer(),
+                // Résultat : valeur totale et modificateur des jets.
+                Container(
+                  key: Key('total-${c.code}'),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: scheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$total',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        formaterModificateur(mod),
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: mod > 0
+                              ? scheme.primary
+                              : mod < 0
+                                  ? scheme.error
+                                  : scheme.onSecondaryContainer,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

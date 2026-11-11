@@ -119,7 +119,7 @@ class ListeCartes extends StatelessWidget {
                 initiative:
                     s.etat.enCombat && !c.estCompagnon ? c.initiative : null,
                 ressources: [
-                  if (c.pv != null)
+                  if (c.pv != null && s.voitPvDe(c))
                     _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
                   // Invocation temporaire : tours restants.
                   if (c.toursRestants case final t?)
@@ -623,8 +623,8 @@ class DetailCarte extends StatelessWidget {
                 mention: mention,
               )
             : _CreaturePj(
-                creature: c,
-                fiche: s.ficheCreature(c),
+                creature: s.voitPvDe(c) ? c : c.sansPv(),
+                fiche: s.voitFicheDe(c) ? s.ficheCreature(c) : null,
                 mention: mention,
               );
       }

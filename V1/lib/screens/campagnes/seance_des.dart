@@ -827,6 +827,174 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         ),
       ];
 
+  /// Fenêtre « Gérer les favoris » : toutes les actions du personnage, par
+  /// famille, chacune avec son étoile (favori ou non).
+  Future<void> _gererFavoris(
+    FicheCalculee fiche,
+    List<({String libelle, String des, int bonus, bool degats, String type})>
+        attaques,
+    List<JetSavoir> aptitudes,
+  ) async {
+    final vus = <String>{};
+    List<({String cle, String nom})> uniques(
+            Iterable<({String cle, String nom})> l) =>
+        [
+          for (final x in l)
+            if (vus.add(x.cle)) x,
+        ];
+    final familles = <({
+      String titre,
+      IconData icone,
+      List<({String cle, String nom})> actions,
+    })>[
+      (
+        titre: 'Attaques',
+        icone: Icons.sports_martial_arts,
+        actions: uniques([
+          for (final a in attaques) (cle: 'att:${a.libelle}', nom: a.libelle),
+        ]),
+      ),
+      (
+        titre: 'Sorts',
+        icone: Icons.auto_awesome_outlined,
+        actions: uniques([
+          for (final s in fiche.sorts)
+            (cle: s.competence.nom, nom: s.competence.nom),
+        ]),
+      ),
+      (
+        titre: 'Compétences',
+        icone: Icons.bolt_outlined,
+        actions: uniques([
+          for (final j in _jetsCompetences(fiche))
+            (cle: j.origine, nom: j.origine),
+          for (final a in fiche.actionsEndurance)
+            (cle: a.origine, nom: a.origine),
+        ]),
+      ),
+      (
+        titre: 'Statistiques',
+        icone: Icons.casino_outlined,
+        actions: uniques([
+          for (final c in Carac.values)
+            (cle: 'stat:${c.code}', nom: '${c.nom} (${c.code})'),
+        ]),
+      ),
+      (
+        titre: 'Aptitudes',
+        icone: Icons.school_outlined,
+        actions: uniques([
+          for (final j in aptitudes) (cle: 'apt:${j.libelle}', nom: j.libelle),
+        ]),
+      ),
+    ];
+    await showDialog<void>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialog) {
+          final theme = Theme.of(context);
+          final fav = fiche.personnage.favoris;
+          final hauteur = MediaQuery.sizeOf(context).height;
+          return Dialog(
+            key: const Key('fenetre-favoris'),
+            insetPadding: const EdgeInsets.all(16),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(maxWidth: 520, maxHeight: hauteur * 0.85),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.star, color: theme.colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Favoris (${fav.length})',
+                            style: theme.textTheme.titleLarge,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Fermer',
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                    child: Text(
+                      "Touche une action pour l'ajouter aux favoris (étoile "
+                      'pleine) ou l\'en retirer : les favoris sont en tête des '
+                      'dés.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Flexible(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      children: [
+                        for (final g in familles)
+                          if (g.actions.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 8, 20, 2),
+                              child: Row(
+                                children: [
+                                  Icon(g.icone,
+                                      size: 16,
+                                      color: theme.colorScheme.primary),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    g.titre.toUpperCase(),
+                                    style:
+                                        theme.textTheme.labelMedium?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            for (final a in g.actions)
+                              ListTile(
+                                key: Key('etoile-${a.cle}'),
+                                dense: true,
+                                title: Text(a.nom,
+                                    overflow: TextOverflow.ellipsis),
+                                trailing: Icon(
+                                  fav.contains(a.cle)
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: fav.contains(a.cle)
+                                      ? OdvCouleurs.or
+                                      : theme.colorScheme.outline,
+                                ),
+                                onTap: () async {
+                                  await _s.basculerFavori(fiche, a.cle);
+                                  setDialog(() {});
+                                  if (mounted) setState(() {});
+                                },
+                              ),
+                          ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   /// Favoris : toutes les actions mises en favori, réunies en tête.
   Widget? _groupeFavoris(
     FicheCalculee fiche,
@@ -836,7 +1004,6 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     List<JetSavoir> aptitudes,
   ) {
     final fav = fiche.personnage.favoris;
-    if (fav.isEmpty) return null;
     final puces = <Widget>[
       for (final (i, a) in [
         for (final a in attaques)
@@ -869,12 +1036,31 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       ].indexed)
         _puceAptitude(fiche, j, 'favori-aptitude-$i', pasDeCible),
     ];
-    if (puces.isEmpty) return null;
     return _GroupeJets(
       cle: 'groupe-favoris',
-      titre: 'Favoris',
+      titre: puces.isEmpty ? 'Favoris' : 'Favoris (${puces.length})',
       icone: Icons.star_outline,
-      children: [Wrap(spacing: 6, runSpacing: 6, children: puces)],
+      children: [
+        if (puces.isEmpty)
+          Text(
+            'Aucun favori : choisis tes actions les plus utilisées pour les '
+            'avoir ici, en tête.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          )
+        else
+          Wrap(spacing: 6, runSpacing: 6, children: puces),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            key: const Key('gerer-favoris'),
+            onPressed: () => _gererFavoris(fiche, attaques, aptitudes),
+            icon: const Icon(Icons.star_rate_outlined),
+            label: const Text('Gérer les favoris'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -907,7 +1093,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         ),
         const SizedBox(height: 4),
         Text(
-          'Appui long sur un bouton, ou étoile du détail : favori.',
+          'Favoris : bouton « Gérer les favoris » (ou appui long).',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

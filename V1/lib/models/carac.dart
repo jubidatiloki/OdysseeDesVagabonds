@@ -25,7 +25,7 @@ enum Carac {
   men('MEN', 'MEN', 'Mental',
       'Force mentale et conviction : sert à résister à l\'intimidation, aux contrôles mentaux et à la peur.'),
   chan('CHAN', 'CHAN', 'Chance',
-      'Hasard pur, hors compétences : cette statistique n\'est pas lancée et vaut 10 par défaut.');
+      'Hasard pur : un jet de chance ne dépend d\'aucune compétence ni d\'aucun talent du personnage (le MJ le demande quand seul le hasard décide). Elle ne se répartit pas : elle vaut 10.');
 
   const Carac(this.code, this.abrev, this.nom, this.description);
 

@@ -95,13 +95,37 @@ class _SeanceScreenState extends State<SeanceScreen>
             ),
           );
         }
-        const styleOnglet =
-            TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
+        // Téléphone, joueur : en-tête et onglets réduits (le tableau de bord
+        // garde le plus de place) ; le bouton retour suffit pour quitter.
+        final compact = !s.estMj && MediaQuery.sizeOf(context).width < 700;
+        Tab onglet(String cle, IconData icone, String texte) => compact
+            ? Tab(
+                key: Key(cle),
+                height: 38,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icone, size: 18),
+                    const SizedBox(width: 6),
+                    Text(texte),
+                  ],
+                ),
+              )
+            : Tab(
+                key: Key(cle),
+                height: 76,
+                icon: Icon(icone, size: 28),
+                text: texte,
+              );
+        final styleOnglet = TextStyle(
+          fontSize: compact ? 13 : 15,
+          fontWeight: FontWeight.w600,
+        );
         return DefaultTabController(
           length: s.estMj ? 6 : 4,
           child: Scaffold(
             appBar: AppBar(
-              toolbarHeight: 76,
+              toolbarHeight: compact ? 58 : 76,
               // Combat : tout l'en-tête passe au rouge.
               backgroundColor: s.etat.enCombat
                   ? Color.alphaBlend(
@@ -120,6 +144,9 @@ class _SeanceScreenState extends State<SeanceScreen>
                         child: Text(
                           '${c.titreSeance(s.numero)} · ${c.nom}',
                           overflow: TextOverflow.ellipsis,
+                          style: compact
+                              ? Theme.of(context).textTheme.titleMedium
+                              : null,
                         ),
                       ),
                       if (s.estMj)
@@ -136,90 +163,69 @@ class _SeanceScreenState extends State<SeanceScreen>
                         ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: compact ? 2 : 4),
                   _EnTeteMode(seance: s),
                 ],
               ),
               actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: MediaQuery.sizeOf(context).width < 700
-                      ? IconButton(
-                          key: Key(
-                            s.estMj ? 'terminer-seance' : 'quitter-seance',
-                          ),
-                          tooltip: s.estMj
-                              ? 'Clôturer la séance'
-                              : 'Quitter la séance',
-                          onPressed: s.estMj
-                              ? () => _terminer(context)
-                              : () => Navigator.of(context).pop(),
-                          icon: Icon(
-                            s.estMj ? Icons.stop_circle_outlined : Icons.logout,
-                          ),
-                        )
-                      : s.estMj
-                          ? FilledButton.icon(
-                              key: const Key('terminer-seance'),
-                              onPressed: () => _terminer(context),
-                              icon: const Icon(Icons.stop_circle_outlined),
-                              label: const Text('Clôturer la séance'),
-                            )
-                          : OutlinedButton.icon(
-                              key: const Key('quitter-seance'),
-                              onPressed: () => Navigator.of(context).pop(),
-                              icon: const Icon(Icons.logout),
-                              label: const Text('Quitter la séance'),
+                if (!compact)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: MediaQuery.sizeOf(context).width < 700
+                        ? IconButton(
+                            key: Key(
+                              s.estMj ? 'terminer-seance' : 'quitter-seance',
                             ),
-                ),
+                            tooltip: s.estMj
+                                ? 'Clôturer la séance'
+                                : 'Quitter la séance',
+                            onPressed: s.estMj
+                                ? () => _terminer(context)
+                                : () => Navigator.of(context).pop(),
+                            icon: Icon(
+                              s.estMj
+                                  ? Icons.stop_circle_outlined
+                                  : Icons.logout,
+                            ),
+                          )
+                        : s.estMj
+                            ? FilledButton.icon(
+                                key: const Key('terminer-seance'),
+                                onPressed: () => _terminer(context),
+                                icon: const Icon(Icons.stop_circle_outlined),
+                                label: const Text('Clôturer la séance'),
+                              )
+                            : OutlinedButton.icon(
+                                key: const Key('quitter-seance'),
+                                onPressed: () => Navigator.of(context).pop(),
+                                icon: const Icon(Icons.logout),
+                                label: const Text('Quitter la séance'),
+                              ),
+                  ),
               ],
               bottom: TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
                 labelStyle: styleOnglet,
                 unselectedLabelStyle: styleOnglet,
-                labelPadding: const EdgeInsets.symmetric(horizontal: 20),
+                labelPadding:
+                    EdgeInsets.symmetric(horizontal: compact ? 12 : 20),
                 // Téléphone : le contenu de l'onglet est dans la vue Détail.
                 onTap: (_) => _vues.animateTo(1),
                 tabs: [
-                  const Tab(
-                    key: Key('seance-tableau'),
-                    height: 76,
-                    icon: Icon(Icons.dashboard_outlined, size: 28),
-                    text: 'Tableau de bord',
-                  ),
+                  onglet('seance-tableau', Icons.dashboard_outlined,
+                      'Tableau de bord'),
                   if (s.estMj)
-                    const Tab(
-                      key: Key('seance-creatures'),
-                      height: 76,
-                      icon: Icon(Icons.pets_outlined, size: 28),
-                      text: 'Créatures',
-                    ),
+                    onglet(
+                        'seance-creatures', Icons.pets_outlined, 'Créatures'),
                   if (s.estMj)
-                    const Tab(
-                      key: Key('seance-glossaire'),
-                      height: 76,
-                      icon: Icon(Icons.auto_stories_outlined, size: 28),
-                      text: 'Glossaire',
-                    ),
-                  const Tab(
-                    key: Key('seance-recaps'),
-                    height: 76,
-                    icon: Icon(Icons.event_note_outlined, size: 28),
-                    text: 'Séances précédentes',
-                  ),
-                  const Tab(
-                    key: Key('seance-regles'),
-                    height: 76,
-                    icon: Icon(Icons.menu_book_outlined, size: 28),
-                    text: 'Règles système',
-                  ),
-                  const Tab(
-                    key: Key('seance-parametres'),
-                    height: 76,
-                    icon: Icon(Icons.tune, size: 28),
-                    text: 'Paramètres',
-                  ),
+                    onglet('seance-glossaire', Icons.auto_stories_outlined,
+                        'Glossaire'),
+                  onglet('seance-recaps', Icons.event_note_outlined,
+                      'Séances précédentes'),
+                  onglet('seance-regles', Icons.menu_book_outlined,
+                      'Règles système'),
+                  onglet('seance-parametres', Icons.tune, 'Paramètres'),
                 ],
               ),
             ),
@@ -374,16 +380,19 @@ class _SeanceScreenState extends State<SeanceScreen>
                             tabs: [
                               const Tab(
                                 key: Key('vue-cartes'),
+                                height: 36,
                                 text: 'Cartes',
                               ),
                               const Tab(
                                 key: Key('vue-detail'),
+                                height: 36,
                                 text: 'Détail',
                               ),
                               // Écran étroit : les messages sont derrière
                               // « Dés », la pastille doit se voir d'ici.
                               Tab(
                                 key: const Key('vue-des'),
+                                height: 36,
                                 child: Badge(
                                   key: const Key('vue-des-non-lus'),
                                   isLabelVisible: s.nonLus > 0,

@@ -402,6 +402,21 @@ class SeanceController extends ChangeNotifier {
     });
   }
 
+  /// Compagnon ou invocation d'un autre joueur : ses PV se voient si les PJ
+  /// voient les PV des autres PJ, sa fiche si les fiches sont visibles entre
+  /// PJ (permissions de la campagne). Le MJ et son propriétaire voient tout.
+  bool voitPvDe(CreatureSeance x) =>
+      estMj ||
+      !x.estAUnJoueur ||
+      x.proprietaire == uid ||
+      (campagne?.parametres.pjVoientRessources ?? false);
+
+  bool voitFicheDe(CreatureSeance x) =>
+      estMj ||
+      !x.estAUnJoueur ||
+      x.proprietaire == uid ||
+      (campagne?.parametres.fichesVisiblesJoueurs ?? false);
+
   /// Compagnons et invocations d'un joueur entrés dans la partie (PV
   /// suivis, initiative).
   List<CreatureSeance> compagnonsEnJeu(String joueur) => [

@@ -283,6 +283,22 @@ class CreatureSeance {
     );
   }
 
+  /// La même, sans ses PV (vue d'un PJ qui n'a pas le droit de les voir).
+  CreatureSeance sansPv() => CreatureSeance(
+        id: id,
+        nom: nom,
+        creatureId: creatureId,
+        famille: famille,
+        description: description,
+        initiative: initiative,
+        ca: ca,
+        etat: etat,
+        cachee: cachee,
+        nomCache: nomCache,
+        proprietaire: proprietaire,
+        toursRestants: toursRestants,
+      );
+
   /// Ce qu'un PJ a le droit de savoir, selon les permissions : la fiche
   /// révélerait le nom, elle reste cachée avec lui.
   CreatureSeance pourJoueur(ParametresCampagne p) => CreatureSeance(

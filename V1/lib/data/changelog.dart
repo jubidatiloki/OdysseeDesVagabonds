@@ -29,6 +29,37 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.58.0',
+    date: '11/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : fenêtre « Gérer les favoris », toutes les actions par '
+            'famille avec leur étoile.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance sur téléphone (joueur) : en-tête et onglets réduits, '
+            'plus de bouton pour quitter (retour suffit).',
+      ),
+      (
+        type: _m,
+        texte: 'Création : répartition des points par famille, avec aide, '
+            'bonus de race et total plus lisibles.',
+      ),
+      (
+        type: _m,
+        texte: 'Chance : un jet qui ne dépend d\'aucune compétence du '
+            'personnage.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : PV et fiche de l\'invocation d\'un autre PJ selon les '
+            'permissions de la campagne.',
+      ),
+    ],
+  ),
+  (
     version: '0.57.0',
     date: '11/11/2026',
     changements: [
