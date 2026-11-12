@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odyssee_vagabonds/data/campagnes.dart';
+import 'package:odyssee_vagabonds/widgets/animation_lancer.dart';
 import 'package:odyssee_vagabonds/data/compte.dart';
 import 'package:odyssee_vagabonds/data/personnage_repository.dart';
 import 'package:odyssee_vagabonds/data/referentiel.dart';
@@ -1363,23 +1364,48 @@ void main() {
       // Rien n'est retiré tant que le joueur n'a pas répondu.
       await souffle(4);
       final id = partie.degats.single.id;
-      expect(find.byKey(Key('esquive-$id')), findsOneWidget);
+      // Une fenêtre demande d'esquiver ou de subir (12/11/2026).
+      expect(find.byKey(const Key('fenetre-esquive')), findsOneWidget);
       expect(find.text('10/10'), findsOneWidget);
       await tap(tester, find.byKey(Key('subir-$id')));
       expect(partie.degats, isEmpty);
+      // Résultat : PV réellement perdus.
+      expect(find.byKey(const Key('resultat-esquive')), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('pv-perdus'))).data,
+        '4',
+      );
+      await tap(tester, find.byKey(const Key('fermer-resultat-esquive')));
       expect(find.text('6/10'), findsOneWidget);
       // Esquive : jet lancé contre 15, noté dans les logs.
       await souffle(4);
       final id2 = partie.degats.single.id;
       await tap(tester, find.byKey(Key('esquiver-$id2')));
+      await tester.pump(AnimationLancer.duree);
       await tester.pumpAndSettle();
       expect(partie.degats, isEmpty);
       final jet = partie.jets.last;
       expect(jet.libelle, "Jet d'esquive · Dragon · Souffle · dégâts");
       expect(jet.detail, contains('diff. 15'));
       final reussi = jet.detail.contains('esquive réussie');
+      // Résultat clair : le jet contre la difficulté, les PV perdus.
+      expect(
+        tester.widget<Text>(find.byKey(const Key('jet-esquive'))).data,
+        '${jet.total} contre 15',
+      );
+      expect(
+        tester
+            .widget<Text>(find.byKey(const Key('titre-resultat-esquive')))
+            .data,
+        reussi ? 'Esquive réussie' : 'Esquive ratée',
+      );
+      expect(
+        tester.widget<Text>(find.byKey(const Key('pv-perdus'))).data,
+        reussi ? '2' : '4',
+      );
+      await tap(tester, find.byKey(const Key('fermer-resultat-esquive')));
       expect(find.text(reussi ? '4/10' : '2/10'), findsOneWidget);
-      expect(find.byKey(Key('esquive-$id2')), findsNothing);
+      expect(find.byKey(const Key('fenetre-esquive')), findsNothing);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
@@ -2280,17 +2306,106 @@ void main() {
 
     testWidgets('MJ : lieu, combat et montée notés dans le récapitulatif',
         (tester) async {
-      final x = await ouvrir(tester, 'mj');
-      await tap(tester, find.byKey(const Key('modifier-lieu')));
-      await tester.enterText(find.byKey(const Key('champ-lieu')), 'Taverne');
-      await tester.pump();
-      await tap(tester, find.byKey(const Key('valider-lieu')));
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          for (final n in ['Aigle', 'Aigle 2', 'Loup']) {
+            await mj.ajouterCreature(
+                c, CreatureSeance(id: '', nom: n, initiative: 5));
+          }
+          // Le familier d'un joueur n'est pas un adversaire.
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(
+              id: '',
+              nom: 'Corbeau',
+              initiative: 5,
+              proprietaire: 'j1',
+            ),
+          );
+        },
+      );
+      Future<void> lieu(String texte) async {
+        await tap(tester, find.byKey(const Key('modifier-lieu')));
+        await tester.enterText(find.byKey(const Key('champ-lieu')), texte);
+        await tester.pump();
+        await tap(tester, find.byKey(const Key('valider-lieu')));
+      }
+
+      await lieu('Taverne');
+      await lieu('Forêt enchantée');
+      await tap(tester, find.byKey(const Key('basculer-mode')));
       await tap(tester, find.byKey(const Key('basculer-mode')));
       final recap = x.base.recaps[x.campagne.id]![1]!;
       final lignes = recap.split('\n');
-      expect(lignes, hasLength(2));
-      expect(lignes.first, matches(RegExp(r'^- \d\d:\d\d · Lieu : Taverne$')));
-      expect(lignes.last, contains('· Début du combat'));
+      expect(lignes, hasLength(4));
+      expect(lignes[0], matches(RegExp(r'^- \d\d:\d\d · Lieu : Taverne$')));
+      // Ancien et nouveau lieu (12/11/2026).
+      expect(lignes[1], endsWith('· Lieu : Taverne → Forêt enchantée'));
+      // Heure de début, adversaires regroupés, sans le familier.
+      expect(
+        lignes[2],
+        matches(RegExp(r'· Début du combat à \d\d:\d\d : 2 Aigles, Loup$')),
+      );
+      // Heure de fin et durée.
+      expect(lignes[3],
+          matches(RegExp(r'· Fin du combat à \d\d:\d\d \(\d+ min\)$')));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ en combat, hors de son tour : attaques bloquées',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .demarrerCombat(c, ['j2', 'j1']),
+      );
+      expect(find.byKey(const Key('hors-tour')), findsOneWidget);
+      final attaque =
+          tester.widget<ActionChip>(find.byKey(const Key('attaque-0')));
+      expect(attaque.onPressed, isNull);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ en combat, à son tour : attaques possibles',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .demarrerCombat(c, ['j1', 'j2']),
+      );
+      expect(find.byKey(const Key('hors-tour')), findsNothing);
+      final attaque =
+          tester.widget<ActionChip>(find.byKey(const Key('attaque-0')));
+      expect(attaque.onPressed, isNotNull);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ renommé pendant la séance : nom à jour pour tous',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      final personnages = tester
+          .widget<SeanceScreen>(find.byType(SeanceScreen))
+          .contexte
+          .personnages;
+      final brom = personnages.parId('brom')!..nom = 'Brom le Brave';
+      await personnages.sauvegarder(brom);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+      expect(
+          x.base.membres[x.campagne.id]!['j1']!.personnageNom, 'Brom le Brave');
+      expect(find.text('Brom le Brave'), findsWidgets);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

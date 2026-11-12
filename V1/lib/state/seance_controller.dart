@@ -125,6 +125,7 @@ class SeanceController extends ChangeNotifier {
   RessourcesPj? _publiees;
   int? _initiativePubliee;
   int? _caPubliee;
+  String? _nomPublie;
   final Set<String> _caCompletees = {};
   String? _resumePublie;
   Map<String, PresenceSeance> _presences = const {};
@@ -770,7 +771,9 @@ class SeanceController extends ChangeNotifier {
     final resume = '${f.race.nom} · ${f.classe.nom} · '
         'niveau ${f.personnage.niveau}';
     final ressourcesChangent = r != _publiees;
+    final nom = f.personnage.nom.trim();
     final membreChange = resume != _resumePublie ||
+        nom != _nomPublie ||
         f.initiative != _initiativePubliee ||
         f.classeArmure != _caPubliee;
     if (!ressourcesChangent && !membreChange) return;
@@ -794,6 +797,7 @@ class SeanceController extends ChangeNotifier {
     _resumePublie = resume;
     _initiativePubliee = f.initiative;
     _caPubliee = f.classeArmure;
+    _nomPublie = nom;
     // Seul ce qui a changé est écrit (PV seuls le plus souvent).
     final erreur = await campagnes.agir(
       (x) => x.seance.publierPersonnage(
@@ -802,6 +806,7 @@ class SeanceController extends ChangeNotifier {
         resume: membreChange ? resume : null,
         initiative: membreChange ? f.initiative : null,
         ca: membreChange ? f.classeArmure : null,
+        nom: membreChange && nom.isNotEmpty ? nom : null,
       ),
     );
     // Échec : réessayé au prochain changement.
@@ -819,29 +824,56 @@ class SeanceController extends ChangeNotifier {
 
   /// MJ : combat (ordre par initiative) ou exploration. Le début d'un
   /// combat est noté dans le récapitulatif de la séance.
-  Future<String?> basculerMode() async {
+  Future<String?> basculerMode({DateTime? maintenant}) async {
     final debut = !_etat.enCombat;
     final erreur = await _agir((s, c) => _etat.enCombat
         ? s.passerEnExploration(c)
         : s.demarrerCombat(c, ordreCombat(joueurs, _creatures)));
-    if (erreur == null && debut) {
-      final noms = [for (final c in _creatures) c.nom];
+    if (erreur != null) return erreur;
+    final h = maintenant ?? DateTime.now();
+    if (debut) {
+      // Sans les compagnons ni les invocations des joueurs ; les
+      // adversaires identiques regroupés (« 2 Aigles »).
+      final adversaires = resumeAdversaires([
+        for (final c in _creatures)
+          if (!c.estAUnJoueur) c.nom,
+      ]);
+      _debutCombat = h;
       await noterDansRecap(
-        noms.isEmpty
-            ? 'Début du combat'
-            : 'Début du combat : ${noms.join(', ')}',
+        'Début du combat à ${_heure(h)}'
+        '${adversaires.isEmpty ? '' : ' : $adversaires'}',
+        maintenant: h,
+      );
+    } else {
+      final depuis = _debutCombat;
+      _debutCombat = null;
+      final duree = depuis == null ? null : h.difference(depuis).inMinutes;
+      await noterDansRecap(
+        'Fin du combat à ${_heure(h)}'
+        '${duree == null ? '' : ' ($duree min)'}',
+        maintenant: h,
       );
     }
-    return erreur;
+    return null;
   }
 
-  /// MJ : lieu de la scène, noté dans le récapitulatif de la séance.
+  /// Heure du début du combat en cours (MJ, pour sa durée).
+  DateTime? _debutCombat;
+
+  static String _heure(DateTime h) => '${h.hour.toString().padLeft(2, '0')}:'
+      '${h.minute.toString().padLeft(2, '0')}';
+
+  /// MJ : lieu de la scène, noté dans le récapitulatif de la séance, avec
+  /// l'ancien lieu (« Forêt enchantée → Blancherive »).
   Future<String?> changerLieu(String lieu) async {
     final nouveau = lieu.trim();
-    final change = nouveau != _etat.lieu;
+    final ancien = _etat.lieu.trim();
+    final change = nouveau != ancien;
     final erreur = await _agir((s, c) => s.changerInfos(c, lieu: nouveau));
     if (erreur == null && change && nouveau.isNotEmpty) {
-      await noterDansRecap('Lieu : $nouveau');
+      await noterDansRecap(
+        ancien.isEmpty ? 'Lieu : $nouveau' : 'Lieu : $ancien → $nouveau',
+      );
     }
     return erreur;
   }
@@ -1245,8 +1277,10 @@ class SeanceController extends ChangeNotifier {
 
   /// Réponse du joueur à une attaque sans jet : [esquiver] lance
   /// 1d20 + bonus d'esquive contre la difficulté ; réussi, aucun dégât (ou
-  /// la moitié pour un souffle). Renvoie le jet et les dégâts subis.
-  Future<({ResultatLancer? jet, int subis})> repondreEsquive(
+  /// la moitié pour un souffle). Renvoie le jet, les dégâts subis (avant la
+  /// RD), la RD et les PV réellement perdus.
+  Future<({ResultatLancer? jet, int subis, int rd, int perdus})>
+      repondreEsquive(
     DegatsSeance d, {
     required bool esquiver,
     math.Random? aleatoire,
@@ -1298,7 +1332,13 @@ class SeanceController extends ChangeNotifier {
           _fileDegats.then((_) => _appliquerDegats(d.copie(montant: montant)));
       await _fileDegats;
     }
-    return (jet: r, subis: montant);
+    final rd = montant > 0 ? f?.rdContre(d.type) ?? 0 : 0;
+    return (
+      jet: r,
+      subis: montant,
+      rd: rd,
+      perdus: math.max(0, montant - rd),
+    );
   }
 
   void _traiterDegats() {

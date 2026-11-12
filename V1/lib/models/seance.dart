@@ -383,6 +383,47 @@ String nomNumerote(String nom, Iterable<String> existants) {
   return '$nom $n';
 }
 
+/// Adversaires regroupés pour les notes de séance (12/11/2026) : « Aigle »
+/// et « Aigle 2 » donnent « 2 Aigles » ; dans l'ordre d'arrivée.
+String resumeAdversaires(Iterable<String> noms) {
+  final compte = <String, int>{};
+  for (final n in noms) {
+    final base = n.replaceFirst(RegExp(r' \d+$'), '').trim();
+    if (base.isEmpty) continue;
+    compte[base] = (compte[base] ?? 0) + 1;
+  }
+  return [
+    for (final MapEntry(key: nom, value: n) in compte.entries)
+      n == 1 ? nom : '$n ${pluriel(nom)}',
+  ].join(', ');
+}
+
+/// Pluriel simple d'un nom de créature : chaque mot jusqu'au premier mot
+/// de liaison (« Loup géant » → « Loups géants », « Serviteur des ombres »
+/// → « Serviteurs des ombres »).
+String pluriel(String nom) {
+  const liaisons = {'de', 'du', 'des', 'à', 'au', 'aux', 'en', 'et', 'la'};
+  final mots = nom.split(' ');
+  final sortie = <String>[];
+  var fini = false;
+  for (final m in mots) {
+    final bas = m.toLowerCase();
+    if (fini || liaisons.contains(bas) || bas.startsWith("d'")) {
+      fini = true;
+      sortie.add(m);
+    } else if (RegExp(r'[sxz]$').hasMatch(bas)) {
+      sortie.add(m);
+    } else if (bas.endsWith('al') && bas.length > 3) {
+      sortie.add('${m.substring(0, m.length - 2)}aux');
+    } else if (bas.endsWith('eau') || bas.endsWith('eu')) {
+      sortie.add('${m}x');
+    } else {
+      sortie.add('${m}s');
+    }
+  }
+  return sortie.join(' ');
+}
+
 /// PV, PM et PE d'un personnage, publiés par son joueur pendant la séance.
 class RessourcesPj {
   const RessourcesPj({

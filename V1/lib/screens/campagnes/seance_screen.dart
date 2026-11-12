@@ -14,6 +14,7 @@ import 'campagnes_screen.dart';
 import 'creation_campagne_screen.dart';
 import 'seance_cartes.dart';
 import 'seance_creatures.dart';
+import 'seance_esquive.dart';
 import 'seance_des.dart';
 import 'seance_recaps.dart';
 import '../../widgets/dialogue_texte.dart';
@@ -63,6 +64,74 @@ class _SeanceScreenState extends State<SeanceScreen>
       campagneId: widget.campagneId,
     );
     _seance.annonce.addListener(_annoncer);
+    _seance.addListener(_verifierEsquives);
+  }
+
+  /// Attaques sans jet déjà présentées au joueur (une fenêtre chacune).
+  final Set<String> _esquivesMontrees = {};
+  var _fenetreEsquive = false;
+
+  /// Attaque sans jet qui vise le joueur : une fenêtre lui demande
+  /// d'esquiver ou de subir (12/11/2026, à la place du bandeau).
+  void _verifierEsquives() {
+    if (_fenetreEsquive || !mounted) return;
+    for (final d in _seance.esquivesEnAttente) {
+      if (_esquivesMontrees.add(d.id)) {
+        _fenetreEsquive = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) => _esquiver(d));
+        return;
+      }
+    }
+  }
+
+  Future<void> _esquiver(DegatsSeance d) async {
+    try {
+      if (!mounted) return;
+      final esquiver = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => FenetreEsquive(
+          degats: d,
+          dejaUtilisee: _seance.esquiveUtilisee,
+        ),
+      );
+      if (!mounted || esquiver == null) return;
+      final r = await _seance.repondreEsquive(
+        d,
+        esquiver: esquiver,
+        aleatoire: widget.aleatoire,
+      );
+      if (!mounted) return;
+      final jet = r.jet;
+      if (jet != null) {
+        // Le dé roule, puis le résultat détaillé s'affiche.
+        AnimationLancer.montrer(
+          context,
+          total: jet.total,
+          libelle: "Jet d'esquive",
+          critique: jet.reussiteCritique,
+          echec: jet.echecCritique,
+        );
+        if (!(MediaQuery.maybeDisableAnimationsOf(context) ?? false)) {
+          await Future<void>.delayed(AnimationLancer.duree);
+        }
+        if (!mounted) return;
+      }
+      await showDialog<void>(
+        context: context,
+        builder: (_) => FenetreResultatEsquive(
+          degats: d,
+          jet: jet,
+          subis: r.subis,
+          rd: r.rd,
+          perdus: r.perdus,
+        ),
+      );
+    } finally {
+      _fenetreEsquive = false;
+      // Une autre attaque est peut-être arrivée entre-temps.
+      if (mounted) _verifierEsquives();
+    }
   }
 
   /// Objet reçu d'un autre PJ.
@@ -75,6 +144,7 @@ class _SeanceScreenState extends State<SeanceScreen>
   @override
   void dispose() {
     _seance.annonce.removeListener(_annoncer);
+    _seance.removeListener(_verifierEsquives);
     _vues.dispose();
     _seance.dispose();
     super.dispose();
@@ -349,14 +419,6 @@ class _SeanceScreenState extends State<SeanceScreen>
           ),
           child: Column(
             children: [
-              // Attaque sans jet d'attaque : esquiver ou subir.
-              for (final d in s.esquivesEnAttente)
-                _BandeauEsquive(
-                  key: Key('esquive-${d.id}'),
-                  seance: s,
-                  degats: d,
-                  aleatoire: widget.aleatoire,
-                ),
               if (s.estMj || s.etat.enCombat) ...[
                 _BarreTours(seance: s),
                 const Divider(height: 1),
@@ -524,117 +586,6 @@ class _EnTeteMode extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-/// Attaque sans jet d'attaque (souffle, bond…) qui vise le joueur : il
-/// lance son esquive contre la difficulté donnée par le MJ, ou subit les
-/// dégâts.
-class _BandeauEsquive extends StatelessWidget {
-  const _BandeauEsquive({
-    super.key,
-    required this.seance,
-    required this.degats,
-    this.aleatoire,
-  });
-
-  final SeanceController seance;
-  final DegatsSeance degats;
-  final Random? aleatoire;
-
-  Future<void> _repondre(BuildContext context, {required bool esquiver}) async {
-    final messager = ScaffoldMessenger.of(context);
-    final r = await seance.repondreEsquive(
-      degats,
-      esquiver: esquiver,
-      aleatoire: aleatoire,
-    );
-    if (!context.mounted) return;
-    final jet = r.jet;
-    if (jet != null) {
-      AnimationLancer.montrer(
-        context,
-        total: jet.total,
-        libelle: "Jet d'esquive",
-        critique: jet.reussiteCritique,
-        echec: jet.echecCritique,
-      );
-    }
-    messager.showSnackBar(
-      SnackBar(
-        content: Text(
-          r.subis == 0
-              ? 'Esquive réussie : aucun dégât.'
-              : jet != null && (jet.reussite ?? false)
-                  ? 'Esquive réussie : ${r.subis} dégâts (moitié).'
-                  : '${r.subis} dégâts subis.',
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final d = degats;
-    final dejaFait = seance.esquiveUtilisee;
-    return Material(
-      color: scheme.errorContainer,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-        child: Row(
-          children: [
-            Icon(Icons.warning_amber, color: scheme.onErrorContainer),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${d.source} : ${d.montant} dégâts'
-                    '${d.type == 'physique' ? '' : ' (${d.type})'}',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: scheme.onErrorContainer,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    dejaFait
-                        ? 'Esquive déjà utilisée ce tour.'
-                        : "Pas de jet d'attaque : jet d'esquive contre "
-                            '${d.difficulteEsquive} '
-                            '(réussite : ${d.moitieSiEsquive ? 'moitié des dégâts' : 'aucun dégât'}).',
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: scheme.onErrorContainer),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                FilledButton.icon(
-                  key: Key('esquiver-${d.id}'),
-                  onPressed: dejaFait
-                      ? null
-                      : () => _repondre(context, esquiver: true),
-                  icon: const Icon(Icons.directions_run),
-                  label: const Text('Esquiver'),
-                ),
-                OutlinedButton(
-                  key: Key('subir-${d.id}'),
-                  onPressed: () => _repondre(context, esquiver: false),
-                  child: const Text('Subir'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

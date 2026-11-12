@@ -29,6 +29,37 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.60.0',
+    date: '12/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : une fenêtre demande d\'esquiver ou de subir, puis '
+            'le dé roule et le résultat détaille les PV perdus.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance, combat : attaques, sorts et compétences du joueur '
+            'attendent son tour.',
+      ),
+      (
+        type: _m,
+        texte: 'Notes de séance : heures de début et de fin du combat, '
+            'adversaires regroupés, sans les familiers.',
+      ),
+      (
+        type: _m,
+        texte: 'Notes de séance : changement de lieu avec l\'ancien et le '
+            'nouveau (Forêt → Blancherive).',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : un personnage renommé pendant la séance change de '
+            'nom sur sa carte, pour tous.',
+      ),
+    ],
+  ),
+  (
     version: '0.59.2',
     date: '12/11/2026',
     changements: [

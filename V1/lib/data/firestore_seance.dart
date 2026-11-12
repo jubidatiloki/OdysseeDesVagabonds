@@ -365,6 +365,7 @@ class FirestoreServiceSeance implements ServiceSeance {
     String? resume,
     int? initiative,
     int? ca,
+    String? nom,
   }) async {
     final membre = resume != null && initiative != null;
     if (ressources == null && !membre) return;
@@ -378,6 +379,7 @@ class FirestoreServiceSeance implements ServiceSeance {
         'personnageResume': resume,
         'initiative': initiative,
         if (ca != null) 'ca': ca,
+        if (nom != null && nom.isNotEmpty) 'personnageNom': nom,
       });
     }
     await lot.commit();

@@ -288,6 +288,11 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     return '';
   }
 
+  /// Joueur en combat, hors de son tour : attaques, sorts et compétences
+  /// attendent son tour (12/11/2026) ; tests de statistique, aptitudes et
+  /// esquive restent possibles. Le MJ n'est jamais bloqué.
+  bool get _horsTour => !_s.estMj && _s.etat.enCombat && !_s.monTour;
+
   /// Jet de dégâts : son total est retiré des PV de la cible.
   static bool _estDegats(String libelle) =>
       libelle.toLowerCase().contains('dégâts');
@@ -607,7 +612,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _puce(
         cle: cle,
         texte: '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
-        onPressed: pasDeCible || fiche.pointsPourSorts < s.cout
+        onPressed: pasDeCible || _horsTour || fiche.pointsPourSorts < s.cout
             ? null
             : () => _lancerSort(fiche, s),
       );
@@ -621,7 +626,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _puce(
         cle: cle,
         texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
-        onPressed: pasDeCible
+        onPressed: pasDeCible || _horsTour
             ? null
             : () => _lancerFormule(
                   j.libelle,
@@ -641,7 +646,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       _puce(
         cle: cle,
         texte: '${a.libelle} : ${a.cout} PE',
-        onPressed: pasDeCible || fiche.peActuels < a.cout
+        onPressed: pasDeCible || _horsTour || fiche.peActuels < a.cout
             ? null
             : () async {
                 await _s.depenserAction(fiche, a);
@@ -724,7 +729,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final bouton = _puce(
       cle: cle,
       texte: '${a.libelle} : ${formaterJet(a.des, a.bonus)}',
-      onPressed: pasDeCible
+      onPressed: pasDeCible || _horsTour
           ? null
           : () {
               if (!a.degats) _verifierAttaque();
@@ -1241,6 +1246,27 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 child: Text(
                   _alerte!,
                   style: TextStyle(color: theme.colorScheme.tertiary),
+                ),
+              ),
+            ],
+          ),
+        ],
+        if (_horsTour) ...[
+          const SizedBox(height: 8),
+          Row(
+            key: const Key('hors-tour'),
+            children: [
+              Icon(
+                Icons.hourglass_top,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Tour de ${_s.nomActif} : attaques, sorts et compétences '
+                  'attendent ton tour.',
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ),
             ],

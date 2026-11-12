@@ -103,6 +103,7 @@ abstract class ServiceSeance {
     String? resume,
     int? initiative,
     int? ca,
+    String? nom,
   });
 
   /// Joueur : notes personnelles d'une séance (lui seul peut les lire).
@@ -389,6 +390,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
     String? resume,
     int? initiative,
     int? ca,
+    String? nom,
   }) async {
     if (ressources != null) _partie(c).ressources[uid] = ressources;
     final m = base.membres[c.id]?[uid];
@@ -397,7 +399,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
         uid: m.uid,
         nom: m.nom,
         personnageId: m.personnageId,
-        personnageNom: m.personnageNom,
+        personnageNom: nom ?? m.personnageNom,
         personnageResume: resume,
         statut: m.statut,
         date: m.date,
