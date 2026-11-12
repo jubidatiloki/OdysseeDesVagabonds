@@ -27,6 +27,36 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body style="background-color: #1C1916;">
-  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Toujours la dernière version (12/11/2026) : on retire le « service
+    // worker » des versions précédentes et ses copies de l'application, puis
+    // on recharge la page si c'est lui qui l'avait servie. Ensuite seulement,
+    // l'application démarre.
+    (async () => {
+      try {
+        if ('serviceWorker' in navigator) {
+          const controlee = !!navigator.serviceWorker.controller;
+          for (const r of await navigator.serviceWorker.getRegistrations()) {
+            await r.unregister();
+          }
+          if (window.caches) {
+            for (const k of await caches.keys()) {
+              if (k.startsWith('flutter-')) await caches.delete(k);
+            }
+          }
+          if (controlee) {
+            location.reload();
+            return;
+          }
+        }
+      } catch (e) {
+        // Navigation privée, accès refusé : on démarre quand même.
+      }
+      const s = document.createElement('script');
+      s.src = 'flutter_bootstrap.js';
+      s.async = true;
+      document.body.appendChild(s);
+    })();
+  </script>
 </body>
 </html>

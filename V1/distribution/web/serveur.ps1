@@ -46,6 +46,8 @@ while ($listener.IsListening) {
     $ext = [IO.Path]::GetExtension($fichier).ToLower()
     if ($types.ContainsKey($ext)) { $ctx.Response.ContentType = $types[$ext] }
     else { $ctx.Response.ContentType = 'application/octet-stream' }
+    # Toujours la derniere version : le navigateur ne garde pas de copie.
+    $ctx.Response.Headers.Add('Cache-Control', 'no-cache')
     $octets = [IO.File]::ReadAllBytes($fichier)
     $ctx.Response.ContentLength64 = $octets.Length
     $ctx.Response.OutputStream.Write($octets, 0, $octets.Length)

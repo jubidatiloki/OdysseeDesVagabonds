@@ -13,7 +13,7 @@ echo Construction de la version web (1 a 3 minutes)...
 echo === Publication web %date% %time% === > "%LOG%"
 call flutter pub get >> "%LOG%" 2>&1
 if exist ".dart_tool\flutter_build" rmdir /s /q ".dart_tool\flutter_build"
-call flutter build web --release --no-web-resources-cdn >> "%LOG%" 2>&1
+call flutter build web --release --no-web-resources-cdn --pwa-strategy=none >> "%LOG%" 2>&1
 if errorlevel 1 goto echec
 findstr /m "firebasejs" "build\web\main.dart.js" >nul
 if errorlevel 1 (

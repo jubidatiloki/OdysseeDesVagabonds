@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.59.2',
+    date: '12/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Version web : la dernière version s\'ouvre dès le premier '
+            'lancement (plus d\'ancienne copie gardée).',
+      ),
+    ],
+  ),
+  (
     version: '0.59.1',
     date: '12/11/2026',
     changements: [
