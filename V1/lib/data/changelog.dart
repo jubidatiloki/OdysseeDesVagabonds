@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.61.0',
+    date: '12/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : créature alliée des PJ (escorte…), avec les '
+            'personnages et jouée par le MJ.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : la montée de niveau accordée ne passe plus au '
+            'nouveau personnage d\'un joueur.',
+      ),
+    ],
+  ),
+  (
     version: '0.60.0',
     date: '12/11/2026',
     changements: [

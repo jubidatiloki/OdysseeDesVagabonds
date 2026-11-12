@@ -32,11 +32,19 @@ class EtatJeu {
   /// Lieu de la scène, choisi par le MJ.
   final String lieu;
 
-  /// Montées de niveau autorisées par le MJ : uid → niveau atteignable.
+  /// Montées de niveau autorisées par le MJ : « uid:personnage » (voir
+  /// [cleMontee]) → niveau atteignable.
   final Map<String, int> montees;
 
-  /// Le MJ autorise ce joueur à quitter le [niveau] actuel.
-  bool peutMonter(String joueur, int niveau) => (montees[joueur] ?? 0) > niveau;
+  /// Clé d'une montée : le joueur **et** son personnage (12/11/2026) ; s'il
+  /// change de personnage, l'autorisation ne passe pas au nouveau.
+  static String cleMontee(String joueur, String personnage) =>
+      personnage.isEmpty ? joueur : '$joueur:$personnage';
+
+  /// Le MJ autorise ce joueur, avec ce [personnage], à quitter le [niveau]
+  /// actuel.
+  bool peutMonter(String joueur, int niveau, {String personnage = ''}) =>
+      (montees[cleMontee(joueur, personnage)] ?? 0) > niveau;
 
   /// Début d'un combat : le lieu et les autorisations restent.
   EtatJeu commencerCombat(List<String> ordre) => EtatJeu(
@@ -213,6 +221,7 @@ class CreatureSeance {
     this.nomCache = false,
     this.proprietaire = '',
     this.toursRestants,
+    this.allie = false,
   });
 
   /// Nom montré aux PJ quand le MJ cache le vrai nom.
@@ -255,6 +264,13 @@ class CreatureSeance {
   /// Créature d'un joueur (compagnon ou invocation) : PV visibles de tous.
   bool get estAUnJoueur => proprietaire.isNotEmpty;
 
+  /// Allié des PJ contrôlé par le MJ (escorte d'un marchand…, 12/11/2026) :
+  /// carte avec les personnages, PV visibles de tous, son propre tour.
+  final bool allie;
+
+  /// Du côté des PJ : créature d'un joueur ou allié.
+  bool get duCotePj => estAUnJoueur || allie;
+
   String get nomPublic => nomCache ? nomInconnu : nom;
 
   CreatureSeance copie({
@@ -263,6 +279,7 @@ class CreatureSeance {
     bool? cachee,
     bool? nomCache,
     int? toursRestants,
+    bool? allie,
   }) {
     final v = pv ?? this.pv;
     return CreatureSeance(
@@ -280,6 +297,7 @@ class CreatureSeance {
       nomCache: nomCache ?? this.nomCache,
       proprietaire: proprietaire,
       toursRestants: toursRestants ?? this.toursRestants,
+      allie: allie ?? this.allie,
     );
   }
 
@@ -297,6 +315,7 @@ class CreatureSeance {
         nomCache: nomCache,
         proprietaire: proprietaire,
         toursRestants: toursRestants,
+        allie: allie,
       );
 
   /// Ce qu'un PJ a le droit de savoir, selon les permissions : la fiche
@@ -310,13 +329,14 @@ class CreatureSeance {
         famille: nomCache ? '' : famille,
         description: description,
         initiative: initiative,
-        pv: p.pjVoientPvCreatures || estAUnJoueur ? pv : null,
-        pvMax: p.pjVoientPvCreatures || estAUnJoueur ? pvMax : null,
+        pv: p.pjVoientPvCreatures || duCotePj ? pv : null,
+        pvMax: p.pjVoientPvCreatures || duCotePj ? pvMax : null,
         ca: ca,
         etat: etat,
         nomCache: nomCache,
         proprietaire: proprietaire,
         toursRestants: toursRestants,
+        allie: allie,
       );
 
   /// Partie lisible par les PJ (si la carte n'est pas cachée).
@@ -325,11 +345,12 @@ class CreatureSeance {
         if ((p.pjVoientFichesCreatures || estAUnJoueur) && !nomCache)
           'creatureId': creatureId,
         if (!nomCache && famille.isNotEmpty) 'famille': famille,
-        if ((p.pjVoientPvCreatures || estAUnJoueur) && pv != null) 'pv': pv,
-        if ((p.pjVoientPvCreatures || estAUnJoueur) && pvMax != null)
+        if ((p.pjVoientPvCreatures || duCotePj) && pv != null) 'pv': pv,
+        if ((p.pjVoientPvCreatures || duCotePj) && pvMax != null)
           'pvMax': pvMax,
         if (estAUnJoueur) 'proprietaire': proprietaire,
         if (toursRestants != null) 'toursRestants': toursRestants,
+        if (allie) 'allie': true,
         if (ca != null) 'ca': ca,
         'description': description,
         'initiative': initiative,
@@ -368,6 +389,7 @@ class CreatureSeance {
         nomCache: public['nomCache'] as bool? ?? false,
         proprietaire: public['proprietaire'] as String? ?? '',
         toursRestants: (public['toursRestants'] as num?)?.toInt(),
+        allie: public['allie'] as bool? ?? false,
       );
 }
 

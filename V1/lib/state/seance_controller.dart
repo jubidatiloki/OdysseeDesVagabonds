@@ -836,7 +836,7 @@ class SeanceController extends ChangeNotifier {
       // adversaires identiques regroupés (« 2 Aigles »).
       final adversaires = resumeAdversaires([
         for (final c in _creatures)
-          if (!c.estAUnJoueur) c.nom,
+          if (!c.duCotePj) c.nom,
       ]);
       _debutCombat = h;
       await noterDansRecap(
@@ -880,13 +880,17 @@ class SeanceController extends ChangeNotifier {
 
   /// MJ : autorise ou retire la montée de niveau d'un joueur ; une montée
   /// autorisée est notée dans le récapitulatif de la séance.
-  Future<String?> basculerMontee(String joueur, int niveau) async {
+  Future<String?> basculerMontee(
+    String joueur,
+    int niveau, {
+    String personnage = '',
+  }) async {
     final montees = Map<String, int>.of(_etat.montees);
-    final autorise = !_etat.peutMonter(joueur, niveau);
+    final autorise = !_etat.peutMonter(joueur, niveau, personnage: personnage);
+    // Une seule autorisation par joueur : celle de son personnage actuel.
+    montees.removeWhere((k, _) => k == joueur || k.startsWith('$joueur:'));
     if (autorise) {
-      montees[joueur] = niveau + 1;
-    } else {
-      montees.remove(joueur);
+      montees[EtatJeu.cleMontee(joueur, personnage)] = niveau + 1;
     }
     final erreur = await _agir((s, c) => s.changerInfos(c, montees: montees));
     if (erreur == null && autorise) {
@@ -1136,6 +1140,7 @@ class SeanceController extends ChangeNotifier {
     Creature creature, {
     bool cachee = false,
     bool nomCache = false,
+    bool allie = false,
   }) =>
       _agir((s, c) async {
         await s.ajouterCreature(
@@ -1152,6 +1157,7 @@ class SeanceController extends ChangeNotifier {
             ca: creature.ca,
             cachee: cachee,
             nomCache: nomCache,
+            allie: allie,
           ),
         );
         await _reordonner(s, c);
@@ -1198,18 +1204,18 @@ class SeanceController extends ChangeNotifier {
     final soi = idAttaquant;
     final rencontrees = [
       for (final c in _creatures)
-        if (c.id != soi && !c.estAUnJoueur) (id: c.id, nom: c.nom),
+        if (c.id != soi && !c.duCotePj) (id: c.id, nom: c.nom),
     ];
     final desJoueurs = [
       for (final c in _creatures)
-        if (c.id != soi && c.estAUnJoueur) (id: c.id, nom: c.nom),
+        if (c.id != soi && c.duCotePj) (id: c.id, nom: c.nom),
     ];
     final lesJoueurs = [
       for (final m in joueurs)
         if (m.uid != soi) (id: m.uid, nom: m.personnageNom),
     ];
     final choisie = estMj ? creatureChoisie : null;
-    return choisie != null && !choisie.estAUnJoueur
+    return choisie != null && !choisie.duCotePj
         ? [...lesJoueurs, ...desJoueurs, ...rencontrees]
         : [...rencontrees, ...lesJoueurs, ...desJoueurs];
   }

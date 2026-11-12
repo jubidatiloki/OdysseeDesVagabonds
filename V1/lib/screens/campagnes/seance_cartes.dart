@@ -73,7 +73,7 @@ class ListeCartes extends StatelessWidget {
           ),
         // Deux parties bien séparées : les personnages des joueurs (et
         // leurs compagnons), puis les créatures rencontrées.
-        if (s.joueurs.isNotEmpty)
+        if (s.joueurs.isNotEmpty || s.creatures.any((c) => c.allie))
           const _TitrePartie(
             cle: 'partie-personnages',
             icone: Icons.groups_outlined,
@@ -182,7 +182,39 @@ class ListeCartes extends StatelessWidget {
                 ),
               ),
         ],
-        if (s.creatures.any((c) => !c.estAUnJoueur))
+        // Alliés des PJ contrôlés par le MJ (escorte…), avec les personnages.
+        for (final c in s.creatures)
+          if (c.allie && !c.estAUnJoueur)
+            _Carte(
+              cle: 'carte-${c.id}',
+              selectionnee: s.carte == c.id,
+              actif: s.etat.actif == c.id,
+              cleIcone: 'icone-${c.id}',
+              icone: Icons.shield_outlined,
+              couleurIcone: OdvCouleurs.green,
+              titre: c.nom,
+              initiative: s.etat.enCombat ? c.initiative : null,
+              ressources: [
+                if (c.pv != null)
+                  _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+              ],
+              lignes: [
+                'Allié · joué par le MJ',
+                if (s.estMj && c.cachee) 'Carte cachée aux PJ',
+              ],
+              onTap: () => _choisir(c.id),
+              onRetirer: s.estMj
+                  ? () async {
+                      final erreur = await s.retirerCreature(c);
+                      if (erreur != null && context.mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text(erreur)));
+                      }
+                    }
+                  : null,
+              cleRetirer: 'retirer-${c.id}',
+            ),
+        if (s.creatures.any((c) => !c.duCotePj))
           const _TitrePartie(
             cle: 'partie-creatures',
             icone: Icons.pets_outlined,
@@ -190,7 +222,7 @@ class ListeCartes extends StatelessWidget {
             separe: true,
           ),
         for (final c in s.creatures)
-          if (!c.estAUnJoueur)
+          if (!c.duCotePj)
             _Carte(
               cle: 'carte-${c.id}',
               selectionnee: s.carte == c.id,
@@ -653,7 +685,8 @@ class DetailCarte extends StatelessWidget {
                   ),
         );
         final p = f.personnage;
-        if (!s.etat.peutMonter(m.uid, p.niveau) || !MonteeNiveau.possible(p)) {
+        if (!s.etat.peutMonter(m.uid, p.niveau, personnage: m.personnageId) ||
+            !MonteeNiveau.possible(p)) {
           return fiche;
         }
         return Column(
@@ -685,7 +718,8 @@ class DetailCarte extends StatelessWidget {
       }
       if (s.estMj) {
         final p = f.personnage;
-        final autorisee = s.etat.peutMonter(m.uid, p.niveau);
+        final autorisee =
+            s.etat.peutMonter(m.uid, p.niveau, personnage: m.personnageId);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -698,7 +732,8 @@ class DetailCarte extends StatelessWidget {
                   if (MonteeNiveau.possible(p))
                     OutlinedButton.icon(
                       key: Key('autoriser-montee-${m.uid}'),
-                      onPressed: () => s.basculerMontee(m.uid, p.niveau),
+                      onPressed: () => s.basculerMontee(m.uid, p.niveau,
+                          personnage: m.personnageId),
                       icon: Icon(
                         autorisee
                             ? Icons.check_circle
@@ -951,6 +986,15 @@ class _CreatureMj extends StatelessWidget {
                   ],
                 ),
               if (!c.estAUnJoueur) ...[
+                SwitchListTile(
+                  key: const Key('creature-allie'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text('Allié des PJ'),
+                  subtitle: const Text('Avec les personnages, joué par le MJ'),
+                  value: c.allie,
+                  onChanged: (v) => s.modifierCreature(c.copie(allie: v)),
+                ),
                 SwitchListTile(
                   key: const Key('creature-cachee'),
                   contentPadding: EdgeInsets.zero,

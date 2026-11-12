@@ -13,7 +13,7 @@ class OngletCreatures extends StatelessWidget {
 
   Future<void> _ajouter(BuildContext context, Creature creature) async {
     final messager = ScaffoldMessenger.of(context);
-    final choix = await showDialog<({bool cachee, bool nomCache})>(
+    final choix = await showDialog<({bool cachee, bool nomCache, bool allie})>(
       context: context,
       builder: (context) => _DialogueAjout(creature: creature),
     );
@@ -22,9 +22,12 @@ class OngletCreatures extends StatelessWidget {
       creature,
       cachee: choix.cachee,
       nomCache: choix.nomCache,
+      allie: choix.allie,
     );
     messager.showSnackBar(SnackBar(
-      content: Text(erreur ?? '${creature.nom} ajoutée à la partie.'),
+      content: Text(erreur ??
+          '${creature.nom} ajoutée à la partie'
+              '${choix.allie ? ' (alliée des PJ)' : ''}.'),
     ));
   }
 
@@ -59,6 +62,7 @@ class _DialogueAjout extends StatefulWidget {
 class _DialogueAjoutState extends State<_DialogueAjout> {
   var _cachee = false;
   var _nomCache = false;
+  var _allie = false;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +71,16 @@ class _DialogueAjoutState extends State<_DialogueAjout> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Allié des PJ (escorte d'un marchand…), contrôlé par le MJ.
+          CheckboxListTile(
+            key: const Key('ajout-allie'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Allié des PJ'),
+            subtitle: const Text('Avec les personnages ; c\'est toi qui le '
+                'contrôles.'),
+            value: _allie,
+            onChanged: (v) => setState(() => _allie = v ?? false),
+          ),
           CheckboxListTile(
             key: const Key('ajout-carte-cachee'),
             contentPadding: EdgeInsets.zero,
@@ -94,7 +108,11 @@ class _DialogueAjoutState extends State<_DialogueAjout> {
           key: const Key('confirmer-ajout'),
           onPressed: () => Navigator.pop(
             context,
-            (cachee: _cachee, nomCache: _nomCache && !_cachee),
+            (
+              cachee: _cachee,
+              nomCache: _nomCache && !_cachee,
+              allie: _allie,
+            ),
           ),
           child: const Text('Ajouter'),
         ),

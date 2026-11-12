@@ -1172,6 +1172,18 @@ void main() {
       await tap(tester, find.byKey(Key('retirer-${loup.id}')));
       expect(partie.creatures, isEmpty);
       expect(partie.etat.ordre, isNot(contains(loup.id)));
+
+      // Ajout comme allié des PJ (12/11/2026).
+      await tap(tester, find.byKey(const Key('seance-creatures')));
+      if (find.byKey(const Key('ajouter-loup')).evaluate().isEmpty) {
+        await tap(tester, find.text('Loup').last);
+      }
+      await tap(tester, find.byKey(const Key('ajouter-loup')));
+      await tap(tester, find.byKey(const Key('ajout-allie')));
+      await tap(tester, find.byKey(const Key('confirmer-ajout')));
+      expect(partie.creatures.values.single.allie, isTrue);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('MJ : jet visible par un seul PJ', (tester) async {
@@ -1590,10 +1602,93 @@ void main() {
         fiches: [_brom()],
         avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
             .seance
-            .changerInfos(c, montees: {'j1': 2}),
+            .changerInfos(c, montees: {'j1:brom': 2}),
       );
       await tap(tester, find.byKey(const Key('carte-j1')));
       expect(find.byKey(const Key('monter-niveau-seance')), findsOneWidget);
+    });
+
+    testWidgets('MJ : allié des PJ, avec les personnages, joué par le MJ',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(
+              id: 'garde',
+              nom: 'Garde du marchand',
+              creatureId: 'loup',
+              initiative: 8,
+              pv: 10,
+              pvMax: 10,
+              allie: true,
+            ),
+          );
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(id: 'rat', nom: 'Rat', initiative: 3),
+          );
+          await mj.demarrerCombat(c, ['j1', 'garde', 'rat']);
+        },
+      );
+      await tester.pumpAndSettle();
+      // Carte dans la partie « Personnages », avant les créatures.
+      final titrePj =
+          tester.getRect(find.byKey(const Key('partie-personnages')));
+      final titreCreatures =
+          tester.getRect(find.byKey(const Key('partie-creatures')));
+      final garde = tester.getRect(find.byKey(const Key('carte-garde')));
+      expect(garde.top, greaterThan(titrePj.bottom));
+      expect(garde.bottom, lessThan(titreCreatures.top));
+      expect(find.text('Allié · joué par le MJ'), findsOneWidget);
+      // Le MJ le fait agir : il vise d'abord la créature rencontrée.
+      await tap(tester, find.byKey(const Key('carte-garde')));
+      expect(
+        tester
+            .widget<DropdownButton<String>>(
+                find.byKey(const Key('cible-attaque')))
+            .value,
+        'rat',
+      );
+      // Interrupteur du détail : il repasse avec les créatures.
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(partie.creatures['garde']!.allie, isTrue);
+      await tap(tester, find.byKey(const Key('creature-allie')));
+      expect(partie.creatures['garde']!.allie, isFalse);
+      // Lu côté PJ : allié, PV visibles.
+      final vu = partie.creatures['rat']!
+          .copie(allie: true)
+          .pourJoueur(const ParametresCampagne(pjVoientPvCreatures: false));
+      expect(vu.allie, isTrue);
+      expect(
+        CreatureSeance.depuisDocuments(
+          'g',
+          const CreatureSeance(id: 'g', nom: 'G', pv: 4, pvMax: 6, allie: true)
+              .versPublic(const ParametresCampagne(pjVoientPvCreatures: false)),
+        ).pv,
+        4,
+      );
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('montée accordée à un autre personnage : pas de montée',
+        (tester) async {
+      // Le joueur a changé de personnage (12/11/2026) : l'accord donné à
+      // l'ancien (ou l'ancien format, sans personnage) ne passe pas.
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .changerInfos(c, montees: {'j1:ancien': 2, 'j1': 2}),
+      );
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      expect(find.byKey(const Key('monter-niveau-seance')), findsNothing);
     });
 
     testWidgets('compagnon qui se bat : carte sous son propriétaire',
@@ -1924,7 +2019,7 @@ void main() {
       await tap(tester, find.byKey(const Key('carte-j1')));
       await tap(tester, find.byKey(const Key('autoriser-montee-j1')));
       final partie = x.base.parties[x.campagne.id]!;
-      expect(partie.etat.montees, {'j1': 2});
+      expect(partie.etat.montees, {'j1:brom': 2});
       await tap(tester, find.byKey(const Key('autoriser-montee-j1')));
       expect(partie.etat.montees, isEmpty);
 
