@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.59.0',
+    date: '12/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Campagnes : créer un nouveau personnage au moment de rejoindre '
+            'une campagne.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : un nouveau butin est caché aux PJ, le MJ le remplit '
+            'puis le révèle.',
+      ),
+    ],
+  ),
+  (
     version: '0.58.1',
     date: '12/11/2026',
     changements: [

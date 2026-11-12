@@ -1924,6 +1924,8 @@ void main() {
       final partie = x.base.parties[x.campagne.id]!;
       final b = partie.butins.values.single;
       expect(b.nom, 'Coffre');
+      // Caché par défaut : le MJ le remplit avant de le révéler.
+      expect(b.cache, isTrue);
       await tap(tester, find.byKey(Key('carte-${b.id}')));
       await tap(tester, find.byKey(const Key('argent-du-butin')));
       await tester.enterText(find.byKey(const Key('butin-or')), '12');
@@ -1931,13 +1933,13 @@ void main() {
       expect(partie.butins[b.id]!.or, 12);
       expect(find.byKey(const Key('argent-butin')), findsOneWidget);
       expect(find.text('12 or'), findsWidgets);
-      // Le MJ cache la carte aux PJ, puis la montre.
-      await tap(tester, find.byKey(const Key('butin-visible')));
-      expect(partie.butins[b.id]!.cache, isTrue);
-      expect(partie.butins[b.id]!.or, 12);
+      // Le MJ le révèle aux PJ, puis le cache à nouveau.
       expect(find.text('Caché aux PJ'), findsOneWidget);
       await tap(tester, find.byKey(const Key('butin-visible')));
       expect(partie.butins[b.id]!.cache, isFalse);
+      expect(partie.butins[b.id]!.or, 12);
+      await tap(tester, find.byKey(const Key('butin-visible')));
+      expect(partie.butins[b.id]!.cache, isTrue);
     });
 
     testWidgets('PJ : un butin caché par le MJ n\'apparaît pas',

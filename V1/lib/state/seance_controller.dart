@@ -948,10 +948,14 @@ class SeanceController extends ChangeNotifier {
         ),
       );
 
-  /// MJ : nouveau butin, visible de tous dans le menu de gauche.
+  /// MJ : nouveau butin, caché par défaut (12/11/2026) : le MJ le remplit
+  /// (argent, objets) avant de le révéler aux joueurs.
   Future<String?> creerButin(String nom) => _agir((s, c) => s.ecrireButin(
         c,
-        ButinSeance(nom: nom.trim().isEmpty ? 'Butin' : nom.trim()),
+        ButinSeance(
+          nom: nom.trim().isEmpty ? 'Butin' : nom.trim(),
+          cache: true,
+        ),
       ));
 
   Future<String?> modifierButin(ButinSeance butin) =>

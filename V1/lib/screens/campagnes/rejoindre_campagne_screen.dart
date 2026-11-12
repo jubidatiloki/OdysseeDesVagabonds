@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/campagne.dart';
 import '../../models/personnage.dart';
 import '../../widgets/consultation.dart';
+import '../creation_screen.dart';
 import 'campagnes_screen.dart';
 
 /// Résumé d'un personnage pour la campagne : « Nain · Guerrier · niveau 3 ».
@@ -93,6 +94,21 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
     Navigator.of(context).pop();
   }
 
+  /// Crée un personnage avec l'assistant, puis le choisit pour la demande.
+  Future<void> _creerPersonnage() async {
+    final id = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => CreationScreen(
+          referentiel: widget.contexte.referentiel,
+          controller: widget.contexte.personnages,
+          rendreLeNouveau: true,
+        ),
+      ),
+    );
+    if (!mounted || id == null) return;
+    setState(() => _personnageId = id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -160,8 +176,8 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
               Text('Avec quel personnage ?', style: theme.textTheme.titleSmall),
               const SizedBox(height: 8),
               if (personnages.isEmpty)
-                const TexteAVenir('Crée d\'abord un personnage (page '
-                    'Personnages).')
+                const TexteAVenir('Tu n\'as pas encore de personnage : '
+                    'crée-le maintenant.')
               else
                 RadioGroup<String>(
                   groupValue: _personnageId,
@@ -178,6 +194,16 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
                     ],
                   ),
                 ),
+              // Nouveau personnage, créé maintenant puis choisi (12/11/2026).
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const Key('creer-personnage-rejoindre'),
+                  onPressed: _attente ? null : _creerPersonnage,
+                  icon: const Icon(Icons.person_add_alt_1_outlined),
+                  label: const Text('Créer un nouveau personnage'),
+                ),
+              ),
               const SizedBox(height: 12),
               FilledButton.icon(
                 key: const Key('envoyer-demande'),

@@ -28,10 +28,15 @@ class CreationScreen extends StatefulWidget {
     super.key,
     required this.referentiel,
     required this.controller,
+    this.rendreLeNouveau = false,
   });
 
   final Referentiel referentiel;
   final PersonnagesController controller;
+
+  /// Vrai : à la fin, ferme l'assistant en rendant l'identifiant du
+  /// personnage créé (rejoindre une campagne), sans ouvrir sa fiche.
+  final bool rendreLeNouveau;
 
   @override
   State<CreationScreen> createState() => _CreationScreenState();
@@ -265,6 +270,13 @@ class _CreationScreenState extends State<CreationScreen> {
       setState(() => _enregistrement = false);
       messenger.showSnackBar(
         SnackBar(content: Text('Échec de la sauvegarde : $e')),
+      );
+      return;
+    }
+    if (widget.rendreLeNouveau) {
+      navigator.pop(personnage.id);
+      messenger.showSnackBar(
+        SnackBar(content: Text('${personnage.nom} est prêt pour la campagne.')),
       );
       return;
     }

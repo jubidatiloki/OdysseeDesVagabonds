@@ -12,6 +12,7 @@ import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
+import 'package:odyssee_vagabonds/screens/creation_screen.dart';
 import 'package:odyssee_vagabonds/state/campagnes_controller.dart';
 import 'package:odyssee_vagabonds/state/compte_controller.dart';
 import 'package:odyssee_vagabonds/state/personnages_controller.dart';
@@ -449,6 +450,45 @@ void main() {
       expect(find.text('Valfroid'), findsOneWidget);
       expect(find.textContaining('En attente du MJ'), findsOneWidget);
       // Le message de confirmation se ferme tout seul.
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      x.campagnes.dispose();
+    });
+
+    testWidgets('joueur sans personnage : le crée en rejoignant',
+        (tester) async {
+      final base = BaseCampagnesMemoire(Random(4));
+      final c = await ServiceCampagnesMemoire(base, 'mj')
+          .creer(nom: 'Valfroid', mjNom: 'Ben', description: 'Brume');
+      final x = await ouvrir(
+        tester,
+        base,
+        const Utilisateur(uid: 'j1', nom: 'Léa'),
+      );
+      await tap(tester, find.byKey(const Key('campagnes-joueur')));
+      await tap(tester, find.byKey(const Key('rejoindre-campagne')));
+      await tester.enterText(find.byKey(const Key('code-rejoindre')), c.code);
+      await tap(tester, find.byKey(const Key('chercher-campagne')));
+      expect(find.textContaining('crée-le maintenant'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('creer-personnage-rejoindre')));
+      // L'assistant de création s'ouvre, en mode « rendre le nouveau ».
+      final creation =
+          tester.widget<CreationScreen>(find.byType(CreationScreen));
+      expect(creation.rendreLeNouveau, isTrue);
+      // Fin de l'assistant (simulée) : le personnage est enregistré, puis
+      // choisi pour la demande.
+      await x.personnages.sauvegarder(_brom());
+      Navigator.of(tester.element(find.byType(CreationScreen))).pop('brom');
+      await tester.pumpAndSettle();
+      expect(find.byType(CreationScreen), findsNothing);
+      expect(
+        tester
+            .widget<RadioGroup<String>>(find.byType(RadioGroup<String>))
+            .groupValue,
+        'brom',
+      );
+      await tap(tester, find.byKey(const Key('envoyer-demande')));
+      expect(base.membres[c.id]!['j1']!.personnageNom, 'Brom');
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       x.campagnes.dispose();
