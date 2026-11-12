@@ -86,6 +86,48 @@ void main() {
     expect(find.byKey(const Key('total-CON')), findsOneWidget);
     // La chance : un jet qui ne dépend d'aucune compétence.
     expect(Carac.chan.description, contains('aucune compétence'));
+    // Modificateur négatif sous 10, expliqué dans l'aide (12/11/2026).
+    expect(find.textContaining('En dessous de 10'), findsOneWidget);
+    // Valeurs à droite de la carte, alignées d'une caractéristique à
+    // l'autre : même bord droit pour tous les totaux, même colonne de race.
+    final droites = {
+      for (final c in Carac.values)
+        tester.getRect(find.byKey(Key('total-${c.code}'))).right,
+    };
+    expect(droites, hasLength(1));
+    expect(
+      tester.getRect(find.byKey(const Key('plus-FOR'))).left,
+      tester.getRect(find.byKey(const Key('plus-CON'))).left,
+    );
+    expect(
+      tester.getRect(find.byKey(const Key('total-FOR'))).left,
+      greaterThan(
+          tester.getRect(find.byKey(const Key('explication-FOR'))).right),
+    );
+  });
+
+  testWidgets('répartition sur téléphone : valeurs alignées à droite',
+      (tester) async {
+    await taille(tester, const Size(375, 3000));
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: EtapeCaracteristiques(
+          base: const {},
+          race: nain,
+          origine: null,
+          onChange: (_) {},
+        ),
+      ),
+    ));
+    final droites = {
+      for (final c in Carac.values)
+        tester.getRect(find.byKey(Key('total-${c.code}'))).right,
+    };
+    expect(droites, hasLength(1));
+    expect(
+      tester.getRect(find.byKey(const Key('total-CON'))).left,
+      tester.getRect(find.byKey(const Key('total-INT'))).left,
+    );
   });
 
   Widget competences({required Map<String, int> rangs}) => MaterialApp(

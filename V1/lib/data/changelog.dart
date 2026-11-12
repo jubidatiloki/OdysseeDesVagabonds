@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.59.1',
+    date: '12/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Création : l\'aide explique le modificateur négatif sous 10 '
+            '(9 et 8 = −1).',
+      ),
+      (
+        type: _m,
+        texte: 'Création : points, race, total et modificateur à droite, '
+            'alignés d\'une caractéristique à l\'autre.',
+      ),
+    ],
+  ),
+  (
     version: '0.59.0',
     date: '12/11/2026',
     changements: [
