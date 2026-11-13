@@ -1342,6 +1342,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         if (fiche != null && sortsHorsFavoris.isNotEmpty)
           _GroupeJets(
             cle: 'groupe-sorts',
+            // Replié en exploration, comme le combat (13/11/2026).
+            memoire: 'groupe-sorts-$mode',
+            ouvert: combat,
             titre: 'Sorts',
             icone: Icons.auto_awesome_outlined,
             children: [

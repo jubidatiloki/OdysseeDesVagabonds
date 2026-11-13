@@ -82,6 +82,19 @@ const _guerrier = Classe(
         ),
       ],
     ),
+    // Un sort : groupe Sorts du panneau de dés.
+    Voie(
+      id: 'magie',
+      nom: 'Voie de la magie',
+      competences: [
+        Competence(
+          rang: 1,
+          nom: 'Étincelle',
+          type: 'sort',
+          effet: 'Une petite flamme.',
+        ),
+      ],
+    ),
     // Compagnon qui se bat : affiché sous son propriétaire en séance.
     Voie(
       id: 'meute',
@@ -1417,6 +1430,10 @@ void main() {
       );
       await tap(tester, find.byKey(const Key('fermer-resultat-esquive')));
       expect(find.text(reussi ? '4/10' : '2/10'), findsOneWidget);
+      // Les autres (PJ et MJ) voient les PV publiés : à jour aussi.
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+      expect(partie.ressources['j1']?.pv, reussi ? 4 : 2);
       expect(find.byKey(const Key('fenetre-esquive')), findsNothing);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
@@ -1440,11 +1457,45 @@ void main() {
       expect(x.base.parties[x.campagne.id]!.degats, isEmpty);
       // Nain guerrier : 10 PV − 3, sur la carte comme pour les autres.
       expect(find.text('7/10'), findsOneWidget);
-      // Publication espacée : les autres le voient à la fin du délai.
-      expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 10);
+      // Dégâts reçus : publiés tout de suite, sans attendre le délai
+      // entre deux publications (13/11/2026).
+      expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
       expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
+    });
+
+    testWidgets('MJ : PV publiés par le joueur, même si la fiche a du retard',
+        (tester) async {
+      // Fiche en ligne en retard (envoi différé) : 10 PV ; le joueur a
+      // publié 4 PV après une esquive ratée.
+      await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          b.fiches['brom'] = (
+            fiche: _brom(),
+            proprietaire: 'j1',
+            partage: ['mj'],
+            editeurs: <String>[],
+          );
+          await ServiceCampagnesMemoire(b, 'j1').seance.publierPersonnage(
+                c,
+                ressources: const RessourcesPj(
+                  pv: 4,
+                  pvMax: 14,
+                  pe: 6,
+                  peMax: 6,
+                ),
+              );
+        },
+      );
+      await tester.pumpAndSettle();
+      // Montée de niveau comprise : nouveau maximum (14) publié.
+      expect(find.text('4/14'), findsOneWidget);
+      expect(find.text('10/10'), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('présence : icône sur la carte du joueur absent',
@@ -2211,6 +2262,37 @@ void main() {
       expect(find.text('Frappe tout autour.'), findsOneWidget);
       await tester.tap(find.text('Fermer'));
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : sorts repliés en exploration, ouverts en combat',
+        (tester) async {
+      final pip = _brom()..rangsVoies['magie'] = 1;
+      final x = await ouvrir(tester, 'j1', fiches: [pip]);
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const PageStorageKey('groupe-sorts-exploration')),
+        200,
+        scrollable: panneau,
+      );
+      // Exploration : replié (13/11/2026).
+      expect(find.byKey(const Key('sort-seance-0')), findsNothing);
+      await ServiceCampagnesMemoire(x.base, 'mj')
+          .seance
+          .demarrerCombat(x.campagne, ['j1', 'j2']);
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('sort-seance-0')),
+        200,
+        scrollable: panneau,
+      );
+      expect(find.byKey(const Key('sort-seance-0')), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

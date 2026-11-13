@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.61.1',
+    date: '13/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Séance : nouveaux PV, PM et PE visibles de tous après une '
+            'montée de niveau.',
+      ),
+      (
+        type: _c,
+        texte: 'Séance : PV à jour sur la carte chez le MJ et les autres PJ '
+            'après une esquive ou des dégâts.',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : en exploration, les sorts sont repliés comme les '
+            'attaques et les compétences.',
+      ),
+    ],
+  ),
+  (
     version: '0.61.0',
     date: '12/11/2026',
     changements: [

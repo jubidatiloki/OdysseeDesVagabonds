@@ -725,10 +725,27 @@ class SeanceController extends ChangeNotifier {
     await _agir((s, c) => s.changerOrdre(c, ordre));
   }
 
+  /// MJ : fiches qu'il a modifiées lui-même, et quand (le joueur les reçoit,
+  /// puis republie ses PV : la fiche du MJ garde la main entre-temps).
+  final Map<String, DateTime> _modifiesParMj = {};
+  static const Duration _attenteRepublication = Duration(seconds: 20);
+
+  bool _modifieeParMj(String joueur) {
+    if (!estMj) return false;
+    for (final m in _membres) {
+      if (m.uid != joueur) continue;
+      final quand = _modifiesParMj[m.personnageId];
+      return quand != null &&
+          DateTime.now().difference(quand) < _attenteRepublication;
+    }
+    return false;
+  }
+
   /// MJ : enregistre une fiche modifiée ; la première écriture part tout de
   /// suite, les suivantes sont regroupées toutes les 3 secondes.
   Future<void> enregistrerFiche(Personnage p) async {
     _aEcrire[p.id] = p;
+    _modifiesParMj[p.id] = DateTime.now();
     notifyListeners();
     if (_minuterieFiches == null) await _ecrireFiches();
   }
@@ -751,15 +768,32 @@ class SeanceController extends ChangeNotifier {
       (s, c) => campagnes.serviceActuel!.modifier(c.copie(parametres: p)));
 
   void _personnagesChanges() {
-    unawaited(_publier());
+    final f = estMj ? null : maFiche;
+    final niveau = f?.personnage.niveau;
+    if (niveau != null && _niveauVu != null && niveau != _niveauVu) {
+      // Montée de niveau pendant la séance (13/11/2026) : nouveaux PV, PM
+      // et PE publiés tout de suite, et la fiche envoyée en ligne (le MJ la
+      // lit : niveau, compétences), même en envoi différé.
+      _minuteriePublication?.cancel();
+      _minuteriePublication = null;
+      unawaited(_publier(force: true));
+      unawaited(campagnes.compte.synchroniser());
+    } else {
+      unawaited(_publier());
+    }
+    if (niveau != null) _niveauVu = niveau;
     notifyListeners();
   }
+
+  /// Niveau du personnage du joueur, pour repérer une montée de niveau.
+  int? _niveauVu;
 
   /// Joueur : publie PV, PM, PE, résumé, initiative et CA quand ils changent.
   Future<void> _publier({bool force = false}) async {
     final c = campagne;
     final f = maFiche;
     if (c == null || f == null || !c.joueurs.contains(uid)) return;
+    _niveauVu ??= f.personnage.niveau;
     final r = RessourcesPj(
       pv: f.pvActuels,
       pvMax: f.pvMax,
@@ -1220,11 +1254,18 @@ class SeanceController extends ChangeNotifier {
         : [...rencontrees, ...lesJoueurs, ...desJoueurs];
   }
 
-  /// PV, PM, PE d'une carte, à jour : la fiche suivie en direct quand ce
-  /// compte y a droit, sinon ce que le joueur a publié.
+  /// PV, PM, PE d'une carte, à jour : sa propre fiche pour le joueur ; pour
+  /// les autres, ce que le joueur a publié depuis sa fiche (13/11/2026).
+  /// La fiche en ligne peut avoir du retard (envoi différé du compte : PV
+  /// après une esquive, nouveaux maximums après une montée de niveau) ; le
+  /// MJ ne la préfère que juste après l'avoir modifiée lui-même.
   RessourcesPj? ressourcesDe(String joueur) {
+    final publiees = _ressources[joueur];
+    if (joueur != uid && publiees != null && !_modifieeParMj(joueur)) {
+      return publiees;
+    }
     final f = joueur == uid || estMj ? ficheDe(joueur) : null;
-    if (f == null) return _ressources[joueur];
+    if (f == null) return publiees;
     return RessourcesPj(
       pv: f.pvActuels,
       pvMax: f.pvMax,
@@ -1383,6 +1424,11 @@ class SeanceController extends ChangeNotifier {
             categorie: CategorieHistorique.vie,
           );
         await personnages.sauvegarder(p);
+        // Dégâts reçus : les autres voient ses PV tout de suite, sans
+        // attendre la fin du délai entre deux publications (13/11/2026).
+        _minuteriePublication?.cancel();
+        _minuteriePublication = null;
+        unawaited(_publier(force: true));
         return;
       }
       final liste = await s.ecouterCreatures(c).first;
