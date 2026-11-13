@@ -168,11 +168,24 @@ void main() {
     final chef = fo.ameliorationDeNom(orque.passif!.nom)!;
     expect(chef.nom, 'Chef de guerre');
     expect(chef.effet.libelle, contains('+5 aux tests de SOC'));
+    // Équilibrage (13/11/2026) : demi-orque −1 en SOC.
+    expect(orque.modificateurs[Carac.soc], -1);
+    // Nain et haut-elfe : deux passifs, chacun son nom (13/11/2026).
+    for (final (id, vision, terrain) in [
+      ('nain', 'Vision naine', 'Enfant des montagnes'),
+      ('haut-elfe', 'Vision elfique', 'Enfant des forêts'),
+    ]) {
+      final r = races.firstWhere((x) => x.id == id);
+      expect(r.passifs.map((p) => p.nom), [vision, terrain], reason: id);
+      // Les deux s'appliquent sur la fiche (vision et bonus de terrain).
+      final noms = fiche(r).effetsActifs.map((e) => e.nom).toSet();
+      expect(noms, containsAll([vision, terrain]), reason: id);
+    }
 
     // Haut-elfe : test sans caractéristique
     final hautElfe = races.firstWhere((r) => r.id == 'haut-elfe');
     expect(
-      hautElfe.passif!.effets.map((e) => e.libelle),
+      hautElfe.passifs.last.effets.map((e) => e.libelle),
       contains('+1 aux tests (se trouve en forêts ou chez les elfes)'),
     );
     // Vitalité elfique (rang 5) : +3 aux tests de CON

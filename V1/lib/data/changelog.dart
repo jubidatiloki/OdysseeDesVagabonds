@@ -29,6 +29,26 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.62.0',
+    date: '13/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Demi-orque : malus racial de SOC ramené à −1, pour '
+            'l\'équilibre avec les autres races.',
+      ),
+      (
+        type: _m,
+        texte: 'Nain et haut-elfe : passif racial séparé en deux (vision, '
+            'puis Enfant des montagnes ou des forêts).',
+      ),
+      (
+        type: _m,
+        texte: 'Fiche de personnage : la carte « Effets reçus » est retirée.',
+      ),
+    ],
+  ),
+  (
     version: '0.61.1',
     date: '13/11/2026',
     changements: [

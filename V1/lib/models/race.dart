@@ -110,7 +110,8 @@ class Race {
     required this.deMana,
     this.deEndurance = 6,
     this.modificateurs = const {},
-    this.passif,
+    Passif? passif,
+    List<Passif> passifs = const [],
     this.origines = const [],
     this.optionsPassif = const [],
     this.voieRaciale,
@@ -127,7 +128,8 @@ class Race {
     this.description = '',
     this.profil = ProfilClasse.hybride,
     this.univers = kUniversParDefaut,
-  });
+  })  : _passif = passif,
+        _passifs = passifs;
 
   final String id;
   final String nom;
@@ -142,7 +144,14 @@ class Race {
   final int deEndurance;
 
   final Map<Carac, int> modificateurs;
-  final Passif? passif;
+  final Passif? _passif;
+  final List<Passif> _passifs;
+
+  /// Passifs raciaux (nain, haut-elfe : deux, chacun son nom, 13/11/2026).
+  List<Passif> get passifs => [if (_passif case final p?) p, ..._passifs];
+
+  /// Premier passif racial (`null` : aucun).
+  Passif? get passif => passifs.firstOrNull;
   final List<OrigineRace> origines;
 
   /// Variantes du passif à choisir à la création (vide si aucun choix).
@@ -213,7 +222,12 @@ class Race {
         deMana: (j['deMana'] as num).toInt(),
         deEndurance: (j['deEndurance'] as num?)?.toInt() ?? 6,
         modificateurs: caracMapDepuisJson(j['modificateurs']),
-        passif: Passif.depuisJson(j['passif']),
+        // Un passif (objet) ou plusieurs (liste).
+        passifs: [
+          for (final p
+              in j['passif'] is List ? j['passif'] as List : [j['passif']])
+            if (Passif.depuisJson(p) case final x?) x,
+        ],
         origines: (j['origines'] as List<dynamic>? ?? const [])
             .map((e) => OrigineRace.depuisJson(e as Map<String, dynamic>))
             .toList(),

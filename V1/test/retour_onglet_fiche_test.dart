@@ -68,7 +68,8 @@ void main() {
         )
         .first);
     expect(etat.position.pixels, greaterThan(0));
-    expect(find.byKey(const Key('effets-recus')), findsOneWidget);
+    // Carte « Effets reçus » retirée de la fiche (13/11/2026).
+    expect(find.byKey(const Key('effets-recus')), findsNothing);
     await tester.tap(find.byKey(const Key('vue-inventaire')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('vue-fiche')));

@@ -107,7 +107,7 @@ class OngletCompetences extends StatelessWidget {
             ),
           ),
         if (avecPassif)
-          if (fiche.race.passif case final passif?) ...[
+          for (final passif in fiche.race.passifs) ...[
             const SizedBox(height: 16),
             Text(passif.nom, style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),

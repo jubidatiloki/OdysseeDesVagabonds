@@ -188,7 +188,7 @@
 		"modificateurs": {
 			"FOR": 3,
 			"INT": -2,
-			"SOC": -2
+			"SOC": -1
 		},
 		"passif": {
 			"nom": "Passé de violence (niveau 1)",
@@ -700,27 +700,35 @@
 			"FOR": -2,
 			"SOC": -2
 		},
-		"passif": {
-			"nom": "Vision elfique",
-			"description": "Voit dans la nuit en extérieur.",
-			"effets": [
-				{
-					"type": "maitrise",
-					"categorie": "vision",
-					"valeur": "voit dans la nuit en extérieur"
-				},
-				{
-					"type": "test",
-					"valeur": "1",
-					"condition": "se trouve en forêts ou chez les elfes"
-				},
-				{
-					"type": "test",
-					"valeur": "-1",
-					"condition": "se trouve sous terre, en montagne ou chez les nains"
-				}
-			]
-		},
+		"passif": [
+			{
+				"nom": "Vision elfique",
+				"description": "Voit dans la nuit en extérieur.",
+				"effets": [
+					{
+						"type": "maitrise",
+						"categorie": "vision",
+						"valeur": "voit dans la nuit en extérieur"
+					}
+				]
+			},
+			{
+				"nom": "Enfant des forêts",
+				"description": "+1 à tous ses jets en forêt ou chez les elfes ; −1 sous terre, en montagne ou chez les nains.",
+				"effets": [
+					{
+						"type": "test",
+						"valeur": "1",
+						"condition": "se trouve en forêts ou chez les elfes"
+					},
+					{
+						"type": "test",
+						"valeur": "-1",
+						"condition": "se trouve sous terre, en montagne ou chez les nains"
+					}
+				]
+			}
+		],
 		"origines": [],
 		"maitrises": "Armes civiles, épées fines et longues, arcs, bâton.",
 		"restrictions": "Pas d'armure de plaques ; méprise les armes à poudre (−2 AdT avec elles).",
@@ -1330,27 +1338,35 @@
 			"CON": 2,
 			"DEX": -2
 		},
-		"passif": {
-			"nom": "Vision naine",
-			"description": "Voit dans le noir ; +1 à tous ses jets sous terre, en montagne ou chez les siens ; −1 en forêt ou chez les elfes.",
-			"effets": [
-				{
-					"type": "maitrise",
-					"categorie": "vision",
-					"valeur": "voit dans le noir"
-				},
-				{
-					"type": "test",
-					"valeur": "1",
-					"condition": "se trouve sous terre, en montagne ou chez les nains"
-				},
-				{
-					"type": "test",
-					"valeur": "-1",
-					"condition": "se trouve en forêts ou chez les elfes"
-				}
-			]
-		},
+		"passif": [
+			{
+				"nom": "Vision naine",
+				"description": "Voit dans le noir.",
+				"effets": [
+					{
+						"type": "maitrise",
+						"categorie": "vision",
+						"valeur": "voit dans le noir"
+					}
+				]
+			},
+			{
+				"nom": "Enfant des montagnes",
+				"description": "+1 à tous ses jets sous terre, en montagne ou chez les siens ; −1 en forêt ou chez les elfes.",
+				"effets": [
+					{
+						"type": "test",
+						"valeur": "1",
+						"condition": "se trouve sous terre, en montagne ou chez les nains"
+					},
+					{
+						"type": "test",
+						"valeur": "-1",
+						"condition": "se trouve en forêts ou chez les elfes"
+					}
+				]
+			}
+		],
 		"origines": [],
 		"maitrises": "Armes civiles, armes à 1 main communes, arbalètes (hache et marteau via la voie, rang 1).",
 		"restrictions": "Pas d'arc long ni d'arme d'hast.",

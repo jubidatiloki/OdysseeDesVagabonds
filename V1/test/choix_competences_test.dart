@@ -450,15 +450,16 @@ void main() {
     expect(find.byKey(const Key('groupe-situation-tous')), findsOneWidget);
     expect(find.byKey(const Key('groupe-situation-INT')), findsOneWidget);
     // Situation « en forêt » (+1, tous les jets) cochée : ajoutée au test
-    await tap(find.byKey(const Key('situation-Vision elfique|+1 aux tests '
+    await tap(find.byKey(const Key('situation-Enfant des forêts|+1 aux tests '
         '(se trouve en forêts ou chez les elfes)')));
     await tap(find.byKey(const Key('test-FOR')));
     // Provenance de chaque bonus : caractéristique et trait de la situation
     expect(detail(), contains('(FOR)'));
-    expect(detail(), contains('+1 (Vision elfique)'));
+    expect(detail(), contains('+1 (Enfant des forêts)'));
     final provenance = find.byKey(const Key('provenance-de'));
     expect(
-      find.descendant(of: provenance, matching: find.text('Vision elfique +1')),
+      find.descendant(
+          of: provenance, matching: find.text('Enfant des forêts +1')),
       findsOneWidget,
     );
     expect(

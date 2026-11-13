@@ -118,17 +118,17 @@ class RaceDetail extends StatelessWidget {
             ),
           ],
         ),
-        if (r.passif != null || r.aUnChoixDePassif)
+        if (r.passifs.isNotEmpty || r.aUnChoixDePassif)
           BlocConsultation(
             titre: 'Passif racial',
             icone: Icons.auto_awesome_outlined,
             children: [
-              if (r.passif != null)
+              for (final passif in r.passifs)
                 LigneTrait(
-                  nom: r.passif!.nom,
-                  description: r.passif!.description,
-                  effets: r.passif!.effets,
-                  type: r.passif!.type,
+                  nom: passif.nom,
+                  description: passif.description,
+                  effets: passif.effets,
+                  type: passif.type,
                 ),
               if (r.aUnChoixDePassif) ...[
                 const SizedBox(height: 4),

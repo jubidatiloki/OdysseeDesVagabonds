@@ -69,11 +69,8 @@ class EtapeRace extends StatelessWidget {
                 )
               else
                 LigneModificateurs(r.modificateurs),
-              if (r.passif != null)
-                LigneDetail(
-                  libelle: r.passif!.nom,
-                  texte: _texte(r.passif!),
-                ),
+              for (final passif in r.passifs)
+                LigneDetail(libelle: passif.nom, texte: _texte(passif)),
               if (choisie && r.aDesOrigines)
                 _Choix(
                   titre: 'Origine',

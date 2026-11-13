@@ -314,8 +314,7 @@ class FicheCalculee {
       }
     }
 
-    final passif = race.passif;
-    if (passif != null) {
+    for (final passif in race.passifs) {
       ajouter(passif.nom, '${race.nom} · passif racial', passif.effets);
     }
     final op = optionPassif;
