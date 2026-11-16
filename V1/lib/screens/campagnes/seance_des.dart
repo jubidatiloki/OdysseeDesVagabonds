@@ -30,8 +30,12 @@ class PanneauDes extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    // Carte de la campagne affichée (16/11/2026) : pas de dés, les logs
+    // d'abord.
+    final avecDes = !seance.carte.startsWith(kPrefixePlan);
     return DefaultTabController(
-      length: 3,
+      key: ValueKey('panneau-droite-$avecDes'),
+      length: avecDes ? 3 : 2,
       // Fond propre et filet or : on voit que c'est un menu à part.
       child: DecoratedBox(
         key: const Key('menu-droite'),
@@ -63,11 +67,12 @@ class PanneauDes extends StatelessWidget {
             TabBar(
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               tabs: [
-                const Tab(
-                  key: Key('onglet-des'),
-                  icon: Icon(Icons.casino_outlined),
-                  text: 'Dés',
-                ),
+                if (avecDes)
+                  const Tab(
+                    key: Key('onglet-des'),
+                    icon: Icon(Icons.casino_outlined),
+                    text: 'Dés',
+                  ),
                 const Tab(
                   key: Key('onglet-historique'),
                   icon: Icon(Icons.receipt_long_outlined),
@@ -87,7 +92,7 @@ class PanneauDes extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  _Lanceur(seance: seance, aleatoire: aleatoire),
+                  if (avecDes) _Lanceur(seance: seance, aleatoire: aleatoire),
                   _Historique(seance: seance),
                   OngletMessages(seance: seance),
                 ],

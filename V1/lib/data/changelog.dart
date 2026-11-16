@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.64.3',
+    date: '16/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Séance : carte affichée, le panneau de droite n\'a plus '
+            'd\'onglet Dés et s\'ouvre sur les logs.',
+      ),
+    ],
+  ),
+  (
     version: '0.64.2',
     date: '16/11/2026',
     changements: [

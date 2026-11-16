@@ -2656,12 +2656,17 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(find.byKey(Key('vue-carte-${port.id}')), findsOneWidget);
+      // Carte affichée : pas d'onglet Dés, les logs sont ouverts.
+      expect(find.byKey(const Key('onglet-des')), findsNothing);
+      expect(find.text('Aucun jet pour l\'instant.'), findsOneWidget);
       // Le MJ la retire : elle disparaît, la vue revient aux notes.
       await ServiceCampagnesMemoire(x.base, 'mj')
           .modifierCarte(x.campagne, port.copie(diffusee: false));
       await tester.pumpAndSettle();
       expect(find.byKey(Key('carte-plan-${port.id}')), findsNothing);
       expect(find.byKey(Key('vue-carte-${port.id}')), findsNothing);
+      // Plus de carte affichée : l'onglet Dés revient.
+      expect(find.byKey(const Key('onglet-des')), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
