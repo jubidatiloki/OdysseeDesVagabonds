@@ -54,7 +54,14 @@ class _GestionCartesState extends State<GestionCartes> {
   /// Un seul abonnement (les informations des cartes, pas les images).
   late final Stream<List<CarteCampagne>>? _cartes =
       widget.contexte.campagnes.serviceActuel?.ecouterCartes(widget.campagne);
-  var _occupe = false;
+
+  /// Ajout en cours : étape affichée (réduction, envoi) ; `null` : aucun.
+  String? _etape;
+  bool get _occupe => _etape != null;
+
+  static String _poids(int octets) => octets >= 1024 * 1024
+      ? '${(octets / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',')} Mo'
+      : '${(octets / 1024).round()} Ko';
 
   void _message(String texte) => ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
@@ -74,7 +81,9 @@ class _GestionCartesState extends State<GestionCartes> {
       CarteCampagne.nomPropre(f.nom),
     );
     if (nom == null || !mounted) return;
-    setState(() => _occupe = true);
+    final propre = CarteCampagne.nomPropre(nom);
+    setState(() => _etape =
+        '« $propre » : réduction de l\'image (${_poids(f.octets.length)})…');
     String? erreur;
     try {
       final image = await ImageCarte.preparer(
@@ -82,6 +91,9 @@ class _GestionCartesState extends State<GestionCartes> {
             ? f.octets as Uint8List
             : Uint8List.fromList(f.octets),
       );
+      if (!mounted) return;
+      setState(() => _etape =
+          '« $propre » : envoi en ligne (${_poids(image.jpeg.length)})…');
       erreur = await widget.contexte.campagnes.agir(
         (s) => s.ajouterCarte(
           widget.campagne,
@@ -95,8 +107,8 @@ class _GestionCartesState extends State<GestionCartes> {
       erreur = e.message;
     }
     if (!mounted) return;
-    setState(() => _occupe = false);
-    _message(erreur ?? 'Carte « ${CarteCampagne.nomPropre(nom)} » ajoutée.');
+    setState(() => _etape = null);
+    _message(erreur ?? 'Carte « $propre » ajoutée.');
   }
 
   Future<void> _renommer(CarteCampagne c) async {
@@ -186,10 +198,48 @@ class _GestionCartesState extends State<GestionCartes> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.add_photo_alternate_outlined),
-                    label: Text(_occupe ? 'Préparation…' : 'Ajouter'),
+                    label: Text(_occupe ? 'En cours…' : 'Ajouter'),
                   ),
                 ],
               ),
+              // Ajout en cours : étape et barre d'attente (16/11/2026).
+              if (_etape case final etape?)
+                Card(
+                  key: const Key('envoi-carte'),
+                  margin: const EdgeInsets.only(top: 8),
+                  color: theme.colorScheme.secondaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.cloud_upload_outlined,
+                              color: theme.colorScheme.onSecondaryContainer,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                etape,
+                                key: const Key('etape-envoi-carte'),
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const LinearProgressIndicator(),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Reste sur cette page jusqu\'à la fin.',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               if (plein)
                 Text(
                   'Nombre maximum atteint : supprime une carte pour en '

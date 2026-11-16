@@ -611,6 +611,13 @@ void main() {
         'Donjon',
       );
       await tester.tap(find.byKey(const Key('valider-nom-carte')));
+      await tester.pump();
+      // Indication pendant l'ajout : étape et barre d'attente.
+      expect(find.byKey(const Key('envoi-carte')), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('etape-envoi-carte'))).data,
+        startsWith('« Donjon » : réduction de l\'image'),
+      );
       // Préparation de l'image (vrai calcul) : on attend la fin.
       for (var i = 0; i < 100 && (base.cartes[c.id]?.isEmpty ?? true); i++) {
         await tester.runAsync(
@@ -618,6 +625,7 @@ void main() {
         await tester.pump();
       }
       await tester.pumpAndSettle();
+      expect(find.byKey(const Key('envoi-carte')), findsNothing);
       final carte = base.cartes[c.id]!.values.single.carte;
       expect((carte.nom, carte.largeur, carte.hauteur), ('Donjon', 50, 20));
       expect(find.text('Cartes (1/30)'), findsOneWidget);

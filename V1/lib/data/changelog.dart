@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.64.2',
+    date: '16/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Cartes : pendant l\'ajout, un encadré montre l\'étape '
+            '(réduction, envoi), le poids et une barre d\'attente.',
+      ),
+    ],
+  ),
+  (
     version: '0.64.1',
     date: '16/11/2026',
     changements: [
