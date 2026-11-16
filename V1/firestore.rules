@@ -18,6 +18,7 @@ rules_version = '2';
 //   presences/{uid} : dernier signal de chaque joueur
 //   messages/{m} : messages privés MJ - joueur
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
+//   cartes/{c} (+ morceaux/{n}) : cartes du MJ, lues par les PJ si diffusées
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -239,6 +240,33 @@ service cloud.firestore {
         allow read: if connecte() && (mjDe(id) || membreDe(id));
         allow create, update: if connecte() && joueur == soi() && membreDe(id);
         allow delete: if connecte() && mjDe(id);
+      }
+
+      // Cartes de la campagne (16/11/2026) : le MJ les gère ; les joueurs
+      // ne lisent que celles qu'il diffuse. Nom et taille limités.
+      match /cartes/{carte} {
+        allow read: if connecte()
+          && (mjDe(id) || membreDe(id) && resource.data.diffusee == true);
+        allow create, update: if connecte() && mjDe(id)
+          && request.resource.data.nom is string
+          && request.resource.data.nom.size() <= 80
+          && request.resource.data.diffusee is bool
+          && request.resource.data.morceaux is int
+          && request.resource.data.morceaux <= 3;
+        allow delete: if connecte() && mjDe(id);
+
+        // Image (JPEG réduit), en morceaux de moins de 1 Mo.
+        match /morceaux/{morceau} {
+          allow read: if connecte()
+            && (mjDe(id)
+              || membreDe(id)
+                && get(/databases/$(database)/documents/campagnes/$(id)/cartes/$(carte))
+                  .data.diffusee == true);
+          allow create: if connecte() && mjDe(id)
+            && request.resource.data.donnees is bytes
+            && request.resource.data.donnees.size() <= 950000;
+          allow delete: if connecte() && mjDe(id);
+        }
       }
 
       // Notes personnelles d'une séance : le joueur seulement.

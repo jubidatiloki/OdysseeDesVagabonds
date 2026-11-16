@@ -11,6 +11,7 @@ import '../../widgets/consultation.dart';
 import '../glossaire_screen.dart';
 import '../regles_screen.dart';
 import 'campagnes_screen.dart';
+import 'cartes_campagne.dart';
 import 'creation_campagne_screen.dart';
 import 'seance_cartes.dart';
 import 'seance_creatures.dart';
@@ -192,7 +193,7 @@ class _SeanceScreenState extends State<SeanceScreen>
           fontWeight: FontWeight.w600,
         );
         return DefaultTabController(
-          length: s.estMj ? 6 : 4,
+          length: s.estMj ? 7 : 4,
           child: Scaffold(
             appBar: AppBar(
               toolbarHeight: compact ? 58 : 76,
@@ -289,6 +290,8 @@ class _SeanceScreenState extends State<SeanceScreen>
                     onglet(
                         'seance-creatures', Icons.pets_outlined, 'Créatures'),
                   if (s.estMj)
+                    onglet('seance-cartes', Icons.map_outlined, 'Cartes'),
+                  if (s.estMj)
                     onglet('seance-glossaire', Icons.auto_stories_outlined,
                         'Glossaire'),
                   onglet('seance-recaps', Icons.event_note_outlined,
@@ -376,6 +379,14 @@ class _SeanceScreenState extends State<SeanceScreen>
       children: [
         DetailCarte(seance: s, contexte: widget.contexte),
         if (s.estMj) OngletCreatures(seance: s),
+        if (s.estMj)
+          s.campagne == null
+              ? const SizedBox.shrink()
+              : GestionCartes(
+                  contexte: widget.contexte,
+                  campagne: s.campagne!,
+                  enSeance: true,
+                ),
         if (s.estMj)
           GlossaireScreen(
             referentiel: widget.contexte.referentiel,

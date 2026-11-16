@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/campagne.dart';
+import '../models/carte_campagne.dart';
 import '../models/personnage.dart';
 import '../models/seance.dart';
 import 'campagnes.dart';
 import 'firestore_personnage_repository.dart';
 import 'firestore_seance.dart';
+import 'image_carte.dart';
 
 /// Campagnes en ligne (Firestore) :
 /// - `campagnes/{id}` : nom, description, MJ, code, `joueurs` et `demandes`
@@ -16,6 +19,8 @@ import 'firestore_seance.dart';
 /// - `campagnes/{id}/prive/mj` : script et notes (MJ seulement) ;
 /// - `campagnes/{id}/membres/{uid}` : joueur, personnage, statut ;
 /// - `codes/{code}` : campagne d'un code d'invitation.
+/// - `campagnes/{id}/cartes/{carte}` : cartes (nom, taille, diffusion) ; leur
+///   image JPEG dans `cartes/{carte}/morceaux/{n}` (octets, moins de 1 Mo).
 /// Les règles de sécurité sont dans `firestore.rules`.
 class FirestoreServiceCampagnes implements ServiceCampagnes {
   FirestoreServiceCampagnes(this.uid, [FirebaseFirestore? base])
@@ -36,6 +41,8 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       _campagnes.doc(id).collection('prive').doc('mj');
   CollectionReference<Map<String, dynamic>> _membres(String id) =>
       _campagnes.doc(id).collection('membres');
+  CollectionReference<Map<String, dynamic>> _cartes(String id) =>
+      _campagnes.doc(id).collection('cartes');
 
   static Campagne _campagne(DocumentSnapshot<Map<String, dynamic>> d) =>
       Campagne.depuisJson(d.id, d.data() ?? const {});
@@ -154,6 +161,15 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       doc.collection('degats').where('destinataire', isEqualTo: uid),
     ]) {
       refs.addAll((await q.get()).docs.map((d) => d.reference));
+    }
+    // Cartes et leurs images.
+    for (final carte in (await _cartes(campagne.id).get()).docs) {
+      refs.addAll(
+        (await carte.reference.collection('morceaux').get())
+            .docs
+            .map((d) => d.reference),
+      );
+      refs.add(carte.reference);
     }
     for (var i = 0; i < refs.length; i += 400) {
       final lot = _base.batch();
@@ -388,4 +404,102 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
           .collection(FirestorePersonnageRepository.collection)
           .doc(personnageId)
           .update({'partageAvec': uids, 'modifiablePar': editeurs});
+
+  @override
+  Stream<List<CarteCampagne>> ecouterCartes(Campagne campagne) {
+    // Les joueurs ne peuvent lire que les cartes diffusées (règles).
+    final Query<Map<String, dynamic>> requete = campagne.estMj(uid)
+        ? _cartes(campagne.id)
+        : _cartes(campagne.id).where('diffusee', isEqualTo: true);
+    return requete.snapshots().map((s) => [
+          for (final d in s.docs) CarteCampagne.depuisJson(d.id, d.data()),
+        ]..sort((a, b) => a.ajouteeLe.compareTo(b.ajouteeLe)));
+  }
+
+  @override
+  Future<void> ajouterCarte(
+    Campagne campagne, {
+    required String nom,
+    required Uint8List image,
+    required int largeur,
+    required int hauteur,
+  }) async {
+    final deja = await _cartes(campagne.id).count().get();
+    if ((deja.count ?? 0) >= CarteCampagne.maxParCampagne) {
+      throw const ErreurCampagne(
+        'Nombre maximum de cartes atteint : supprimes-en une.',
+      );
+    }
+    final doc = _cartes(campagne.id).doc();
+    final morceaux = ImageCarte.decouper(image);
+    // Un seul envoi groupé : l'image puis ses informations.
+    final lot = _base.batch();
+    for (final (i, m) in morceaux.indexed) {
+      lot.set(doc.collection('morceaux').doc('$i'), {'donnees': Blob(m)});
+    }
+    lot.set(
+      doc,
+      CarteCampagne(
+        id: doc.id,
+        nom: CarteCampagne.nomPropre(nom),
+        largeur: largeur,
+        hauteur: hauteur,
+        octets: image.length,
+        morceaux: morceaux.length,
+        ajouteeLe: DateTime.now(),
+      ).versJson(),
+    );
+    await lot.commit();
+  }
+
+  @override
+  Future<void> modifierCarte(Campagne campagne, CarteCampagne carte) =>
+      _cartes(campagne.id).doc(carte.id).update({
+        'nom': CarteCampagne.nomPropre(carte.nom),
+        'diffusee': carte.diffusee,
+      });
+
+  @override
+  Future<void> supprimerCarte(Campagne campagne, CarteCampagne carte) async {
+    final doc = _cartes(campagne.id).doc(carte.id);
+    final lot = _base.batch();
+    for (var i = 0; i < carte.morceaux; i++) {
+      lot.delete(doc.collection('morceaux').doc('$i'));
+    }
+    lot.delete(doc);
+    await lot.commit();
+    _images.remove(_cleImage(campagne, carte));
+  }
+
+  /// Images déjà lues pendant que l'application est ouverte (les 12
+  /// dernières) : rouvrir une carte ne coûte aucune lecture.
+  static final Map<String, Uint8List> _images = {};
+  static String _cleImage(Campagne c, CarteCampagne carte) =>
+      '${c.id}/${carte.id}/${carte.octets}';
+
+  @override
+  Future<Uint8List> lireImageCarte(
+    Campagne campagne,
+    CarteCampagne carte,
+  ) async {
+    final cle = _cleImage(campagne, carte);
+    final deja = _images.remove(cle);
+    if (deja != null) return _images[cle] = deja;
+    final doc = _cartes(campagne.id).doc(carte.id);
+    final octets = BytesBuilder(copy: false);
+    for (var i = 0; i < carte.morceaux; i++) {
+      final m = await doc.collection('morceaux').doc('$i').get();
+      final b = m.data()?['donnees'];
+      if (b is! Blob) {
+        throw const ErreurCampagne('Image de la carte introuvable.');
+      }
+      octets.add(b.bytes);
+    }
+    final image = octets.takeBytes();
+    _images[cle] = image;
+    while (_images.length > 12) {
+      _images.remove(_images.keys.first);
+    }
+    return image;
+  }
 }

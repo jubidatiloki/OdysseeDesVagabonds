@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:odyssee_vagabonds/data/campagnes.dart';
 import 'package:odyssee_vagabonds/data/compte.dart';
 import 'package:odyssee_vagabonds/data/personnage_repository.dart';
 import 'package:odyssee_vagabonds/data/referentiel.dart';
 import 'package:odyssee_vagabonds/models/campagne.dart';
+import 'package:odyssee_vagabonds/models/carte_campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/personnage.dart';
 import 'package:odyssee_vagabonds/models/race.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
+import 'package:odyssee_vagabonds/screens/campagnes/cartes_campagne.dart';
 import 'package:odyssee_vagabonds/screens/creation_screen.dart';
 import 'package:odyssee_vagabonds/state/campagnes_controller.dart';
 import 'package:odyssee_vagabonds/state/compte_controller.dart';
@@ -489,6 +493,155 @@ void main() {
       );
       await tap(tester, find.byKey(const Key('envoyer-demande')));
       expect(base.membres[c.id]!['j1']!.personnageNom, 'Brom');
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      x.campagnes.dispose();
+    });
+  });
+
+  group('cartes de la campagne', () {
+    final image = Uint8List.fromList(
+      img.encodeJpg(
+          img.Image(width: 40, height: 30)..clear(img.ColorRgb8(30, 90, 60))),
+    );
+
+    test('MJ : ajoute, renomme, diffuse, supprime ; PJ : diffusées seules',
+        () async {
+      final base = BaseCampagnesMemoire(Random(5));
+      final mj = ServiceCampagnesMemoire(base, 'mj');
+      final j1 = ServiceCampagnesMemoire(base, 'j1');
+      final intrus = ServiceCampagnesMemoire(base, 'x');
+      var c = await mj.creer(nom: 'Valfroid', mjNom: 'Ben');
+      await j1.demander(
+          c,
+          MembreCampagne(
+            uid: 'j1',
+            nom: 'Léa',
+            personnageId: 'brom',
+            personnageNom: 'Brom',
+            personnageResume: '',
+            date: DateTime(2026),
+          ));
+      await mj.accepter(base.campagnes[c.id]!, 'j1');
+      c = base.campagnes[c.id]!;
+      await mj.ajouterCarte(c,
+          nom: 'Port.png', image: image, largeur: 40, hauteur: 30);
+      final carte = (await mj.ecouterCartes(c).first).single;
+      expect((carte.nom, carte.diffusee, carte.octets),
+          ('Port', false, image.length));
+      // Pas diffusée : invisible et illisible pour le joueur.
+      expect(await j1.ecouterCartes(c).first, isEmpty);
+      await expectLater(
+          j1.lireImageCarte(c, carte), throwsA(isA<ErreurCampagne>()));
+      // Le joueur ne peut ni ajouter ni modifier.
+      await expectLater(
+        j1.ajouterCarte(c, nom: 'X', image: image, largeur: 1, hauteur: 1),
+        throwsA(isA<ErreurCampagne>()),
+      );
+      await mj.modifierCarte(
+          c, carte.copie(nom: 'Port du nord', diffusee: true));
+      final vue = (await j1.ecouterCartes(c).first).single;
+      expect(vue.nom, 'Port du nord');
+      expect(await j1.lireImageCarte(c, vue), image);
+      // Hors de la campagne : rien.
+      expect(await intrus.ecouterCartes(c).first, isEmpty);
+      await expectLater(
+          intrus.lireImageCarte(c, vue), throwsA(isA<ErreurCampagne>()));
+      await mj.supprimerCarte(c, vue);
+      expect(await mj.ecouterCartes(c).first, isEmpty);
+    });
+
+    test('30 cartes au plus par campagne', () async {
+      final base = BaseCampagnesMemoire(Random(5));
+      final mj = ServiceCampagnesMemoire(base, 'mj');
+      final c = await mj.creer(nom: 'Valfroid', mjNom: 'Ben');
+      for (var i = 0; i < CarteCampagne.maxParCampagne; i++) {
+        await mj.ajouterCarte(c,
+            nom: 'C$i', image: image, largeur: 1, hauteur: 1);
+      }
+      await expectLater(
+        mj.ajouterCarte(c, nom: 'Trop', image: image, largeur: 1, hauteur: 1),
+        throwsA(isA<ErreurCampagne>()),
+      );
+      // Supprimer la campagne supprime ses cartes.
+      await mj.supprimer(c);
+      expect(base.cartes[c.id], isNull);
+    });
+
+    testWidgets('écran du MJ : ajouter, consulter, renommer, supprimer',
+        (tester) async {
+      tester.view.physicalSize = const Size(1000, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final base = BaseCampagnesMemoire(Random(5));
+      final x =
+          await _connecter(base, const Utilisateur(uid: 'mj', nom: 'Ben'));
+      final c =
+          await x.campagnes.serviceActuel!.creer(nom: 'Valfroid', mjNom: 'Ben');
+      final contexte = ContexteCampagnes(
+        campagnes: x.campagnes,
+        personnages: x.personnages,
+        referentiel: const Referentiel(races: [_nain], classes: [_guerrier]),
+      );
+      final png = img.encodePng(img.Image(width: 50, height: 20)
+        ..clear(img.ColorRgb8(200, 200, 200)));
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: GestionCartes(
+            contexte: contexte,
+            campagne: c,
+            choisirFichier: () async => (nom: 'Donjon.png', octets: png),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('Cartes (0/30)'), findsOneWidget);
+      Future<void> tap(Finder f) async {
+        await tester.tap(f);
+        await tester.pumpAndSettle();
+      }
+
+      // Ajout : nom proposé d'après le fichier.
+      await tap(find.byKey(const Key('ajouter-carte')));
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('nom-carte')))
+            .controller!
+            .text,
+        'Donjon',
+      );
+      await tester.tap(find.byKey(const Key('valider-nom-carte')));
+      // Préparation de l'image (vrai calcul) : on attend la fin.
+      for (var i = 0; i < 100 && (base.cartes[c.id]?.isEmpty ?? true); i++) {
+        await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 50)));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+      final carte = base.cartes[c.id]!.values.single.carte;
+      expect((carte.nom, carte.largeur, carte.hauteur), ('Donjon', 50, 20));
+      expect(find.text('Cartes (1/30)'), findsOneWidget);
+      // Hors séance : pas d'interrupteur de diffusion.
+      expect(find.byKey(Key('diffuser-${carte.id}')), findsNothing);
+      // Renommer.
+      await tap(find.byKey(Key('menu-carte-${carte.id}')));
+      await tap(find.byKey(const Key('renommer-carte')));
+      await tester.enterText(find.byKey(const Key('nom-carte')), 'Crypte');
+      await tap(find.byKey(const Key('valider-nom-carte')));
+      expect(base.cartes[c.id]!.values.single.carte.nom, 'Crypte');
+      // Consulter : l'image s'ouvre en grand.
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Crypte'));
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      });
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('vue-carte-${carte.id}')), findsOneWidget);
+      await tap(find.byTooltip('Back'));
+      // Supprimer, après confirmation.
+      await tap(find.byKey(Key('menu-carte-${carte.id}')));
+      await tap(find.byKey(const Key('supprimer-carte')));
+      await tap(find.byKey(const Key('confirmer-suppression-carte')));
+      expect(base.cartes[c.id], isEmpty);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       x.campagnes.dispose();

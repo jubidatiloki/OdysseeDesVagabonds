@@ -20,6 +20,7 @@ import '../fiche/formulaire_objet.dart';
 import '../fiche/vues_fiche.dart';
 import '../montee_niveau_screen.dart';
 import 'campagnes_screen.dart';
+import 'cartes_campagne.dart';
 import 'fiche_partagee_screen.dart';
 import 'seance_butin.dart';
 
@@ -256,6 +257,17 @@ class ListeCartes extends StatelessWidget {
                   : null,
               cleRetirer: 'retirer-${c.id}',
             ),
+        // Cartes de la campagne diffusées par le MJ (16/11/2026).
+        for (final p in s.cartesDiffusees)
+          _Carte(
+            cle: 'carte-plan-${p.id}',
+            selectionnee: s.carte == '$kPrefixePlan${p.id}',
+            icone: Icons.map_outlined,
+            couleurIcone: OdvCouleurs.or,
+            titre: p.nom,
+            lignes: const ['Carte'],
+            onTap: () => _choisir('$kPrefixePlan${p.id}'),
+          ),
         for (final b in s.butins)
           _Carte(
             cle: 'carte-${b.id}',
@@ -627,6 +639,16 @@ class DetailCarte extends StatelessWidget {
     final id = s.carte;
     if (id == kCarteScript || id == kCarteNotes) {
       return _EditeurSeance(key: ValueKey(id), seance: s);
+    }
+    for (final p in s.cartesDiffusees) {
+      if ('$kPrefixePlan${p.id}' == id && s.campagne != null) {
+        return VueCarte(
+          key: ValueKey(p.id),
+          contexte: contexte,
+          campagne: s.campagne!,
+          carte: p,
+        );
+      }
     }
     for (final b in s.butins) {
       if (b.id == id) return DetailButin(seance: s, butin: b);

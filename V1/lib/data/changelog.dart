@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.64.0',
+    date: '16/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Campagnes : onglet « Cartes » du MJ, pour importer (PNG ou '
+            'JPEG), consulter, renommer et supprimer ses cartes.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : le MJ diffuse une carte, elle apparaît dans la liste '
+            'des PJ et s\'ouvre en grand (zoom).',
+      ),
+      (
+        type: _m,
+        texte: 'Cartes : images réduites à l\'import (1600 px, moins de '
+            '700 Ko) et lues une seule fois.',
+      ),
+    ],
+  ),
+  (
     version: '0.63.0',
     date: '16/11/2026',
     changements: [

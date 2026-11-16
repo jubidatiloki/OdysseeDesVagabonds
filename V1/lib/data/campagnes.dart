@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import '../models/campagne.dart';
+import '../models/carte_campagne.dart';
 import '../models/personnage.dart';
 import 'seance.dart';
 
@@ -90,6 +92,29 @@ abstract class ServiceCampagnes {
     List<String> uids, {
     List<String> editeurs = const [],
   });
+
+  /// Cartes de la campagne (16/11/2026) : toutes pour le MJ, celles qu'il
+  /// diffuse pour les joueurs. Seules les informations (nom, taille) sont
+  /// suivies ; l'image se lit à part ([lireImageCarte]).
+  Stream<List<CarteCampagne>> ecouterCartes(Campagne campagne);
+
+  /// MJ : ajoute une carte (image déjà réduite, voir `ImageCarte`).
+  Future<void> ajouterCarte(
+    Campagne campagne, {
+    required String nom,
+    required Uint8List image,
+    required int largeur,
+    required int hauteur,
+  });
+
+  /// MJ : renomme une carte, la diffuse ou la retire aux PJ.
+  Future<void> modifierCarte(Campagne campagne, CarteCampagne carte);
+
+  /// MJ : supprime une carte et son image.
+  Future<void> supprimerCarte(Campagne campagne, CarteCampagne carte);
+
+  /// Image d'une carte (JPEG), lue en une fois.
+  Future<Uint8List> lireImageCarte(Campagne campagne, CarteCampagne carte);
 }
 
 /// Contrôles communs aux implémentations.
@@ -130,6 +155,10 @@ class BaseCampagnesMemoire {
 
   /// Récapitulatifs (id de campagne → numéro → texte).
   final Map<String, Map<int, String>> recaps = {};
+
+  /// Cartes (id de campagne → id de carte → carte et image).
+  final Map<String, Map<String, ({CarteCampagne carte, Uint8List image})>>
+      cartes = {};
 
   /// Dates des séances (id de campagne → numéro → date).
   final Map<String, Map<int, DateTime>> datesRecaps = {};
@@ -259,6 +288,7 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
     base.prives.remove(campagne.id);
     base.membres.remove(campagne.id);
     base.parties.remove(campagne.id);
+    base.cartes.remove(campagne.id);
     base.signaler();
   }
 
@@ -466,5 +496,91 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
       partage: uids,
       editeurs: editeurs,
     );
+  }
+
+  @override
+  Stream<List<CarteCampagne>> ecouterCartes(Campagne campagne) async* {
+    List<CarteCampagne> liste() {
+      final c = base.campagnes[campagne.id];
+      if (c == null) return const [];
+      final mj = c.estMj(uid);
+      if (!mj && !c.joueurs.contains(uid)) return const [];
+      return [
+        for (final x in (base.cartes[campagne.id] ?? const {}).values)
+          if (mj || x.carte.diffusee) x.carte,
+      ]..sort((a, b) => a.ajouteeLe.compareTo(b.ajouteeLe));
+    }
+
+    yield liste();
+    await for (final _ in base.changements) {
+      yield liste();
+    }
+  }
+
+  @override
+  Future<void> ajouterCarte(
+    Campagne campagne, {
+    required String nom,
+    required Uint8List image,
+    required int largeur,
+    required int hauteur,
+  }) async {
+    _exigerMj(campagne);
+    final cartes = base.cartes[campagne.id] ??= {};
+    if (cartes.length >= CarteCampagne.maxParCampagne) {
+      throw const ErreurCampagne(
+        'Nombre maximum de cartes atteint : supprimes-en une.',
+      );
+    }
+    final id = base.nouvelId();
+    cartes[id] = (
+      carte: CarteCampagne(
+        id: id,
+        nom: CarteCampagne.nomPropre(nom),
+        largeur: largeur,
+        hauteur: hauteur,
+        octets: image.length,
+        ajouteeLe: _horloge(),
+      ),
+      image: image,
+    );
+    base.signaler();
+  }
+
+  @override
+  Future<void> modifierCarte(Campagne campagne, CarteCampagne carte) async {
+    _exigerMj(campagne);
+    final x = base.cartes[campagne.id]?[carte.id];
+    if (x == null) throw const ErreurCampagne('Cette carte n\'existe plus.');
+    base.cartes[campagne.id]![carte.id] = (
+      carte: x.carte.copie(
+        nom: CarteCampagne.nomPropre(carte.nom),
+        diffusee: carte.diffusee,
+      ),
+      image: x.image,
+    );
+    base.signaler();
+  }
+
+  @override
+  Future<void> supprimerCarte(Campagne campagne, CarteCampagne carte) async {
+    _exigerMj(campagne);
+    base.cartes[campagne.id]?.remove(carte.id);
+    base.signaler();
+  }
+
+  @override
+  Future<Uint8List> lireImageCarte(
+    Campagne campagne,
+    CarteCampagne carte,
+  ) async {
+    final c = _lire(campagne.id);
+    final x = base.cartes[campagne.id]?[carte.id];
+    final permis =
+        c.estMj(uid) || c.joueurs.contains(uid) && (x?.carte.diffusee ?? false);
+    if (x == null || !permis) {
+      throw const ErreurCampagne('Cette carte n\'est pas disponible.');
+    }
+    return x.image;
   }
 }

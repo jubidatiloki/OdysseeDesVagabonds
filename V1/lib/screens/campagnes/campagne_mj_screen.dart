@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 
 import '../../models/campagne.dart';
 import '../../widgets/consultation.dart';
+import 'cartes_campagne.dart';
 import 'campagnes_screen.dart';
 import 'creation_campagne_screen.dart';
 import 'fiche_partagee_screen.dart';
 import 'seance_recaps.dart';
 
 /// Page d'une campagne pour son MJ : joueurs et invitations, script, notes,
-/// paramètres ; démarrer ou reprendre une séance.
+/// cartes, paramètres ; démarrer ou reprendre une séance.
 class CampagneMjScreen extends StatelessWidget {
   const CampagneMjScreen({
     super.key,
@@ -71,7 +72,7 @@ class CampagneMjScreen extends StatelessWidget {
           );
         }
         return DefaultTabController(
-          length: 5,
+          length: 6,
           child: Scaffold(
             appBar: AppBar(
               title: Text(c.nom, overflow: TextOverflow.ellipsis),
@@ -113,6 +114,11 @@ class CampagneMjScreen extends StatelessWidget {
                     text: 'Notes',
                   ),
                   const Tab(
+                    key: Key('onglet-cartes'),
+                    icon: Icon(Icons.map_outlined),
+                    text: 'Cartes',
+                  ),
+                  const Tab(
                     key: Key('onglet-seances'),
                     icon: Icon(Icons.event_note_outlined),
                     text: 'Séances',
@@ -138,6 +144,7 @@ class CampagneMjScreen extends StatelessWidget {
                   campagne: c,
                   script: false,
                 ),
+                GestionCartes(contexte: contexte, campagne: c),
                 OngletRecaps(contexte: contexte, campagne: c),
                 _OngletParametres(contexte: contexte, campagne: c),
               ],

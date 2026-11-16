@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:odyssee_vagabonds/data/campagnes.dart';
 import 'package:odyssee_vagabonds/widgets/animation_lancer.dart';
 import 'package:odyssee_vagabonds/data/compte.dart';
@@ -2587,6 +2589,73 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('MJ : diffuse une carte de la campagne pendant la séance',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        taille: const Size(1800, 1000),
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').ajouterCarte(
+          c,
+          nom: 'Port',
+          image: _imageCarte,
+          largeur: 40,
+          hauteur: 30,
+        ),
+      );
+      final carte = x.base.cartes[x.campagne.id]!.values.single.carte;
+      await tap(tester, find.byKey(const Key('seance-cartes')));
+      expect(find.byKey(Key('ligne-carte-${carte.id}')), findsOneWidget);
+      // Pas encore diffusée : absente de la liste de gauche.
+      expect(find.byKey(Key('carte-plan-${carte.id}')), findsNothing);
+      await tap(tester, find.byKey(Key('diffuser-${carte.id}')));
+      expect(x.base.cartes[x.campagne.id]![carte.id]!.carte.diffusee, isTrue);
+      expect(find.byKey(Key('carte-plan-${carte.id}')), findsOneWidget);
+      // Retirée : elle disparaît.
+      await tap(tester, find.byKey(Key('diffuser-${carte.id}')));
+      expect(find.byKey(Key('carte-plan-${carte.id}')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : voit la carte diffusée et l\'ouvre au centre',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj');
+          await mj.ajouterCarte(c,
+              nom: 'Secret', image: _imageCarte, largeur: 40, hauteur: 30);
+          await mj.ajouterCarte(c,
+              nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+          final port = (await mj.ecouterCartes(c).first).last;
+          await mj.modifierCarte(c, port.copie(diffusee: true));
+        },
+      );
+      final cartes = x.base.cartes[x.campagne.id]!.values.map((e) => e.carte);
+      final port = cartes.firstWhere((c) => c.nom == 'Port');
+      final secret = cartes.firstWhere((c) => c.nom == 'Secret');
+      expect(find.byKey(Key('carte-plan-${secret.id}')), findsNothing);
+      // Pas d'onglet de gestion pour un joueur.
+      expect(find.byKey(const Key('seance-cartes')), findsNothing);
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(Key('carte-plan-${port.id}')));
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('vue-carte-${port.id}')), findsOneWidget);
+      // Le MJ la retire : elle disparaît, la vue revient aux notes.
+      await ServiceCampagnesMemoire(x.base, 'mj')
+          .modifierCarte(x.campagne, port.copie(diffusee: false));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('carte-plan-${port.id}')), findsNothing);
+      expect(find.byKey(Key('vue-carte-${port.id}')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('MJ : nomme la séance, le numéro reste', (tester) async {
       final x = await ouvrir(tester, 'mj');
       await tap(tester, find.byKey(const Key('nommer-seance')));
@@ -2742,7 +2811,7 @@ void main() {
     });
 
     testWidgets('MJ : permissions et taille des portions', (tester) async {
-      final x = await ouvrir(tester, 'mj');
+      final x = await ouvrir(tester, 'mj', taille: const Size(1800, 1000));
       await tap(tester, find.byKey(const Key('seance-parametres')));
       expect(find.byKey(const Key('portion-gauche')), findsOneWidget);
       await tap(tester, find.byKey(const Key('pj-voient-pv-creatures')));
@@ -2831,3 +2900,9 @@ void main() {
     });
   });
 }
+
+/// Petite image JPEG pour les cartes de campagne.
+final Uint8List _imageCarte = Uint8List.fromList(
+  img.encodeJpg(
+      img.Image(width: 40, height: 30)..clear(img.ColorRgb8(30, 90, 60))),
+);

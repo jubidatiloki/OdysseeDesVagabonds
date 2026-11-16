@@ -8,6 +8,7 @@ import '../data/referentiel.dart';
 import '../data/seance.dart';
 import '../models/butin.dart';
 import '../models/campagne.dart';
+import '../models/carte_campagne.dart';
 import '../models/creature.dart';
 import '../models/historique.dart';
 import '../models/objet.dart';
@@ -22,6 +23,9 @@ import 'personnages_controller.dart';
 /// Carte sélectionnée dans la portion de gauche.
 const String kCarteScript = 'script';
 const String kCarteNotes = 'notes';
+
+/// Sélection d'une carte diffusée : « plan: » + son identifiant.
+const String kPrefixePlan = 'plan:';
 
 /// Partie vue par le compte connecté : suit en direct le mode, les tours, les
 /// membres, les créatures, les ressources et les jets, et publie les PV, PM
@@ -77,6 +81,15 @@ class SeanceController extends ChangeNotifier {
       _traiterDegats();
     });
     suivre(seance.ecouterButins(c), (v) => _butins = v);
+    // Cartes : leurs informations seulement (nom, taille, diffusion).
+    suivre(s.ecouterCartes(c), (v) {
+      _plans = v;
+      // Carte retirée aux PJ alors qu'elle était affichée.
+      if (_carte.startsWith(kPrefixePlan) &&
+          !cartesDiffusees.any((p) => '$kPrefixePlan${p.id}' == _carte)) {
+        _carte = estMj ? kCarteScript : kCarteNotes;
+      }
+    });
     suivre(seance.ecouterEnvois(c), (v) {
       _envois = v;
       _traiterEnvois();
@@ -155,6 +168,7 @@ class SeanceController extends ChangeNotifier {
 
   /// Butins de la partie, objets reçus d'autres PJ.
   List<ButinSeance> _butins = const [];
+  List<CarteCampagne> _plans = const [];
   List<EnvoiObjet> _envois = const [];
   final Set<String> _envoisPris = {};
   Future<void> _fileEnvois = Future.value();
@@ -187,6 +201,13 @@ class SeanceController extends ChangeNotifier {
           for (final b in _butins)
             if (!b.cache) b
         ];
+
+  /// Cartes de la campagne diffusées aux PJ (16/11/2026), dans la liste
+  /// de gauche de tous ; l'image n'est lue qu'à l'ouverture.
+  List<CarteCampagne> get cartesDiffusees => [
+        for (final p in _plans)
+          if (p.diffusee) p,
+      ];
 
   /// MJ : montre ou cache la carte d'un butin aux PJ.
   Future<String?> montrerButin(ButinSeance butin, {required bool visible}) =>
