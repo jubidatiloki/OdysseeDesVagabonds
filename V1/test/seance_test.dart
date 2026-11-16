@@ -2640,6 +2640,16 @@ void main() {
       expect(find.byKey(Key('carte-plan-${secret.id}')), findsNothing);
       // Pas d'onglet de gestion pour un joueur.
       expect(find.byKey(const Key('seance-cartes')), findsNothing);
+      // En haut, dans le bloc « Cartes », au-dessus des personnages.
+      final y = tester.getRect(find.byKey(Key('carte-plan-${port.id}')));
+      expect(
+          y.top,
+          greaterThanOrEqualTo(
+              tester.getRect(find.byKey(const Key('partie-cartes'))).bottom));
+      expect(
+          y.bottom,
+          lessThan(
+              tester.getRect(find.byKey(const Key('partie-personnages'))).top));
       await tester.runAsync(() async {
         await tester.tap(find.byKey(Key('carte-plan-${port.id}')));
         await Future<void>.delayed(const Duration(milliseconds: 200));

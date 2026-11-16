@@ -72,13 +72,31 @@ class ListeCartes extends StatelessWidget {
             titre: 'Mes notes de séance',
             onTap: () => _choisir(kCarteNotes),
           ),
+        // Cartes de la campagne diffusées par le MJ, en haut, dans leur
+        // propre bloc (16/11/2026).
+        if (s.cartesDiffusees.isNotEmpty)
+          const _TitrePartie(
+            cle: 'partie-cartes',
+            icone: Icons.map_outlined,
+            titre: 'Cartes',
+          ),
+        for (final p in s.cartesDiffusees)
+          _Carte(
+            cle: 'carte-plan-${p.id}',
+            selectionnee: s.carte == '$kPrefixePlan${p.id}',
+            icone: Icons.map_outlined,
+            couleurIcone: OdvCouleurs.or,
+            titre: p.nom,
+            onTap: () => _choisir('$kPrefixePlan${p.id}'),
+          ),
         // Deux parties bien séparées : les personnages des joueurs (et
         // leurs compagnons), puis les créatures rencontrées.
         if (s.joueurs.isNotEmpty || s.creatures.any((c) => c.allie))
-          const _TitrePartie(
+          _TitrePartie(
             cle: 'partie-personnages',
             icone: Icons.groups_outlined,
             titre: 'Personnages',
+            separe: s.cartesDiffusees.isNotEmpty,
           ),
         for (final m in s.joueurs) ...[
           _Carte(
@@ -257,17 +275,6 @@ class ListeCartes extends StatelessWidget {
                   : null,
               cleRetirer: 'retirer-${c.id}',
             ),
-        // Cartes de la campagne diffusées par le MJ (16/11/2026).
-        for (final p in s.cartesDiffusees)
-          _Carte(
-            cle: 'carte-plan-${p.id}',
-            selectionnee: s.carte == '$kPrefixePlan${p.id}',
-            icone: Icons.map_outlined,
-            couleurIcone: OdvCouleurs.or,
-            titre: p.nom,
-            lignes: const ['Carte'],
-            onTap: () => _choisir('$kPrefixePlan${p.id}'),
-          ),
         for (final b in s.butins)
           _Carte(
             cle: 'carte-${b.id}',

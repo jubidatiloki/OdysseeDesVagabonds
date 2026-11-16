@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.64.1',
+    date: '16/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Séance : les cartes diffusées sont en haut de la liste, dans '
+            'leur propre bloc « Cartes ».',
+      ),
+    ],
+  ),
+  (
     version: '0.64.0',
     date: '16/11/2026',
     changements: [
