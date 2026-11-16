@@ -1,0 +1,24 @@
+CLÉ DE SIGNATURE DES APK — À GARDER PRÉCIEUSEMENT
+==================================================
+
+odyssee_vagabonds.keystore signe toutes les versions Android de l'application.
+Android n'installe une mise à jour par-dessus l'ancienne que si elle est signée
+avec la MÊME clé. Sans elle, il faudrait désinstaller l'application, ce qui
+efface les fiches gardées sur le téléphone (celles du compte en ligne restent).
+
+À FAIRE UNE FOIS : copier ce dossier « signature » sur une clé USB et/ou un
+espace en ligne privé (OneDrive, Google Drive…). Ce fichier n'est jamais envoyé
+sur GitHub (.gitignore).
+
+Nouvel ordinateur : remettre ce dossier dans D:\claude\ODV\signature\, et
+recréer V1\android\key.properties (mêmes lignes que sur l'ancien PC) :
+
+  storeFile=D:/claude/ODV/signature/odyssee_vagabonds.keystore
+  storePassword=android
+  keyAlias=androiddebugkey
+  keyPassword=android
+
+(C'est la clé « debug » de l'ordinateur qui a signé les premières versions ;
+ses mots de passe sont les mots de passe standard d'Android. Elle convient pour
+distribuer l'APK soi-même, pas pour le Play Store, qui demanderait une nouvelle
+clé — et donc une réinstallation.)

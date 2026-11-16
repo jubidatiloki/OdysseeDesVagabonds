@@ -31,6 +31,17 @@ rem 2. Etat de l'installation Android
 echo === flutter doctor === >> "%LOG%"
 call flutter doctor -v >> "%LOG%" 2>&1
 
+rem Signature : sans android\key.properties, l'APK serait signe avec une
+rem autre cle et ne s'installerait plus par-dessus les versions deja
+rem distribuees (voir ..\signature\LISEZMOI.txt).
+if not exist "android\key.properties" (
+  echo.
+  echo ATTENTION : android\key.properties absent, voir signature\LISEZMOI.txt
+  echo CLE DE SIGNATURE ABSENTE >> "%LOG%"
+  pause
+  exit /b 1
+)
+
 rem 3. Compilation
 echo === flutter build apk === >> "%LOG%"
 call flutter pub get >> "%LOG%" 2>&1

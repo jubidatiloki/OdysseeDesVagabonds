@@ -115,6 +115,78 @@ class EchangePersonnage {
     return p;
   }
 
+  /// Sauvegarde de toutes les fiches en un seul fichier (16/11/2026) :
+  /// `{ "format": "odyssee-vagabonds/sauvegarde", "version": 1,
+  /// "exporteLe": …, "personnages": [ … ] }`.
+  static const String formatSauvegarde = 'odyssee-vagabonds/sauvegarde';
+
+  static String exporterTout(
+    List<Personnage> personnages, {
+    DateTime? maintenant,
+  }) =>
+      const JsonEncoder.withIndent('  ').convert({
+        'format': formatSauvegarde,
+        'version': version,
+        'exporteLe': (maintenant ?? DateTime.now()).toIso8601String(),
+        'personnages': [for (final p in personnages) p.versJson()],
+      });
+
+  /// Nom de fichier proposé : « odv_sauvegarde_2026-11-16.json ».
+  static String nomSauvegarde(DateTime date) {
+    String n(int v) => v.toString().padLeft(2, '0');
+    return 'odv_sauvegarde_${date.year}-${n(date.month)}-${n(date.day)}.json';
+  }
+
+  /// Le texte est-il une sauvegarde complète (plusieurs fiches) ?
+  static bool estSauvegarde(String texte) {
+    try {
+      final j = jsonDecode(texte.trim());
+      return j is Map && j['format'] == formatSauvegarde;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Lit une sauvegarde complète ; les fiches à la race ou à la classe
+  /// inconnue sont écartées (renvoyées à part, par nom).
+  static ({List<Personnage> personnages, List<String> ecartes}) lireTout(
+    String texte,
+    Referentiel referentiel,
+  ) {
+    final Object? json;
+    try {
+      json = jsonDecode(texte.trim());
+    } catch (_) {
+      throw const ErreurImport('Cette sauvegarde est illisible.');
+    }
+    if (json is! Map || json['format'] != formatSauvegarde) {
+      throw const ErreurImport('Ce fichier n\'est pas une sauvegarde.');
+    }
+    final v = (json['version'] as num?)?.toInt() ?? 1;
+    if (v > version) {
+      throw const ErreurImport(
+        'Cette sauvegarde vient d\'une version plus récente de '
+        'l\'application. Mets l\'application à jour pour l\'importer.',
+      );
+    }
+    final res = <Personnage>[];
+    final ecartes = <String>[];
+    for (final brut in json['personnages'] as List? ?? const []) {
+      try {
+        final p = Personnage.depuisJson(Map<String, dynamic>.from(brut as Map));
+        if (referentiel.race(p.raceId) == null ||
+            referentiel.classe(p.classeId) == null) {
+          ecartes.add(p.nom);
+        } else {
+          res.add(p);
+        }
+      } catch (_) {
+        ecartes.add('fiche abîmée');
+      }
+    }
+    return (personnages: res, ecartes: ecartes);
+  }
+
   /// Copie indépendante (nouvel identifiant, nom « … (copie) »), pour
   /// importer un personnage qui existe déjà sans l'écraser.
   static Personnage copie(Personnage p) => Personnage.depuisJson({

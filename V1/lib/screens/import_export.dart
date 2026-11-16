@@ -87,6 +87,105 @@ Future<void> exporterPersonnage(BuildContext context, Personnage p) async {
   }
 }
 
+/// Sauvegarde de toutes les fiches de cet appareil (ou du compte) en un
+/// seul fichier .json (16/11/2026) ; se restaure par « Importer ».
+Future<void> exporterTousLesPersonnages(
+  BuildContext context,
+  PersonnagesController controller,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final personnages = controller.personnages;
+  if (personnages.isEmpty) {
+    _message(messenger, 'Aucun personnage à sauvegarder.');
+    return;
+  }
+  final nom = EchangePersonnage.nomSauvegarde(DateTime.now());
+  try {
+    final chemin = await FilePicker.platform.saveFile(
+      dialogTitle: 'Sauvegarder toutes les fiches',
+      fileName: nom,
+      type: FileType.custom,
+      allowedExtensions: const ['json'],
+      bytes: utf8.encode(EchangePersonnage.exporterTout(personnages)),
+    );
+    if (kIsWeb) {
+      _message(messenger,
+          'Sauvegarde de ${personnages.length} fiche(s) téléchargée : $nom');
+    } else if (chemin != null) {
+      _message(
+          messenger, '${personnages.length} fiche(s) sauvegardée(s) : $chemin');
+    }
+  } catch (e) {
+    _message(messenger, 'Impossible d\'enregistrer la sauvegarde ($e).');
+  }
+}
+
+/// Restaure une sauvegarde complète : ajoute les fiches absentes, et
+/// remplace celles qui existent déjà si le joueur le demande.
+Future<void> _restaurer(
+  BuildContext context,
+  String texte,
+  Referentiel referentiel,
+  PersonnagesController controller,
+  ScaffoldMessengerState messenger,
+) async {
+  final ({List<Personnage> personnages, List<String> ecartes}) lu;
+  try {
+    lu = EchangePersonnage.lireTout(texte, referentiel);
+  } on ErreurImport catch (e) {
+    _message(messenger, e.message);
+    return;
+  }
+  final existants = [
+    for (final p in lu.personnages)
+      if (controller.parId(p.id) != null) p,
+  ];
+  var remplacer = false;
+  if (existants.isNotEmpty) {
+    final decision = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const Key('fenetre-restauration'),
+        title: Text('Restaurer ${lu.personnages.length} fiche(s)'),
+        content: Text(
+          '${existants.length} existe(nt) déjà sur cet appareil : '
+          '${existants.map((p) => p.nom).join(', ')}.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          OutlinedButton(
+            key: const Key('restaurer-manquantes'),
+            onPressed: () => Navigator.of(context).pop('manquantes'),
+            child: const Text('Ajouter les autres'),
+          ),
+          FilledButton(
+            key: const Key('restaurer-remplacer'),
+            onPressed: () => Navigator.of(context).pop('remplacer'),
+            child: const Text('Tout remplacer'),
+          ),
+        ],
+      ),
+    );
+    if (decision == null) return;
+    remplacer = decision == 'remplacer';
+  }
+  var n = 0;
+  for (final p in lu.personnages) {
+    if (!remplacer && controller.parId(p.id) != null) continue;
+    EchangePersonnage.journaliserImport(p, source: 'sauvegarde');
+    await controller.sauvegarder(p);
+    n++;
+  }
+  _message(
+    messenger,
+    '$n fiche(s) restaurée(s)'
+    '${lu.ecartes.isEmpty ? '' : ' ; écartée(s) : ${lu.ecartes.join(', ')}'}.',
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Import
 // ---------------------------------------------------------------------------
@@ -153,6 +252,12 @@ Future<Personnage?> importerPersonnage(
     }
   }
   if (texte == null || texte.trim().isEmpty || !context.mounted) return null;
+
+  // Sauvegarde complète (toutes les fiches) : restauration.
+  if (EchangePersonnage.estSauvegarde(texte)) {
+    await _restaurer(context, texte, referentiel, controller, messenger);
+    return null;
+  }
 
   final lu = _lire(texte, referentiel, messenger);
   if (lu == null) return null;

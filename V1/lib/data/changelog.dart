@@ -29,6 +29,32 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.63.0',
+    date: '16/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Personnages : « Sauvegarder toutes les fiches » en un fichier, '
+            'restauré par le bouton Importer.',
+      ),
+      (
+        type: _m,
+        texte: 'Sauvegarde sur l\'appareil : une case par fiche ; une fiche '
+            'abîmée ne bloque plus les autres.',
+      ),
+      (
+        type: _m,
+        texte: 'Un enregistrement impossible sur l\'appareil (espace plein) '
+            'est maintenant signalé.',
+      ),
+      (
+        type: _m,
+        texte: 'Android : clé de signature gardée avec le projet, les mises à '
+            'jour s\'installent toujours par-dessus.',
+      ),
+    ],
+  ),
+  (
     version: '0.62.0',
     date: '13/11/2026',
     changements: [

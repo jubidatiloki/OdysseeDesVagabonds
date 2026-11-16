@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../data/local_personnage_repository.dart';
 import '../data/personnage_repository.dart';
 import '../models/personnage.dart';
 
@@ -28,6 +29,10 @@ class PersonnagesController extends ChangeNotifier {
 
   /// Les verrous ont changé : les écrans se redessinent.
   void signalerRestrictions() => notifyListeners();
+
+  /// Dernier échec d'enregistrement sur l'appareil (espace plein…), montré
+  /// par l'écran principal ; `null` : aucun.
+  final ValueNotifier<String?> erreurSauvegarde = ValueNotifier(null);
 
   /// Stockage utilisé (sur l'appareil, ou en ligne avec un compte).
   PersonnageRepository get repository => _repository;
@@ -90,7 +95,13 @@ class PersonnagesController extends ChangeNotifier {
 
   /// [lancer] : sauvegarde après un lancer de dé du personnage actif.
   Future<void> sauvegarder(Personnage personnage, {bool lancer = false}) async {
-    await _repository.sauvegarder(personnage);
+    try {
+      await _repository.sauvegarder(personnage);
+    } on ErreurStockage catch (e) {
+      // La fiche reste à jour à l'écran ; l'échec est signalé (16/11/2026).
+      erreurSauvegarde.value = null;
+      erreurSauvegarde.value = e.message;
+    }
     if (lancer) await apresLancer?.call();
     final i = _personnages.indexWhere((p) => p.id == personnage.id);
     if (i >= 0) {

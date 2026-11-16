@@ -46,6 +46,7 @@ Application Flutter (mobile Android + web + Windows) de création et de gestion 
 
 ## Environnement de l'utilisateur (Windows)
 - Projet : `D:\claude\ODV` ; Flutter : `C:\Users\benja\Documents\flutter` (3.38) ; Android SDK : `C:\Users\benja\AppData\Local\Android\Sdk`.
+- Signature des APK : `V1/android/key.properties` (non committé) → `D:\claude\ODV\signature\odyssee_vagabonds.keystore` (copie de la clé qui a signé les versions distribuées ; voir `signature/LISEZMOI.txt`). Sauvegardes : `ressources/SAUVEGARDE.md`.
 - Java par défaut = 25 (incompatible Android) → utiliser le **JDK 17** `C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot` (`flutter config --jdk-dir=...`, fait par `construire_apk.bat`).
 - Scripts dans `V1/` : `verifier.bat`, `lancer_web.bat` (http://localhost:8080, port fixe pour garder la sauvegarde), `lancer_telephone.bat` (Wi-Fi local), `construire_apk.bat`, `construire_web.bat`, `construire_windows.bat` (sorties dans `D:\claude\ODV\livraison\`), `publier_web.bat` (version web en ligne sur Firebase Hosting, https://odyssee-vagabonds.web.app, installable sur iPhone).
 

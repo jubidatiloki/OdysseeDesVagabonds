@@ -197,6 +197,43 @@ void main() {
     expect(find.text('Brom Barbe-de-Fer (copie)'), findsOneWidget);
   });
 
+  testWidgets('sauvegarde complète : restaurée par le bouton Importer',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.5;
+    addTearDown(tester.view.reset);
+    final controller = PersonnagesController(EnMemoirePersonnageRepository());
+    await controller.charger();
+    await tester.pumpWidget(
+      OdvApp(referentiel: _referentiel, controller: controller),
+    );
+    await tester.pumpAndSettle();
+    // Le bouton « Sauvegarder toutes les fiches » est dans la barre.
+    expect(find.byKey(const Key('bouton-sauvegarder-tout')), findsOneWidget);
+
+    final texte = EchangePersonnage.exporterTout([_brom()]);
+    Future<void> restaurer() async {
+      await _tap(tester, find.byKey(const Key('bouton-importer')));
+      await _tap(tester, find.byKey(const Key('import-texte')));
+      await tester.enterText(
+        find.byKey(const Key('champ-import-texte')),
+        texte,
+      );
+      await tester.pumpAndSettle();
+      await _tap(tester, find.byKey(const Key('valider-import')));
+    }
+
+    await restaurer();
+    expect(controller.personnages.single.nom, 'Brom Barbe-de-Fer');
+    // Déjà là : on choisit de tout remplacer.
+    await restaurer();
+    expect(find.byKey(const Key('fenetre-restauration')), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('restaurer-remplacer')));
+    expect(controller.personnages, hasLength(1));
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('un texte invalide affiche une erreur', (tester) async {
     final controller = PersonnagesController(EnMemoirePersonnageRepository());
     await controller.charger();

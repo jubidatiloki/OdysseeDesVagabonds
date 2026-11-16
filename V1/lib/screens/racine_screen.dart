@@ -77,6 +77,7 @@ class _RacineScreenState extends State<RacineScreen> {
   @override
   void initState() {
     super.initState();
+    widget.controller.erreurSauvegarde.addListener(_erreurSauvegarde);
     // Séance démarrée par un MJ : le joueur est averti où qu'il soit.
     _seances = _campagnes.nouvellesSeances.listen((c) {
       if (!mounted) return;
@@ -92,8 +93,21 @@ class _RacineScreenState extends State<RacineScreen> {
     });
   }
 
+  /// Échec d'enregistrement sur l'appareil (espace plein) : signalé.
+  void _erreurSauvegarde() {
+    final texte = widget.controller.erreurSauvegarde.value;
+    if (texte == null || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      key: const Key('erreur-sauvegarde'),
+      duration: const Duration(seconds: 12),
+      backgroundColor: Theme.of(context).colorScheme.error,
+      content: Text(texte),
+    ));
+  }
+
   @override
   void dispose() {
+    widget.controller.erreurSauvegarde.removeListener(_erreurSauvegarde);
     _seances?.cancel();
     if (widget.campagnes == null) _campagnes.dispose();
     _lancers.dispose();

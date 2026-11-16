@@ -62,13 +62,20 @@ class AccueilScreen extends StatelessWidget {
         actions: [
           IconButton(
             key: const Key('bouton-importer'),
-            tooltip: 'Importer un personnage',
+            tooltip: 'Importer un personnage ou une sauvegarde',
             onPressed: () => importerPersonnage(
               context,
               referentiel: referentiel,
               controller: controller,
             ),
             icon: const Icon(Icons.file_open_outlined),
+          ),
+          // Toutes les fiches en un fichier (16/11/2026).
+          IconButton(
+            key: const Key('bouton-sauvegarder-tout'),
+            tooltip: 'Sauvegarder toutes les fiches',
+            onPressed: () => exporterTousLesPersonnages(context, controller),
+            icon: const Icon(Icons.save_alt),
           ),
         ],
       ),
