@@ -285,6 +285,19 @@ service cloud.firestore {
       allow delete: if connecte() && resource.data.mj == soi();
     }
 
+    // Retours des joueurs (bugs, idées) : écriture seule, à son nom, taille
+    // limitée ; lus dans la console Firebase, jamais par l'application.
+    match /retours/{retour} {
+      allow create: if connecte()
+        && request.resource.data.auteur == soi()
+        && request.resource.data.type in ['bug', 'idee', 'autre']
+        && request.resource.data.texte is string
+        && request.resource.data.texte.size() > 0
+        && request.resource.data.texte.size() <= 4000
+        && request.resource.data.keys().hasOnly(['type', 'texte', 'auteur',
+          'nom', 'email', 'version', 'plateforme', 'date']);
+    }
+
     // Tout le reste est fermé.
     match /{document=**} {
       allow read, write: if false;

@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.65.0',
+    date: '18/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Écran « Donner son avis » (menu) : signaler un bug, proposer '
+            'une idée ou autre chose.',
+      ),
+    ],
+  ),
+  (
     version: '0.64.3',
     date: '16/11/2026',
     changements: [

@@ -19,6 +19,7 @@ import 'glossaire_screen.dart';
 import 'nouveautes_screen.dart';
 import 'preferences_screen.dart';
 import 'regles_screen.dart';
+import 'retours_screen.dart';
 
 /// Écran racine : affiche la section choisie dans le menu latéral.
 /// Au démarrage : la liste des personnages.
@@ -184,6 +185,7 @@ class _RacineScreenState extends State<RacineScreen> {
       Section.preferences =>
         PreferencesScreen(preferences: widget.preferences, menu: menu),
       Section.nouveautes => NouveautesScreen(menu: menu),
+      Section.retours => RetoursScreen(menu: menu, compte: _compte),
       Section.aPropos => AProposScreen(menu: menu),
     };
     // Bouton « retour » (Android, navigateur) : revient à la liste des

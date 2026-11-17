@@ -21,6 +21,8 @@ enum Section {
   preferences('Préférences', Icons.settings_outlined, Icons.settings),
   // Journal des versions (changelog).
   nouveautes('Nouveautés', Icons.new_releases_outlined, Icons.new_releases),
+  // Signaler un bug, proposer une idée (18/11/2026).
+  retours('Donner son avis', Icons.feedback_outlined, Icons.feedback),
   aPropos('À propos', Icons.info_outline, Icons.info);
 
   const Section(this.libelle, this.icone, this.iconeSelectionnee);
