@@ -133,6 +133,22 @@ class LigneCompetence extends StatelessWidget {
                   const SizedBox(height: 4),
                   LibellesSort(c, enEndurance: sortsEnEndurance),
                 ],
+                // Cible et durée (19/11/2026) ; une durée « aucune » ne
+                // s'affiche pas.
+                if (c.cible != null || (c.duree?.affichee ?? false)) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    [
+                      if (c.cible case final cible?) 'Cible : ${cible.libelle}',
+                      if (c.duree case final d? when d.affichee)
+                        'Durée : ${d.texte}',
+                    ].join(' · '),
+                    key: Key('cible-duree-${c.nom}'),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: couleurTexte ?? scheme.primary,
+                    ),
+                  ),
+                ],
                 if (c.effet.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(

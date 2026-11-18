@@ -548,6 +548,109 @@ class VarianteCompetence {
 }
 
 /// Une compétence d'une voie (rang 1 à 5).
+/// Sur qui agit une compétence ou un sort (19/11/2026).
+enum CibleCompetence {
+  soi('Soi-même'),
+  unique('Une cible'),
+  selection('Plusieurs cibles au choix'),
+  allies('Les alliés');
+
+  const CibleCompetence(this.libelle);
+  final String libelle;
+
+  static CibleCompetence? depuisCode(Object? code) {
+    for (final c in values) {
+      if (c.name == code) return c;
+    }
+    return null;
+  }
+}
+
+/// Unité de la durée d'une compétence ou d'un sort.
+enum TypeDuree {
+  aucune('Aucune'),
+  actions('Actions'),
+  tours('Tours'),
+  jours('Jours'),
+  finCombat('Jusqu\'à la fin du combat'),
+  indefini('Indéfinie');
+
+  const TypeDuree(this.libelle);
+  final String libelle;
+
+  static TypeDuree depuisCode(Object? code) =>
+      values.firstWhere((t) => t.name == code, orElse: () => aucune);
+}
+
+/// Durée d'une compétence ou d'un sort : unité et nombre (« 3 », « INT »,
+/// « 1d4 ») ; [TypeDuree.aucune] n'est pas affichée.
+class DureeCompetence {
+  const DureeCompetence({required this.type, this.valeur = ''});
+
+  final TypeDuree type;
+
+  /// Nombre d'actions, de tours ou de jours : chiffre, caractéristique
+  /// (son modificateur) ou dés.
+  final String valeur;
+
+  bool get affichee => type != TypeDuree.aucune;
+
+  /// « 3 tours », « INT tours », « jusqu'à la fin du combat », « indéfinie ».
+  String get texte => switch (type) {
+        TypeDuree.aucune => '',
+        TypeDuree.finCombat => 'jusqu\'à la fin du combat',
+        TypeDuree.indefini => 'indéfinie',
+        TypeDuree.actions => '${valeur.isEmpty ? '1' : valeur} action'
+            '${valeur == '1' || valeur.isEmpty ? '' : 's'}',
+        TypeDuree.tours => '${valeur.isEmpty ? '1' : valeur} tour'
+            '${valeur == '1' || valeur.isEmpty ? '' : 's'}',
+        TypeDuree.jours => '${valeur.isEmpty ? '1' : valeur} jour'
+            '${valeur == '1' || valeur.isEmpty ? '' : 's'}',
+      };
+
+  static DureeCompetence? depuisJson(Object? j) {
+    if (j is String) return DureeCompetence(type: TypeDuree.depuisCode(j));
+    if (j is! Map) return null;
+    return DureeCompetence(
+      type: TypeDuree.depuisCode(j['type']),
+      valeur: '${j['valeur'] ?? ''}'.trim(),
+    );
+  }
+}
+
+/// Bonus ou malus que la compétence donne à ses cibles quand on la lance
+/// (musique vivifiante : +2 aux attaques des alliés) : posé tout seul en
+/// séance, pour sa durée.
+class BonusDonne {
+  const BonusDonne({
+    required this.valeur,
+    required this.portee,
+    this.carac = '',
+    this.siReussite = true,
+  });
+
+  final int valeur;
+
+  /// Jets visés : attaque, tous, initiative, carac, degats.
+  final String portee;
+
+  /// Caractéristique visée (portée « carac »).
+  final String carac;
+
+  /// Donné seulement si le jet de la compétence réussit (difficulté).
+  final bool siReussite;
+
+  static BonusDonne? depuisJson(Object? j) {
+    if (j is! Map) return null;
+    return BonusDonne(
+      valeur: (j['valeur'] as num?)?.toInt() ?? 0,
+      portee: '${j['portee'] ?? 'tous'}',
+      carac: '${j['carac'] ?? ''}',
+      siReussite: j['siReussite'] != false,
+    );
+  }
+}
+
 class Competence {
   const Competence({
     required this.rang,
@@ -578,6 +681,9 @@ class Competence {
     this.endurance = const [],
     this.selonProfil = const {},
     this.typeDegats = '',
+    this.cible,
+    this.duree,
+    this.bonusDonne,
   });
 
   /// Type de dégâts d'un sort ou d'une attaque (feu, glace, foudre, magique,
@@ -615,6 +721,15 @@ class Competence {
   /// rang atteint dans la voie ; dés de dégâts et coût de ce rang.
   final bool modulable;
 
+  /// Sur qui elle agit (`null` : non précisé).
+  final CibleCompetence? cible;
+
+  /// Combien de temps elle dure (`null` ou « aucune » : non affichée).
+  final DureeCompetence? duree;
+
+  /// Bonus ou malus donné à ses cibles quand on la lance.
+  final BonusDonne? bonusDonne;
+
   /// Copie avec un autre nom, d'autres dégâts ou un autre coût affiché.
   Competence copie({String? nom, String? degats, String? mana}) => Competence(
         rang: rang,
@@ -645,6 +760,9 @@ class Competence {
         endurance: endurance,
         selonProfil: selonProfil,
         typeDegats: typeDegats,
+        cible: cible,
+        duree: duree,
+        bonusDonne: bonusDonne,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -795,6 +913,9 @@ class Competence {
       endurance: endurance,
       selonProfil: selonProfil,
       typeDegats: typeDegats,
+      cible: cible,
+      duree: duree,
+      bonusDonne: bonusDonne,
     );
   }
 
@@ -849,6 +970,9 @@ class Competence {
         invocations: [
           for (final i in j['invocations'] as List<dynamic>? ?? const []) '$i',
         ],
+        cible: CibleCompetence.depuisCode(j['cible']),
+        duree: DureeCompetence.depuisJson(j['duree']),
+        bonusDonne: BonusDonne.depuisJson(j['bonusDonne']),
       );
 
   static Map<String, VarianteCompetence> _variantes(Object? j) => {

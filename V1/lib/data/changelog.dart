@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.68.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Compétences et sorts : cible (soi, une, plusieurs, alliés) et '
+            'durée affichées quand elles existent.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : lancer une compétence qui aide donne son bonus à ses '
+            'cibles (musique vivifiante : alliés, fin du combat).',
+      ),
+      (
+        type: _a,
+        texte: 'Bonus de séance « en actions » (s\'usent à chaque jet) et « en '
+            'jours ».',
+      ),
+    ],
+  ),
+  (
     version: '0.67.0',
     date: '18/11/2026',
     changements: [

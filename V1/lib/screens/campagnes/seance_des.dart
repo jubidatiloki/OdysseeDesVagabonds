@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
 import '../../models/aptitude.dart';
+import '../../models/bonus_seance.dart';
 import '../../models/carac.dart';
 import '../../models/seance.dart';
 import '../../models/voie.dart';
@@ -351,6 +353,16 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         genre: GenreJet.sort,
       );
     }
+    // Sort qui donne un bonus ou un malus : réussi si son jet de réussite
+    // atteint la difficulté (ou sans difficulté).
+    final jr = f.jetReussite(sort);
+    final dr = jr?.difficulte;
+    final tr = jr == null ? null : totaux[jr.libelle.toLowerCase()];
+    await _donnerBonus(
+      f,
+      sort.nom,
+      reussi: dr == null || (tr != null && tr >= dr),
+    );
     // Invocation temporaire : elle entre dans la partie, sous le lanceur,
     // pour la durée lancée (en tours).
     final temporaires = [
@@ -406,8 +418,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           )
         : (bonus: const <BonusSituation>[], avantage: const <String>[]);
     // Bonus et malus de séance reçus par celui qui agit (18/11/2026).
-    final recus = parAttaquant
-        ? _s.bonusApplicables(
+    final retenus = parAttaquant
+        ? _s.bonusRetenus(
             _s.idAttaquant,
             genre: genre,
             d20: d20,
@@ -415,7 +427,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             carac: carac,
             initiative: libelle == 'Initiative',
           )
-        : const <BonusSituation>[];
+        : const <BonusSeance>[];
+    final recus = [for (final b in retenus) (nom: b.nom, valeur: b.valeur)];
     final seuils = fiche != null && contreCa ? fiche.seuilsAttaques : null;
     final r = ResultatLancer.lancer(
       libelle: libelle,
@@ -429,6 +442,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       seuilEchec: seuils?.echec ?? 1,
     );
     if (r == null) return null;
+    // Bonus « en actions » qui ont compté : une action de moins.
+    if (retenus.isNotEmpty) unawaited(_s.consommerBonus(retenus));
     await _lancer(
       libelle: libelle,
       resultat: r,
@@ -588,6 +603,60 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     ).whenComplete(champ.dispose);
   }
 
+  /// Compétence acquise du personnage, par son nom.
+  Competence? _competenceNommee(FicheCalculee f, String nom) {
+    for (final c in f.competencesAcquises) {
+      if (c.competence.nom == nom) return c.competence;
+    }
+    return null;
+  }
+
+  /// Compétence ou sort lancé : s'il donne un bonus ou un malus, il est posé
+  /// sur ses cibles (choisies ici pour une cible unique ou une sélection).
+  Future<void> _donnerBonus(
+    FicheCalculee f,
+    String nom, {
+    required bool reussi,
+  }) async {
+    final c = _competenceNommee(f, nom);
+    final b = c?.bonusDonne;
+    if (c == null || b == null) return;
+    final messager = ScaffoldMessenger.of(context);
+    if (b.siReussite && !reussi) {
+      messager.showSnackBar(SnackBar(
+        content: Text('${c.nom} : jet raté, pas de bonus.'),
+      ));
+      return;
+    }
+    var choisis = const <String>[];
+    if (c.cible == CibleCompetence.unique ||
+        c.cible == CibleCompetence.selection) {
+      final r = await showDialog<List<String>>(
+        context: context,
+        builder: (_) => DialogueCiblesBonus(
+          seance: _s,
+          titre: c.nom,
+          unique: c.cible == CibleCompetence.unique,
+        ),
+      );
+      if (r == null || r.isEmpty || !mounted) return;
+      choisis = r;
+    }
+    final noms = await _s.donnerBonusDe(
+      f,
+      c,
+      reussi: reussi,
+      choisis: choisis,
+      aleatoire: widget.aleatoire,
+    );
+    if (noms.isEmpty || !mounted) return;
+    final d = c.duree;
+    messager.showSnackBar(SnackBar(
+      content: Text('${c.nom} : bonus donné à ${noms.join(', ')}'
+          '${d != null && d.affichee ? ' (${d.texte})' : ''}.'),
+    ));
+  }
+
   /// Jets de compétences (hors sorts et attaques), lançables ici.
   List<JetDisponible> _jetsCompetences(FicheCalculee fiche) {
     // Les jets d'un sort partent de son bouton, les attaques de « Combat ».
@@ -645,13 +714,21 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
         onPressed: pasDeCible || _horsTour
             ? null
-            : () => _lancerFormule(
+            : () async {
+                final t = await _lancerFormule(
                   j.libelle,
                   j.des,
                   j.bonus,
                   parAttaquant: true,
                   genre: GenreJet.test,
-                ),
+                );
+                if (t == null) return;
+                await _donnerBonus(
+                  fiche,
+                  j.origine,
+                  reussi: j.difficulte == null || t >= j.difficulte!,
+                );
+              },
       );
 
   Widget _puceAction(
@@ -670,6 +747,33 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 await _lancer(
                   libelle: '${a.libelle} (${a.cout} PE)',
                   parAttaquant: true,
+                );
+                // Compétence qui donne un bonus (musique vivifiante) :
+                // son jet est lancé, et le bonus donné s'il réussit.
+                if (_competenceNommee(fiche, a.origine)?.bonusDonne == null) {
+                  return;
+                }
+                JetDisponible? jet;
+                for (final j in fiche.jetsCompetences) {
+                  if (j.origine == a.origine && lireFormule(j.des) != null) {
+                    jet = j;
+                    break;
+                  }
+                }
+                final t = jet == null
+                    ? null
+                    : await _lancerFormule(
+                        jet.libelle,
+                        jet.des,
+                        jet.bonus,
+                        parAttaquant: true,
+                        genre: GenreJet.test,
+                      );
+                final d = jet?.difficulte;
+                await _donnerBonus(
+                  fiche,
+                  a.origine,
+                  reussi: d == null || (t != null && t >= d),
                 );
               },
       );

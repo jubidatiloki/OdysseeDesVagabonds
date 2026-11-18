@@ -16,6 +16,7 @@ import '../models/historique.dart';
 import '../models/objet.dart';
 import '../models/personnage.dart';
 import '../models/seance.dart';
+import '../models/voie.dart';
 import '../regles/des.dart';
 import '../regles/invocations.dart';
 import '../regles/fiche_calculee.dart';
@@ -492,8 +493,10 @@ class SeanceController extends ChangeNotifier {
     required List<String> cibles,
     required DureeBonus duree,
     int tours = 3,
+    String? auteurNom,
   }) {
-    final auteurNom = estMj ? 'MJ' : (moi?.personnageNom ?? 'Joueur');
+    final nomAuteur =
+        auteurNom ?? (estMj ? 'MJ' : (moi?.personnageNom ?? 'Joueur'));
     final b = BonusSeance(
       nom: nom.trim().isEmpty ? 'Bonus' : nom.trim(),
       valeur: valeur,
@@ -501,9 +504,12 @@ class SeanceController extends ChangeNotifier {
       carac: portee == PorteeBonus.carac ? carac : null,
       cibles: cibles,
       auteur: uid,
-      auteurNom: auteurNom,
+      auteurNom: nomAuteur,
       duree: duree,
-      toursRestants: duree == DureeBonus.tours ? tours : null,
+      toursRestants: switch (duree) {
+        DureeBonus.tours || DureeBonus.actions || DureeBonus.jours => tours,
+        _ => null,
+      },
       seance: _numero,
       date: DateTime.now(),
     );
@@ -521,6 +527,108 @@ class SeanceController extends ChangeNotifier {
       );
     });
   }
+
+  /// Lance l'effet d'une compétence ou d'un sort qui donne un bonus ou un
+  /// malus (19/11/2026) : à ses cibles (selon sa cible), pour sa durée.
+  /// [reussi] : le jet de la compétence a réussi (sinon rien, si le bonus
+  /// l'exige) ; [choisis] : cibles choisies (cible unique ou sélection).
+  /// Renvoie les noms des personnages qui le reçoivent (vide : rien donné).
+  Future<List<String>> donnerBonusDe(
+    FicheCalculee f,
+    Competence c, {
+    required bool reussi,
+    List<String> choisis = const [],
+    math.Random? aleatoire,
+  }) async {
+    final b = c.bonusDonne;
+    if (b == null || b.valeur == 0 || (b.siReussite && !reussi)) return [];
+    final soi = idAttaquant;
+    final cibles = switch (c.cible ?? CibleCompetence.soi) {
+      CibleCompetence.soi => [soi],
+      CibleCompetence.allies => [
+          for (final m in joueurs)
+            if (m.uid != soi) m.uid,
+        ],
+      CibleCompetence.unique || CibleCompetence.selection => choisis,
+    };
+    if (cibles.isEmpty) return [];
+    final d = c.duree ?? const DureeCompetence(type: TypeDuree.indefini);
+    final duree = switch (d.type) {
+      TypeDuree.finCombat => DureeBonus.finCombat,
+      TypeDuree.tours => DureeBonus.tours,
+      TypeDuree.actions || TypeDuree.aucune => DureeBonus.actions,
+      TypeDuree.jours => DureeBonus.jours,
+      TypeDuree.indefini => DureeBonus.retrait,
+    };
+    final portee = PorteeBonus.depuisCode(b.portee);
+    final erreur = await poserBonus(
+      nom: c.nom,
+      valeur: b.valeur,
+      portee: portee,
+      carac: Carac.depuisCode(b.carac),
+      cibles: cibles,
+      duree: duree,
+      tours: _nombreDuree(f, d.valeur, aleatoire),
+      auteurNom: f.personnage.nom,
+    );
+    if (erreur != null) return [];
+    return [
+      for (final m in joueurs)
+        if (cibles.contains(m.uid)) m.personnageNom,
+    ];
+  }
+
+  /// Nombre d'une durée : chiffre, caractéristique (son modificateur, 1 au
+  /// moins) ou dés ; 1 par défaut.
+  static int _nombreDuree(FicheCalculee f, String valeur, math.Random? a) {
+    final v = valeur.trim();
+    if (v.isEmpty) return 1;
+    if (int.tryParse(v) case final n?) return math.max(1, n);
+    if (Carac.depuisCode(v) case final carac?) {
+      return math.max(1, f.mod(carac));
+    }
+    final r = ResultatLancer.lancer(libelle: 'Durée', de: v, aleatoire: a);
+    return math.max(1, r?.total ?? 1);
+  }
+
+  /// Après un jet : les bonus « en actions » qui y ont compté perdent une
+  /// action ; à zéro, ils s'arrêtent.
+  Future<void> consommerBonus(List<BonusSeance> utilises) async {
+    final aDecompter = [
+      for (final b in utilises)
+        if (b.duree == DureeBonus.actions) b,
+    ];
+    if (aDecompter.isEmpty) return;
+    await _agir((s, c) async {
+      for (final b in aDecompter) {
+        final reste = (b.toursRestants ?? 1) - 1;
+        if (reste <= 0) {
+          await s.retirerBonus(c, b);
+        } else {
+          await s.modifierBonus(c, b.copie(toursRestants: reste));
+        }
+      }
+    });
+  }
+
+  /// Bonus retenus pour un jet de [cible] (à consommer ensuite).
+  List<BonusSeance> bonusRetenus(
+    String cible, {
+    required GenreJet genre,
+    required bool d20,
+    bool degats = false,
+    Carac? carac,
+    bool initiative = false,
+  }) =>
+      BonusSeance.retenus(
+        bonus,
+        cible,
+        genre: genre,
+        d20: d20,
+        degats: degats,
+        carac: carac,
+        initiative: initiative,
+      );
 
   /// Retire un bonus (son auteur ou le MJ).
   Future<String?> retirerBonus(BonusSeance b) => _agir((s, c) async {

@@ -255,9 +255,16 @@ service cloud.firestore {
           && request.resource.data.valeur is int
           && request.resource.data.cibles is list
           && request.resource.data.cibles.size() <= 12;
-        allow update: if connecte() && mjDe(id);
+        // Celui qui le reçoit décompte ses actions (19/11/2026).
+        allow update: if connecte()
+          && (mjDe(id)
+            || soi() in resource.data.cibles
+              && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['toursRestants']));
         allow delete: if connecte()
-          && (resource.data.auteur == soi() || mjDe(id));
+          && (resource.data.auteur == soi() || mjDe(id)
+            || soi() in resource.data.cibles
+              && resource.data.duree == 'actions');
       }
 
       // Cartes de la campagne (16/11/2026) : le MJ les gère ; les joueurs

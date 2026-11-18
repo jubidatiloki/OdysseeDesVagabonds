@@ -26,6 +26,8 @@ enum PorteeBonus {
 enum DureeBonus {
   finCombat('Jusqu\'à la fin du combat', 'fin du combat'),
   tours('Pendant quelques tours', 'tours'),
+  actions('Pendant quelques actions', 'actions'),
+  jours('Pendant quelques jours', 'jours'),
   finSeance('Jusqu\'à la fin de la séance', 'fin de la séance'),
   retrait('Jusqu\'à ce qu\'on le retire', 'jusqu\'au retrait');
 
@@ -77,7 +79,9 @@ class BonusSeance {
   final String auteurNom;
   final DureeBonus duree;
 
-  /// [DureeBonus.tours] : tours restants (un de moins à chaque manche).
+  /// [DureeBonus.tours] : tours restants (un de moins à chaque manche) ;
+  /// [DureeBonus.actions] : jets restants (un de moins à chaque jet où il
+  /// compte) ; [DureeBonus.jours] : jours (retiré par son auteur ou le MJ).
   final int? toursRestants;
 
   /// Numéro de la séance où il a été donné.
@@ -92,9 +96,16 @@ class BonusSeance {
       : '$_valeurTexte ${portee.suffixe}';
 
   /// « fin du combat », « 3 tours », « jusqu'au retrait ».
-  String get dureeTexte => duree == DureeBonus.tours
-      ? '${toursRestants ?? 0} tour${(toursRestants ?? 0) > 1 ? 's' : ''}'
-      : duree.court;
+  String get dureeTexte {
+    final n = toursRestants ?? 0;
+    final s = n > 1 ? 's' : '';
+    return switch (duree) {
+      DureeBonus.tours => '$n tour$s',
+      DureeBonus.actions => '$n action$s',
+      DureeBonus.jours => '$n jour$s',
+      _ => duree.court,
+    };
+  }
 
   /// Ce bonus compte-t-il pour ce jet ?
   bool compte({
@@ -123,6 +134,29 @@ class BonusSeance {
     required bool degats,
     Carac? carac,
     bool initiative = false,
+  }) =>
+      [
+        for (final b in retenus(
+          tous,
+          cible,
+          genre: genre,
+          d20: d20,
+          degats: degats,
+          carac: carac,
+          initiative: initiative,
+        ))
+          (nom: b.nom, valeur: b.valeur),
+      ];
+
+  /// Les bonus retenus pour ce jet (le plus fort par nom).
+  static List<BonusSeance> retenus(
+    Iterable<BonusSeance> tous,
+    String cible, {
+    required GenreJet genre,
+    required bool d20,
+    required bool degats,
+    Carac? carac,
+    bool initiative = false,
   }) {
     final parNom = <String, BonusSeance>{};
     for (final b in tous) {
@@ -140,9 +174,7 @@ class BonusSeance {
       final deja = parNom[cle];
       if (deja == null || b.valeur.abs() > deja.valeur.abs()) parNom[cle] = b;
     }
-    return [
-      for (final b in parNom.values) (nom: b.nom, valeur: b.valeur),
-    ];
+    return parNom.values.toList();
   }
 
   BonusSeance copie({String? id, int? toursRestants}) => BonusSeance(

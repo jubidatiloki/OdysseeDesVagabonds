@@ -85,6 +85,29 @@ const _guerrier = Classe(
         ),
       ],
     ),
+    // Compétence qui donne un bonus aux alliés quand on la lance.
+    Voie(
+      id: 'chant',
+      nom: 'Voie du chant',
+      competences: [
+        Competence(
+          rang: 1,
+          nom: 'Chant de guerre',
+          type: 'actif',
+          cible: CibleCompetence.allies,
+          duree: DureeCompetence(type: TypeDuree.finCombat),
+          bonusDonne: BonusDonne(
+            valeur: 2,
+            portee: 'attaque',
+            siReussite: false,
+          ),
+          jets: [
+            JetCompetence(
+                libelle: 'Chant de guerre', des: '1d20', carac: 'SOC'),
+          ],
+        ),
+      ],
+    ),
     // Un sort : groupe Sorts du panneau de dés.
     Voie(
       id: 'magie',
@@ -2697,6 +2720,87 @@ void main() {
           seance: 1,
           date: DateTime(2026, 11, 18),
         );
+
+    testWidgets('PJ : lancer la compétence donne le bonus aux alliés',
+        (tester) async {
+      final brom = _brom()..rangsVoies['chant'] = 1;
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [brom],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .demarrerCombat(c, ['j1', 'j2']),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('competence-seance-0')),
+        200,
+        scrollable: panneau,
+      );
+      await tapDes(tester, 'competence-seance-0');
+      // Alliés : les autres PJ (pas le lanceur), jusqu'à la fin du combat.
+      final b = partie.bonus.values.single;
+      expect(b.cibles, ['j2']);
+      expect((
+        b.nom,
+        b.valeur,
+        b.portee,
+        b.duree,
+        b.auteurNom
+      ), (
+        'Chant de guerre',
+        2,
+        PorteeBonus.attaque,
+        DureeBonus.finCombat,
+        'Brom',
+      ));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : un bonus « en actions » s\'use à chaque jet',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          await ServiceCampagnesMemoire(b, 'j2').seance.poserBonus(
+                c,
+                BonusSeance(
+                  nom: 'Inspiration',
+                  valeur: 1,
+                  portee: PorteeBonus.attaque,
+                  cibles: const ['j1'],
+                  auteur: 'j2',
+                  auteurNom: 'aria',
+                  duree: DureeBonus.actions,
+                  toursRestants: 1,
+                  seance: 1,
+                  date: DateTime(2026, 11, 19),
+                ),
+              );
+          await ServiceCampagnesMemoire(b, 'mj')
+              .seance
+              .demarrerCombat(c, ['j1', 'j2']);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await tapDes(tester, 'attaque-0');
+      expect(partie.jets.where((j) => j.detail.contains('(Inspiration)')),
+          isNotEmpty);
+      // Une seule action : terminé après le jet.
+      expect(partie.bonus, isEmpty);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
 
     testWidgets('PJ : bonus reçu, verrouillé et ajouté à ses attaques',
         (tester) async {

@@ -333,3 +333,68 @@ class _DialogueBonusState extends State<DialogueBonus> {
     );
   }
 }
+
+/// Cibles d'une compétence ou d'un sort qui donne un bonus : un personnage
+/// ([unique]) ou plusieurs. Renvoie leurs uid.
+class DialogueCiblesBonus extends StatefulWidget {
+  const DialogueCiblesBonus({
+    super.key,
+    required this.seance,
+    required this.titre,
+    required this.unique,
+  });
+
+  final SeanceController seance;
+  final String titre;
+  final bool unique;
+
+  @override
+  State<DialogueCiblesBonus> createState() => _DialogueCiblesBonusState();
+}
+
+class _DialogueCiblesBonusState extends State<DialogueCiblesBonus> {
+  final Set<String> _choisis = {};
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        key: const Key('fenetre-cibles-bonus'),
+        title: Text(widget.titre),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.unique ? 'Sur qui ?' : 'Sur qui ? (un ou plusieurs)'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final m in widget.seance.joueurs)
+                  FilterChip(
+                    key: Key('cible-competence-${m.uid}'),
+                    label: Text(m.personnageNom),
+                    selected: _choisis.contains(m.uid),
+                    onSelected: (oui) => setState(() {
+                      if (widget.unique) _choisis.clear();
+                      oui ? _choisis.add(m.uid) : _choisis.remove(m.uid);
+                    }),
+                  ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            key: const Key('valider-cibles-bonus'),
+            onPressed: _choisis.isEmpty
+                ? null
+                : () => Navigator.pop(context, _choisis.toList()),
+            child: const Text('Valider'),
+          ),
+        ],
+      );
+}

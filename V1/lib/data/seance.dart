@@ -457,7 +457,9 @@ class ServiceSeanceMemoire implements ServiceSeance {
 
   @override
   Future<void> modifierBonus(Campagne c, BonusSeance bonus) async {
-    _exigerMj(c);
+    // Le MJ ; ou celui qui le reçoit, pour décompter ses actions.
+    final avant = _partie(c).bonus[bonus.id];
+    if (avant == null || !avant.cibles.contains(uid)) _exigerMj(c);
     _partie(c).bonus[bonus.id] = bonus;
     base.signaler();
   }
@@ -466,7 +468,8 @@ class ServiceSeanceMemoire implements ServiceSeance {
   Future<void> retirerBonus(Campagne c, BonusSeance bonus) async {
     final b = _partie(c).bonus[bonus.id];
     if (b == null) return;
-    if (b.auteur != uid) _exigerMj(c);
+    final consomme = b.duree == DureeBonus.actions && b.cibles.contains(uid);
+    if (b.auteur != uid && !consomme) _exigerMj(c);
     _partie(c).bonus.remove(bonus.id);
     base.signaler();
   }
