@@ -408,7 +408,7 @@
             "endurance": 2,
             "nom": "Musique vivifiante",
             "type": "actif complexe",
-            "cible": "allies",
+            "cible": "alliesSansLanceur",
             "duree": {"type": "finCombat"},
             "bonusDonne": {"valeur": 2, "portee": "attaque"},
             "effet": "En combat : test de DEX de prestation musicale, diff. 10 ; si réussite : +2 aux jets d'attaque des alliés à portée d'écoute jusqu'à la fin du combat.",

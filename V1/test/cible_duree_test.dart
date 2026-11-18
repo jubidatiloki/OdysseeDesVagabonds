@@ -44,7 +44,7 @@ void main() {
         }
       }
     }
-    expect(musique!.cible, CibleCompetence.allies);
+    expect(musique!.cible, CibleCompetence.alliesSansLanceur);
     expect(musique.duree!.type, TypeDuree.finCombat);
     expect((musique.bonusDonne!.valeur, musique.bonusDonne!.portee),
         (2, 'attaque'));
@@ -77,7 +77,7 @@ void main() {
     ));
     expect(
       tester.widget<Text>(find.byKey(const Key('cible-duree-Chant'))).data,
-      'Cible : Les alliés · Durée : jusqu\'à la fin du combat',
+      'Cible : Les alliés (lanceur compris) · Durée : jusqu\'à la fin du combat',
     );
     expect(find.byKey(const Key('cible-duree-Moulinet')), findsNothing);
   });

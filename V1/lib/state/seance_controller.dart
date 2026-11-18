@@ -545,7 +545,9 @@ class SeanceController extends ChangeNotifier {
     final soi = idAttaquant;
     final cibles = switch (c.cible ?? CibleCompetence.soi) {
       CibleCompetence.soi => [soi],
-      CibleCompetence.allies => [
+      // Alliés : tous les PJ, le lanceur compris ; ou sans lui.
+      CibleCompetence.allies => [for (final m in joueurs) m.uid],
+      CibleCompetence.alliesSansLanceur => [
           for (final m in joueurs)
             if (m.uid != soi) m.uid,
         ],

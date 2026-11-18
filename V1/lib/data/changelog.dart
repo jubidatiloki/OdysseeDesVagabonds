@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.68.1',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Cible d\'une compétence : « alliés (lanceur compris) » et '
+            '« alliés, sans le lanceur » distincts.',
+      ),
+    ],
+  ),
+  (
     version: '0.68.0',
     date: '19/11/2026',
     changements: [

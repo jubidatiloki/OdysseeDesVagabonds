@@ -553,7 +553,8 @@ enum CibleCompetence {
   soi('Soi-même'),
   unique('Une cible'),
   selection('Plusieurs cibles au choix'),
-  allies('Les alliés');
+  allies('Les alliés (lanceur compris)'),
+  alliesSansLanceur('Les alliés, sans le lanceur');
 
   const CibleCompetence(this.libelle);
   final String libelle;

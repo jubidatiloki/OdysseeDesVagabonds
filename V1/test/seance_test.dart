@@ -94,7 +94,7 @@ const _guerrier = Classe(
           rang: 1,
           nom: 'Chant de guerre',
           type: 'actif',
-          cible: CibleCompetence.allies,
+          cible: CibleCompetence.alliesSansLanceur,
           duree: DureeCompetence(type: TypeDuree.finCombat),
           bonusDonne: BonusDonne(
             valeur: 2,
@@ -105,6 +105,16 @@ const _guerrier = Classe(
             JetCompetence(
                 libelle: 'Chant de guerre', des: '1d20', carac: 'SOC'),
           ],
+        ),
+        // Alliés, le lanceur compris.
+        Competence(
+          rang: 2,
+          nom: 'Hymne',
+          type: 'actif',
+          cible: CibleCompetence.allies,
+          duree: DureeCompetence(type: TypeDuree.finCombat),
+          bonusDonne: BonusDonne(valeur: 1, portee: 'tous', siReussite: false),
+          jets: [JetCompetence(libelle: 'Hymne', des: '1d20', carac: 'SOC')],
         ),
       ],
     ),
@@ -2723,7 +2733,7 @@ void main() {
 
     testWidgets('PJ : lancer la compétence donne le bonus aux alliés',
         (tester) async {
-      final brom = _brom()..rangsVoies['chant'] = 1;
+      final brom = _brom()..rangsVoies['chant'] = 2;
       final x = await ouvrir(
         tester,
         'j1',
@@ -2746,7 +2756,8 @@ void main() {
       );
       await tapDes(tester, 'competence-seance-0');
       // Alliés : les autres PJ (pas le lanceur), jusqu'à la fin du combat.
-      final b = partie.bonus.values.single;
+      final b =
+          partie.bonus.values.firstWhere((x) => x.nom == 'Chant de guerre');
       expect(b.cibles, ['j2']);
       expect((
         b.nom,
@@ -2761,6 +2772,10 @@ void main() {
         DureeBonus.finCombat,
         'Brom',
       ));
+      // Alliés lanceur compris : tous les PJ.
+      await tapDes(tester, 'competence-seance-1');
+      final hymne = partie.bonus.values.firstWhere((x) => x.nom == 'Hymne');
+      expect(hymne.cibles, ['j1', 'j2']);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
