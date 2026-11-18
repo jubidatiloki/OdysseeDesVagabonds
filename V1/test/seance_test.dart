@@ -96,11 +96,9 @@ const _guerrier = Classe(
           type: 'actif',
           cible: CibleCompetence.alliesSansLanceur,
           duree: DureeCompetence(type: TypeDuree.finCombat),
-          bonusDonne: BonusDonne(
-            valeur: 2,
-            portee: 'attaque',
-            siReussite: false,
-          ),
+          bonusDonnes: [
+            BonusDonne(valeur: 2, portee: 'attaque', siReussite: false),
+          ],
           jets: [
             JetCompetence(
                 libelle: 'Chant de guerre', des: '1d20', carac: 'SOC'),
@@ -113,8 +111,23 @@ const _guerrier = Classe(
           type: 'actif',
           cible: CibleCompetence.allies,
           duree: DureeCompetence(type: TypeDuree.finCombat),
-          bonusDonne: BonusDonne(valeur: 1, portee: 'tous', siReussite: false),
+          bonusDonnes: [
+            BonusDonne(valeur: 1, portee: 'tous', siReussite: false),
+          ],
           jets: [JetCompetence(libelle: 'Hymne', des: '1d20', carac: 'SOC')],
+        ),
+        // Une cible, une option (comme la bénédiction d'une arme).
+        Competence(
+          rang: 3,
+          nom: 'Bénir',
+          type: 'actif',
+          cible: CibleCompetence.unique,
+          duree: DureeCompetence(type: TypeDuree.jours, valeur: '1'),
+          bonusDonnes: [
+            BonusDonne(valeur: 1, portee: 'attaque', option: 'Arme'),
+            BonusDonne(valeur: 1, portee: 'degats', option: 'Arme'),
+          ],
+          jets: [JetCompetence(libelle: 'Bénir', des: '1d20', carac: 'INT')],
         ),
       ],
     ),
@@ -2776,6 +2789,45 @@ void main() {
       await tapDes(tester, 'competence-seance-1');
       final hymne = partie.bonus.values.firstWhere((x) => x.nom == 'Hymne');
       expect(hymne.cibles, ['j1', 'j2']);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : compétence à option et à cible unique (bénir une arme)',
+        (tester) async {
+      final brom = _brom()..rangsVoies['chant'] = 3;
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [brom],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .demarrerCombat(c, ['j1', 'j2']),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('competence-seance-2')),
+        200,
+        scrollable: panneau,
+      );
+      await tapDes(tester, 'competence-seance-2');
+      // Qui ? puis quelle option ?
+      expect(find.byKey(const Key('fenetre-cibles-bonus')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('cible-competence-j2')));
+      await tap(tester, find.byKey(const Key('valider-cibles-bonus')));
+      expect(find.byKey(const Key('fenetre-option-bonus')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('option-bonus-Arme')));
+      final poses = partie.bonus.values.where((b) => b.nom == 'Bénir');
+      expect(poses.map((b) => b.portee).toSet(),
+          {PorteeBonus.attaque, PorteeBonus.degats});
+      expect(poses.every((b) => b.cibles.single == 'j2'), isTrue);
+      expect(poses.first.duree, DureeBonus.jours);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

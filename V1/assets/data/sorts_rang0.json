@@ -127,6 +127,7 @@
       "type": "actif, sort, 1×/tour",
       "cible": "unique",
       "duree": {"type": "actions", "valeur": "1"},
+      "bonusDonne": {"valeur": 1, "portee": "tests"},
       "typesSort": ["support"],
       "effet": "Un allié à portée de voix gagne +1 à son prochain test.",
       "effetApplique": "Un allié : +1 au prochain test"
@@ -239,6 +240,7 @@
       "type": "actif, sort, 1×/tour",
       "cible": "soi",
       "duree": {"type": "actions", "valeur": "1"},
+      "bonusDonne": {"valeur": 2, "portee": "carac", "carac": "SOC"},
       "typesSort": ["controle-mental"],
       "effet": "Un sourire, un geste : +2 au prochain test de SOC contre une personne.",
       "effetApplique": "+2 au prochain test de SOC"
@@ -295,6 +297,7 @@
       "type": "actif, sort, 1×/tour",
       "cible": "soi",
       "duree": {"type": "actions", "valeur": "1"},
+      "bonusDonne": [{"option": "CON", "valeur": 1, "portee": "carac", "carac": "CON"}, {"option": "DEX", "valeur": 1, "portee": "carac", "carac": "DEX"}],
       "typesSort": ["support"],
       "effet": "Une respiration maîtrisée : +1 au prochain test de CON ou de DEX.",
       "effetApplique": "+1 au prochain test de CON ou de DEX"

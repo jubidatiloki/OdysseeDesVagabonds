@@ -619,10 +619,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     required bool reussi,
   }) async {
     final c = _competenceNommee(f, nom);
-    final b = c?.bonusDonne;
-    if (c == null || b == null) return;
+    if (c == null || c.bonusDonnes.isEmpty) return;
     final messager = ScaffoldMessenger.of(context);
-    if (b.siReussite && !reussi) {
+    if (!reussi && c.bonusDonnes.every((b) => b.siReussite)) {
       messager.showSnackBar(SnackBar(
         content: Text('${c.nom} : jet raté, pas de bonus.'),
       ));
@@ -642,11 +641,25 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       if (r == null || r.isEmpty || !mounted) return;
       choisis = r;
     }
+    // Options (bénédiction : arme, ou autre choix sans bonus automatique).
+    var option = '';
+    if (c.optionsBonus.isNotEmpty) {
+      final o = await showDialog<String>(
+        context: context,
+        builder: (_) => DialogueOptionBonus(
+          titre: c.nom,
+          options: c.optionsBonus,
+        ),
+      );
+      if (o == null || o.isEmpty || !mounted) return;
+      option = o;
+    }
     final noms = await _s.donnerBonusDe(
       f,
       c,
       reussi: reussi,
       choisis: choisis,
+      option: option,
       aleatoire: widget.aleatoire,
     );
     if (noms.isEmpty || !mounted) return;
@@ -750,7 +763,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 );
                 // Compétence qui donne un bonus (musique vivifiante) :
                 // son jet est lancé, et le bonus donné s'il réussit.
-                if (_competenceNommee(fiche, a.origine)?.bonusDonne == null) {
+                if (_competenceNommee(fiche, a.origine)?.bonusDonnes.isEmpty ??
+                    true) {
                   return;
                 }
                 JetDisponible? jet;

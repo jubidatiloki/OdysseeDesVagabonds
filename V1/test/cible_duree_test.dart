@@ -17,9 +17,16 @@ void main() {
     });
     expect(c.cible, CibleCompetence.unique);
     expect(c.duree!.texte, 'INT tours');
-    expect((c.bonusDonne!.valeur, c.bonusDonne!.portee, c.bonusDonne!.carac),
-        (-1, 'carac', 'FOR'));
-    expect(c.bonusDonne!.siReussite, isTrue);
+    expect((
+      c.bonusDonnes.single.valeur,
+      c.bonusDonnes.single.portee,
+      c.bonusDonnes.single.carac
+    ), (
+      -1,
+      'carac',
+      'FOR'
+    ));
+    expect(c.bonusDonnes.single.siReussite, isTrue);
     // Sans durée : rien à afficher.
     expect(const DureeCompetence(type: TypeDuree.aucune).affichee, isFalse);
     expect(const DureeCompetence(type: TypeDuree.jours, valeur: '1').texte,
@@ -46,7 +53,8 @@ void main() {
     }
     expect(musique!.cible, CibleCompetence.alliesSansLanceur);
     expect(musique.duree!.type, TypeDuree.finCombat);
-    expect((musique.bonusDonne!.valeur, musique.bonusDonne!.portee),
+    expect(
+        (musique.bonusDonnes.single.valeur, musique.bonusDonnes.single.portee),
         (2, 'attaque'));
   });
 

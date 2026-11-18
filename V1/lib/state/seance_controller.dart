@@ -537,16 +537,24 @@ class SeanceController extends ChangeNotifier {
   /// malus (19/11/2026) : à ses cibles (selon sa cible), pour sa durée.
   /// [reussi] : le jet de la compétence a réussi (sinon rien, si le bonus
   /// l'exige) ; [choisis] : cibles choisies (cible unique ou sélection).
+  /// [option] : option choisie (bénédiction d'une arme…), si elle en a.
   /// Renvoie les noms des personnages qui le reçoivent (vide : rien donné).
   Future<List<String>> donnerBonusDe(
     FicheCalculee f,
     Competence c, {
     required bool reussi,
     List<String> choisis = const [],
+    String option = '',
     math.Random? aleatoire,
   }) async {
-    final b = c.bonusDonne;
-    if (b == null || b.valeur == 0 || (b.siReussite && !reussi)) return [];
+    final donnes = [
+      for (final b in c.bonusDonnes)
+        if (b.valeur != 0 &&
+            !(b.siReussite && !reussi) &&
+            (b.option.isEmpty || b.option == option))
+          b,
+    ];
+    if (donnes.isEmpty) return [];
     final soi = idAttaquant;
     final cibles = switch (c.cible ?? CibleCompetence.soi) {
       CibleCompetence.soi => [soi],
@@ -569,18 +577,20 @@ class SeanceController extends ChangeNotifier {
       TypeDuree.jours => DureeBonus.jours,
       TypeDuree.indefini => DureeBonus.retrait,
     };
-    final portee = PorteeBonus.depuisCode(b.portee);
-    final erreur = await poserBonus(
-      nom: c.nom,
-      valeur: b.valeur,
-      portee: portee,
-      carac: Carac.depuisCode(b.carac),
-      cibles: cibles,
-      duree: duree,
-      tours: _nombreDuree(f, d.valeur, aleatoire),
-      auteurNom: f.personnage.nom,
-    );
-    if (erreur != null) return [];
+    final tours = nombreDuree(f, c, d.valeur, aleatoire);
+    for (final b in donnes) {
+      final erreur = await poserBonus(
+        nom: c.nom,
+        valeur: b.valeur,
+        portee: PorteeBonus.depuisCode(b.portee),
+        carac: Carac.depuisCode(b.carac),
+        cibles: cibles,
+        duree: duree,
+        tours: tours,
+        auteurNom: f.personnage.nom,
+      );
+      if (erreur != null) return [];
+    }
     return [
       for (final m in joueurs)
         if (cibles.contains(m.uid)) m.personnageNom,
@@ -588,16 +598,53 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Nombre d'une durée : chiffre, caractéristique (son modificateur, 1 au
-  /// moins) ou dés ; 1 par défaut.
-  static int _nombreDuree(FicheCalculee f, String valeur, math.Random? a) {
-    final v = valeur.trim();
+  /// moins), dés ou formule (« 1d6 + INT », « INT × 10 », « INT + RANG ») ;
+  /// 1 par défaut.
+  static int nombreDuree(
+    FicheCalculee f,
+    Competence c,
+    String valeur,
+    math.Random? a,
+  ) {
+    var v = valeur.trim();
     if (v.isEmpty) return 1;
     if (int.tryParse(v) case final n?) return math.max(1, n);
-    if (Carac.depuisCode(v) case final carac?) {
-      return math.max(1, f.mod(carac));
+    // Caractéristiques (leur modificateur) et RANG remplacés par leur
+    // valeur : « 1d6 + INT » devient « 1d6 + 3 ».
+    v = v.replaceAllMapped(RegExp(r'[A-Za-z]{2,4}'), (m) {
+      final mot = m[0]!;
+      if (mot.toUpperCase() == 'RANG') return '${f.rangCompetence(c.nom)}';
+      final carac = Carac.depuisCode(mot);
+      return carac == null ? mot : '${f.mod(carac)}';
+    });
+    // Somme de termes (« 1d6 + 3 », « 2 + 3 », « 3 × 10 », « 1d6/2 ») :
+    // chaque terme est un nombre ou des dés, multiplié ou divisé.
+    final hasard = a ?? math.Random();
+    final formule = v.replaceAll('×', '*').replaceAll(' ', '');
+    var total = 0;
+    for (final m in RegExp(r'([+-]?)([^+-]+)').allMatches(formule)) {
+      var valeurTerme = 1;
+      for (final (i, facteur) in m[2]!.split(RegExp(r'(?=[*/])')).indexed) {
+        final op = i == 0 ? '*' : facteur[0];
+        final brut = i == 0 ? facteur : facteur.substring(1);
+        final des = RegExp(r'^(\d*)d(\d+)$').firstMatch(brut);
+        final int x;
+        if (des != null) {
+          final nb = int.tryParse(des[1]!) ?? 1;
+          final faces = int.parse(des[2]!);
+          x = [for (var k = 0; k < nb; k++) hasard.nextInt(faces) + 1]
+              .fold(0, (s, d) => s + d);
+        } else {
+          final n = int.tryParse(brut);
+          if (n == null) return 1;
+          x = n;
+        }
+        valeurTerme =
+            op == '/' ? valeurTerme ~/ math.max(1, x) : valeurTerme * x;
+      }
+      total += m[1] == '-' ? -valeurTerme : valeurTerme;
     }
-    final r = ResultatLancer.lancer(libelle: 'Durée', de: v, aleatoire: a);
-    return math.max(1, r?.total ?? 1);
+    return math.max(1, total);
   }
 
   /// Après un jet : les bonus « en actions » qui y ont compté perdent une

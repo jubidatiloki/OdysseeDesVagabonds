@@ -6,6 +6,7 @@ import 'carac.dart';
 enum PorteeBonus {
   attaque('Jets d\'attaque', 'aux attaques'),
   tous('Tous les jets à 1d20', 'à tous les jets'),
+  tests('Tests (hors attaques)', 'aux tests'),
   initiative('Initiative', 'à l\'initiative'),
   carac('Tests d\'une caractéristique', 'aux tests'),
   degats('Dégâts', 'aux dégâts');
@@ -122,6 +123,7 @@ class BonusSeance {
       switch (portee) {
         PorteeBonus.attaque => genre == GenreJet.attaque,
         PorteeBonus.tous => d20 && !degats,
+        PorteeBonus.tests => d20 && !degats && genre != GenreJet.attaque,
         PorteeBonus.initiative => initiative,
         PorteeBonus.carac => d20 && carac != null && carac == this.carac,
         PorteeBonus.degats => degats,

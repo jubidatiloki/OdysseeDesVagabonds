@@ -405,3 +405,36 @@ class _DialogueCiblesBonusState extends State<DialogueCiblesBonus> {
         ],
       );
 }
+
+/// Option d'une compétence qui donne un bonus (bénédiction : « Arme ») ;
+/// « Autre choix » : rien d'automatique (à noter à la main). Renvoie
+/// l'option choisie, vide pour « autre choix ».
+class DialogueOptionBonus extends StatelessWidget {
+  const DialogueOptionBonus({
+    super.key,
+    required this.titre,
+    required this.options,
+  });
+
+  final String titre;
+  final List<String> options;
+
+  @override
+  Widget build(BuildContext context) => SimpleDialog(
+        key: const Key('fenetre-option-bonus'),
+        title: Text(titre),
+        children: [
+          for (final o in options)
+            SimpleDialogOption(
+              key: Key('option-bonus-$o'),
+              onPressed: () => Navigator.pop(context, o),
+              child: Text(o),
+            ),
+          SimpleDialogOption(
+            key: const Key('option-bonus-autre'),
+            onPressed: () => Navigator.pop(context, ''),
+            child: const Text('Autre choix (rien d\'automatique)'),
+          ),
+        ],
+      );
+}

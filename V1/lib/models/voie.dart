@@ -634,9 +634,14 @@ class BonusDonne {
     required this.portee,
     this.carac = '',
     this.siReussite = true,
+    this.option = '',
   });
 
   final int valeur;
+
+  /// Option au choix au lancement (« Arme » pour la bénédiction, « CON » ou
+  /// « DEX » pour le souffle de ki) ; vide : toujours donné.
+  final String option;
 
   /// Jets visés : attaque, tous, initiative, carac, degats.
   final String portee;
@@ -647,6 +652,12 @@ class BonusDonne {
   /// Donné seulement si le jet de la compétence réussit (difficulté).
   final bool siReussite;
 
+  /// Un bonus (objet) ou plusieurs (liste).
+  static List<BonusDonne> listeDepuisJson(Object? j) => [
+        for (final x in j is List ? j : [j])
+          if (depuisJson(x) case final b?) b,
+      ];
+
   static BonusDonne? depuisJson(Object? j) {
     if (j is! Map) return null;
     return BonusDonne(
@@ -654,6 +665,7 @@ class BonusDonne {
       portee: '${j['portee'] ?? 'tous'}',
       carac: '${j['carac'] ?? ''}',
       siReussite: j['siReussite'] != false,
+      option: '${j['option'] ?? ''}',
     );
   }
 }
@@ -690,7 +702,7 @@ class Competence {
     this.typeDegats = '',
     this.cible,
     this.duree,
-    this.bonusDonne,
+    this.bonusDonnes = const [],
   });
 
   /// Type de dégâts d'un sort ou d'une attaque (feu, glace, foudre, magique,
@@ -734,8 +746,15 @@ class Competence {
   /// Combien de temps elle dure (`null` ou « aucune » : non affichée).
   final DureeCompetence? duree;
 
-  /// Bonus ou malus donné à ses cibles quand on la lance.
-  final BonusDonne? bonusDonne;
+  /// Bonus ou malus donnés à ses cibles quand on la lance (plusieurs
+  /// possibles : bénédiction d'une arme = +1 aux attaques et +1 aux dégâts).
+  final List<BonusDonne> bonusDonnes;
+
+  /// Options proposées au lancement (vide : aucune).
+  List<String> get optionsBonus => {
+        for (final b in bonusDonnes)
+          if (b.option.isNotEmpty) b.option,
+      }.toList();
 
   /// Copie avec un autre nom, d'autres dégâts ou un autre coût affiché.
   Competence copie({String? nom, String? degats, String? mana}) => Competence(
@@ -769,7 +788,7 @@ class Competence {
         typeDegats: typeDegats,
         cible: cible,
         duree: duree,
-        bonusDonne: bonusDonne,
+        bonusDonnes: bonusDonnes,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -922,7 +941,7 @@ class Competence {
       typeDegats: typeDegats,
       cible: cible,
       duree: duree,
-      bonusDonne: bonusDonne,
+      bonusDonnes: bonusDonnes,
     );
   }
 
@@ -979,7 +998,7 @@ class Competence {
         ],
         cible: CibleCompetence.depuisCode(j['cible']),
         duree: DureeCompetence.depuisJson(j['duree']),
-        bonusDonne: BonusDonne.depuisJson(j['bonusDonne']),
+        bonusDonnes: BonusDonne.listeDepuisJson(j['bonusDonne']),
       );
 
   static Map<String, VarianteCompetence> _variantes(Object? j) => {

@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.70.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : Bénédiction, Brume, Bénédiction mineure, Charme fugace '
+            'et Souffle de ki donnent leur bonus en les lançant.',
+      ),
+      (
+        type: _a,
+        texte: 'Une compétence peut donner plusieurs bonus, avec un choix au '
+            'lancement (bénir une arme, CON ou DEX).',
+      ),
+      (
+        type: _a,
+        texte: 'Bonus de séance sur les tests seuls (hors attaques) ; durées '
+            'calculées (« 1d6 + INT », « INT × 10 »).',
+      ),
+    ],
+  ),
+  (
     version: '0.69.0',
     date: '19/11/2026',
     changements: [
