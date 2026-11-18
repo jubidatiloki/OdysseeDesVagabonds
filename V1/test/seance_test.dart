@@ -2793,6 +2793,46 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('bonus de CA : compté quand on attaque ce personnage',
+        (tester) async {
+      BonusSeance ca(String nom, int v, String contre) => BonusSeance(
+            nom: nom,
+            valeur: v,
+            portee: PorteeBonus.ca,
+            contre: contre,
+            cibles: const ['j2'],
+            auteur: 'mj',
+            auteurNom: 'MJ',
+            duree: DureeBonus.finCombat,
+            seance: 1,
+            date: DateTime(2026, 11, 19),
+          );
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          await ServiceCampagnesMemoire(b, 'j2')
+              .seance
+              .publierPersonnage(c, resume: 'r', initiative: 10, ca: 12);
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.poserBonus(c, ca('Écorces partagées', 2, 'CaC'));
+          await mj.poserBonus(c, ca("Mur d'air", 10, 'DIST'));
+          await mj.poserBonus(c, ca('Cri de ralliement', 2, ''));
+          await mj.demarrerCombat(c, ['j1', 'j2']);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      // Attaque au corps à corps sur Aria : 12 + 2 (CaC) + 2 (toute CA) ;
+      // le mur d'air (distance) ne compte pas.
+      await tapDes(tester, 'attaque-0');
+      expect(partie.jets.last.caCible, 16);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('PJ : compétence à option et à cible unique (bénir une arme)',
         (tester) async {
       final brom = _brom()..rangsVoies['chant'] = 3;

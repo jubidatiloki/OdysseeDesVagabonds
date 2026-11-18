@@ -113,6 +113,7 @@
       "type": "gratuit, sort, 1×/tour",
       "cible": "soi",
       "duree": {"type": "tours", "valeur": "1"},
+      "bonusDonne": {"valeur": 1, "portee": "ca", "siReussite": false},
       "typesSort": ["support"],
       "effet": "En réaction à une attaque : +1 CA jusqu'à la fin du tour.",
       "effetApplique": "+1 CA jusqu'à la fin du tour"

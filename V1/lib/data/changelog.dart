@@ -29,6 +29,26 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.71.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : bonus de CA (toute la CA, au corps à corps, contre la '
+            'distance ou les sorts), comptés quand on attaque le personnage.',
+      ),
+      (
+        type: _a,
+        texte: 'Écorces partagées, Cercle de protection, Sanctuaire, Mur d\'air, '
+            'Cri de ralliement, Bouclier mineur donnent leur CA.',
+      ),
+      (
+        type: _a,
+        texte: 'Bénédiction : l\'option « Armure » donne +1 à la CA.',
+      ),
+    ],
+  ),
+  (
     version: '0.70.0',
     date: '19/11/2026',
     changements: [

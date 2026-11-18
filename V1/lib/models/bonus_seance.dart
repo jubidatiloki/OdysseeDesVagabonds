@@ -9,7 +9,8 @@ enum PorteeBonus {
   tests('Tests (hors attaques)', 'aux tests'),
   initiative('Initiative', 'à l\'initiative'),
   carac('Tests d\'une caractéristique', 'aux tests'),
-  degats('Dégâts', 'aux dégâts');
+  degats('Dégâts', 'aux dégâts'),
+  ca('Classe d\'armure (CA)', 'à la CA');
 
   const PorteeBonus(this.libelle, this.suffixe);
 
@@ -55,6 +56,7 @@ class BonusSeance {
     required this.valeur,
     required this.portee,
     this.carac,
+    this.contre = '',
     required this.cibles,
     required this.auteur,
     required this.auteurNom,
@@ -73,6 +75,9 @@ class BonusSeance {
 
   /// Caractéristique visée ([PorteeBonus.carac]).
   final Carac? carac;
+
+  /// [PorteeBonus.ca] : CA visée (« CaC », « DIST », « MAG ») ; vide : toutes.
+  final String contre;
 
   /// uid des joueurs qui le reçoivent.
   final List<String> cibles;
@@ -94,9 +99,21 @@ class BonusSeance {
   String get _valeurTexte => valeur >= 0 ? '+$valeur' : '−${-valeur}';
 
   /// « +2 aux attaques », « −1 aux tests de FOR ».
-  String get effet => portee == PorteeBonus.carac && carac != null
-      ? '$_valeurTexte aux tests de ${carac!.abrev}'
-      : '$_valeurTexte ${portee.suffixe}';
+  String get effet => switch (portee) {
+        PorteeBonus.carac when carac != null =>
+          '$_valeurTexte aux tests de ${carac!.abrev}',
+        PorteeBonus.ca when contre.isNotEmpty =>
+          '$_valeurTexte à la CA ${libelleContre(contre)}',
+        _ => '$_valeurTexte ${portee.suffixe}',
+      };
+
+  /// « au corps à corps », « contre la distance », « contre les sorts ».
+  static String libelleContre(String contre) => switch (contre) {
+        'CaC' => 'au corps à corps',
+        'DIST' => 'contre la distance',
+        'MAG' => 'contre les sorts',
+        _ => contre,
+      };
 
   /// « fin du combat », « 3 tours », « jusqu'au retrait ».
   String get dureeTexte {
@@ -127,6 +144,8 @@ class BonusSeance {
         PorteeBonus.initiative => initiative,
         PorteeBonus.carac => d20 && carac != null && carac == this.carac,
         PorteeBonus.degats => degats,
+        // La CA ne s'ajoute pas aux jets : voir [totalCa].
+        PorteeBonus.ca => false,
       };
 
   /// Bonus d'une liste qui comptent pour un jet de [cible] ; deux bonus du
@@ -183,12 +202,29 @@ class BonusSeance {
     return parNom.values.toList();
   }
 
+  /// Bonus de CA de [cible] face à une attaque [contre] (« CaC », « DIST »,
+  /// « MAG » ; `null` : inconnue, seuls les bonus de toute CA comptent) ; le
+  /// plus fort par nom.
+  static int totalCa(Iterable<BonusSeance> tous, String cible,
+      {String? contre}) {
+    final parNom = <String, BonusSeance>{};
+    for (final b in tous) {
+      if (b.portee != PorteeBonus.ca || !b.cibles.contains(cible)) continue;
+      if (b.contre.isNotEmpty && b.contre != contre) continue;
+      final cle = b.nom.trim().toLowerCase();
+      final deja = parNom[cle];
+      if (deja == null || b.valeur.abs() > deja.valeur.abs()) parNom[cle] = b;
+    }
+    return parNom.values.fold(0, (n, b) => n + b.valeur);
+  }
+
   BonusSeance copie({String? id, int? toursRestants}) => BonusSeance(
         id: id ?? this.id,
         nom: nom,
         valeur: valeur,
         portee: portee,
         carac: carac,
+        contre: contre,
         cibles: cibles,
         auteur: auteur,
         auteurNom: auteurNom,
@@ -203,6 +239,7 @@ class BonusSeance {
         'valeur': valeur,
         'portee': portee.name,
         if (carac != null) 'carac': carac!.code,
+        if (contre.isNotEmpty) 'contre': contre,
         'cibles': cibles,
         'auteur': auteur,
         'auteurNom': auteurNom,
@@ -219,6 +256,7 @@ class BonusSeance {
         valeur: (j['valeur'] as num?)?.toInt() ?? 0,
         portee: PorteeBonus.depuisCode(j['portee']),
         carac: Carac.depuisCode(j['carac'] as String? ?? ''),
+        contre: j['contre'] as String? ?? '',
         cibles: [for (final c in j['cibles'] as List? ?? const []) '$c'],
         auteur: j['auteur'] as String? ?? '',
         auteurNom: j['auteurNom'] as String? ?? '',

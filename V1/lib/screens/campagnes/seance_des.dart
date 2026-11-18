@@ -484,7 +484,16 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     // Attaque : comparée à la CA de la cible, si elle est connue.
     final cibleCa = _cibleEnCours == 'soi' ? '' : _cibleEnCours;
     final attaque = contreCa && r != null && r.d20;
-    final ca = attaque && cibleCa.isNotEmpty ? _s.caDe(cibleCa) : null;
+    // CA visée : sorts → contre les sorts ; tir → distance ; sinon corps à
+    // corps (bonus de CA de séance, 19/11/2026).
+    final bas = libelle.toLowerCase();
+    final contre = genre == GenreJet.sort
+        ? 'MAG'
+        : bas.contains('distance') || bas.contains('tir')
+            ? 'DIST'
+            : 'CaC';
+    final ca =
+        attaque && cibleCa.isNotEmpty ? _s.caDe(cibleCa, contre: contre) : null;
     // Pas de comparaison : le jet dit pourquoi.
     final sansComparaison = !attaque || ca != null
         ? ''

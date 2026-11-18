@@ -139,6 +139,7 @@ class _DialogueBonusState extends State<DialogueBonus> {
   var _valeur = 2;
   var _portee = PorteeBonus.attaque;
   var _carac = Carac.force;
+  var _contre = '';
   final Set<String> _cibles = {};
   var _duree = DureeBonus.finCombat;
   var _tours = 3;
@@ -164,6 +165,7 @@ class _DialogueBonusState extends State<DialogueBonus> {
       portee: _portee,
       carac: _carac,
       cibles: _cibles.toList(),
+      contre: _contre,
       duree: _duree,
       tours: _tours,
     );
@@ -259,6 +261,23 @@ class _DialogueBonusState extends State<DialogueBonus> {
                     ),
                 ],
               ),
+              if (_portee == PorteeBonus.ca) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  key: const Key('bonus-contre'),
+                  initialValue: _contre,
+                  decoration: const InputDecoration(labelText: 'Quelle CA ?'),
+                  items: [
+                    const DropdownMenuItem(value: '', child: Text('Toutes')),
+                    for (final x in ['CaC', 'DIST', 'MAG'])
+                      DropdownMenuItem(
+                        value: x,
+                        child: Text(BonusSeance.libelleContre(x)),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() => _contre = v ?? ''),
+                ),
+              ],
               if (_portee == PorteeBonus.carac) ...[
                 const SizedBox(height: 8),
                 DropdownButtonFormField<Carac>(

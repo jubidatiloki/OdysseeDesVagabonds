@@ -494,6 +494,7 @@ class SeanceController extends ChangeNotifier {
     required DureeBonus duree,
     int tours = 3,
     String? auteurNom,
+    String contre = '',
   }) {
     final nomAuteur =
         auteurNom ?? (estMj ? 'MJ' : (moi?.personnageNom ?? 'Joueur'));
@@ -502,6 +503,7 @@ class SeanceController extends ChangeNotifier {
       valeur: valeur,
       portee: portee,
       carac: portee == PorteeBonus.carac ? carac : null,
+      contre: portee == PorteeBonus.ca ? contre : '',
       cibles: cibles,
       auteur: uid,
       auteurNom: nomAuteur,
@@ -547,9 +549,12 @@ class SeanceController extends ChangeNotifier {
     String option = '',
     math.Random? aleatoire,
   }) async {
+    final rang = f.rangCompetence(c.nom);
     final donnes = [
       for (final b in c.bonusDonnes)
         if (b.valeur != 0 &&
+            (b.rangMin == null || rang >= b.rangMin!) &&
+            (b.rangMax == null || rang <= b.rangMax!) &&
             !(b.siReussite && !reussi) &&
             (b.option.isEmpty || b.option == option))
           b,
@@ -588,6 +593,7 @@ class SeanceController extends ChangeNotifier {
         duree: duree,
         tours: tours,
         auteurNom: f.personnage.nom,
+        contre: b.contre,
       );
       if (erreur != null) return [];
     }
@@ -1283,17 +1289,25 @@ class SeanceController extends ChangeNotifier {
     });
   }
 
-  /// CA d'une cible (créature ou joueur) ; `null` : inconnue.
-  int? caDe(String id) {
+  /// CA d'une cible (créature ou joueur) ; `null` : inconnue. Pour un joueur :
+  /// avec ses bonus de CA de séance face à une attaque [contre] (« CaC »,
+  /// « DIST », « MAG »), 19/11/2026.
+  int? caDe(String id, {String? contre}) {
     for (final c in _creatures) {
       if (c.id == id) return c.ca ?? ficheCreature(c)?.ca;
     }
     // La fiche si ce compte la lit, sinon la CA publiée par le joueur.
-    if (ficheDe(id) case final f?) return f.classeArmure;
-    for (final m in _membres) {
-      if (m.uid == id) return m.ca;
+    int? base;
+    if (ficheDe(id) case final f?) {
+      base = f.classeArmure;
+    } else {
+      for (final m in _membres) {
+        if (m.uid == id) base = m.ca;
+      }
     }
-    return null;
+    return base == null
+        ? null
+        : base + BonusSeance.totalCa(bonus, id, contre: contre);
   }
 
   /// MJ : les créatures ajoutées avant la version 0.30.0 n'ont pas leur CA

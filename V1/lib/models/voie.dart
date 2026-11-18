@@ -635,7 +635,18 @@ class BonusDonne {
     this.carac = '',
     this.siReussite = true,
     this.option = '',
+    this.contre = '',
+    this.rangMin,
+    this.rangMax,
   });
+
+  /// Portée « ca » : CA visée (« CaC », « DIST », « MAG ») ; vide : toutes.
+  final String contre;
+
+  /// Rang atteint dans la voie à partir duquel / jusqu'auquel il compte
+  /// (écorces partagées : +1 jusqu'au rang 2, +2 ensuite).
+  final int? rangMin;
+  final int? rangMax;
 
   final int valeur;
 
@@ -666,6 +677,9 @@ class BonusDonne {
       carac: '${j['carac'] ?? ''}',
       siReussite: j['siReussite'] != false,
       option: '${j['option'] ?? ''}',
+      contre: '${j['contre'] ?? ''}',
+      rangMin: (j['rangMin'] as num?)?.toInt(),
+      rangMax: (j['rangMax'] as num?)?.toInt(),
     );
   }
 }

@@ -76,8 +76,8 @@ void main() {
 
   test('données : effets des compétences et sorts qui aident', () {
     final ben = _depuis('classes.json', 'Bénédiction');
-    expect(ben.optionsBonus, ['Arme']);
-    expect(ben.bonusDonnes.map((b) => b.portee), ['attaque', 'degats']);
+    expect(ben.optionsBonus, ['Arme', 'Armure']);
+    expect(ben.bonusDonnes.map((b) => b.portee), ['attaque', 'degats', 'ca']);
     final brume = _depuis('classes.json', 'Brume');
     expect(
         (brume.bonusDonnes.single.valeur, brume.bonusDonnes.single.siReussite),
@@ -123,5 +123,70 @@ void main() {
     expect(n('1d6/2'), inInclusiveRange(1, 3));
     expect(n('INT + 1d4'), inInclusiveRange(4, 7));
     expect(n(''), 1);
+  });
+  test('bonus de CA : selon l\'attaque, le plus fort par nom', () {
+    BonusSeance ca(String nom, int v, String contre) => BonusSeance(
+          nom: nom,
+          valeur: v,
+          portee: PorteeBonus.ca,
+          contre: contre,
+          cibles: const ['j1'],
+          auteur: 'x',
+          auteurNom: 'X',
+          duree: DureeBonus.finCombat,
+          seance: 1,
+          date: DateTime(2026),
+        );
+    final tous = [
+      ca('Cercle de protection', 3, 'MAG'),
+      ca('Bouclier', 1, ''),
+      ca('Bouclier', 2, ''),
+      ca("Mur d'air", 10, 'DIST'),
+    ];
+    expect(BonusSeance.totalCa(tous, 'j1', contre: 'MAG'), 5);
+    expect(BonusSeance.totalCa(tous, 'j1', contre: 'DIST'), 12);
+    expect(BonusSeance.totalCa(tous, 'j1', contre: 'CaC'), 2);
+    expect(BonusSeance.totalCa(tous, 'j1'), 2);
+    expect(BonusSeance.totalCa(tous, 'j2'), 0);
+    expect(tous.first.effet, '+3 à la CA contre les sorts');
+    expect(tous[1].effet, '+1 à la CA');
+    // La CA ne s'ajoute pas aux jets.
+    expect(tous[1].compte(genre: GenreJet.attaque, d20: true, degats: false),
+        isFalse);
+  });
+
+  test('données : compétences qui donnent de la CA', () {
+    final ecorces = _depuis('classes.json', 'Écorces partagées');
+    expect(ecorces.bonusDonnes, hasLength(4));
+    expect(
+      ecorces.bonusDonnes
+          .where((b) => (b.rangMax ?? 99) <= 2)
+          .map((b) => (b.valeur, b.contre)),
+      [(1, 'CaC'), (1, 'DIST')],
+    );
+    expect(
+      ecorces.bonusDonnes
+          .where((b) => (b.rangMin ?? 0) >= 3)
+          .map((b) => b.valeur),
+      [2, 2],
+    );
+    for (final (nom, valeur, contre) in [
+      ('Cercle de protection', 3, 'MAG'),
+      ('Sanctuaire', 2, 'MAG'),
+      ("Mur d'air", 10, 'DIST'),
+      ('Cri de ralliement', 2, ''),
+    ]) {
+      final b = _depuis('classes.json', nom).bonusDonnes.single;
+      expect((b.portee, b.valeur, b.contre), ('ca', valeur, contre),
+          reason: nom);
+    }
+    expect(_depuis('classes.json', 'Bénédiction').optionsBonus,
+        ['Arme', 'Armure']);
+    expect(
+        _depuis('sorts_rang0.json', 'Bouclier mineur')
+            .bonusDonnes
+            .single
+            .portee,
+        'ca');
   });
 }
