@@ -1,14 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../../models/campagne.dart';
 import '../../models/creature.dart';
-import '../../models/objet.dart';
 import '../../models/seance.dart';
 import '../../regles/invocations.dart';
 import '../../regles/montee_niveau.dart';
-import '../../regles/objet_aleatoire.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
 import '../../widgets/consultation.dart';
@@ -16,12 +12,12 @@ import '../../widgets/dialogue_texte.dart';
 import '../../widgets/infos_creature.dart';
 import '../../widgets/profil_classe.dart';
 import '../bestiaire_screen.dart';
-import '../fiche/formulaire_objet.dart';
 import '../fiche/vues_fiche.dart';
 import '../montee_niveau_screen.dart';
 import 'campagnes_screen.dart';
 import 'cartes_campagne.dart';
 import 'fiche_partagee_screen.dart';
+import 'objet_aleatoire_dialogue.dart';
 import 'seance_butin.dart';
 
 /// Portion de gauche : script (MJ) ou notes de séance (PJ), personnages,
@@ -361,125 +357,6 @@ class ListeCartes extends StatelessWidget {
   }
 }
 
-/// MJ : tire un objet du catalogue avec un bonus, le relance ou le modifie,
-/// puis le donne au joueur.
-class _DialogueObjetAleatoire extends StatefulWidget {
-  const _DialogueObjetAleatoire({
-    required this.seance,
-    required this.joueur,
-    required this.nomJoueur,
-  });
-
-  final SeanceController seance;
-  final String joueur;
-  final String nomJoueur;
-
-  @override
-  State<_DialogueObjetAleatoire> createState() =>
-      _DialogueObjetAleatoireState();
-}
-
-class _DialogueObjetAleatoireState extends State<_DialogueObjetAleatoire> {
-  final _aleatoire = Random();
-  var _puissance = PuissanceObjet.hasard;
-  late Objet? _objet = _tirer();
-
-  Objet? _tirer() => tirerObjetAleatoire(
-        widget.seance.referentiel.equipements,
-        _aleatoire,
-        puissance: _puissance,
-      );
-
-  Future<void> _modifier() async {
-    final o = _objet;
-    if (o == null) return;
-    final modifie = await FormulaireObjet.ouvrir(context, objet: o);
-    if (modifie != null && mounted) setState(() => _objet = modifie);
-  }
-
-  Future<void> _donner() async {
-    final o = _objet;
-    if (o == null) return;
-    final navigator = Navigator.of(context);
-    final messager = ScaffoldMessenger.of(context);
-    final erreur = await widget.seance.donnerObjet(widget.joueur, o);
-    navigator.pop();
-    messager.showSnackBar(
-      SnackBar(
-          content: Text(erreur ?? '${o.nom} : donné à ${widget.nomJoueur}.')),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final o = _objet;
-    final theme = Theme.of(context);
-    return AlertDialog(
-      title: const Text('Objet aléatoire'),
-      content: o == null
-          ? const Text('Aucune arme ni armure dans le catalogue.')
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Puissance', style: theme.textTheme.labelLarge),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final p in PuissanceObjet.values)
-                      ChoiceChip(
-                        key: Key('puissance-${p.name}'),
-                        label: Text(p.libelle),
-                        selected: _puissance == p,
-                        onSelected: (_) => setState(() {
-                          _puissance = p;
-                          _objet = _tirer();
-                        }),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  o.nom,
-                  key: const Key('nom-objet-aleatoire'),
-                  style: theme.textTheme.titleMedium,
-                ),
-                if (o.resume.isNotEmpty) Text(o.resume),
-                if (o.description.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(o.description, style: theme.textTheme.bodySmall),
-                ],
-              ],
-            ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        if (o != null) ...[
-          TextButton(
-            key: const Key('relancer-objet'),
-            onPressed: () => setState(() => _objet = _tirer()),
-            child: const Text('Relancer'),
-          ),
-          TextButton(
-            key: const Key('modifier-objet-aleatoire'),
-            onPressed: _modifier,
-            child: const Text('Modifier'),
-          ),
-          FilledButton(
-            key: const Key('donner-objet'),
-            onPressed: _donner,
-            child: Text('Donner à ${widget.nomJoueur}'),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
 class _Carte extends StatelessWidget {
   const _Carte({
     required this.cle,
@@ -778,10 +655,12 @@ class DetailCarte extends StatelessWidget {
                     key: Key('objet-aleatoire-${m.uid}'),
                     onPressed: () => showDialog<void>(
                       context: context,
-                      builder: (_) => _DialogueObjetAleatoire(
+                      builder: (_) => DialogueObjetAleatoire(
                         seance: s,
-                        joueur: m.uid,
-                        nomJoueur: m.personnageNom,
+                        action: 'Donner à ${m.personnageNom}',
+                        valider: (o) => s.donnerObjet(m.uid, o),
+                        confirmation: (o) =>
+                            '${o.nom} : donné à ${m.personnageNom}.',
                       ),
                     ),
                     icon: const Icon(Icons.casino_outlined),

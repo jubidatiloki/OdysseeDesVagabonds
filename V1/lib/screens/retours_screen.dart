@@ -32,7 +32,6 @@ class _RetoursScreenState extends State<RetoursScreen> {
 
   final _texte = TextEditingController();
   var _type = TypeRetour.bug;
-  var _repondre = false;
   var _envoi = false;
 
   static String get _plateforme => kIsWeb ? 'web' : defaultTargetPlatform.name;
@@ -77,7 +76,6 @@ class _RetoursScreenState extends State<RetoursScreen> {
                 : texte,
             auteur: u.uid,
             nom: u.nom ?? '',
-            email: _repondre ? u.email : null,
             version: kVersionApp,
             plateforme: _plateforme,
             date: DateTime.now(),
@@ -106,7 +104,6 @@ class _RetoursScreenState extends State<RetoursScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final u = widget.compte?.utilisateur;
-    final email = u?.email;
     final vide = _texte.text.trim().isEmpty;
     return Scaffold(
       drawer: widget.menu,
@@ -159,15 +156,6 @@ class _RetoursScreenState extends State<RetoursScreen> {
                 border: const OutlineInputBorder(),
               ),
             ),
-            if (u != null && email != null && email.isNotEmpty)
-              CheckboxListTile(
-                key: const Key('retour-email'),
-                contentPadding: EdgeInsets.zero,
-                value: _repondre,
-                onChanged: (v) => setState(() => _repondre = v ?? false),
-                title: const Text('Me répondre par e-mail'),
-                subtitle: Text(email),
-              ),
             Text(
               'Envoyé avec : version $kVersionApp · $_plateforme.',
               style: theme.textTheme.bodySmall

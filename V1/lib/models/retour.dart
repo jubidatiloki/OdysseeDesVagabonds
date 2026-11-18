@@ -24,7 +24,6 @@ class Retour {
     required this.texte,
     required this.auteur,
     this.nom = '',
-    this.email,
     required this.version,
     required this.plateforme,
     required this.date,
@@ -42,9 +41,6 @@ class Retour {
   /// Nom affiché du compte (vide si inconnu).
   final String nom;
 
-  /// Adresse e-mail, seulement si le joueur veut une réponse.
-  final String? email;
-
   /// Version de l'application et plateforme (web, android, windows…).
   final String version;
   final String plateforme;
@@ -55,7 +51,6 @@ class Retour {
         'texte': texte,
         'auteur': auteur,
         if (nom.isNotEmpty) 'nom': nom,
-        if (email case final e? when e.isNotEmpty) 'email': e,
         'version': version,
         'plateforme': plateforme,
         'date': date.toIso8601String(),

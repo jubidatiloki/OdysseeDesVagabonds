@@ -2106,6 +2106,14 @@ void main() {
       await tap(tester, find.byKey(const Key('valider-argent-butin')));
       expect(partie.butins[b.id]!.or, 12);
       expect(find.byKey(const Key('argent-butin')), findsOneWidget);
+      // Objet aléatoire, mis dans le butin (18/11/2026).
+      await tap(tester, find.byKey(const Key('objet-aleatoire-butin')));
+      final tire = tester
+          .widget<Text>(find.byKey(const Key('nom-objet-aleatoire')))
+          .data!;
+      expect(find.text('Mettre dans le butin'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('donner-objet')));
+      expect(partie.butins[b.id]!.objets.map((o) => o.nom), contains(tire));
       expect(find.text('12 or'), findsWidgets);
       // Le MJ le révèle aux PJ, puis le cache à nouveau.
       expect(find.text('Caché aux PJ'), findsOneWidget);

@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.66.0',
+    date: '18/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance, butin : bouton « Objet aléatoire » (puissance, '
+            'relancer, modifier), comme pour un PJ.',
+      ),
+      (
+        type: _m,
+        texte: 'Donner son avis : la case « Me répondre par e-mail » est '
+            'retirée.',
+      ),
+    ],
+  ),
+  (
     version: '0.65.0',
     date: '18/11/2026',
     changements: [

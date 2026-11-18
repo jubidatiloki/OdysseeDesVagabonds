@@ -5,6 +5,7 @@ import '../../models/objet.dart';
 import '../../state/seance_controller.dart';
 import '../../widgets/consultation.dart';
 import '../fiche/choix_objet.dart';
+import 'objet_aleatoire_dialogue.dart';
 
 void _erreur(BuildContext context, String? erreur) {
   if (erreur == null || !context.mounted) return;
@@ -150,14 +151,34 @@ class DetailButin extends StatelessWidget {
                 ),
               if (s.estMj) ...[
                 const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: FilledButton.tonalIcon(
-                    key: const Key('ajouter-objet-butin'),
-                    onPressed: () => _ajouterObjet(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Ajouter un objet'),
-                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilledButton.tonalIcon(
+                      key: const Key('ajouter-objet-butin'),
+                      onPressed: () => _ajouterObjet(context),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ajouter un objet'),
+                    ),
+                    // Objet tiré au hasard, comme pour un PJ (18/11/2026).
+                    OutlinedButton.icon(
+                      key: const Key('objet-aleatoire-butin'),
+                      onPressed: () => showDialog<void>(
+                        context: context,
+                        builder: (_) => DialogueObjetAleatoire(
+                          seance: s,
+                          action: 'Mettre dans le butin',
+                          valider: (o) => s.modifierButin(
+                            b.copie(objets: [...b.objets, o]),
+                          ),
+                          confirmation: (o) => '${o.nom} : ajouté au butin.',
+                        ),
+                      ),
+                      icon: const Icon(Icons.casino_outlined),
+                      label: const Text('Objet aléatoire'),
+                    ),
+                  ],
                 ),
               ],
             ],

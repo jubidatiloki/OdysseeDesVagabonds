@@ -70,7 +70,6 @@ void main() {
       texte: 'x',
       auteur: 'u1',
       nom: 'Léa',
-      email: 'lea@exemple.fr',
       version: '1',
       plateforme: 'android',
       date: DateTime(2026),
@@ -96,26 +95,14 @@ void main() {
     await tester.tap(find.byKey(const Key('type-retour-idee')));
     await tester.enterText(
         find.byKey(const Key('texte-retour')), '  Un mode nuit  ');
-    await tester.tap(find.byKey(const Key('retour-email')));
+    // Plus de case « Me répondre par e-mail » (18/11/2026).
+    expect(find.byKey(const Key('retour-email')), findsNothing);
     await tester.pump();
     await tester.tap(envoyer);
     await tester.pumpAndSettle();
     final r = service.envoyes.single;
-    expect((
-      r.type,
-      r.texte,
-      r.auteur,
-      r.nom,
-      r.email,
-      r.version
-    ), (
-      TypeRetour.idee,
-      'Un mode nuit',
-      'u1',
-      'Léa',
-      'lea@exemple.fr',
-      kVersionApp
-    ));
+    expect((r.type, r.texte, r.auteur, r.nom, r.version),
+        (TypeRetour.idee, 'Un mode nuit', 'u1', 'Léa', kVersionApp));
     expect(find.text('Merci ! Ton retour est bien arrivé.'), findsOneWidget);
     // Champ vidé ; un second envoi tout de suite est refusé.
     await tester.enterText(find.byKey(const Key('texte-retour')), 'Encore');
