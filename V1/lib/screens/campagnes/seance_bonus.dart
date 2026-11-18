@@ -302,16 +302,23 @@ class _DialogueBonusState extends State<DialogueBonus> {
                     ),
                 ],
               ),
-              if (_duree == DureeBonus.tours)
+              // Durée chiffrée : tours, actions, minutes, heures, jours.
+              if (const {
+                DureeBonus.tours,
+                DureeBonus.actions,
+                DureeBonus.minutes,
+                DureeBonus.heures,
+                DureeBonus.jours,
+              }.contains(_duree))
                 Row(
                   children: [
-                    const Text('Tours :'),
+                    Text('Nombre de ${_duree.court} :'),
                     _compteur(
                       'bonus-tours',
                       _tours,
                       (v) => setState(() => _tours = v),
                       min: 1,
-                      max: 20,
+                      max: 60,
                     ),
                   ],
                 ),

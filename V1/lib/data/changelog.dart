@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.69.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Compétences et sorts actifs : cible et durée renseignées pour '
+            'toutes les classes, races et sorts de rang 0.',
+      ),
+      (
+        type: _a,
+        texte: 'Durées en minutes et en heures (Charme mineur, Lumière…), '
+            'aussi pour les bonus de séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.68.1',
     date: '19/11/2026',
     changements: [

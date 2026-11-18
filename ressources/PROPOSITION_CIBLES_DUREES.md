@@ -1,6 +1,6 @@
 # Proposition : cible et durée des compétences et sorts
 
-Rédigée le 19/11/2026, à valider avant d'être ajoutée aux données (`classes.json`, `races.json`, `sorts_rang0.json`).
+Rédigée le 19/11/2026. **Validée et versée dans les données le 19/11/2026** (`classes.json`, `races.json`, `sorts_rang0.json`), avec les réponses ci-dessous.
 
 ## Comment lire
 
@@ -244,7 +244,15 @@ Rédigée le 19/11/2026, à valider avant d'être ajoutée aux données (`classe
 | Souffle de ki | Soi | 1 action | +1 au prochain test de CON ou de DEX |
 | Pas léger | Soi | 1 tour | |
 
-## Questions pour toi
+## Réponses (19/11/2026)
+
+1. Minutes et heures : **unités ajoutées** (Charme mineur : INT × 10 minutes ; Transformation minime : 1d6 minutes ; Soutien marin : 10 minutes ; Lumière : 1 heure).
+2. Pas de cible « zone » : les zones sont **Plusieurs**.
+3. Durées non précisées : **Indéfinie**.
+4. Une caractéristique dans une durée : **son modificateur**.
+5. Musique vivifiante : **alliés, sans le lanceur**.
+
+## Questions posées
 
 1. **Minutes et heures** (Charme mineur, Transformation minime, Soutien marin, Lumière) : ajouter une unité « minutes / heures » ? Sinon, je les mets en « Indéfinie ».
 2. **Zones** (Boule de feu, Brume, Tempête, Sanctuaire…) : ajouter une cible « Zone » ? Sinon, « Plusieurs ».

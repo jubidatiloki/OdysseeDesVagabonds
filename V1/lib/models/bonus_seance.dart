@@ -27,6 +27,8 @@ enum DureeBonus {
   finCombat('Jusqu\'à la fin du combat', 'fin du combat'),
   tours('Pendant quelques tours', 'tours'),
   actions('Pendant quelques actions', 'actions'),
+  minutes('Pendant quelques minutes', 'minutes'),
+  heures('Pendant quelques heures', 'heures'),
   jours('Pendant quelques jours', 'jours'),
   finSeance('Jusqu\'à la fin de la séance', 'fin de la séance'),
   retrait('Jusqu\'à ce qu\'on le retire', 'jusqu\'au retrait');
@@ -102,6 +104,8 @@ class BonusSeance {
     return switch (duree) {
       DureeBonus.tours => '$n tour$s',
       DureeBonus.actions => '$n action$s',
+      DureeBonus.minutes => '$n minute$s',
+      DureeBonus.heures => '$n heure$s',
       DureeBonus.jours => '$n jour$s',
       _ => duree.court,
     };

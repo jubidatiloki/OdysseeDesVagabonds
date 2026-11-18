@@ -571,6 +571,8 @@ enum CibleCompetence {
 enum TypeDuree {
   aucune('Aucune'),
   actions('Actions'),
+  minutes('Minutes'),
+  heures('Heures'),
   tours('Tours'),
   jours('Jours'),
   finCombat('Jusqu\'à la fin du combat'),
@@ -602,6 +604,10 @@ class DureeCompetence {
         TypeDuree.finCombat => 'jusqu\'à la fin du combat',
         TypeDuree.indefini => 'indéfinie',
         TypeDuree.actions => '${valeur.isEmpty ? '1' : valeur} action'
+            '${valeur == '1' || valeur.isEmpty ? '' : 's'}',
+        TypeDuree.minutes => '${valeur.isEmpty ? '1' : valeur} minute'
+            '${valeur == '1' || valeur.isEmpty ? '' : 's'}',
+        TypeDuree.heures => '${valeur.isEmpty ? '1' : valeur} heure'
             '${valeur == '1' || valeur.isEmpty ? '' : 's'}',
         TypeDuree.tours => '${valeur.isEmpty ? '1' : valeur} tour'
             '${valeur == '1' || valeur.isEmpty ? '' : 's'}',

@@ -507,7 +507,12 @@ class SeanceController extends ChangeNotifier {
       auteurNom: nomAuteur,
       duree: duree,
       toursRestants: switch (duree) {
-        DureeBonus.tours || DureeBonus.actions || DureeBonus.jours => tours,
+        DureeBonus.tours ||
+        DureeBonus.actions ||
+        DureeBonus.minutes ||
+        DureeBonus.heures ||
+        DureeBonus.jours =>
+          tours,
         _ => null,
       },
       seance: _numero,
@@ -559,6 +564,8 @@ class SeanceController extends ChangeNotifier {
       TypeDuree.finCombat => DureeBonus.finCombat,
       TypeDuree.tours => DureeBonus.tours,
       TypeDuree.actions || TypeDuree.aucune => DureeBonus.actions,
+      TypeDuree.minutes => DureeBonus.minutes,
+      TypeDuree.heures => DureeBonus.heures,
       TypeDuree.jours => DureeBonus.jours,
       TypeDuree.indefini => DureeBonus.retrait,
     };

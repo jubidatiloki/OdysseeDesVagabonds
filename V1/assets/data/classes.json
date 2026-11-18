@@ -25,6 +25,8 @@
           {
             "rang": 2,
             "nom": "Brutalité",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif complexe, compétence",
             "effet": "Nécessite une arme à 2 mains équipée. Remplace une attaque simple par une action complexe (tout le tour) : coup puissant, +RANG×2 aux dégâts.",
             "jets": [
@@ -84,6 +86,8 @@
             "rang": 2,
             "endurance": 2,
             "nom": "Moulinet (niveau 1)",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif complexe, compétence",
             "effet": "Avec une arme à 2 mains, fend l'air devant lui : jet d'attaque et dégâts au CaC, répétable sur la cible suivante avec −1 DM à chaque fois (jusqu'à ce qu'il arrête) ; −2 CA (une seule fois) jusqu'au prochain tour.",
             "etat": {
@@ -171,6 +175,8 @@
             "rang": 2,
             "endurance": 2,
             "nom": "Charge bestiale",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, compétence",
             "effet": "Une arme dans chaque main ou une à 2 mains ; charge de 20 m en criant : 1ʳᵉ attaque +3 AdC et +1d6 DMG."
           },
@@ -192,6 +198,8 @@
           {
             "rang": 4,
             "nom": "Survivant",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, 1×/jour",
             "effet": "Quand il tombe à 0 PV, le barbare peut effectuer une dernière attaque CaC avant d'être inconscient."
           },
@@ -216,6 +224,8 @@
             "rang": 1,
             "endurance": 1,
             "nom": "Rage berzerker (niveau 1)",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1d4 + CON"},
             "type": "gratuit, compétence, 1×/jour",
             "effet": "Durée 1D4 + CON tours. + : +1d6 à tous ses jets de dégâts ; insensible aux entraves non magiques (désarmement, assommement, mise au sol…). − : −3 CA ; −2 à tous ses jets d'attaque ; ne distingue pas amis et ennemis (attaque le plus proche) ; sortir de la rage avant la fin : test de CON diff. 15.",
             "etat": {
@@ -236,6 +246,8 @@
             "rang": 2,
             "endurance": 1,
             "nom": "Frénésie (niveau 1)",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif complexe, compétence",
             "effet": "Attaque frénétique au CaC : dégâts de l'arme + 1D6 ; si ce D6 fait 6, rajoute un autre 1D6.",
             "jets": [
@@ -419,6 +431,8 @@
           {
             "rang": 3,
             "nom": "Musicien en herbe (niveau 1)",
+            "cible": "soi",
+            "duree": "aucune",
             "type": "soutien, actif complexe, 1×/jour",
             "effet": "En jouant (marché, place, auberge) : test de prestation musicale diff. 10 ; si réussite, gagne 1d20 + CHAN pièces de cuivre (ou repas et chambre à l'auberge).",
             "jets": [
@@ -428,6 +442,8 @@
           {
             "rang": 4,
             "nom": "Artiste",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "effetApplique": "Illusions mineures, flammèches (hors combat)",
             "type": "sort, coût rang 1",
             "typesSort": ["illusion"],
@@ -467,6 +483,8 @@
             "rang": 2,
             "endurance": 2,
             "nom": "Attaque sautée",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, compétence",
             "effet": "+3 AdC et +1d6 DMG, mais ne peut pas se déplacer au tour suivant ; si l'attaque échoue, test de DEX diff. 10 pour ne pas tomber.",
             "jets": [
@@ -477,6 +495,8 @@
           {
             "rang": 3,
             "nom": "Voltige",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "action mouvement, passif",
             "effet": "1×/tour, peut traverser ou sauter par-dessus un ennemi ou un obstacle pendant son déplacement sans test. S'il s'est déplacé ce tour : +2 CA jusqu'à son prochain tour.",
             "etat": {
@@ -524,6 +544,8 @@
             "rang": 2,
             "endurance": 1,
             "nom": "Mot d'esprit",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "actif, compétence",
             "effet": "Raillerie sur une cible humanoïde qui comprend sa langue : la cible fait un test d'INT diff. 10 + RANG ; en cas d'échec, −2 à ses tests d'attaque jusqu'à la fin de son prochain tour.",
             "jets": [
@@ -539,6 +561,8 @@
           {
             "rang": 4,
             "nom": "Charme mineur (niveau 1)",
+            "cible": "unique",
+            "duree": {"type": "minutes", "valeur": "INT × 10"},
             "effetApplique": "Ami pendant INT × 10 min (test INT diff. 12 + RANG)",
             "type": "sort, coût rang 2",
             "typesSort": ["controle-mental"],
@@ -808,6 +832,8 @@
             "rang": 2,
             "endurance": 2,
             "nom": "Charge",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif",
             "effet": "Monté, après au moins 10 m en ligne droite : +2 AdC et +1d6 DMG (+2d6 à la lance), puis −2 CA jusqu'au prochain tour.",
             "etat": {
@@ -832,6 +858,8 @@
           {
             "rang": 4,
             "nom": "Piétinement",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "gratuit",
             "effet": "Monté, 1×/tour, la monture frappe une cible de taille moyenne ou moins au contact : 1d8 DMG ; test de FOR diff. 12 ou mise au sol.",
             "jets": [
@@ -891,6 +919,8 @@
             "rang": 3,
             "endurance": 1,
             "nom": "Feinte",
+            "cible": "unique",
+            "duree": {"type": "actions", "valeur": "1"},
             "type": "action complexe",
             "effet": "Attaque normale ; au tour suivant, attaque normale à +5 et +2D6 DMG. Après la feinte, activer « Feinte préparée » ; annulée après les dégâts suivants.",
             "etat": {
@@ -952,6 +982,8 @@
             "rang": 3,
             "endurance": 2,
             "nom": "Cri de ralliement",
+            "cible": "allies",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "actif",
             "effet": "1×/combat : les alliés à portée de voix sont libérés de la peur non magique, gagnent +2 CA jusqu'à la fin du tour et 1d4 + SOC PV temporaires.",
             "effets": [
@@ -965,6 +997,8 @@
             "rang": 4,
             "endurance": 1,
             "nom": "Ordres tactiques",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "action de mouvement",
             "effet": "1×/tour, un allié qui l'entend peut faire immédiatement une action de mouvement. À la place, 2×/combat : cet allié fait une attaque avec un d12.",
             "effets": [
@@ -1094,6 +1128,8 @@
           {
             "rang": 2,
             "nom": "Transformation minime",
+            "cible": "soi",
+            "duree": {"type": "minutes", "valeur": "1d6"},
             "type": "sort",
             "typesSort": ["transformation"],
             "effet": "Se transforme (soi seul) en animal minuscule (souris, chat, moineau, poisson rouge) pendant 1d6 min.",
@@ -1138,6 +1174,8 @@
           {
             "rang": 4,
             "nom": "Mutation partielle",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "type": "sort",
             "typesSort": ["transformation"],
             "effet": "Change une partie du corps (aile, branchies, patte de lézard pour grimper, patte d'araignée, bras de gorille).",
@@ -1165,6 +1203,8 @@
           {
             "rang": 5,
             "nom": "Transformation majeure",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "sort",
             "typesSort": ["transformation"],
             "effet": "Se transforme en grand animal (gorille, loup, lion, requin, aigle royal) ; utilisable sur une autre cible consentante.",
@@ -1228,6 +1268,8 @@
           {
             "rang": 2,
             "nom": "Écorces partagées",
+            "cible": "alliesSansLanceur",
+            "duree": {"type": "tours", "valeur": "INT"},
             "type": "sort",
             "typesSort": ["support"],
             "effet": "Partage le bonus de Peau d'écorce avec ses alliés pendant INT tours.",
@@ -1236,6 +1278,8 @@
           {
             "rang": 3,
             "nom": "Brume",
+            "cible": "selection",
+            "duree": {"type": "tours", "valeur": "1d6 + INT"},
             "type": "sort",
             "typesSort": ["support", "controle-physique"],
             "effet": "Brouillard dense autour du groupe, 1d6 + INT tours : +5 discrétion, −5 AdC, −5 AdT, −5 attaque magique.",
@@ -1259,6 +1303,8 @@
           {
             "rang": 5,
             "nom": "Pissenlit protecteur",
+            "cible": "selection",
+            "duree": {"type": "tours", "valeur": "2d6 + INT"},
             "type": "sort",
             "typesSort": ["support"],
             "effet": "Pissenlit géant protégeant jusqu'à INT personnes : absorbe jusqu'à 4 × NIVEAU × INT dégâts pendant 2d6 + INT tours.",
@@ -1294,6 +1340,8 @@
           {
             "rang": 3,
             "nom": "Fruit de la vie",
+            "cible": "selection",
+            "duree": {"type": "jours", "valeur": "1"},
             "type": "sort",
             "typesSort": ["support"],
             "effet": "Petit arbre fruitier avec RANG fruits magiques rendant chacun 1d6 + INT PV (1 jour max ; en pleine nature).",
@@ -1303,6 +1351,8 @@
           {
             "rang": 4,
             "nom": "Invocation animal",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["animal-magique"],
             "jets": [{"libelle": "Invocation animal : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "sort",
@@ -1313,6 +1363,8 @@
           {
             "rang": 5,
             "nom": "Tempête menaçante",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "sort",
             "typesSort": ["offensif"],
             "effet": "+2 CON. Tempête de bourrasques, éclairs et grêle : 4D6 sur une zone de 20 m de diamètre.",
@@ -1341,6 +1393,8 @@
           {
             "rang": 2,
             "nom": "Se fondre dans la nature",
+            "cible": "allies",
+            "duree": {"type": "indefini"},
             "type": "sort",
             "typesSort": ["support"],
             "effet": "+5 discrétion en nature ; (actif) applicable aux alliés.",
@@ -1352,6 +1406,8 @@
           {
             "rang": 3,
             "nom": "Lianes immobilisantes",
+            "cible": "selection",
+            "duree": {"type": "tours", "valeur": "1d6/2"},
             "type": "sort",
             "typesSort": ["controle-physique"],
             "effet": "Lianes aux pieds des ennemis : immobilisés 1d6/2 tours (réduit de moitié sur grandes créatures et plus).",
@@ -1363,6 +1419,8 @@
           {
             "rang": 4,
             "nom": "Arbrification",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "INT"},
             "type": "sort",
             "typesSort": ["transformation", "controle-physique"],
             "effet": "Transforme quelqu'un (ou soi) en arbre : ne peut ni agir ni bouger, +10 RD physique, régénère 1d6 PV/tour, durée INT tours ; annulable par le lanceur ; sur autrui : test de CON en opposition.",
@@ -1377,6 +1435,8 @@
           {
             "rang": 5,
             "nom": "Plante carnivore",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["plante-carnivore"],
             "jets": [{"libelle": "Plante carnivore : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "sort",
@@ -1421,6 +1481,8 @@
             "rang": 2,
             "endurance": 1,
             "nom": "À couvert",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "actif",
             "effet": "Lève son bouclier pour se déplacer (ou non) à couvert : +3 CA.",
             "etat": {
@@ -1433,6 +1495,8 @@
           {
             "rang": 3,
             "nom": "Protection",
+            "cible": "unique",
+            "duree": {"type": "actions", "valeur": "1"},
             "type": "renforcement",
             "effet": "S'il ne s'est pas déplacé, fait profiter un allié de sa défense pour intercepter un coup à sa place.",
             "effets": [
@@ -1491,6 +1555,8 @@
             "rang": 2,
             "endurance": 1,
             "nom": "Frappe de précision",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif",
             "effet": "Attaque : jet pour toucher avec un d12 (au lieu du d20) ; si elle touche, +2D6 DMG.",
             "jets": [
@@ -1501,6 +1567,8 @@
             "rang": 3,
             "endurance": 2,
             "nom": "Coup de boucher",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "action complexe",
             "effet": "Attaque brutale : DMG ÷2 (arrondi à l'inférieur), mais sur un d6 de 5-6 le membre est tranché/entaillé (lâche l'arme).",
             "jets": [
@@ -1583,6 +1651,8 @@
           {
             "rang": 4,
             "nom": "Tenir une position",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "actif",
             "effet": "Sans déplacement ce tour : +3 CA CaC, +2 AdC, insensible aux repoussements et mises au sol. Un ennemi qui tente de le dépasser au contact subit une attaque gratuite avec un d12.",
             "etat": {
@@ -1639,6 +1709,8 @@
           {
             "rang": 2,
             "nom": "Posture défensive",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "gratuit",
             "effet": "1×/tour : +3 CA mais pas de sprint (pas 2 actions de mouvement).",
             "etat": {
@@ -1662,6 +1734,8 @@
           {
             "rang": 4,
             "nom": "Posture offensive",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "gratuit",
             "effet": "1×/tour : +3 AdC et +1d6 DMG, mais −3 CA.",
             "etat": {
@@ -1744,6 +1818,8 @@
             "rang": 4,
             "endurance": 1,
             "nom": "Médecin de campagne",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "complexe",
             "effet": "Stabilise une personne blessée physiquement et lui rend 4D4 PV.",
             "jets": [
@@ -1798,6 +1874,8 @@
             "rang": 3,
             "endurance": [{"libelle": "Fabriquer un projectile explosif", "cout": 2}],
             "nom": "Projectile explosif",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif",
             "effet": "Petit projectile explosant sur 3-4 m : 2D6 DMG ; fabrication 1 h ; test d'attaque/lancer de DEX. Débloque : potion de poison.",
             "fabrication": [
@@ -1813,6 +1891,8 @@
             "rang": 4,
             "endurance": [{"libelle": "Fabriquer une charge d'explosif", "cout": 2}],
             "nom": "Démolisseur",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif",
             "effet": "Charge d'explosif perçant mur, structure ou coffre ; pose 2 tours, fabrication 3 h. Débloque : potion de réussite.",
             "fabrication": [
@@ -1854,6 +1934,8 @@
           {
             "rang": 2,
             "nom": "Tenir en joue",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "action de mouvement",
             "effet": "Action de mouvement : la cible subit une attaque gratuite de l'ingénieur si elle se déplace.",
             "jets": [
@@ -1863,6 +1945,8 @@
           {
             "rang": 3,
             "nom": "Pistoléro",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif",
             "effet": "Deux armes à feu à une main avec un d12 au lieu du d20 ; 2 tirs possibles comme une action d'attaque (un seul tir : d20 et +2).",
             "jets": [
@@ -1998,6 +2082,8 @@
           {
             "rang": 2,
             "nom": "Cercle de protection",
+            "cible": "selection",
+            "duree": {"type": "tours", "valeur": "INT + 1d4"},
             "type": "actif, sort",
             "typesSort": ["support"],
             "effet": "Cercle pour jusqu'à INT personnes : +3 CA MAG aux alliés ; dure INT + 1d4 tours ; brisé si le magicien en sort. Au rang 4 : peut intercepter les sorts visant ses alliés et utiliser sa défense magique.",
@@ -2022,6 +2108,8 @@
           {
             "rang": 4,
             "nom": "Téléportation",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["utilitaire"],
             "mana": "N × D PM (personnes × km)",
@@ -2049,6 +2137,8 @@
           {
             "rang": 1,
             "nom": "Boule de feu",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "modulable": true,
@@ -2069,6 +2159,8 @@
           {
             "rang": 3,
             "nom": "Mur de flamme",
+            "cible": "selection",
+            "duree": {"type": "tours", "valeur": "1d6 + INT"},
             "type": "actif, sort",
             "typesSort": ["offensif", "controle-physique"],
             "effet": "Mur large de 1d8 + INT m pendant 1d6 + INT tours ; 3d6 de feu à qui le traverse.",
@@ -2083,6 +2175,8 @@
           {
             "rang": 4,
             "nom": "Contrôle du feu",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "renforcement, sort, coût rang 1",
             "typesSort": ["utilitaire"],
             "effet": "Intensifier, éteindre, donner une forme (contrôle minimal au coût d'un rang 1).",
@@ -2091,6 +2185,8 @@
           {
             "rang": 5,
             "nom": "Élémentaire de feu",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["elementaire-feu"],
             "jets": [{"libelle": "Élémentaire de feu : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2116,6 +2212,8 @@
           {
             "rang": 1,
             "nom": "Poing de pierre",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "complexe, sort",
             "typesSort": ["offensif"],
             "effet": "Bras en pierre : 2d6 DM PHY.",
@@ -2135,6 +2233,8 @@
           {
             "rang": 3,
             "nom": "Prison terrestre",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "actif, sort",
             "typesSort": ["controle-physique"],
             "effet": "Le sol s'ouvre sous une cible (taille moyenne max ; grande au rang 4).",
@@ -2154,6 +2254,8 @@
           {
             "rang": 5,
             "nom": "Élémentaire de pierre",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["elementaire-terre"],
             "jets": [{"libelle": "Élémentaire de pierre : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2180,6 +2282,8 @@
           {
             "rang": 1,
             "nom": "Lance de givre",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "effet": "Lance de glace : 1d6 DM GLACE.",
@@ -2199,6 +2303,8 @@
           {
             "rang": 3,
             "nom": "Soutien marin",
+            "cible": "unique",
+            "duree": {"type": "minutes", "valeur": "10"},
             "type": "passif + actif, sort",
             "typesSort": ["support"],
             "effet": "Respire sous l'eau 10 min sans gêne ; (actif) peut en faire profiter autrui par un sort.",
@@ -2210,6 +2316,8 @@
           {
             "rang": 4,
             "nom": "Prison aqueuse",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "actif + renforcement, sort, maintenu",
             "typesSort": ["offensif", "controle-physique"],
             "effet": "Sphère d'eau autour d'une cible pour la noyer/blesser (2d6 par tour tant que le sort est maintenu), ou la vider de son eau. Renforcement : la lance de givre peut transpercer sa cible et toucher une 2ᵉ cible derrière elle.",
@@ -2224,6 +2332,8 @@
           {
             "rang": 5,
             "nom": "Élémentaire de glace",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["elementaire-glace"],
             "jets": [{"libelle": "Élémentaire de glace : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2249,6 +2359,8 @@
           {
             "rang": 1,
             "nom": "Bourrasque",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["controle-physique"],
             "effet": "Repousse jusqu'à RANG + AdM cibles sur RANG × 2 m max.",
@@ -2267,6 +2379,8 @@
           {
             "rang": 3,
             "nom": "Mur d'air",
+            "cible": "allies",
+            "duree": {"type": "indefini"},
             "type": "actif, sort",
             "typesSort": ["support"],
             "effet": "Dévie les projectiles vers le mage et ses alliés proches : +10 CA contre projectiles (magiques ou physiques).",
@@ -2282,6 +2396,8 @@
           {
             "rang": 4,
             "nom": "Chaîne d'éclairs",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "effet": "Éclair sur un ennemi rebondissant sur jusqu'à 3 autres cibles (attaques magiques avec −3 par rebond, dégâts −2 par nouvelle cible).",
@@ -2292,6 +2408,8 @@
           {
             "rang": 5,
             "nom": "Élémentaire d'air",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["elementaire-air"],
             "jets": [{"libelle": "Élémentaire d'air : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2319,6 +2437,8 @@
           {
             "rang": 1,
             "nom": "Éclat des arcanes",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "effet": "Éclat de magie pure inesquivable : 1d4 DM MAG ; renforcé aux rangs 3 (2d4) et 5 (3d4 + INT).",
@@ -2340,6 +2460,8 @@
           {
             "rang": 3,
             "nom": "Agrandissement",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "INT"},
             "type": "actif, sort",
             "typesSort": ["transformation", "support"],
             "effet": "Accroît la taille d'un allié (ou soi) ; renforcement éclat des arcanes : 2D4 DM.",
@@ -2383,6 +2505,8 @@
           {
             "rang": 5,
             "nom": "Déchaînement des arcanes",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "effet": "Explosion désintégrante : 5d6 + INT DMG ; renforcement éclat des arcanes : 3d4 + INT DM magiques.",
@@ -2405,6 +2529,8 @@
           {
             "rang": 1,
             "nom": "Orbe de lumière",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "INT"},
             "type": "actif, sort",
             "typesSort": ["utilitaire"],
             "effet": "Orbe lumineux flottant pendant INT tours (INT + RANG tours avec Armure du zénith).",
@@ -2413,6 +2539,8 @@
           {
             "rang": 2,
             "nom": "Lueur scintillante",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "actif, sort",
             "typesSort": ["controle-physique", "utilitaire"],
             "effet": "Aveugle ou dissipe des ténèbres.",
@@ -2422,6 +2550,8 @@
           {
             "rang": 3,
             "nom": "Perception vitale",
+            "cible": "soi",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["utilitaire"],
             "effet": "Perçoit nombre et direction approximative des êtres vivants jusqu'à RANG × 10 m.",
@@ -2430,6 +2560,8 @@
           {
             "rang": 4,
             "nom": "Armure du zénith",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "INT + RANG"},
             "type": "actif, sort",
             "typesSort": ["support"],
             "effet": "Orbe de lumière dure INT + RANG tours. 1×/combat, l'orbe se change en bouclier sur soi ou un allié : absorbe 10 + INT × 2 dégâts ; tout ennemi qui le frappe au CaC est ébloui (−2 AdC à son tour suivant).",
@@ -2442,6 +2574,8 @@
           {
             "rang": 5,
             "nom": "Bannissement",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "passif + actif, sort",
             "typesSort": ["support"],
             "mana": "coût du sort d'invocation banni",
@@ -2480,6 +2614,8 @@
           {
             "rang": 1,
             "nom": "Frappe de ki",
+            "cible": "soi",
+            "duree": {"type": "actions", "valeur": "1"},
             "type": "renforcement d'attaque, sort",
             "typesSort": ["offensif"],
             "effet": "Ajoute son dé de mana aux dégâts de ses attaques (lancé avant l'attaque : 1 dé de mana aux dégâts de l'attaque suivante).",
@@ -2495,6 +2631,8 @@
             "rang": 2,
             "endurance": 1,
             "nom": "Méditation",
+            "cible": "soi",
+            "duree": "aucune",
             "type": "complexe",
             "effet": "Médite une petite heure pour regagner 1 DM de mana.",
             "jets": [
@@ -2504,6 +2642,8 @@
           {
             "rang": 3,
             "nom": "Projection mentale",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "type": "actif, sort, maintenu",
             "typesSort": ["utilitaire"],
             "effet": "Projette son esprit en boule de lumière intangible (2× plus rapide, distance illimitée mais limitée par le mana) ; voit à travers. Dégâts magiques déduits du mana, surplus ×2 sur ses PV.",
@@ -2513,6 +2653,8 @@
             "rang": 4,
             "endurance": 2,
             "nom": "Kenn-do-ha",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "complexe, sort",
             "typesSort": ["offensif"],
             "effet": "Attaque magique : boule de ki en ligne droite, 4 DM (dés de mana) + INT ; peut transpercer en perdant 1 DM par cible.",
@@ -2585,6 +2727,8 @@
             "rang": 5,
             "endurance": [{"libelle": "Activer la rune du berzerker", "cout": 1}],
             "nom": "Rune du berzerker (épaules)",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "type": "actif",
             "effet": "1 attaque supplémentaire par tour, mais −3 CA tant qu'active (avec la rune de défense : +2 CA, soit −1 CA).",
             "etat": {
@@ -2624,6 +2768,8 @@
           {
             "rang": 3,
             "nom": "Lancer de shuriken",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "gratuit",
             "effet": "1×/tour, shuriken à 10 m (pas au CaC) : 1d4 + DEX ; bonus d'initiative → +5.",
             "effets": [
@@ -2648,6 +2794,8 @@
             "rang": 5,
             "endurance": 2,
             "nom": "Assaillant fantôme",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif",
             "effet": "2×/combat, attaque presque intangible traversant résistances et armure ; jusqu'à 2 shurikens par tour ; plus de contrecoup d'esquive.",
             "effets": [
@@ -2676,6 +2824,8 @@
             "rang": 2,
             "endurance": 2,
             "nom": "Déferlement de coups",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "complexe",
             "effet": "RANG coups de poing sur une cible (FOR non appliquée, 1 jet d'attaque par coup) : 1d6 chacun.",
             "jets": [
@@ -2686,6 +2836,8 @@
             "rang": 3,
             "endurance": 2,
             "nom": "Uppercut",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif",
             "effet": "2D6 + FOR×2.",
             "jets": [
@@ -2696,6 +2848,8 @@
             "rang": 4,
             "endurance": 1,
             "nom": "Lutte",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "actif",
             "effet": "Attrape et immobilise : attaque +5 ; chaque tour, test de FOR +5 contre le test de FOR de la cible.",
             "effets": [
@@ -2749,6 +2903,8 @@
           {
             "rang": 1,
             "nom": "Toucher nécrotique",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "1"},
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "degats": "1d6",
             "typeDegats": "physique",
@@ -2771,6 +2927,8 @@
           {
             "rang": 3,
             "nom": "Récits du passé",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "actif, sort, maintenu",
             "typesSort": ["utilitaire"],
             "effetApplique": "Fantôme appelé depuis un cadavre, pour lui parler",
@@ -2779,6 +2937,8 @@
           {
             "rang": 4,
             "nom": "Afflux mortuaire",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif", "support"],
             "degats": "3D6 (créature vivante non démoniaque)",
@@ -2789,6 +2949,8 @@
           {
             "rang": 5,
             "nom": "Présage de mort",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "INT"},
             "type": "actif complexe, sort",
             "typesSort": ["offensif"],
             "effet": "+2 INT. 1×/jour, attaque magique marquant une cible vivante pendant INT tours : tous les dégâts qu'elle subit gagnent +1d6. Si elle tombe à 2 × NIVEAU PV ou moins : test de CON diff. 15 + INT, sinon elle meurt. Créatures uniques / boss immunisés à la mort (mais pas au bonus de dégâts).",
@@ -2817,6 +2979,8 @@
           {
             "rang": 2,
             "nom": "Fidèle serviteur",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["fidele-serviteur"],
             "jets": [{"libelle": "Fidèle serviteur : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2836,6 +3000,8 @@
           {
             "rang": 4,
             "nom": "Fidèle et puissant serviteur",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["puissant-serviteur", "serviteur-permanent"],
             "jets": [{"libelle": "Puissant serviteur : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2845,6 +3011,8 @@
             "aussi": [
               {
                 "nom": "Serviteur permanent",
+                "cible": "soi",
+                "duree": {"type": "indefini"},
                 "type": "complexe",
                 "effet": "En sacrifiant 1d4 PV max (à retirer à la main), relève de façon permanente un serviteur plus grand et plus fort. Un seul à la fois ; s'il est tué, le nécromancien récupère les PV max sacrifiés.",
                 "jets": [
@@ -2856,6 +3024,8 @@
           {
             "rang": 5,
             "nom": "Requiem",
+            "cible": "selection",
+            "duree": {"type": "indefini"},
             "invocations": ["mort-vivant-requiem"],
             "jets": [{"libelle": "Requiem : nombre de morts-vivants", "des": "1d4", "carac": "INT"}, {"libelle": "Requiem : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "complexe, sort",
@@ -2893,6 +3063,8 @@
           {
             "rang": 2,
             "nom": "Ténèbres",
+            "cible": "selection",
+            "duree": {"type": "indefini"},
             "type": "actif, sort",
             "typesSort": ["controle-physique"],
             "effetApplique": "Brouillard de ténèbres : aveugle tous sauf le lanceur, ou dissipe une lumière magique",
@@ -2901,6 +3073,8 @@
           {
             "rang": 3,
             "nom": "Diablotin",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "INT + 1d4"},
             "invocations": ["diablotin"],
             "degats": "1d6 feu infernal (diablotin)",
             "typeDegats": "feu",
@@ -2916,6 +3090,8 @@
           {
             "rang": 4,
             "nom": "Molosse des abysses",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "INT + 1d6"},
             "invocations": ["molosse-abysses"],
             "degats": "2d6 (molosse)",
             "typeDegats": "physique",
@@ -2931,6 +3107,8 @@
           {
             "rang": 5,
             "nom": "Démon",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["demon-invoque"],
             "jets": [{"libelle": "Démon : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -2947,6 +3125,8 @@
           {
             "rang": 1,
             "nom": "Rituel du sang",
+            "cible": "soi",
+            "duree": {"type": "jours", "valeur": "1"},
             "type": "actif, sort, coût 0 PM",
             "typesSort": ["invocation"],
             "effet": "Dépense 1d4 PV (au lieu de mana) : invoque une épée sanguine d'outre-tombe, 1d6 + INT, reste 1 jour.",
@@ -2965,6 +3145,8 @@
           {
             "rang": 2,
             "nom": "Rituel des os",
+            "cible": "unique",
+            "duree": {"type": "jours", "valeur": "1"},
             "type": "actif, sort",
             "typesSort": ["support"],
             "effet": "Os humains/animaux renforçant une personne ou créature : +2 RD physique pour la journée.",
@@ -2979,6 +3161,8 @@
           {
             "rang": 3,
             "nom": "Rituel sanguinaire",
+            "cible": "soi",
+            "duree": {"type": "actions", "valeur": "1"},
             "type": "actif, sort, coût 0 PM",
             "typesSort": ["offensif"],
             "effet": "Dépense 1d10 PV : marque de sang sur une arme ; la prochaine attaque explose en 2d6 + INT DMG magique (+1d6 sur l'épée sanguine).",
@@ -2999,6 +3183,8 @@
           {
             "rang": 4,
             "nom": "Rituel de la lune",
+            "cible": "soi",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["utilitaire"],
             "effet": "De nuit en extérieur, coûte du mana : surface réfléchissante pour trouver une personne/objet, test d'AdM diff. 10 à 30 (selon le MJ).",
@@ -3008,6 +3194,8 @@
           {
             "rang": 5,
             "nom": "Rituel abominable",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "invocations": ["abomination"],
             "jets": [{"libelle": "Rituel abominable : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
@@ -3041,6 +3229,8 @@
           {
             "rang": 1,
             "nom": "Soin léger",
+            "cible": "unique",
+            "duree": "aucune",
             "soin": "1D6 PV",
             "type": "actif, sort",
             "typesSort": ["support"],
@@ -3049,6 +3239,8 @@
           {
             "rang": 2,
             "nom": "Soin modéré",
+            "cible": "unique",
+            "duree": "aucune",
             "soin": "2D6 PV (une cible jusqu'à RANG × 10 m)",
             "type": "actif, sort",
             "typesSort": ["support"],
@@ -3057,6 +3249,8 @@
           {
             "rang": 3,
             "nom": "Soin de groupe",
+            "cible": "selection",
+            "duree": "aucune",
             "soin": "2D6 PV à INT + 1 cibles (20 m)",
             "type": "actif, sort",
             "typesSort": ["support"],
@@ -3065,6 +3259,8 @@
           {
             "rang": 4,
             "nom": "Guérison",
+            "cible": "unique",
+            "duree": "aucune",
             "soin": "5D6 PV",
             "effetApplique": "Guérit les maladies (non magiques et magiques mineures)",
             "type": "actif, sort",
@@ -3074,6 +3270,8 @@
           {
             "rang": 5,
             "nom": "Résurrection",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "complexe, sort",
             "typesSort": ["support"],
             "effetApplique": "Ranime une créature morte",
@@ -3088,6 +3286,8 @@
           {
             "rang": 1,
             "nom": "Bénédiction",
+            "cible": "unique",
+            "duree": {"type": "jours", "valeur": "1"},
             "type": "actif, sort",
             "typesSort": ["support"],
             "effet": "Pour la journée, au choix : arme +1 DMG et +1 AdC/AdT ; armure +1 CA ; personne : bloque le prochain sort d'attaque direct de rang 1.",
@@ -3126,6 +3326,8 @@
           {
             "rang": 2,
             "nom": "Délivrance",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["support"],
             "effet": "Attaque magique opposée à un jet précédent pour arrêter l'effet d'un sort durable.",
@@ -3135,6 +3337,8 @@
           {
             "rang": 3,
             "nom": "Lien vital",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "INT"},
             "type": "actif, sort + renforcement",
             "typesSort": ["support"],
             "effet": "Lie un allié au prêtre : le prêtre prend ses dégâts, INT tours. Renforcement bénédiction : +2 et sort de rang 2.",
@@ -3152,6 +3356,8 @@
           {
             "rang": 4,
             "nom": "Glas de soutien",
+            "cible": "selection",
+            "duree": {"type": "indefini"},
             "type": "actif, sort, maintenu",
             "typesSort": ["support"],
             "soin": "1D10 PV à INT + 1 cibles (20 m), chaque tour si maintenu",
@@ -3187,6 +3393,8 @@
           {
             "rang": 2,
             "nom": "Lumière sacrée",
+            "cible": "unique",
+            "duree": "aucune",
             "reussite": {"libelle": "Attaque magique", "carac": "ADM", "contre": "CA de la cible"},
             "degats": "1d8 chaos (×2 contre morts-vivants et démons)",
             "typeDegats": "chaos",
@@ -3200,6 +3408,8 @@
           {
             "rang": 3,
             "nom": "Sanctuaire",
+            "cible": "allies",
+            "duree": {"type": "tours", "valeur": "INT"},
             "effetApplique": "Zone de 5 m, INT tours : alliés +2 CA MAG",
             "type": "actif, sort",
             "typesSort": ["support", "controle-physique"],
@@ -3215,6 +3425,8 @@
           {
             "rang": 4,
             "nom": "Courroux céleste",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "effet": "Éclair divin : attaque magique, 4D6 dégâts de chaos ; si esquivé, dégâts ÷2 (« personne n'échappe à la colère divine »).",
@@ -3228,6 +3440,8 @@
           {
             "rang": 5,
             "nom": "Justice divine",
+            "cible": "soi",
+            "duree": {"type": "indefini"},
             "type": "actif, sort, coût 0 PM",
             "typesSort": ["invocation", "offensif"],
             "effet": "Arme d'énergie divine pure d'un autre plan (la saisir/ranger = action de mouvement) : 2D6 + FOR + INT de chaos, 5 mana par attaque ; quiconque d'autre la touche subit 1D6 chaos ; sans mana suffisant elle repart.",
@@ -3261,6 +3475,8 @@
           {
             "rang": 2,
             "nom": "Paroles impies",
+            "cible": "selection",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "actif, sort",
             "typesSort": ["controle-mental"],
             "effet": "Sermon interdit immobilisant INT ennemis dans 10 m jusqu'au prochain tour (test de CON diff. 10 + INT pour s'en libérer).",
@@ -3269,6 +3485,8 @@
           {
             "rang": 3,
             "nom": "Dissipation",
+            "cible": "unique",
+            "duree": "aucune",
             "effetApplique": "Dissipe un sort ou une transformation mineure",
             "mana": "Coût du sort dissipé",
             "type": "actif, sort",
@@ -3278,6 +3496,8 @@
           {
             "rang": 4,
             "nom": "Consumation",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif, sort",
             "typesSort": ["offensif"],
             "effet": "Attaque magique : retire 3D6 mana à la cible (inutile contre les non-lanceurs).",
@@ -3333,6 +3553,8 @@
           {
             "rang": 2,
             "nom": "Visée",
+            "cible": "unique",
+            "duree": {"type": "actions", "valeur": "1"},
             "type": "complexe",
             "effet": "Sans action de mouvement ce tour : avantage à son test d'attaque à distance.",
             "effets": [
@@ -3343,6 +3565,8 @@
             "rang": 3,
             "endurance": 1,
             "nom": "Fuite stratégique",
+            "cible": "soi",
+            "duree": "aucune",
             "type": "gratuit",
             "effet": "1×/combat, action de mouvement supplémentaire pour fuir.",
             "effets": [
@@ -3353,6 +3577,8 @@
             "rang": 4,
             "endurance": 2,
             "nom": "Flèches multiples",
+            "cible": "selection",
+            "duree": "aucune",
             "type": "complexe",
             "effet": "Au choix : 3 flèches sur 3 cibles différentes, ou 2 flèches sur la même cible.",
             "jets": [
@@ -3362,6 +3588,8 @@
           {
             "rang": 5,
             "nom": "Points vitaux",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "renforcement + complexe",
             "effet": "+2 PER ; vise les points vitaux : ajoute la PER aux DMG + 1d6.",
             "effets": [
@@ -3548,6 +3776,8 @@
             "rang": 2,
             "endurance": [{"libelle": "Poser un piège en combat", "cout": 1}],
             "nom": "Piège",
+            "cible": "unique",
+            "duree": {"type": "indefini"},
             "type": "actif",
             "effet": "Pose un collet ou un piège à mâchoires (1 min hors combat, ou action complexe). Coût : 1 PE en combat, 0 PE hors combat. La victime fait un test de PER diff. 10 + RANG pour le repérer ; sinon 1d6 + RANG DMG et immobilisée (test de FOR diff. 12 pour se libérer). Max RANG pièges posés.",
             "effets": [
@@ -3632,6 +3862,8 @@
             "rang": 3,
             "endurance": 2,
             "nom": "Coupe-jarret",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "action",
             "effet": "Attaque d12 : la cible n'a pas d'action de mouvement au prochain tour (à faire 2× sur un quadrupède ou une grande créature+).",
             "effets": [
@@ -3656,6 +3888,8 @@
             "rang": 5,
             "endurance": 3,
             "nom": "Dague de verre pourpre",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "complexe",
             "effet": "Au prix de 5 DV, imprègne une dague de son envie de tuer (maniable seulement par son créateur, sinon elle se brise) : +5 AdC ; se brise dans la cible et les éclats gagnent son cœur : 1 DMG chaos au 1ᵉʳ tour, doublé chaque tour jusqu'à l'arrêt du cœur. Seuls un prêtre et un ingénieur combinés peuvent l'arrêter ; la cible reste soignable.",
             "effets": [
@@ -3707,6 +3941,8 @@
             "rang": 4,
             "endurance": 1,
             "nom": "Désarmement",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "actif + renforcement",
             "effet": "Attaque d12 contre l'arme de la cible ; si elle touche, test de DEX du voleur contre FOR ou DEX de la cible : l'arme est projetée à 1d6 m. Riposte désormais avec un d20.",
             "effets": [
@@ -3722,6 +3958,8 @@
             "rang": 5,
             "endurance": 3,
             "nom": "Botte secrète",
+            "cible": "unique",
+            "duree": "aucune",
             "type": "complexe",
             "effet": "+2 DEX. 1×/combat, attaque inesquivable : +5 AdC et +3d6 DMG ; sur un critique, la cible perd son prochain tour.",
             "effets": [
@@ -3762,6 +4000,8 @@
             "rang": 3,
             "endurance": 1,
             "nom": "Sprint",
+            "cible": "soi",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "gratuit",
             "effet": "1×/combat, au choix : +1 action de mouvement ce tour, ou +2 actions de mouvement (mais aucune au tour suivant).",
             "effets": [
@@ -3771,6 +4011,8 @@
           {
             "rang": 4,
             "nom": "Comme chez soi",
+            "cible": "allies",
+            "duree": {"type": "indefini"},
             "type": "passif",
             "effet": "+5 en DEX, FOR et discrétion pour entrer/sortir d'un bâtiment non autorisé (le voleur + son groupe après un briefing).",
             "effets": [
@@ -3783,6 +4025,8 @@
           {
             "rang": 5,
             "nom": "Le roi des roublards",
+            "cible": "selection",
+            "duree": {"type": "indefini"},
             "type": "passif + renforcement",
             "effet": "2d20 au vol à la tire (garde le meilleur) ; sprint : peut distraire un ennemi pour faire profiter ses alliés ciblés des mêmes bonus de mouvement.",
             "effets": [
@@ -3820,6 +4064,8 @@
             "rang": 3,
             "endurance": 1,
             "nom": "Distraction charnelle",
+            "cible": "unique",
+            "duree": {"type": "tours", "valeur": "1"},
             "type": "action",
             "effet": "Sur cible humanoïde. Combat (1×/combat/cible, action de mouvement, compétence) : test d'INT de la cible diff. 10 + RANG, échec = perd son tour. Hors combat (1×/cible) : test d'INT diff. 10 + RANG ; échec = +5 SOC du voleur contre son admirateur ; réussite = nouveau test pour comprendre la manœuvre, si réussi : −5 SOC et −5 MEN du voleur contre cette personne.",
             "effets": [
