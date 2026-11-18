@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/bonus_seance.dart';
 import '../models/butin.dart';
 import '../models/campagne.dart';
 import '../models/objet.dart';
@@ -20,6 +21,7 @@ import 'seance.dart';
 /// - `presences/{uid}` : dernier signal de chaque joueur ;
 /// - `messages/{m}` : messages privés, lus par leurs `participants` ;
 /// - `notesJoueurs/{uid}/seances/{n}` : notes personnelles du joueur.
+/// - `bonus/{b}` : bonus et malus donnés pendant la séance (lus par la table).
 class FirestoreServiceSeance implements ServiceSeance {
   FirestoreServiceSeance(this.uid, [FirebaseFirestore? base])
       : _base = base ?? FirebaseFirestore.instance;
@@ -392,4 +394,28 @@ class FirestoreServiceSeance implements ServiceSeance {
   @override
   Future<void> ecrireNote(Campagne c, int numero, String texte) =>
       _note(c, numero).set({'texte': texte});
+
+  CollectionReference<Map<String, dynamic>> _bonus(Campagne c) =>
+      _campagne(c).collection('bonus');
+
+  @override
+  Stream<List<BonusSeance>> ecouterBonus(Campagne c) => _bonus(c)
+      // Ceux de la séance en cours seulement.
+      .where('seance', isEqualTo: c.seance?.numero ?? 0)
+      .snapshots()
+      .map((s) => [
+            for (final d in s.docs) BonusSeance.depuisJson(d.id, d.data()),
+          ]..sort((a, b) => a.date.compareTo(b.date)));
+
+  @override
+  Future<void> poserBonus(Campagne c, BonusSeance bonus) =>
+      _bonus(c).add(bonus.versJson());
+
+  @override
+  Future<void> modifierBonus(Campagne c, BonusSeance bonus) =>
+      _bonus(c).doc(bonus.id).set(bonus.versJson());
+
+  @override
+  Future<void> retirerBonus(Campagne c, BonusSeance bonus) =>
+      _bonus(c).doc(bonus.id).delete();
 }

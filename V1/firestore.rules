@@ -19,6 +19,7 @@ rules_version = '2';
 //   messages/{m} : messages privés MJ - joueur
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
 //   cartes/{c} (+ morceaux/{n}) : cartes du MJ, lues par les PJ si diffusées
+//   bonus/{b} : bonus et malus donnés pendant la séance
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -240,6 +241,23 @@ service cloud.firestore {
         allow read: if connecte() && (mjDe(id) || membreDe(id));
         allow create, update: if connecte() && joueur == soi() && membreDe(id);
         allow delete: if connecte() && mjDe(id);
+      }
+
+      // Bonus et malus de séance (18/11/2026) : lus par la table ; posés par
+      // un membre ou le MJ, à son nom ; décomptés par le MJ ; retirés par
+      // leur auteur ou le MJ.
+      match /bonus/{bonus} {
+        allow read: if connecte() && (mjDe(id) || membreDe(id));
+        allow create: if connecte() && (mjDe(id) || membreDe(id))
+          && request.resource.data.auteur == soi()
+          && request.resource.data.nom is string
+          && request.resource.data.nom.size() <= 80
+          && request.resource.data.valeur is int
+          && request.resource.data.cibles is list
+          && request.resource.data.cibles.size() <= 12;
+        allow update: if connecte() && mjDe(id);
+        allow delete: if connecte()
+          && (resource.data.auteur == soi() || mjDe(id));
       }
 
       // Cartes de la campagne (16/11/2026) : le MJ les gère ; les joueurs

@@ -17,6 +17,7 @@ import '../../widgets/animation_lancer.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/voie_detail.dart';
 import '../de_screen.dart';
+import 'seance_bonus.dart';
 import 'seance_messages.dart';
 
 /// Portion de droite : onglets Lancer de dés et Historique.
@@ -404,12 +405,23 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             savoir: savoir,
           )
         : (bonus: const <BonusSituation>[], avantage: const <String>[]);
+    // Bonus et malus de séance reçus par celui qui agit (18/11/2026).
+    final recus = parAttaquant
+        ? _s.bonusApplicables(
+            _s.idAttaquant,
+            genre: genre,
+            d20: d20,
+            degats: degats,
+            carac: carac,
+            initiative: libelle == 'Initiative',
+          )
+        : const <BonusSituation>[];
     final seuils = fiche != null && contreCa ? fiche.seuilsAttaques : null;
     final r = ResultatLancer.lancer(
       libelle: libelle,
       de: des,
       bonus: bonus,
-      situations: situ.bonus,
+      situations: [...situ.bonus, ...recus],
       mode: situ.avantage.isEmpty ? ModeLancer.normal : ModeLancer.avantage,
       origineMode: situ.avantage.join(', '),
       aleatoire: widget.aleatoire,
@@ -1280,6 +1292,22 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         const SizedBox(height: 8),
         // Favoris en tête : les actions les plus utilisées.
         if (favoris != null) favoris,
+        // Bonus et malus de séance : reçus (verrouillés), donnés, à donner.
+        _GroupeJets(
+          cle: 'groupe-bonus',
+          titre: () {
+            final n = fiche == null ? 0 : _s.bonusRecus(_s.idAttaquant).length;
+            return n == 0 ? 'Bonus et malus' : 'Bonus et malus ($n reçus)';
+          }(),
+          icone: Icons.auto_fix_high_outlined,
+          ouvert: fiche != null && _s.bonusRecus(_s.idAttaquant).isNotEmpty,
+          children: [
+            BlocBonus(
+              seance: _s,
+              cible: fiche == null ? null : _s.idAttaquant,
+            ),
+          ],
+        ),
         // Situations à cocher (comme sur la page dé) : ajoutées aux jets.
         if (fiche != null && BlocSituations.aDuContenu(fiche))
           _GroupeJets(

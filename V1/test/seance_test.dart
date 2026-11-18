@@ -12,6 +12,7 @@ import 'package:odyssee_vagabonds/data/compte.dart';
 import 'package:odyssee_vagabonds/data/personnage_repository.dart';
 import 'package:odyssee_vagabonds/data/referentiel.dart';
 import 'package:odyssee_vagabonds/data/seance.dart';
+import 'package:odyssee_vagabonds/models/bonus_seance.dart';
 import 'package:odyssee_vagabonds/models/butin.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/creation_campagne_screen.dart';
 import 'package:odyssee_vagabonds/models/campagne.dart';
@@ -2675,6 +2676,129 @@ void main() {
       expect(find.byKey(Key('vue-carte-${port.id}')), findsNothing);
       // Plus de carte affichée : l'onglet Dés revient.
       expect(find.byKey(const Key('onglet-des')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    BonusSeance musique({
+      String auteur = 'j2',
+      DureeBonus duree = DureeBonus.finCombat,
+      int? tours,
+    }) =>
+        BonusSeance(
+          nom: 'Musique vivifiante',
+          valeur: 2,
+          portee: PorteeBonus.attaque,
+          cibles: const ['j1'],
+          auteur: auteur,
+          auteurNom: 'aria',
+          duree: duree,
+          toursRestants: tours,
+          seance: 1,
+          date: DateTime(2026, 11, 18),
+        );
+
+    testWidgets('PJ : bonus reçu, verrouillé et ajouté à ses attaques',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          await ServiceCampagnesMemoire(b, 'j2')
+              .seance
+              .poserBonus(c, musique());
+          await ServiceCampagnesMemoire(b, 'mj')
+              .seance
+              .demarrerCombat(c, ['j1', 'j2']);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      final b = partie.bonus.values.single;
+      // Verrouillé : affiché, sans bouton pour le retirer.
+      expect(find.byKey(Key('bonus-recu-${b.id}')), findsOneWidget);
+      expect(find.byKey(Key('retirer-bonus-${b.id}')), findsNothing);
+      // Ajouté tout seul au jet d'attaque.
+      await tapDes(tester, 'attaque-0');
+      expect(partie.jets.last.detail, contains('+2 (Musique vivifiante)'));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : donne un bonus à un autre, puis le retire',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      final partie = x.base.parties[x.campagne.id]!;
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const PageStorageKey('groupe-bonus')),
+        200,
+        scrollable: panneau,
+      );
+      await deplier(
+          tester, 'groupe-bonus', find.byKey(const Key('donner-bonus')));
+      await tap(tester, find.byKey(const Key('donner-bonus')));
+      final valider = find.byKey(const Key('valider-bonus'));
+      // Sans nom ni personnage : impossible.
+      expect(tester.widget<FilledButton>(valider).onPressed, isNull);
+      await tester.enterText(
+          find.byKey(const Key('bonus-nom')), 'Chant de guerre');
+      await tap(tester, find.byKey(const Key('cible-bonus-j2')));
+      await tap(tester, find.byKey(const Key('bonus-moins')));
+      await tap(tester, find.byKey(const Key('duree-tours')));
+      await tap(tester, valider);
+      final b = partie.bonus.values.single;
+      expect(b.cibles, ['j2']);
+      expect((b.nom, b.valeur, b.portee, b.auteur, b.toursRestants),
+          ('Chant de guerre', 1, PorteeBonus.attaque, 'j1', 3));
+      // Noté dans les logs de la table.
+      expect(partie.jets.last.libelle,
+          startsWith('Chant de guerre (+1 aux attaques, 3 tours)'));
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(Key('retirer-bonus-${b.id}')));
+      expect(partie.bonus, isEmpty);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : tours décomptés, fin du combat : bonus terminés',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final j2 = ServiceCampagnesMemoire(b, 'j2').seance;
+          await j2.poserBonus(c, musique());
+          await j2.poserBonus(
+            c,
+            musique(duree: DureeBonus.tours, tours: 1),
+          );
+          await j2.poserBonus(c, musique(duree: DureeBonus.retrait));
+          await ServiceCampagnesMemoire(b, 'mj')
+              .seance
+              .demarrerCombat(c, ['j1', 'j2']);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(partie.bonus, hasLength(3));
+      // Un tour complet (j1 puis j2) : la manche change.
+      final mj = ServiceCampagnesMemoire(x.base, 'mj').seance;
+      while (partie.etat.manche == 1) {
+        await mj.passerTour(x.base.campagnes[x.campagne.id]!);
+        await tester.pumpAndSettle();
+      }
+      expect(partie.etat.manche, 2);
+      expect(partie.bonus.values.map((b) => b.duree),
+          isNot(contains(DureeBonus.tours)));
+      // Fin du combat : seul « jusqu'à ce qu'on le retire » reste.
+      await tap(tester, find.byKey(const Key('basculer-mode')));
+      expect(partie.bonus.values.map((b) => b.duree), [DureeBonus.retrait]);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

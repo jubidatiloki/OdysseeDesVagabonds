@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../models/bonus_seance.dart';
 import '../models/butin.dart';
 import '../models/campagne.dart';
 import '../models/objet.dart';
@@ -109,6 +110,14 @@ abstract class ServiceSeance {
   /// Joueur : notes personnelles d'une séance (lui seul peut les lire).
   Future<String> lireNote(Campagne c, int numero);
   Future<void> ecrireNote(Campagne c, int numero, String texte);
+
+  /// Bonus et malus donnés pendant la séance (18/11/2026) : lus par toute la
+  /// table ; posés par un joueur ou le MJ, à son nom ; retirés par leur auteur
+  /// ou le MJ ; tours décomptés par le MJ.
+  Stream<List<BonusSeance>> ecouterBonus(Campagne c);
+  Future<void> poserBonus(Campagne c, BonusSeance bonus);
+  Future<void> modifierBonus(Campagne c, BonusSeance bonus);
+  Future<void> retirerBonus(Campagne c, BonusSeance bonus);
 }
 
 /// Partie en mémoire (tests), pour une campagne.
@@ -122,6 +131,7 @@ class PartieMemoire {
   final List<EnvoiObjet> envois = [];
   final Map<String, PresenceSeance> presences = {};
   final List<MessageSeance> messages = [];
+  final Map<String, BonusSeance> bonus = {};
 
   /// « uid/numéro » → texte.
   final Map<String, String> notes = {};
@@ -418,5 +428,46 @@ class ServiceSeanceMemoire implements ServiceSeance {
   @override
   Future<void> ecrireNote(Campagne c, int numero, String texte) async {
     _partie(c).notes['$uid/$numero'] = texte;
+  }
+
+  void _exigerMembre(Campagne c) {
+    final a = base.campagnes[c.id] ?? c;
+    if (!a.estMj(uid) && !a.joueurs.contains(uid)) {
+      throw const ErreurCampagne('Réservé aux membres de la campagne.');
+    }
+  }
+
+  @override
+  Stream<List<BonusSeance>> ecouterBonus(Campagne c) => _suivre(() {
+        _exigerMembre(c);
+        return [..._partie(c).bonus.values]
+          ..sort((a, b) => a.date.compareTo(b.date));
+      });
+
+  @override
+  Future<void> poserBonus(Campagne c, BonusSeance bonus) async {
+    _exigerMembre(c);
+    if (bonus.auteur != uid) {
+      throw const ErreurCampagne('Un bonus se donne à son nom.');
+    }
+    final id = bonus.id.isEmpty ? base.nouvelId() : bonus.id;
+    _partie(c).bonus[id] = bonus.copie(id: id);
+    base.signaler();
+  }
+
+  @override
+  Future<void> modifierBonus(Campagne c, BonusSeance bonus) async {
+    _exigerMj(c);
+    _partie(c).bonus[bonus.id] = bonus;
+    base.signaler();
+  }
+
+  @override
+  Future<void> retirerBonus(Campagne c, BonusSeance bonus) async {
+    final b = _partie(c).bonus[bonus.id];
+    if (b == null) return;
+    if (b.auteur != uid) _exigerMj(c);
+    _partie(c).bonus.remove(bonus.id);
+    base.signaler();
   }
 }

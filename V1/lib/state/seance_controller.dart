@@ -6,8 +6,10 @@ import 'package:flutter/foundation.dart';
 import '../data/campagnes.dart';
 import '../data/referentiel.dart';
 import '../data/seance.dart';
+import '../models/bonus_seance.dart';
 import '../models/butin.dart';
 import '../models/campagne.dart';
+import '../models/carac.dart';
 import '../models/carte_campagne.dart';
 import '../models/creature.dart';
 import '../models/historique.dart';
@@ -53,12 +55,18 @@ class SeanceController extends ChangeNotifier {
       final ancien = _etat;
       _etat = v;
       unawaited(_decompterTours(ancien, v));
+      // Fin du combat : les bonus « jusqu'à la fin du combat » s'arrêtent.
+      if (ancien.enCombat && !v.enCombat) unawaited(_finirBonusCombat());
       // Début du combat : les PV en attente partent sans attendre.
       if (debutCombat && _minuteriePublication != null) {
         _minuteriePublication!.cancel();
         _minuteriePublication = null;
         unawaited(_publier(force: true));
       }
+    });
+    suivre(seance.ecouterBonus(c), (v) {
+      _bonus = v;
+      unawaited(_ajusterOrdre());
     });
     suivre(seance.ecouterJets(c, _numero), (v) {
       _jets = v;
@@ -168,6 +176,7 @@ class SeanceController extends ChangeNotifier {
 
   /// Butins de la partie, objets reçus d'autres PJ.
   List<ButinSeance> _butins = const [];
+  List<BonusSeance> _bonus = const [];
   List<CarteCampagne> _plans = const [];
   List<EnvoiObjet> _envois = const [];
   final Set<String> _envoisPris = {};
@@ -405,6 +414,7 @@ class SeanceController extends ChangeNotifier {
     if (!estMj || !apres.enCombat || !avant.enCombat) return;
     if (apres.manche <= avant.manche) return;
     final passees = apres.manche - avant.manche;
+    await _decompterBonus(passees);
     final temporaires = [
       for (final x in _creatures)
         if (x.toursRestants != null) x,
@@ -421,6 +431,134 @@ class SeanceController extends ChangeNotifier {
         }
       }
       await _reordonner(s, c);
+    });
+  }
+
+  /// Bonus et malus de la séance en cours (18/11/2026).
+  List<BonusSeance> get bonus => [
+        for (final b in _bonus)
+          if (b.seance == _numero) b,
+      ];
+
+  /// Ceux que reçoit [cible] (uid d'un joueur).
+  List<BonusSeance> bonusRecus(String cible) => [
+        for (final b in bonus)
+          if (b.cibles.contains(cible)) b,
+      ];
+
+  /// Ceux que ce compte peut retirer : les siens ; tous pour le MJ.
+  List<BonusSeance> get bonusRetirables => [
+        for (final b in bonus)
+          if (estMj || b.auteur == uid) b,
+      ];
+
+  /// Bonus qui comptent pour un jet de [cible] (le plus fort par nom).
+  List<({String nom, int valeur})> bonusApplicables(
+    String cible, {
+    required GenreJet genre,
+    required bool d20,
+    bool degats = false,
+    Carac? carac,
+    bool initiative = false,
+  }) =>
+      BonusSeance.applicables(
+        bonus,
+        cible,
+        genre: genre,
+        d20: d20,
+        degats: degats,
+        carac: carac,
+        initiative: initiative,
+      );
+
+  /// Bonus d'initiative de chaque joueur (ordre de combat).
+  Map<String, int> get _bonusInitiative => {
+        for (final m in joueurs)
+          m.uid: bonusApplicables(
+            m.uid,
+            genre: GenreJet.test,
+            d20: true,
+            initiative: true,
+          ).fold(0, (n, b) => n + b.valeur),
+      };
+
+  /// Donne un bonus ou un malus à un ou plusieurs joueurs ; noté dans les
+  /// logs de la table.
+  Future<String?> poserBonus({
+    required String nom,
+    required int valeur,
+    required PorteeBonus portee,
+    Carac? carac,
+    required List<String> cibles,
+    required DureeBonus duree,
+    int tours = 3,
+  }) {
+    final auteurNom = estMj ? 'MJ' : (moi?.personnageNom ?? 'Joueur');
+    final b = BonusSeance(
+      nom: nom.trim().isEmpty ? 'Bonus' : nom.trim(),
+      valeur: valeur,
+      portee: portee,
+      carac: portee == PorteeBonus.carac ? carac : null,
+      cibles: cibles,
+      auteur: uid,
+      auteurNom: auteurNom,
+      duree: duree,
+      toursRestants: duree == DureeBonus.tours ? tours : null,
+      seance: _numero,
+      date: DateTime.now(),
+    );
+    final noms = [
+      for (final m in joueurs)
+        if (cibles.contains(m.uid)) m.personnageNom,
+    ];
+    return _agir((s, c) async {
+      await s.poserBonus(c, b);
+      await _noter(
+        s,
+        c,
+        '${b.nom} (${b.effet}, ${b.dureeTexte}) : ${noms.join(', ')}',
+        VisibiliteJet.tous,
+      );
+    });
+  }
+
+  /// Retire un bonus (son auteur ou le MJ).
+  Future<String?> retirerBonus(BonusSeance b) => _agir((s, c) async {
+        await s.retirerBonus(c, b);
+        await _noter(s, c, '${b.nom} : terminé', VisibiliteJet.tous);
+      });
+
+  /// MJ : fin du combat, les bonus « jusqu'à la fin du combat » s'arrêtent.
+  Future<void> _finirBonusCombat() async {
+    if (!estMj) return;
+    final fin = [
+      for (final b in bonus)
+        if (b.duree == DureeBonus.finCombat || b.duree == DureeBonus.tours) b,
+    ];
+    if (fin.isEmpty) return;
+    await _agir((s, c) async {
+      for (final b in fin) {
+        await s.retirerBonus(c, b);
+      }
+    });
+  }
+
+  /// MJ : un tour de moins pour les bonus à durée en tours.
+  Future<void> _decompterBonus(int passees) async {
+    final aDecompter = [
+      for (final b in bonus)
+        if (b.duree == DureeBonus.tours) b,
+    ];
+    if (aDecompter.isEmpty) return;
+    await _agir((s, c) async {
+      for (final b in aDecompter) {
+        final reste = (b.toursRestants ?? 0) - passees;
+        if (reste <= 0) {
+          await s.retirerBonus(c, b);
+        } else {
+          await s.modifierBonus(c, b.copie(toursRestants: reste));
+        }
+      }
     });
   }
 
@@ -741,7 +879,8 @@ class SeanceController extends ChangeNotifier {
   /// MJ : une initiative a changé (joueur arrivé) : ordre recalculé.
   Future<void> _ajusterOrdre() async {
     if (!estMj || !_etat.enCombat) return;
-    final ordre = ordreCombat(joueurs, _creatures);
+    final ordre =
+        ordreCombat(joueurs, _creatures, bonusInitiative: _bonusInitiative);
     if (listEquals(ordre, _etat.ordre)) return;
     await _agir((s, c) => s.changerOrdre(c, ordre));
   }
@@ -883,7 +1022,10 @@ class SeanceController extends ChangeNotifier {
     final debut = !_etat.enCombat;
     final erreur = await _agir((s, c) => _etat.enCombat
         ? s.passerEnExploration(c)
-        : s.demarrerCombat(c, ordreCombat(joueurs, _creatures)));
+        : s.demarrerCombat(
+            c,
+            ordreCombat(joueurs, _creatures,
+                bonusInitiative: _bonusInitiative)));
     if (erreur != null) return erreur;
     final h = maintenant ?? DateTime.now();
     if (debut) {
@@ -1222,7 +1364,8 @@ class SeanceController extends ChangeNotifier {
   Future<void> _reordonner(ServiceSeance s, Campagne c) async {
     if (!_etat.enCombat) return;
     final liste = await s.ecouterCreatures(c).first;
-    await s.changerOrdre(c, ordreCombat(joueurs, liste));
+    await s.changerOrdre(
+        c, ordreCombat(joueurs, liste, bonusInitiative: _bonusInitiative));
   }
 
   Future<String?> modifierCreature(CreatureSeance creature) =>
@@ -1365,6 +1508,8 @@ class SeanceController extends ChangeNotifier {
         bonus: f.bonusJetEsquive,
         origineBonus: 'esquive',
         difficulte: d.difficulteEsquive,
+        // Bonus de séance reçus (« tous les jets »).
+        situations: bonusApplicables(uid, genre: GenreJet.test, d20: true),
         aleatoire: aleatoire,
       );
       if (r != null) {

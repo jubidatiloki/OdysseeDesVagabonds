@@ -162,10 +162,18 @@ class EtatJeu {
 /// n'y sont pas : ils agissent au tour de leur maître (décision du 11/11/2026).
 List<String> ordreCombat(
   List<MembreCampagne> joueurs,
-  List<CreatureSeance> creatures,
-) {
+  List<CreatureSeance> creatures, {
+  Map<String, int> bonusInitiative = const {},
+}) {
   final liste = [
-    for (final m in joueurs) (id: m.uid, init: m.initiative, pj: 0, nom: m.nom),
+    for (final m in joueurs)
+      (
+        id: m.uid,
+        // Bonus d'initiative de séance (embuscade…), 18/11/2026.
+        init: m.initiative + (bonusInitiative[m.uid] ?? 0),
+        pj: 0,
+        nom: m.nom,
+      ),
     for (final c in creatures)
       if (!c.estCompagnon) (id: c.id, init: c.initiative, pj: 1, nom: c.nom),
   ]..sort((a, b) {

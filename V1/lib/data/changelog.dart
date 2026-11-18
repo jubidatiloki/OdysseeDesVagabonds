@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.67.0',
+    date: '18/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : donner un bonus ou un malus à d\'autres personnages '
+            '(musique du barde, embuscade, sort…).',
+      ),
+      (
+        type: _a,
+        texte: 'Bonus reçus ajoutés tout seuls aux jets (attaque, tests, '
+            'initiative, dégâts), non retirables par celui qui les reçoit.',
+      ),
+      (
+        type: _a,
+        texte: 'Durée au choix : fin du combat, quelques tours, fin de séance '
+            'ou jusqu\'au retrait ; même nom : le plus fort compte.',
+      ),
+    ],
+  ),
+  (
     version: '0.66.0',
     date: '18/11/2026',
     changements: [
