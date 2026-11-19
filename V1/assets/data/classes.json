@@ -2188,23 +2188,34 @@
           },
           {
             "rang": 5,
-            "nom": "Élémentaire de feu",
+            "nom": "Invocation d'élémentaire de feu",
             "cible": "soi",
-            "duree": {"type": "indefini"},
+            "duree": {"type": "tours", "valeur": "1d6 + INT"},
             "invocations": ["elementaire-feu"],
             "jets": [{"libelle": "Élémentaire de feu : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
-            "typesSort": ["invocation", "transformation"],
-            "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire de feu invoqué, ou forme d'élémentaire : forme à activer",
-            "etats": [
-              {"nom": "Forme d'élémentaire de feu", "groupe": "forme-elementaire", "effets": [
-                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
-                {"type": "bonus", "categorie": "RD feu", "valeur": "10"},
-                {"type": "bonus", "categorie": "DEX", "valeur": "2"}
-              ], "jets": [
-                {"libelle": "Forme de feu : contact", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Contact de feu", "degatsArme": "2d6"}}
-              ]}
+            "typesSort": ["invocation"],
+            "effet": "Invoque un élémentaire de feu à ses côtés.",
+            "effetApplique": "Élémentaire de feu invoqué",
+            "aussi": [
+              {
+                "nom": "Transformation en élémentaire de feu",
+                "cible": "soi",
+                "duree": {"type": "indefini"},
+                "type": "actif, sort",
+                "typesSort": ["transformation"],
+                "effet": "Se transforme en élémentaire de feu (forme à activer).",
+                "effetApplique": "Forme d'élémentaire de feu : forme à activer",
+                "etats": [
+                  {"nom": "Forme d'élémentaire de feu", "groupe": "forme-elementaire", "effets": [
+                    {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                    {"type": "bonus", "categorie": "RD feu", "valeur": "10"},
+                    {"type": "bonus", "categorie": "DEX", "valeur": "2"}
+                  ], "jets": [
+                    {"libelle": "Forme de feu : contact", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Contact de feu", "degatsArme": "2d6"}}
+                  ]}
+                ]
+              }
             ]
           }
         ]
@@ -2257,24 +2268,35 @@
           },
           {
             "rang": 5,
-            "nom": "Élémentaire de pierre",
+            "nom": "Invocation d'élémentaire de pierre",
             "cible": "soi",
-            "duree": {"type": "indefini"},
+            "duree": {"type": "tours", "valeur": "1d6 + INT"},
             "invocations": ["elementaire-terre"],
             "jets": [{"libelle": "Élémentaire de pierre : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
-            "typesSort": ["invocation", "transformation"],
-            "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire de pierre invoqué, ou forme d'élémentaire : forme à activer",
-            "etats": [
-              {"nom": "Forme d'élémentaire de pierre", "groupe": "forme-elementaire", "effets": [
-                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
-                {"type": "bonus", "categorie": "RD physique", "valeur": "5"},
-                {"type": "bonus", "categorie": "FOR", "valeur": "4"},
-                {"type": "bonus", "categorie": "DEX", "valeur": "-2"}
-              ], "jets": [
-                {"libelle": "Forme de pierre : coup", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Poing de pierre", "degatsArme": "2d8"}}
-              ]}
+            "typesSort": ["invocation"],
+            "effet": "Invoque un élémentaire de pierre à ses côtés.",
+            "effetApplique": "Élémentaire de pierre invoqué",
+            "aussi": [
+              {
+                "nom": "Transformation en élémentaire de pierre",
+                "cible": "soi",
+                "duree": {"type": "indefini"},
+                "type": "actif, sort",
+                "typesSort": ["transformation"],
+                "effet": "Se transforme en élémentaire de pierre (forme à activer).",
+                "effetApplique": "Forme d'élémentaire de pierre : forme à activer",
+                "etats": [
+                  {"nom": "Forme d'élémentaire de pierre", "groupe": "forme-elementaire", "effets": [
+                    {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                    {"type": "bonus", "categorie": "RD physique", "valeur": "5"},
+                    {"type": "bonus", "categorie": "FOR", "valeur": "4"},
+                    {"type": "bonus", "categorie": "DEX", "valeur": "-2"}
+                  ], "jets": [
+                    {"libelle": "Forme de pierre : coup", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Poing de pierre", "degatsArme": "2d8"}}
+                  ]}
+                ]
+              }
             ]
           }
         ]
@@ -2307,7 +2329,8 @@
           {
             "rang": 3,
             "nom": "Soutien marin",
-            "cible": "unique",
+            "cible": "selection",
+            "ciblesMax": "INT",
             "duree": {"type": "minutes", "valeur": "10"},
             "type": "passif + actif, sort",
             "typesSort": ["support"],
@@ -2335,23 +2358,34 @@
           },
           {
             "rang": 5,
-            "nom": "Élémentaire de glace",
+            "nom": "Invocation d'élémentaire de glace",
             "cible": "soi",
-            "duree": {"type": "indefini"},
+            "duree": {"type": "tours", "valeur": "1d6 + INT"},
             "invocations": ["elementaire-glace"],
             "jets": [{"libelle": "Élémentaire de glace : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
-            "typesSort": ["invocation", "transformation"],
-            "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire de glace invoqué, ou forme d'élémentaire : forme à activer",
-            "etats": [
-              {"nom": "Forme d'élémentaire de glace", "groupe": "forme-elementaire", "effets": [
-                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
-                {"type": "bonus", "categorie": "RD glace", "valeur": "10"},
-                {"type": "bonus", "categorie": "CON", "valeur": "2"}
-              ], "jets": [
-                {"libelle": "Forme de glace : contact", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Contact de glace", "degatsArme": "2d6"}}
-              ]}
+            "typesSort": ["invocation"],
+            "effet": "Invoque un élémentaire de glace à ses côtés.",
+            "effetApplique": "Élémentaire de glace invoqué",
+            "aussi": [
+              {
+                "nom": "Transformation en élémentaire de glace",
+                "cible": "soi",
+                "duree": {"type": "indefini"},
+                "type": "actif, sort",
+                "typesSort": ["transformation"],
+                "effet": "Se transforme en élémentaire de glace (forme à activer).",
+                "effetApplique": "Forme d'élémentaire de glace : forme à activer",
+                "etats": [
+                  {"nom": "Forme d'élémentaire de glace", "groupe": "forme-elementaire", "effets": [
+                    {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                    {"type": "bonus", "categorie": "RD glace", "valeur": "10"},
+                    {"type": "bonus", "categorie": "CON", "valeur": "2"}
+                  ], "jets": [
+                    {"libelle": "Forme de glace : contact", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Contact de glace", "degatsArme": "2d6"}}
+                  ]}
+                ]
+              }
             ]
           }
         ]
@@ -2412,25 +2446,36 @@
           },
           {
             "rang": 5,
-            "nom": "Élémentaire d'air",
+            "nom": "Invocation d'élémentaire d'air",
             "cible": "soi",
-            "duree": {"type": "indefini"},
+            "duree": {"type": "tours", "valeur": "1d6 + INT"},
             "invocations": ["elementaire-air"],
             "jets": [{"libelle": "Élémentaire d'air : durée (tours)", "des": "1d6", "carac": "INT"}],
             "type": "actif, sort",
-            "typesSort": ["invocation", "transformation"],
-            "effet": "Invoquer ou se transformer en élémentaire.",
-            "effetApplique": "Élémentaire d'air invoqué, ou forme d'élémentaire : forme à activer",
-            "etats": [
-              {"nom": "Forme d'élémentaire d'air", "groupe": "forme-elementaire", "effets": [
-                {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
-                {"type": "texte", "effet": "Vole."},
-                {"type": "bonus", "categorie": "RD foudre", "valeur": "5"},
-                {"type": "bonus", "categorie": "DEX", "valeur": "4"},
-                {"type": "test", "categorie": "INIT", "valeur": "5"}
-              ], "jets": [
-                {"libelle": "Forme d'air : coup", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Coup de vent", "degatsArme": "2d6"}}
-              ]}
+            "typesSort": ["invocation"],
+            "effet": "Invoque un élémentaire d'air à ses côtés.",
+            "effetApplique": "Élémentaire d'air invoqué",
+            "aussi": [
+              {
+                "nom": "Transformation en élémentaire d'air",
+                "cible": "soi",
+                "duree": {"type": "indefini"},
+                "type": "actif, sort",
+                "typesSort": ["transformation"],
+                "effet": "Se transforme en élémentaire d'air (forme à activer).",
+                "effetApplique": "Forme d'élémentaire d'air : forme à activer",
+                "etats": [
+                  {"nom": "Forme d'élémentaire d'air", "groupe": "forme-elementaire", "effets": [
+                    {"type": "texte", "effet": "Pas d'autre sort pendant la forme."},
+                    {"type": "texte", "effet": "Vole."},
+                    {"type": "bonus", "categorie": "RD foudre", "valeur": "5"},
+                    {"type": "bonus", "categorie": "DEX", "valeur": "4"},
+                    {"type": "test", "categorie": "INIT", "valeur": "5"}
+                  ], "jets": [
+                    {"libelle": "Forme d'air : coup", "des": "1d20", "carac": "ADC", "attaque": {"armeInvoquee": "Coup de vent", "degatsArme": "2d6"}}
+                  ]}
+                ]
+              }
             ]
           }
         ]
@@ -3484,6 +3529,8 @@
             "nom": "Paroles impies",
             "cible": "selection",
             "duree": {"type": "tours", "valeur": "1"},
+            "ciblesMax": "INT",
+            "bonusDonne": {"valeur": 0, "portee": "etat", "etat": "Immobilisation", "siReussite": false},
             "type": "actif, sort",
             "typesSort": ["controle-mental"],
             "effet": "Sermon interdit immobilisant INT ennemis dans 10 m jusqu'au prochain tour (test de CON diff. 10 + INT pour s'en libérer).",

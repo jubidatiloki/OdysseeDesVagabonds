@@ -66,7 +66,9 @@ void main() {
           'Téléportation',
           'Mur de flamme',
           'Contrôle du feu',
-          'Élémentaire de feu',
+          "Invocation d'élémentaire de feu",
+          'Transformation en élémentaire de feu',
+          "Transformation en élémentaire d'air",
           'Poing de pierre',
           'Chaîne d\'éclairs',
           'Éclat des arcanes',
@@ -89,12 +91,21 @@ void main() {
     final poing =
         f.sorts.firstWhere((s) => s.competence.nom == 'Poing de pierre');
     expect(poing.competence.reussite!.contre, contains('CA de la cible'));
+    // Deux sorts distincts (19/11/2026) : invoquer ou se transformer.
+    TypeSort typeDe(String nom) => f.sorts
+        .firstWhere((s) => s.competence.nom == nom)
+        .competence
+        .typesSort
+        .single;
+    expect(typeDe("Invocation d'élémentaire d'air"), TypeSort.invocation);
     expect(
-      f.sorts
-          .firstWhere((s) => s.competence.nom == 'Élémentaire d\'air')
-          .competence
-          .typesSort,
-      [TypeSort.invocation, TypeSort.transformation],
+      typeDe("Transformation en élémentaire d'air"),
+      TypeSort.transformation,
+    );
+    // La forme reste activable depuis le sort de transformation.
+    expect(
+      f.etatsPossibles.map((e) => e.etat.nom),
+      contains("Forme d'élémentaire d'air"),
     );
   });
 

@@ -355,6 +355,8 @@ class _SeanceScreenState extends State<SeanceScreen>
     );
     if (ok != true || !context.mounted) return;
     final navigator = Navigator.of(context);
+    // Notes de séance : heure de fin et durée.
+    await _seance.noterFinSeance();
     final erreur =
         await widget.contexte.campagnes.agir((x) => x.terminerSeance(c));
     if (erreur == null) {

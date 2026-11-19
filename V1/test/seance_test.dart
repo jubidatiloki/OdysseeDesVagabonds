@@ -116,6 +116,24 @@ const _guerrier = Classe(
           ],
           jets: [JetCompetence(libelle: 'Hymne', des: '1d20', carac: 'SOC')],
         ),
+        // Immobilise une cible (1 au plus), jusqu'au prochain tour.
+        Competence(
+          rang: 4,
+          nom: 'Paroles figées',
+          type: 'actif',
+          cible: CibleCompetence.selection,
+          ciblesMax: '1',
+          duree: DureeCompetence(type: TypeDuree.tours, valeur: '1'),
+          bonusDonnes: [
+            BonusDonne(
+              valeur: 0,
+              portee: 'etat',
+              etat: 'Immobilisation',
+              siReussite: false,
+            ),
+          ],
+          jets: [JetCompetence(libelle: 'Paroles figées', des: '1d20')],
+        ),
         // Une cible, une option (comme la bénédiction d'une arme).
         Competence(
           rang: 3,
@@ -2831,6 +2849,72 @@ void main() {
       expect(partie.jets.last.caCible, 16);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : immobilise une créature (1 cible au plus), carte à jour',
+        (tester) async {
+      final brom = _brom()..rangsVoies['chant'] = 4;
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [brom],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          for (final (id, nom) in [('l1', 'Loup'), ('l2', 'Loup 2')]) {
+            await mj.ajouterCreature(
+                c, CreatureSeance(id: id, nom: nom, initiative: 3));
+          }
+          await mj.demarrerCombat(c, ['j1', 'j2', 'l1', 'l2']);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('competence-seance-3')),
+        200,
+        scrollable: panneau,
+      );
+      await tapDes(tester, 'competence-seance-3');
+      // Créatures proposées ; une seule cible au plus.
+      await tap(tester, find.byKey(const Key('cible-competence-l1')));
+      final autre = tester
+          .widget<FilterChip>(find.byKey(const Key('cible-competence-l2')));
+      expect(autre.onSelected, isNull);
+      await tap(tester, find.byKey(const Key('valider-cibles-bonus')));
+      final b = partie.bonus.values.single;
+      expect((b.portee, b.etat, b.cibles.single, b.toursRestants),
+          (PorteeBonus.etat, 'Immobilisation', 'l1', 1));
+      // Sur la carte de la créature, pour tous.
+      expect(find.text('Immobilisation · 1 tour'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+        'MJ : montée de niveau notée quand elle a lieu, durée de séance',
+        (tester) async {
+      final x = await ouvrir(tester, 'mj');
+      final j1 = ServiceCampagnesMemoire(x.base, 'j1').seance;
+      // Autoriser n'écrit rien dans les notes.
+      await j1.publierPersonnage(x.campagne,
+          resume: 'Nain · Guerrier · niveau 1', initiative: 10);
+      await tester.pumpAndSettle();
+      await j1.publierPersonnage(x.campagne,
+          resume: 'Nain · Guerrier · niveau 2', initiative: 10);
+      await tester.pumpAndSettle();
+      final recap = x.base.recaps[x.campagne.id]?[1] ?? '';
+      expect(recap, contains('brom passe au niveau 2'));
+      expect(recap, isNot(contains('peut passer')));
+      // Clôture : heure de fin et durée.
+      await tap(tester, find.byKey(const Key('terminer-seance')));
+      await tap(tester, find.byKey(const Key('confirmer-cloture')));
+      expect(x.base.recaps[x.campagne.id]![1],
+          matches(RegExp(r'Fin de la séance à \d\d:\d\d \(durée : \d+ min\)')));
     });
 
     testWidgets('PJ : compétence à option et à cible unique (bénir une arme)',

@@ -105,6 +105,7 @@ class SeanceController extends ChangeNotifier {
     });
     suivre(s.ecouterMembres(c.id), (v) {
       _membres = v;
+      _noterMontees();
       _suivreFiches();
       _traiterDegats();
       _traiterEnvois();
@@ -495,6 +496,7 @@ class SeanceController extends ChangeNotifier {
     int tours = 3,
     String? auteurNom,
     String contre = '',
+    String etat = '',
   }) {
     final nomAuteur =
         auteurNom ?? (estMj ? 'MJ' : (moi?.personnageNom ?? 'Joueur'));
@@ -504,6 +506,7 @@ class SeanceController extends ChangeNotifier {
       portee: portee,
       carac: portee == PorteeBonus.carac ? carac : null,
       contre: portee == PorteeBonus.ca ? contre : '',
+      etat: portee == PorteeBonus.etat ? etat : '',
       cibles: cibles,
       auteur: uid,
       auteurNom: nomAuteur,
@@ -520,10 +523,7 @@ class SeanceController extends ChangeNotifier {
       seance: _numero,
       date: DateTime.now(),
     );
-    final noms = [
-      for (final m in joueurs)
-        if (cibles.contains(m.uid)) m.personnageNom,
-    ];
+    final noms = nomsCibles(cibles);
     return _agir((s, c) async {
       await s.poserBonus(c, b);
       await _noter(
@@ -552,7 +552,7 @@ class SeanceController extends ChangeNotifier {
     final rang = f.rangCompetence(c.nom);
     final donnes = [
       for (final b in c.bonusDonnes)
-        if (b.valeur != 0 &&
+        if ((b.valeur != 0 || b.portee == 'etat') &&
             (b.rangMin == null || rang >= b.rangMin!) &&
             (b.rangMax == null || rang <= b.rangMax!) &&
             !(b.siReussite && !reussi) &&
@@ -594,13 +594,11 @@ class SeanceController extends ChangeNotifier {
         tours: tours,
         auteurNom: f.personnage.nom,
         contre: b.contre,
+        etat: b.etat,
       );
       if (erreur != null) return [];
     }
-    return [
-      for (final m in joueurs)
-        if (cibles.contains(m.uid)) m.personnageNom,
-    ];
+    return nomsCibles(cibles);
   }
 
   /// Nombre d'une durée : chiffre, caractéristique (son modificateur, 1 au
@@ -691,6 +689,20 @@ class SeanceController extends ChangeNotifier {
         carac: carac,
         initiative: initiative,
       );
+
+  /// Noms des cibles d'un bonus : personnages puis créatures.
+  List<String> nomsCibles(List<String> cibles) => [
+        for (final m in joueurs)
+          if (cibles.contains(m.uid)) m.personnageNom,
+        for (final c in _creatures)
+          if (cibles.contains(c.id)) c.nomPublic,
+      ];
+
+  /// États (afflictions) posés sur un personnage ou une créature.
+  List<BonusSeance> etatsDe(String id) => [
+        for (final b in bonus)
+          if (b.estEtat && b.cibles.contains(id)) b,
+      ];
 
   /// Retire un bonus (son auteur ou le MJ).
   Future<String?> retirerBonus(BonusSeance b) => _agir((s, c) async {
@@ -1245,8 +1257,7 @@ class SeanceController extends ChangeNotifier {
     return erreur;
   }
 
-  /// MJ : autorise ou retire la montée de niveau d'un joueur ; une montée
-  /// autorisée est notée dans le récapitulatif de la séance.
+  /// MJ : autorise ou retire la montée de niveau d'un joueur.
   Future<String?> basculerMontee(
     String joueur,
     int niveau, {
@@ -1259,15 +1270,46 @@ class SeanceController extends ChangeNotifier {
     if (autorise) {
       montees[EtatJeu.cleMontee(joueur, personnage)] = niveau + 1;
     }
-    final erreur = await _agir((s, c) => s.changerInfos(c, montees: montees));
-    if (erreur == null && autorise) {
-      var nom = 'Un joueur';
-      for (final m in _membres) {
-        if (m.uid == joueur) nom = m.personnageNom;
+    // Pas de note ici : seule la vraie montée de niveau est notée
+    // (19/11/2026, voir [_noterMontees]).
+    return _agir((s, c) => s.changerInfos(c, montees: montees));
+  }
+
+  /// Niveaux des personnages (« uid:personnage » → niveau), pour noter les
+  /// vraies montées de niveau.
+  final Map<String, int> _niveauxVus = {};
+
+  /// MJ : un personnage a changé de niveau (son résumé « … · niveau 3 ») :
+  /// noté dans le récapitulatif de la séance (19/11/2026).
+  void _noterMontees() {
+    if (!estMj) return;
+    for (final m in joueurs) {
+      final n = int.tryParse(
+        RegExp(r'niveau (\d+)').firstMatch(m.personnageResume)?[1] ?? '',
+      );
+      if (n == null) continue;
+      final cle = '${m.uid}:${m.personnageId}';
+      final avant = _niveauxVus[cle];
+      _niveauxVus[cle] = n;
+      if (avant != null && n > avant) {
+        unawaited(noterDansRecap('${m.personnageNom} passe au niveau $n'));
       }
-      await noterDansRecap('$nom peut passer au niveau ${niveau + 1}');
     }
-    return erreur;
+  }
+
+  /// MJ : fin de la séance, avec son heure et sa durée (19/11/2026).
+  Future<void> noterFinSeance({DateTime? maintenant}) async {
+    final h = maintenant ?? DateTime.now();
+    final debut = campagne?.seance?.debut;
+    final minutes = debut == null ? null : h.difference(debut).inMinutes;
+    String duree(int m) => m < 60
+        ? '$m min'
+        : '${m ~/ 60} h ${(m % 60).toString().padLeft(2, '0')}';
+    await noterDansRecap(
+      'Fin de la séance à ${_heure(h)}'
+      '${minutes == null || minutes < 0 ? '' : ' (durée : ${duree(minutes)})'}',
+      maintenant: h,
+    );
   }
 
   /// MJ : ajoute une ligne horodatée (« - 20:15 · Lieu : Taverne ») au

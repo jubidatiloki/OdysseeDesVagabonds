@@ -29,6 +29,37 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.72.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Magicien : chaque élémentaire devient deux sorts, l\'un pour '
+            'l\'invoquer, l\'autre pour se transformer.',
+      ),
+      (
+        type: _a,
+        texte: 'Paroles impies : choix des cibles en séance (INT au plus) et '
+            'immobilisation affichée sur leur carte.',
+      ),
+      (
+        type: _a,
+        texte: 'Afflictions de séance (immobilisation…) sur personnages et '
+            'créatures ; Soutien marin : INT cibles.',
+      ),
+      (
+        type: _c,
+        texte: 'PV max : une CON négative ne les diminue plus (création, '
+            'Style barbaresque).',
+      ),
+      (
+        type: _m,
+        texte: 'Notes de séance : la montée de niveau est notée quand elle a '
+            'lieu, et la durée de la séance à sa clôture.',
+      ),
+    ],
+  ),
+  (
     version: '0.71.0',
     date: '19/11/2026',
     changements: [

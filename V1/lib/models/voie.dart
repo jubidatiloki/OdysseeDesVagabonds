@@ -636,12 +636,16 @@ class BonusDonne {
     this.siReussite = true,
     this.option = '',
     this.contre = '',
+    this.etat = '',
     this.rangMin,
     this.rangMax,
   });
 
   /// Portée « ca » : CA visée (« CaC », « DIST », « MAG ») ; vide : toutes.
   final String contre;
+
+  /// Portée « etat » : affliction posée (« Immobilisation »).
+  final String etat;
 
   /// Rang atteint dans la voie à partir duquel / jusqu'auquel il compte
   /// (écorces partagées : +1 jusqu'au rang 2, +2 ensuite).
@@ -678,6 +682,7 @@ class BonusDonne {
       siReussite: j['siReussite'] != false,
       option: '${j['option'] ?? ''}',
       contre: '${j['contre'] ?? ''}',
+      etat: '${j['etat'] ?? ''}',
       rangMin: (j['rangMin'] as num?)?.toInt(),
       rangMax: (j['rangMax'] as num?)?.toInt(),
     );
@@ -717,6 +722,7 @@ class Competence {
     this.cible,
     this.duree,
     this.bonusDonnes = const [],
+    this.ciblesMax = '',
   });
 
   /// Type de dégâts d'un sort ou d'une attaque (feu, glace, foudre, magique,
@@ -756,6 +762,9 @@ class Competence {
 
   /// Sur qui elle agit (`null` : non précisé).
   final CibleCompetence? cible;
+
+  /// Nombre de cibles au plus (« INT », « 3 ») ; vide : sans limite.
+  final String ciblesMax;
 
   /// Combien de temps elle dure (`null` ou « aucune » : non affichée).
   final DureeCompetence? duree;
@@ -803,6 +812,7 @@ class Competence {
         cible: cible,
         duree: duree,
         bonusDonnes: bonusDonnes,
+        ciblesMax: ciblesMax,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -956,6 +966,7 @@ class Competence {
       cible: cible,
       duree: duree,
       bonusDonnes: bonusDonnes,
+      ciblesMax: ciblesMax,
     );
   }
 
@@ -1013,6 +1024,7 @@ class Competence {
         cible: CibleCompetence.depuisCode(j['cible']),
         duree: DureeCompetence.depuisJson(j['duree']),
         bonusDonnes: BonusDonne.listeDepuisJson(j['bonusDonne']),
+        ciblesMax: '${j['ciblesMax'] ?? ''}'.trim(),
       );
 
   static Map<String, VarianteCompetence> _variantes(Object? j) => {

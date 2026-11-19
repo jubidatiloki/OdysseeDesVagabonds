@@ -43,6 +43,29 @@ FicheCalculee _fiche(Personnage p, Race r, Classe c) =>
     FicheCalculee(personnage: p, race: r, classe: c);
 
 void main() {
+  test('CON négative : ne diminue pas les PV max (19/11/2026)', () {
+    Personnage avecCon(int con) => Personnage(
+          id: 'g',
+          nom: 'G',
+          raceId: 'humain',
+          classeId: 'guerrier',
+          caracBase: {for (final c in Carac.values) c: 10}..[Carac.con] = con,
+        );
+    // d8 (humain d6, guerrier +1 cran) : CON 6 (−2) compte pour 0.
+    expect(_fiche(avecCon(6), _humain, _guerrier).pvMax, 8);
+    expect(_fiche(avecCon(10), _humain, _guerrier).pvMax, 8);
+    expect(_fiche(avecCon(14), _humain, _guerrier).pvMax, 10);
+    // Style barbaresque à la montée : la CON négative ne retire rien.
+    final b = MonteeNiveau.bonusPvMonteeNiveau(
+      _fiche(
+        _barbareHumain(rangs: {'barbare-brute': 3})..caracBase[Carac.con] = 6,
+        _humain,
+        _barbare,
+      ),
+    );
+    expect(b.bonus, 3);
+  });
+
   group('Force de la nature (barbare, brute rang 1)', () {
     test('à la prise : + mod FOR aux PV max, avec son origine', () {
       final sans = _fiche(_barbareHumain(), _humain, _barbare);

@@ -107,11 +107,12 @@ Rédigée le 19/11/2026. **Validée et versée dans les données le 19/11/2026**
 | Boule de feu | Plusieurs | — | zone |
 | Mur de flamme | Plusieurs | 1d6 + INT tours | zone |
 | Contrôle du feu | Une | — | |
-| Élémentaire de feu / pierre / glace / air | Soi | Indéfinie | **durée de l'invocation ou de la forme non précisée** |
+| Invocation d'élémentaire (feu, pierre, glace, air) | Soi | 1d6 + INT tours | séparé en deux sorts le 19/11/2026 |
+| Transformation en élémentaire (feu, pierre, glace, air) | Soi | Indéfinie | séparé en deux sorts le 19/11/2026 |
 | Poing de pierre | Une | — | |
 | Prison terrestre | Une | Indéfinie | **durée non précisée** |
 | Lance de givre | Une | — | |
-| Soutien marin | Une | Indéfinie | « 10 min » : minutes |
+| Soutien marin | Plusieurs (INT au plus) | 10 minutes | INT cibles (19/11/2026) |
 | Prison aqueuse | Une | Indéfinie | tant que le sort est maintenu |
 | Bourrasque | Plusieurs | — | |
 | Mur d'air | Alliés+ | Indéfinie | **durée non précisée** (bonus de CA pas encore géré) |
@@ -179,7 +180,7 @@ Rédigée le 19/11/2026. **Validée et versée dans les données le 19/11/2026**
 | Sanctuaire | Alliés+ | INT tours | zone de 5 m |
 | Courroux céleste | Une | — | |
 | Justice divine | Soi | Indéfinie | tant qu'il a du mana |
-| Paroles impies | Plusieurs | 1 tour | INT ennemis |
+| Paroles impies | Plusieurs (INT au plus) | 1 tour | immobilisation automatique (19/11/2026) |
 | Dissipation | Une | — | |
 | Consumation | Une | — | |
 

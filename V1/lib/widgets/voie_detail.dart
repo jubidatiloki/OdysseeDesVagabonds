@@ -139,7 +139,9 @@ class LigneCompetence extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     [
-                      if (c.cible case final cible?) 'Cible : ${cible.libelle}',
+                      if (c.cible case final cible?)
+                        'Cible : ${cible.libelle}'
+                            '${c.ciblesMax.isEmpty ? '' : ' (${c.ciblesMax} au plus)'}',
                       if (c.duree case final d? when d.affichee)
                         'Durée : ${d.texte}',
                     ].join(' · '),

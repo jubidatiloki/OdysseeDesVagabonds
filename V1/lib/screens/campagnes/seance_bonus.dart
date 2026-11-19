@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/affliction.dart';
 import '../../models/bonus_seance.dart';
 import '../../models/carac.dart';
 import '../../state/seance_controller.dart';
@@ -22,10 +23,7 @@ class BlocBonus extends StatelessWidget {
     final c = cible;
     final recus = c == null ? const <BonusSeance>[] : s.bonusRecus(c);
     final donnes = s.bonusRetirables;
-    String pour(BonusSeance b) => [
-          for (final m in s.joueurs)
-            if (b.cibles.contains(m.uid)) m.personnageNom,
-        ].join(', ');
+    String pour(BonusSeance b) => s.nomsCibles(b.cibles).join(', ');
     return Column(
       key: const Key('bloc-bonus'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,6 +138,7 @@ class _DialogueBonusState extends State<DialogueBonus> {
   var _portee = PorteeBonus.attaque;
   var _carac = Carac.force;
   var _contre = '';
+  var _etat = kAfflictions.first.nom;
   final Set<String> _cibles = {};
   var _duree = DureeBonus.finCombat;
   var _tours = 3;
@@ -166,6 +165,7 @@ class _DialogueBonusState extends State<DialogueBonus> {
       carac: _carac,
       cibles: _cibles.toList(),
       contre: _contre,
+      etat: _etat,
       duree: _duree,
       tours: _tours,
     );
@@ -261,6 +261,20 @@ class _DialogueBonusState extends State<DialogueBonus> {
                     ),
                 ],
               ),
+              if (_portee == PorteeBonus.etat) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  key: const Key('bonus-etat'),
+                  initialValue: _etat,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Affliction'),
+                  items: [
+                    for (final a in kAfflictions)
+                      DropdownMenuItem(value: a.nom, child: Text(a.nom)),
+                  ],
+                  onChanged: (v) => setState(() => _etat = v ?? _etat),
+                ),
+              ],
               if (_portee == PorteeBonus.ca) ...[
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
@@ -297,6 +311,16 @@ class _DialogueBonusState extends State<DialogueBonus> {
                 spacing: 6,
                 runSpacing: 6,
                 children: [
+                  if (_portee == PorteeBonus.etat)
+                    for (final x in s.creatures)
+                      if (!x.duCotePj)
+                        FilterChip(
+                          key: Key('cible-bonus-${x.id}'),
+                          label: Text(x.nomPublic),
+                          selected: _cibles.contains(x.id),
+                          onSelected: (oui) => setState(() =>
+                              oui ? _cibles.add(x.id) : _cibles.remove(x.id)),
+                        ),
                   for (final m in s.joueurs)
                     FilterChip(
                       key: Key('cible-bonus-${m.uid}'),
@@ -368,11 +392,19 @@ class DialogueCiblesBonus extends StatefulWidget {
     required this.seance,
     required this.titre,
     required this.unique,
+    this.maximum,
+    this.avecCreatures = false,
   });
 
   final SeanceController seance;
   final String titre;
   final bool unique;
+
+  /// Nombre de cibles au plus (`null` : sans limite).
+  final int? maximum;
+
+  /// Les créatures rencontrées sont aussi proposées (paroles impies).
+  final bool avecCreatures;
 
   @override
   State<DialogueCiblesBonus> createState() => _DialogueCiblesBonusState();
@@ -381,48 +413,86 @@ class DialogueCiblesBonus extends StatefulWidget {
 class _DialogueCiblesBonusState extends State<DialogueCiblesBonus> {
   final Set<String> _choisis = {};
 
+  Widget _puce(String id, String nom) {
+    final choisi = _choisis.contains(id);
+    final max = widget.maximum;
+    final plein =
+        !widget.unique && max != null && _choisis.length >= max && !choisi;
+    return FilterChip(
+      key: Key('cible-competence-$id'),
+      label: Text(nom),
+      selected: choisi,
+      onSelected: plein
+          ? null
+          : (oui) => setState(() {
+                if (widget.unique) _choisis.clear();
+                oui ? _choisis.add(id) : _choisis.remove(id);
+              }),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) => AlertDialog(
-        key: const Key('fenetre-cibles-bonus'),
-        title: Text(widget.titre),
-        content: Column(
+  Widget build(BuildContext context) {
+    final s = widget.seance;
+    final max = widget.maximum;
+    final creatures = [
+      for (final c in s.creatures)
+        if (!c.duCotePj) c,
+    ];
+    return AlertDialog(
+      key: const Key('fenetre-cibles-bonus'),
+      title: Text(widget.titre),
+      content: SingleChildScrollView(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.unique ? 'Sur qui ?' : 'Sur qui ? (un ou plusieurs)'),
-            const SizedBox(height: 8),
+            Text(
+              widget.unique
+                  ? 'Sur qui ?'
+                  : max == null
+                      ? 'Sur qui ? (un ou plusieurs)'
+                      : 'Sur qui ? (${_choisis.length} / $max au plus)',
+              key: const Key('compte-cibles'),
+            ),
+            if (widget.avecCreatures && creatures.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              const Text('Créatures'),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [for (final c in creatures) _puce(c.id, c.nom)],
+              ),
+              const SizedBox(height: 8),
+              const Text('Personnages'),
+            ],
+            const SizedBox(height: 4),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: [
-                for (final m in widget.seance.joueurs)
-                  FilterChip(
-                    key: Key('cible-competence-${m.uid}'),
-                    label: Text(m.personnageNom),
-                    selected: _choisis.contains(m.uid),
-                    onSelected: (oui) => setState(() {
-                      if (widget.unique) _choisis.clear();
-                      oui ? _choisis.add(m.uid) : _choisis.remove(m.uid);
-                    }),
-                  ),
+                for (final m in s.joueurs) _puce(m.uid, m.personnageNom),
               ],
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            key: const Key('valider-cibles-bonus'),
-            onPressed: _choisis.isEmpty
-                ? null
-                : () => Navigator.pop(context, _choisis.toList()),
-            child: const Text('Valider'),
-          ),
-        ],
-      );
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(
+          key: const Key('valider-cibles-bonus'),
+          onPressed: _choisis.isEmpty
+              ? null
+              : () => Navigator.pop(context, _choisis.toList()),
+          child: const Text('Valider'),
+        ),
+      ],
+    );
+  }
 }
 
 /// Option d'une compétence qui donne un bonus (bénédiction : « Arme ») ;

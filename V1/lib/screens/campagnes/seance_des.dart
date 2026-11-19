@@ -645,6 +645,12 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           seance: _s,
           titre: c.nom,
           unique: c.cible == CibleCompetence.unique,
+          maximum: c.ciblesMax.isEmpty
+              ? null
+              : SeanceController.nombreDuree(f, c, c.ciblesMax, null),
+          // Malus ou affliction : les créatures aussi (paroles impies).
+          avecCreatures:
+              c.bonusDonnes.any((b) => b.portee == 'etat' || b.valeur < 0),
         ),
       );
       if (r == null || r.isEmpty || !mounted) return;

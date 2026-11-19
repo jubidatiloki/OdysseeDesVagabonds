@@ -87,6 +87,8 @@ class ReglesParticulieres {
     required int modFor,
     required int modCon,
   }) {
+    // Une CON négative ne diminue pas les PV gagnés (19/11/2026).
+    if (modCon < 0) modCon = 0;
     if (styleBarbaresque(p)) {
       return (
         bonus: modFor + modCon,

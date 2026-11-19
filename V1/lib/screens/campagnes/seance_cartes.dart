@@ -48,6 +48,10 @@ class ListeCartes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = seance;
+    // Afflictions posées par les bonus de séance (immobilisation…).
+    List<String> etats(String id) => [
+          for (final e in s.etatsDe(id)) '${e.effet} · ${e.dureeTexte}',
+        ];
     return ListView(
       key: const Key('liste-cartes'),
       padding: const EdgeInsets.all(8),
@@ -101,7 +105,7 @@ class ListeCartes extends StatelessWidget {
             actif: s.etat.actif == m.uid,
             icone: Icons.person_outline,
             titre: m.personnageNom,
-            lignes: [m.personnageResume],
+            lignes: [m.personnageResume, ...etats(m.uid)],
             absent: !s.estPresent(m.uid),
             initiative: s.etat.enCombat ? m.initiative : null,
             ressources: [
@@ -160,6 +164,7 @@ class ListeCartes extends StatelessWidget {
                 lignes: [
                   '${libelleCreatureJoueur(c, s.ficheCreature(c))} de '
                       '${m.personnageNom}',
+                  ...etats(c.id),
                 ],
                 onTap: () => _choisir(c.id),
                 // Invocation temporaire : son lanceur ou le MJ peut la
@@ -215,6 +220,7 @@ class ListeCartes extends StatelessWidget {
               ],
               lignes: [
                 'Allié · joué par le MJ',
+                ...etats(c.id),
                 if (s.estMj && c.cachee) 'Carte cachée aux PJ',
               ],
               onTap: () => _choisir(c.id),
@@ -253,6 +259,7 @@ class ListeCartes extends StatelessWidget {
               ],
               lignes: [
                 if (c.pv == null) c.etat.libelle,
+                ...etats(c.id),
                 if (s.estMj && c.cachee)
                   'Carte cachée aux PJ'
                 else if (s.estMj && c.nomCache)

@@ -326,7 +326,8 @@ Le magicien a une voie universelle et des **voies élémentaires** (« Voie de [
 | 2 | Esprit du Phénix *(passif)* | Tatouages rouges ; +1 RD feu par rang. |
 | 3 | Mur de flamme *(sort)* | Mur large de 1d8 + INT m pendant 1d6 + INT tours ; 3d6 de feu à qui le traverse. |
 | 4 | Contrôle du feu *(renforcement)* | Intensifier, éteindre, donner une forme (contrôle minimal au coût d'un rang 1). |
-| 5 | Élémentaire de feu *(sort)* | Invoquer ou se transformer en élémentaire. |
+| 5 | Invocation d'élémentaire de feu *(sort)* | Invoque un élémentaire de feu à ses côtés (1d6 + INT tours). |
+| 5 | Transformation en élémentaire de feu *(sort)* | Se transforme en élémentaire de feu (forme à activer). Deux sorts distincts (19/11/2026). |
 
 ### Voie de la terre
 | Rang | Compétence | Effet |
@@ -335,16 +336,18 @@ Le magicien a une voie universelle et des **voies élémentaires** (« Voie de [
 | 2 | Esprit de Gaïa *(passif)* | Tatouages verts ; +1 RD physique par rang. |
 | 3 | Prison terrestre *(sort)* | Le sol s'ouvre sous une cible (taille moyenne max ; grande au rang 4). |
 | 4 | Sens tellurique *(renforcement)* | Détecte tout mouvement sur/sous le sol : 20 m par minute de concentration. |
-| 5 | Élémentaire de pierre *(sort)* | Invoquer ou se transformer en élémentaire. |
+| 5 | Invocation d'élémentaire de pierre *(sort)* | Invoque un élémentaire de pierre à ses côtés (1d6 + INT tours). |
+| 5 | Transformation en élémentaire de pierre *(sort)* | Se transforme en élémentaire de pierre (forme à activer). Deux sorts distincts (19/11/2026). |
 
 ### Voie de l'eau
 | Rang | Compétence | Effet |
 |---|---|---|
 | 1 | Lance de givre *(sort)* | Lance de glace : 1d6 DM GLACE. |
 | 2 | Esprit de Neptune *(passif)* | Tatouages bleus ; +1 RD glace par rang. |
-| 3 | Soutien marin | Respire sous l'eau 10 min sans gêne ; (actif) peut en faire profiter autrui par un sort. |
+| 3 | Soutien marin | Respire sous l'eau 10 min sans gêne ; (actif) peut en faire profiter autrui par un sort. Jusqu'à INT cibles. |
 | 4 | Prison aqueuse *(sort maintenu + renforcement)* | Sphère d'eau autour d'une cible pour la noyer/blesser (2d6 par tour tant que le sort est maintenu), ou la vider de son eau. Renforcement : la lance de givre peut transpercer sa cible et toucher une 2ᵉ cible derrière elle. |
-| 5 | Élémentaire de glace *(sort)* | Invoquer ou se transformer en élémentaire. |
+| 5 | Invocation d'élémentaire de glace *(sort)* | Invoque un élémentaire de glace à ses côtés (1d6 + INT tours). |
+| 5 | Transformation en élémentaire de glace *(sort)* | Se transforme en élémentaire de glace (forme à activer). Deux sorts distincts (19/11/2026). |
 
 ### Voie de l'air
 | Rang | Compétence | Effet |
@@ -353,7 +356,8 @@ Le magicien a une voie universelle et des **voies élémentaires** (« Voie de [
 | 2 | Esprit de Zéphyr *(passif)* | Tatouages blancs ; +1 RD foudre par rang. |
 | 3 | Mur d'air *(sort)* | Dévie les projectiles vers le mage et ses alliés proches : +10 CA contre projectiles (magiques ou physiques). |
 | 4 | Chaîne d'éclairs *(sort)* | Éclair sur un ennemi rebondissant sur jusqu'à 3 autres cibles : 3d6 foudre (attaques magiques avec −3 par rebond, dégâts −2 par nouvelle cible). |
-| 5 | Élémentaire d'air *(sort)* | Invoquer ou se transformer en élémentaire. |
+| 5 | Invocation d'élémentaire d'air *(sort)* | Invoque un élémentaire d'air à ses côtés (1d6 + INT tours). |
+| 5 | Transformation en élémentaire d'air *(sort)* | Se transforme en élémentaire d'air (forme à activer). Deux sorts distincts (19/11/2026). |
 
 ### Voie des arcanes
 | Rang | Compétence | Effet |

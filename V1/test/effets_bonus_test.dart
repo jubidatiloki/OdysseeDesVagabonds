@@ -189,4 +189,31 @@ void main() {
             .portee,
         'ca');
   });
+  test('données : Soutien marin (INT cibles), Paroles impies (immobilisation)',
+      () {
+    final marin = _depuis('classes.json', 'Soutien marin');
+    expect((marin.cible, marin.ciblesMax), (CibleCompetence.selection, 'INT'));
+    final paroles = _depuis('classes.json', 'Paroles impies');
+    expect(paroles.ciblesMax, 'INT');
+    final b = paroles.bonusDonnes.single;
+    expect((b.portee, b.etat, b.siReussite), ('etat', 'Immobilisation', false));
+    expect(paroles.duree!.texte, '1 tour');
+    // Une affliction : pas un bonus chiffré, mais un texte.
+    final etat = BonusSeance(
+      nom: 'Paroles impies',
+      valeur: 0,
+      portee: PorteeBonus.etat,
+      etat: 'Immobilisation',
+      cibles: const ['loup'],
+      auteur: 'j1',
+      auteurNom: 'Pria',
+      duree: DureeBonus.tours,
+      toursRestants: 1,
+      seance: 1,
+      date: DateTime(2026),
+    );
+    expect((etat.estEtat, etat.effet), (true, 'Immobilisation'));
+    expect(etat.compte(genre: GenreJet.attaque, d20: true, degats: false),
+        isFalse);
+  });
 }

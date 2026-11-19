@@ -80,7 +80,7 @@ Dans l'application, l'écran « Nouveau personnage » guide chaque étape :
 
 ### Dés de vie, de mana et d'endurance
 
-- **Le dé de vie (DV)** donne les **points de vie** (PV) : au niveau 1, le personnage a **DV maximum + modificateur de CON** PV. Exemple : DV d8 et CON +1 → 9 PV.
+- **Le dé de vie (DV)** donne les **points de vie** (PV) : au niveau 1, le personnage a **DV maximum + modificateur de CON** PV. Exemple : DV d8 et CON +1 → 9 PV. Une CON négative ne retire pas de PV : elle compte pour 0.
 - **Le dé de mana (DM)** donne les **points de mana** (PM), qui servent à lancer des sorts : au niveau 1, **DM maximum** PM.
 - **Le dé d'endurance (DE)** donne les **points d'endurance** (PE), qui servent aux techniques physiques : au niveau 1, **DE maximum** PE.
 - À chaque niveau suivant, on **lance** le dé et on ajoute le résultat (sans la CON pour les PV).
@@ -163,7 +163,7 @@ Ces valeurs sont calculées par l'application à partir des statistiques, de l'�
 
 | Valeur | Comment elle se calcule |
 |---|---|
-| PV max (niveau 1) | DV maximum + mod(CON) |
+| PV max (niveau 1) | DV maximum + mod(CON) (une CON négative compte pour 0) |
 | PV max (niveaux suivants) | + 1 jet de DV par niveau |
 | PM max (niveau 1) | DM maximum |
 | PM max (niveaux suivants) | + 1 jet de DM par niveau |

@@ -116,6 +116,14 @@ void main() {
             LigneCompetence(
               competence: Competence(
                 rang: 1,
+                nom: 'Marin',
+                cible: CibleCompetence.selection,
+                ciblesMax: 'INT',
+              ),
+            ),
+            LigneCompetence(
+              competence: Competence(
+                rang: 1,
                 nom: 'Moulinet',
                 duree: DureeCompetence(type: TypeDuree.aucune),
               ),
@@ -124,6 +132,10 @@ void main() {
         ),
       ),
     ));
+    expect(
+      tester.widget<Text>(find.byKey(const Key('cible-duree-Marin'))).data,
+      'Cible : Plusieurs cibles au choix (INT au plus)',
+    );
     expect(
       tester.widget<Text>(find.byKey(const Key('cible-duree-Chant'))).data,
       'Cible : Les alliés (lanceur compris) · Durée : jusqu\'à la fin du combat',

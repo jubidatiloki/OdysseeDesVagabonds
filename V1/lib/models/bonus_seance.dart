@@ -10,7 +10,9 @@ enum PorteeBonus {
   initiative('Initiative', 'à l\'initiative'),
   carac('Tests d\'une caractéristique', 'aux tests'),
   degats('Dégâts', 'aux dégâts'),
-  ca('Classe d\'armure (CA)', 'à la CA');
+  ca('Classe d\'armure (CA)', 'à la CA'),
+  // Affliction posée sur les cibles (immobilisation…), 19/11/2026.
+  etat('État (affliction)', '');
 
   const PorteeBonus(this.libelle, this.suffixe);
 
@@ -57,6 +59,7 @@ class BonusSeance {
     required this.portee,
     this.carac,
     this.contre = '',
+    this.etat = '',
     required this.cibles,
     required this.auteur,
     required this.auteurNom,
@@ -78,6 +81,12 @@ class BonusSeance {
 
   /// [PorteeBonus.ca] : CA visée (« CaC », « DIST », « MAG ») ; vide : toutes.
   final String contre;
+
+  /// [PorteeBonus.etat] : affliction posée (« Immobilisation »).
+  final String etat;
+
+  /// Une affliction plutôt qu'un bonus chiffré.
+  bool get estEtat => portee == PorteeBonus.etat;
 
   /// uid des joueurs qui le reçoivent.
   final List<String> cibles;
@@ -102,6 +111,7 @@ class BonusSeance {
   String get effet => switch (portee) {
         PorteeBonus.carac when carac != null =>
           '$_valeurTexte aux tests de ${carac!.abrev}',
+        PorteeBonus.etat => etat.isEmpty ? nom : etat,
         PorteeBonus.ca when contre.isNotEmpty =>
           '$_valeurTexte à la CA ${libelleContre(contre)}',
         _ => '$_valeurTexte ${portee.suffixe}',
@@ -146,6 +156,7 @@ class BonusSeance {
         PorteeBonus.degats => degats,
         // La CA ne s'ajoute pas aux jets : voir [totalCa].
         PorteeBonus.ca => false,
+        PorteeBonus.etat => false,
       };
 
   /// Bonus d'une liste qui comptent pour un jet de [cible] ; deux bonus du
@@ -225,6 +236,7 @@ class BonusSeance {
         portee: portee,
         carac: carac,
         contre: contre,
+        etat: etat,
         cibles: cibles,
         auteur: auteur,
         auteurNom: auteurNom,
@@ -240,6 +252,7 @@ class BonusSeance {
         'portee': portee.name,
         if (carac != null) 'carac': carac!.code,
         if (contre.isNotEmpty) 'contre': contre,
+        if (etat.isNotEmpty) 'etat': etat,
         'cibles': cibles,
         'auteur': auteur,
         'auteurNom': auteurNom,
@@ -257,6 +270,7 @@ class BonusSeance {
         portee: PorteeBonus.depuisCode(j['portee']),
         carac: Carac.depuisCode(j['carac'] as String? ?? ''),
         contre: j['contre'] as String? ?? '',
+        etat: j['etat'] as String? ?? '',
         cibles: [for (final c in j['cibles'] as List? ?? const []) '$c'],
         auteur: j['auteur'] as String? ?? '',
         auteurNom: j['auteurNom'] as String? ?? '',

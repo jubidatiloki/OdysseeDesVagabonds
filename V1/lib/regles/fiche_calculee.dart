@@ -1618,13 +1618,17 @@ class FicheCalculee {
   /// Le DV max du niveau 1 est celui de la création : Vitalité elfique ne le
   /// recalcule pas (elle donne +10 PV max à la prise).
   int get pvMax {
-    var total = deVieDeBase + mod(Carac.con);
+    // Une CON négative ne diminue pas les PV max (19/11/2026).
+    var total = deVieDeBase + modConPourPv;
     for (final jet in personnage.jetsDeVie) {
       total += jet;
     }
     total += bonusPvCompetences;
     return total < 1 ? 1 : total;
   }
+
+  /// Modificateur de CON compté dans les PV max : jamais négatif.
+  int get modConPourPv => math.max(0, mod(Carac.con));
 
   /// Part des PV max venant des règles particulières.
   int get bonusPvCompetences {
