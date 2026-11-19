@@ -24,6 +24,7 @@ List<Widget> vuesFiche(
   required Future<void> Function() onModifie,
   PersonnagesController? controller,
   void Function(Objet)? onEnvoyerObjet,
+  void Function(String detail)? onRepos,
   ({bool inventaire, bool competences}) verrous = (
     inventaire: false,
     competences: false,
@@ -38,6 +39,7 @@ List<Widget> vuesFiche(
       child: OngletFiche(
         fiche: fiche,
         onModifie: onModifie,
+        onRepos: onRepos,
         equipements: referentiel.equipements,
         onModifierIdentite: () async {
           if (await FormulaireIdentite.ouvrir(context, p)) {
@@ -87,12 +89,16 @@ class FicheComplete extends StatelessWidget {
     required this.onModifie,
     this.controller,
     this.onEnvoyerObjet,
+    this.onRepos,
   });
 
   final FicheCalculee fiche;
   final Referentiel referentiel;
   final Future<void> Function() onModifie;
   final PersonnagesController? controller;
+
+  /// En séance : nuit de repos notée dans les logs.
+  final void Function(String detail)? onRepos;
 
   /// En séance : envoyer un objet non équipé à un autre PJ.
   final void Function(Objet)? onEnvoyerObjet;
@@ -124,6 +130,7 @@ class FicheComplete extends StatelessWidget {
                 onModifie: onModifie,
                 controller: controller,
                 onEnvoyerObjet: onEnvoyerObjet,
+                onRepos: onRepos,
               ),
             ),
           ),

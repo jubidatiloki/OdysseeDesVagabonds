@@ -36,6 +36,8 @@ import 'package:odyssee_vagabonds/state/campagnes_controller.dart';
 import 'package:odyssee_vagabonds/state/compte_controller.dart';
 import 'package:odyssee_vagabonds/state/personnages_controller.dart';
 import 'package:odyssee_vagabonds/state/seance_controller.dart';
+import 'package:odyssee_vagabonds/theme.dart';
+import 'package:odyssee_vagabonds/widgets/jauge_animee.dart';
 
 /// Interface de jeu d'une séance (03/11/2026) : tours par initiative en
 /// combat, créatures cachées, jets et leur visibilité, ressources selon les
@@ -159,6 +161,15 @@ const _guerrier = Classe(
           nom: 'Étincelle',
           type: 'sort',
           effet: 'Une petite flamme.',
+        ),
+        // Soin de deux cibles au plus (19/11/2026).
+        Competence(
+          rang: 2,
+          nom: 'Soin des braves',
+          type: 'sort',
+          cible: CibleCompetence.selection,
+          ciblesMax: '2',
+          soin: '2d6 PV',
         ),
       ],
     ),
@@ -341,6 +352,24 @@ void main() {
       expect(lu.peutMonter('j1', 1), isTrue);
       expect(lu.peutMonter('j1', 2), isFalse);
       expect(lu.peutMonter('j2', 1), isFalse);
+    });
+
+    test('jets : 1 naturel = échec, 20 naturel = réussite, bonus ou pas', () {
+      ResultatLancer jet(int naturel, int bonus) => ResultatLancer(
+            libelle: 'Test',
+            formule: '1d20',
+            des: [naturel],
+            garde: naturel,
+            bonus: bonus,
+            d20: true,
+            date: DateTime(2026, 11, 19),
+          );
+      expect(reussiteJet(jet(1, 30), 10), isFalse);
+      expect(reussiteJet(jet(1, 30), null), isFalse);
+      expect(reussiteJet(jet(20, -30), 25), isTrue);
+      expect(reussiteJet(jet(12, 0), 12), isTrue);
+      expect(reussiteJet(jet(11, 0), 12), isFalse);
+      expect(reussiteJet(null, null), isTrue);
     });
 
     test('attaque contre la CA : total ≥ CA, 20 et 1 naturels', () {
@@ -1146,8 +1175,35 @@ void main() {
       );
     }
 
+    /// Fenêtre de cibles (19/11/2026) : ids des cibles proposées, dans
+    /// l'ordre affiché.
+    List<String> ciblesProposees() => [
+          for (final e in find
+              .byWidgetPredicate((w) =>
+                  w.key is ValueKey<String> &&
+                  (w.key! as ValueKey<String>).value.startsWith('choix-cible-'))
+              .evaluate())
+            (e.widget.key! as ValueKey<String>)
+                .value
+                .substring('choix-cible-'.length),
+        ];
+
+    /// Fenêtre à une seule cible ouverte : touche [id], sinon la première
+    /// proposée (l'ancienne cible par défaut).
+    Future<void> choisirCible(WidgetTester tester, [String? id]) async {
+      if (find.byKey(const Key('fenetre-cibles')).evaluate().isEmpty) return;
+      if (find.byKey(const Key('valider-cibles')).evaluate().isNotEmpty) {
+        return;
+      }
+      await tap(tester,
+          find.byKey(Key('choix-cible-${id ?? ciblesProposees().first}')));
+    }
+
     /// Touche un bouton du panneau de dés, après l'avoir fait défiler à l'écran.
-    Future<void> tapDes(WidgetTester tester, String cle) async {
+    /// Une fenêtre de cibles à une seule cible qui s'ouvre : la première
+    /// cible proposée est choisie (sauf [cibleAuto] à `false`).
+    Future<void> tapDes(WidgetTester tester, String cle,
+        {bool cibleAuto = true}) async {
       final f = find.byKey(Key(cle));
       // Groupe replié selon le mode de jeu : on le déplie d'abord.
       final groupe = cle.startsWith('attaque-')
@@ -1182,6 +1238,7 @@ void main() {
         await tester.pumpAndSettle();
       }
       await tap(tester, f);
+      if (cibleAuto) await choisirCible(tester);
     }
 
     testWidgets('MJ : navigation, créature ajoutée, combat', (tester) async {
@@ -1319,8 +1376,8 @@ void main() {
 
       // Nom caché : « Créature inconnue », état sans PV.
       await tap(tester, find.byKey(const Key('carte-b')));
-      // Carte, détail et liste des cibles.
-      expect(find.text(CreatureSeance.nomInconnu), findsNWidgets(3));
+      // Carte et détail (les cibles sont dans une fenêtre).
+      expect(find.text(CreatureSeance.nomInconnu), findsNWidgets(2));
       expect(find.text('Liche'), findsNothing);
       expect(find.textContaining('PV 3'), findsNothing);
       expect(find.byKey(const Key('creature-etat')), findsOneWidget);
@@ -1530,6 +1587,205 @@ void main() {
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
       expect(x.base.parties[x.campagne.id]!.ressources['j1']!.pv, 7);
+    });
+
+    testWidgets('soins (19/11/2026) : PV rendus, sans dépasser le maximum',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()..pvActuels = 4]);
+      Future<void> soin(int n) async {
+        await ServiceCampagnesMemoire(x.base, 'mj').seance.envoyerDegats(
+              x.campagne,
+              DegatsSeance(
+                cible: 'j1',
+                destinataire: 'j1',
+                auteur: 'mj',
+                montant: n,
+                source: 'Prêtre · Soin léger',
+                type: kTypeSoin,
+              ),
+            );
+        await tester.pumpAndSettle();
+      }
+
+      await soin(3);
+      expect(find.text('7/10'), findsOneWidget);
+      await soin(20);
+      expect(find.text('10/10'), findsOneWidget);
+      // Jauge animée sur la carte.
+      expect(find.byType(JaugeAnimee), findsWidgets);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : soin d\'une créature, plafonné à ses PV max',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) =>
+            ServiceCampagnesMemoire(b, 'mj').seance.ajouterCreature(
+                  c,
+                  const CreatureSeance(id: 'l', nom: 'Loup', pv: 5, pvMax: 12),
+                ),
+      );
+      await ServiceCampagnesMemoire(x.base, 'j1').seance.envoyerDegats(
+            x.campagne,
+            const DegatsSeance(
+              cible: 'l',
+              destinataire: 'mj',
+              auteur: 'j1',
+              montant: 30,
+              source: 'Brom · soin',
+              type: kTypeSoin,
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(x.base.parties[x.campagne.id]!.creatures['l']!.pv, 12);
+    });
+
+    testWidgets(
+        'sort de soin à plusieurs cibles : fenêtre, un seul jet pour toutes',
+        (tester) async {
+      final brom = _brom()
+        ..rangsVoies['magie'] = 2
+        ..pvActuels = 2;
+      final x = await ouvrir(tester, 'j1', fiches: [brom]);
+      final partie = x.base.parties[x.campagne.id]!;
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await deplier(
+          tester, 'groupe-sorts', find.byKey(const Key('sort-seance-1')));
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('sort-seance-1')),
+        200,
+        scrollable: panneau,
+      );
+      await tapDes(tester, 'sort-seance-1', cibleAuto: false);
+      // Plusieurs cibles : 2 au plus, soi-même en doré, alliée en vert.
+      expect(find.text('Sur qui ? (0 / 2 au plus)'), findsOneWidget);
+      Color couleur(String id) => tester
+          .widget<Text>(find.descendant(
+              of: find.byKey(Key('choix-cible-$id')),
+              matching: find.byType(Text)))
+          .style!
+          .color!;
+      expect(couleur('j1'), OdvCouleurs.peFonce);
+      expect(couleur('j2'), couleurModificateur(1, Brightness.light));
+      await tap(tester, find.byKey(const Key('choix-cible-j1')));
+      await tap(tester, find.byKey(const Key('choix-cible-j2')));
+      await tap(tester, find.byKey(const Key('valider-cibles')));
+      final jet = partie.jets.lastWhere((j) => j.libelle.contains('soin'));
+      expect(jet.cible, 'soi-même, aria');
+      // Le soin de l'autre PJ part chez lui ; le sien est appliqué ici.
+      final pourAria = partie.degats.single;
+      expect((pourAria.cible, pourAria.type, pourAria.montant),
+          ('j2', kTypeSoin, jet.total));
+      expect(find.text('${min(10, 2 + jet.total)}/10'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('attaque : fenêtre de cibles colorée, ennemis en rouge',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .ajouterCreature(c, const CreatureSeance(id: 'l', nom: 'Loup')),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      // Plus de liste déroulante dans le groupe Combat.
+      expect(find.byKey(const Key('cible-attaque')), findsNothing);
+      await tapDes(tester, 'attaque-0', cibleAuto: false);
+      expect(ciblesProposees(), ['l', 'j2', 'j1']);
+      final loup = tester.widget<Text>(find.descendant(
+          of: find.byKey(const Key('choix-cible-l')),
+          matching: find.byType(Text)));
+      expect(loup.style!.color, couleurModificateur(-1, Brightness.light));
+      await tap(tester, find.byKey(const Key('choix-cible-j2')));
+      expect(partie.jets.last.cible, 'aria');
+      // La fenêtre suivante met la dernière cible en évidence.
+      await tapDes(tester, 'attaque-0', cibleAuto: false);
+      expect(
+        tester
+            .widget<ActionChip>(find.byKey(const Key('choix-cible-j2')))
+            .avatar,
+        isNotNull,
+      );
+      await tap(tester, find.byKey(const Key('annuler-cibles')));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+        'PJ : son personnage en tête, icône de bonus selon les permissions',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          for (final (cible, valeur) in [('j1', -1), ('j2', 2)]) {
+            await mj.poserBonus(
+              c,
+              BonusSeance(
+                nom: 'Effet',
+                valeur: valeur,
+                portee: PorteeBonus.attaque,
+                cibles: [cible],
+                auteur: 'mj',
+                auteurNom: 'MJ',
+                duree: DureeBonus.finCombat,
+                seance: 1,
+                date: DateTime(2026, 11, 19),
+              ),
+            );
+          }
+        },
+      );
+      // brom avant aria (le sien d'abord, pas l'ordre alphabétique).
+      expect(tester.getTopLeft(find.byKey(const Key('carte-j1'))).dy,
+          lessThan(tester.getTopLeft(find.byKey(const Key('carte-j2'))).dy));
+      // Son malus : icône ; celui d'aria : caché sans la permission.
+      expect(find.byKey(const Key('carte-j1-bonus')), findsOneWidget);
+      expect(find.byKey(const Key('carte-j2-bonus')), findsNothing);
+      await ServiceCampagnesMemoire(x.base, 'mj').modifier(x.campagne.copie(
+          parametres: const ParametresCampagne(pjVoientEffetsAllies: true)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('carte-j2-bonus')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('nuit de repos : notée dans les logs (PE, pas de PM)',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()..pvActuels = 3]);
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('bouton-repos')),
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byType(TabBarView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tap(tester, find.byKey(const Key('bouton-repos')));
+      await tap(tester, find.byKey(const Key('repos-nuit')));
+      final note = x.base.parties[x.campagne.id]!.jets.last.libelle;
+      expect(note, startsWith('brom · Nuit complète : jet d'));
+      expect(note, contains('PE'));
+      expect(note, isNot(contains('PM')));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('MJ : PV publiés par le joueur, même si la fiche a du retard',
@@ -1764,13 +2020,9 @@ void main() {
       expect(find.text('Allié · joué par le MJ'), findsOneWidget);
       // Le MJ le fait agir : il vise d'abord la créature rencontrée.
       await tap(tester, find.byKey(const Key('carte-garde')));
-      expect(
-        tester
-            .widget<DropdownButton<String>>(
-                find.byKey(const Key('cible-attaque')))
-            .value,
-        'rat',
-      );
+      await tapDes(tester, 'attaque-0', cibleAuto: false);
+      expect(ciblesProposees().first, 'rat');
+      await tap(tester, find.byKey(const Key('annuler-cibles')));
       // Interrupteur du détail : il repasse avec les créatures.
       final partie = x.base.parties[x.campagne.id]!;
       expect(partie.creatures['garde']!.allie, isTrue);
@@ -1887,14 +2139,10 @@ void main() {
       expect(find.byKey(const Key('creature-cachee')), findsNothing);
       await tap(tester, find.byKey(const Key('creature-pv-moins')));
       expect(partie.creatures['compagnon-j1-loup']!.pv, 11);
-      // Cible par défaut de ses attaques : la créature rencontrée.
-      expect(
-        tester
-            .widget<DropdownButton<String>>(
-                find.byKey(const Key('cible-attaque')))
-            .value,
-        'rat',
-      );
+      // Première cible proposée à ses attaques : la créature rencontrée.
+      await tapDes(tester, 'attaque-0', cibleAuto: false);
+      expect(ciblesProposees().first, 'rat');
+      await tap(tester, find.byKey(const Key('annuler-cibles')));
       // Les PJ voient ses PV et sa fiche.
       final vu = partie.creatures['compagnon-j1-loup']!
           .pourJoueur(const ParametresCampagne(pjVoientPvCreatures: false));
@@ -1996,6 +2244,13 @@ void main() {
           .lancer(x.base.campagnes[x.campagne.id]!, renvoi('j1'));
       await tester.pumpAndSettle();
       expect(partie.creatures.containsKey(second), isFalse);
+      // Disparition notée dans les logs, avec la raison (19/11/2026).
+      bool note(String texte) => partie.jets.any((j) => j.libelle == texte);
+      expect(
+        note(
+            'Loup 2 (invocation de brom) disparaît : renvoyée par son lanceur'),
+        isTrue,
+      );
       // À 0 PV, l'invocation se dissipe (et sort de l'ordre).
       await ServiceCampagnesMemoire(x.base, 'j2').seance.envoyerDegats(
             x.base.campagnes[x.campagne.id]!,
@@ -2010,6 +2265,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(partie.creatures.containsKey(id), isFalse);
       expect(partie.etat.ordre, ['j1', 'j2']);
+      expect(note('Loup (invocation de brom) disparaît : vaincue'), isTrue);
     });
 
     testWidgets('invocation d\'un autre PJ : selon les permissions',
@@ -2879,13 +3135,11 @@ void main() {
         200,
         scrollable: panneau,
       );
-      await tapDes(tester, 'competence-seance-3');
-      // Créatures proposées ; une seule cible au plus.
-      await tap(tester, find.byKey(const Key('cible-competence-l1')));
-      final autre = tester
-          .widget<FilterChip>(find.byKey(const Key('cible-competence-l2')));
-      expect(autre.onSelected, isNull);
-      await tap(tester, find.byKey(const Key('valider-cibles-bonus')));
+      // Créatures proposées (ennemis d'abord) ; une seule cible au plus.
+      await tapDes(tester, 'competence-seance-3', cibleAuto: false);
+      expect(ciblesProposees().take(2), ['l1', 'l2']);
+      expect(find.byKey(const Key('valider-cibles')), findsNothing);
+      await tap(tester, find.byKey(const Key('choix-cible-l1')));
       final b = partie.bonus.values.single;
       expect((b.portee, b.etat, b.cibles.single, b.toursRestants),
           (PorteeBonus.etat, 'Immobilisation', 'l1', 1));
@@ -2940,11 +3194,10 @@ void main() {
         200,
         scrollable: panneau,
       );
-      await tapDes(tester, 'competence-seance-2');
+      await tapDes(tester, 'competence-seance-2', cibleAuto: false);
       // Qui ? puis quelle option ?
-      expect(find.byKey(const Key('fenetre-cibles-bonus')), findsOneWidget);
-      await tap(tester, find.byKey(const Key('cible-competence-j2')));
-      await tap(tester, find.byKey(const Key('valider-cibles-bonus')));
+      expect(find.byKey(const Key('fenetre-cibles')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('choix-cible-j2')));
       expect(find.byKey(const Key('fenetre-option-bonus')), findsOneWidget);
       await tap(tester, find.byKey(const Key('option-bonus-Arme')));
       final poses = partie.bonus.values.where((b) => b.nom == 'Bénir');
@@ -3020,9 +3273,30 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('PJ : donne un bonus à un autre, puis le retire',
+    testWidgets('PJ : pas de bonus donné à la main (19/11/2026)',
         (tester) async {
-      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      await ouvrir(tester, 'j1', fiches: [_brom()]);
+      final panneau = find
+          .descendant(
+            of: find.byKey(const Key('panneau-des')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const PageStorageKey('groupe-bonus')),
+        200,
+        scrollable: panneau,
+      );
+      await deplier(
+          tester, 'groupe-bonus', find.byKey(const Key('bloc-bonus')));
+      expect(find.byKey(const Key('bloc-bonus')), findsOneWidget);
+      expect(find.byKey(const Key('donner-bonus')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : donne un bonus à un PJ, puis le retire', (tester) async {
+      final x = await ouvrir(tester, 'mj');
       final partie = x.base.parties[x.campagne.id]!;
       final panneau = find
           .descendant(
@@ -3050,7 +3324,7 @@ void main() {
       final b = partie.bonus.values.single;
       expect(b.cibles, ['j2']);
       expect((b.nom, b.valeur, b.portee, b.auteur, b.toursRestants),
-          ('Chant de guerre', 1, PorteeBonus.attaque, 'j1', 3));
+          ('Chant de guerre', 1, PorteeBonus.attaque, 'mj', 3));
       // Noté dans les logs de la table.
       expect(partie.jets.last.libelle,
           startsWith('Chant de guerre (+1 aux attaques, 3 tours)'));
@@ -3127,9 +3401,8 @@ void main() {
       await tapDes(tester, 'attaque-0');
       expect(partie.jets.last.touche, isNull);
       expect(partie.jets.last.resultatCible, 'CA de la cible inconnue');
-      await tap(tester, find.byKey(const Key('cible-attaque')));
-      await tap(tester, find.text('Aucune cible').last);
-      await tapDes(tester, 'attaque-0');
+      await tapDes(tester, 'attaque-0', cibleAuto: false);
+      await tap(tester, find.byKey(const Key('aucune-cible')));
       expect(
         partie.jets.last.resultatCible,
         'Sans cible : pas de comparaison',
@@ -3253,13 +3526,26 @@ void main() {
     });
 
     testWidgets('MJ : permissions et taille des portions', (tester) async {
-      final x = await ouvrir(tester, 'mj', taille: const Size(1800, 1000));
+      final x = await ouvrir(tester, 'mj', taille: const Size(1800, 1600));
       await tap(tester, find.byKey(const Key('seance-parametres')));
       expect(find.byKey(const Key('portion-gauche')), findsOneWidget);
       await tap(tester, find.byKey(const Key('pj-voient-pv-creatures')));
       expect(
         x.base.campagnes[x.campagne.id]!.parametres.pjVoientPvCreatures,
         isTrue,
+      );
+      // Nouvelles permissions (19/11/2026) : effets des alliés et des
+      // créatures, montée de niveau hors séance.
+      await tap(tester, find.byKey(const Key('pj-voient-effets-allies')));
+      await tap(tester, find.byKey(const Key('pj-montee-hors-seance')));
+      final p = x.base.campagnes[x.campagne.id]!.parametres;
+      expect(
+        (
+          p.pjVoientEffetsAllies,
+          p.pjVoientEffetsCreatures,
+          p.pjMonteeHorsSeance
+        ),
+        (true, false, true),
       );
     });
 

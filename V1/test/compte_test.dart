@@ -463,6 +463,28 @@ void testsDelaiEnvoi() {
     expect(depot.nbEnAttente, 1);
     depot.fermer();
   });
+
+  test(
+      'fiche modifiée en ligne après l\'attente (MJ) : la version en ligne '
+      'gagne', () async {
+    final distant = _DepotCompte();
+    final depot = DepotDiffere(
+      distant,
+      envoiImmediat: () => false,
+      stockage: StockageCompteMemoire(),
+      cle: 'attente',
+    );
+    await depot.sauvegarder(fiche('b', 'Brom (joueur)'));
+    expect(depot.nbEnAttente, 1);
+    // Le MJ modifie la fiche ensuite (bénédiction arrêtée).
+    final duMj = fiche('b', 'Brom (MJ)')
+      ..modifieLe = DateTime.now().add(const Duration(minutes: 1));
+    await distant.importer([duMj]);
+    final liste = await depot.tous();
+    expect(liste.single.nom, 'Brom (MJ)');
+    expect(depot.nbEnAttente, 0);
+    depot.fermer();
+  });
 }
 
 /// Stockage en ligne qui ne répond pas (pas d'internet).

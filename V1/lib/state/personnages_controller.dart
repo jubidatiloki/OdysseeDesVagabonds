@@ -27,6 +27,12 @@ class PersonnagesController extends ChangeNotifier {
   ({bool inventaire, bool competences}) restrictionsDe(String id) =>
       restrictions?.call(id) ?? (inventaire: false, competences: false);
 
+  /// Une campagne interdit-elle de monter de niveau en dehors d'une séance
+  /// (19/11/2026) ? Fourni par les campagnes.
+  bool Function(String id)? monteeBloquee;
+
+  bool monteeBloqueeDe(String id) => monteeBloquee?.call(id) ?? false;
+
   /// Les verrous ont changé : les écrans se redessinent.
   void signalerRestrictions() => notifyListeners();
 

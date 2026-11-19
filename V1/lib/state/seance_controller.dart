@@ -394,7 +394,7 @@ class SeanceController extends ChangeNotifier {
           if (x.id == j.renvoi &&
               x.proprietaire == j.auteur &&
               x.toursRestants != null) {
-            unawaited(retirerCreature(x));
+            unawaited(retirerCreature(x, raison: 'renvoyée par son lanceur'));
           }
         }
         continue;
@@ -427,6 +427,7 @@ class SeanceController extends ChangeNotifier {
         final reste = x.toursRestants! - passees;
         if (reste <= 0) {
           await s.retirerCreature(c, x.id);
+          await _noterDisparition(s, c, x, 'durée expirée');
           if (_carte == x.id) _carte = kCarteScript;
         } else {
           await s.modifierCreature(c, x.copie(toursRestants: reste));
@@ -447,6 +448,61 @@ class SeanceController extends ChangeNotifier {
         for (final b in bonus)
           if (b.cibles.contains(cible)) b,
       ];
+
+  /// Ce compte voit-il les bonus et malus reçus par [id] ? (19/11/2026) Le
+  /// MJ toujours ; un PJ les siens et ceux de ses compagnons, ceux des
+  /// autres PJ et alliés ou des créatures selon les permissions.
+  bool voitEffetsDe(String id) {
+    if (estMj || id == uid) return true;
+    final p = campagne?.parametres ?? const ParametresCampagne();
+    CreatureSeance? creature;
+    for (final c in _creatures) {
+      if (c.id == id) creature = c;
+    }
+    if (creature != null && creature.proprietaire == uid) return true;
+    final allie =
+        joueurs.any((m) => m.uid == id) || (creature?.duCotePj ?? false);
+    return allie ? p.pjVoientEffetsAllies : p.pjVoientEffetsCreatures;
+  }
+
+  /// Bonus et malus reçus par [id] que ce compte peut voir (les siens, ceux
+  /// qu'il a donnés, les autres selon [voitEffetsDe]).
+  List<BonusSeance> bonusVisibles(String id) {
+    final tous = voitEffetsDe(id);
+    return [
+      for (final b in bonusRecus(id))
+        if (tous || b.auteur == uid) b,
+    ];
+  }
+
+  /// Icône de la carte (19/11/2026) : nombre de bonus et de malus visibles
+  /// (une affliction compte comme un malus) ; `null` : aucun.
+  ({int bonus, int malus})? bonusSurCarte(String id) {
+    var bon = 0;
+    var mal = 0;
+    for (final b in bonusVisibles(id)) {
+      if (b.estEtat || b.valeur < 0) {
+        mal++;
+      } else if (b.valeur > 0) {
+        bon++;
+      }
+    }
+    return bon + mal == 0 ? null : (bonus: bon, malus: mal);
+  }
+
+  /// Personnages des joueurs dans la liste de gauche (19/11/2026) : pour un
+  /// PJ, le sien d'abord, puis par ordre alphabétique.
+  List<MembreCampagne> get joueursOrdonnes {
+    final liste = [...joueurs]..sort((a, b) {
+        if (!estMj && (a.uid == uid) != (b.uid == uid)) {
+          return a.uid == uid ? -1 : 1;
+        }
+        return a.personnageNom
+            .toLowerCase()
+            .compareTo(b.personnageNom.toLowerCase());
+      });
+    return liste;
+  }
 
   /// Ceux que ce compte peut retirer : les siens ; tous pour le MJ.
   List<BonusSeance> get bonusRetirables => [
@@ -1401,6 +1457,37 @@ class SeanceController extends ChangeNotifier {
         ),
       );
 
+  /// Invocation temporaire disparue (19/11/2026) : notée dans les logs avec
+  /// la raison (vaincue, durée expirée, renvoyée).
+  Future<void> _noterDisparition(
+    ServiceSeance s,
+    Campagne c,
+    CreatureSeance x,
+    String raison,
+  ) {
+    var lanceur = '';
+    for (final m in joueurs) {
+      if (m.uid == x.proprietaire) lanceur = m.personnageNom;
+    }
+    return _noter(
+      s,
+      c,
+      '${x.nom}${lanceur.isEmpty ? '' : ' (invocation de $lanceur)'} '
+      'disparaît : $raison',
+      VisibiliteJet.tous,
+    );
+  }
+
+  /// Nuit de repos d'un personnage (19/11/2026) : notée dans les logs, avec
+  /// les jets de regain (PM et PE seulement s'il en a).
+  Future<String?> noterRepos(String personnage, String detail) =>
+      _agir((s, c) => _noter(
+            s,
+            c,
+            '$personnage · ${detail.replaceAll(RegExp(r'\.$'), '')}',
+            VisibiliteJet.tous,
+          ));
+
   /// MJ : nouveau butin, caché par défaut (12/11/2026) : le MJ le remplit
   /// (argent, objets) avant de le révéler aux joueurs.
   Future<String?> creerButin(String nom) => _agir((s, c) => s.ecrireButin(
@@ -1591,10 +1678,17 @@ class SeanceController extends ChangeNotifier {
   Future<String?> modifierCreature(CreatureSeance creature) =>
       _agir((s, c) => s.modifierCreature(c, creature));
 
-  /// MJ : retire une créature de la partie (et de l'ordre).
-  Future<String?> retirerCreature(CreatureSeance creature) =>
+  /// MJ : retire une créature de la partie (et de l'ordre). Invocation
+  /// temporaire : sa disparition est notée dans les logs, avec [raison].
+  Future<String?> retirerCreature(
+    CreatureSeance creature, {
+    String raison = 'renvoyée par le MJ',
+  }) =>
       _agir((s, c) async {
         await s.retirerCreature(c, creature.id);
+        if (creature.toursRestants != null) {
+          await _noterDisparition(s, c, creature, raison);
+        }
         await _reordonner(s, c);
         if (_carte == creature.id) _carte = kCarteScript;
       });
@@ -1637,6 +1731,32 @@ class SeanceController extends ChangeNotifier {
         ? [...lesJoueurs, ...desJoueurs, ...rencontrees]
         : [...rencontrees, ...lesJoueurs, ...desJoueurs];
   }
+
+  /// Cibles proposées dans la fenêtre de cibles (19/11/2026), avec leur camp
+  /// vu de celui qui agit : soi-même, allié ou ennemi. Ordre de [cibles]
+  /// (ennemis d'abord pour un PJ), puis soi-même.
+  List<CibleSeance> get ciblesPotentielles {
+    final soi = idAttaquant;
+    final choisie = estMj ? creatureChoisie : null;
+    final cotePj = choisie == null || choisie.duCotePj;
+    bool estCotePj(String id) =>
+        joueurs.any((m) => m.uid == id) ||
+        _creatures.any((c) => c.id == id && c.duCotePj);
+    return [
+      for (final c in cibles)
+        (
+          id: c.id,
+          nom: c.nom,
+          camp: estCotePj(c.id) == cotePj ? CampCible.allie : CampCible.ennemi,
+        ),
+      if (soi.isNotEmpty) (id: soi, nom: attaquant.nom, camp: CampCible.soi),
+    ];
+  }
+
+  /// Soin (19/11/2026) : PV rendus à la cible, sans dépasser ses PV max ;
+  /// envoyé comme des dégâts de type « soin » à qui peut écrire sa fiche.
+  Future<String?> soigner(String cible, int montant, String source) =>
+      infligerDegats(cible, montant, source, type: kTypeSoin);
 
   /// PV, PM, PE d'une carte, à jour : sa propre fiche pour le joueur ; pour
   /// les autres, ce que le joueur a publié depuis sa fiche (13/11/2026).
@@ -1799,6 +1919,20 @@ class SeanceController extends ChangeNotifier {
         if (f == null) return;
         final p = f.personnage;
         final avant = f.pvActuels;
+        if (d.type == kTypeSoin) {
+          final apres = math.max(avant, math.min(f.pvMax, avant + d.montant));
+          p
+            ..pvActuels = apres
+            ..journaliser(
+              '${d.source} : +${apres - avant} PV · PV : $avant → $apres',
+              categorie: CategorieHistorique.vie,
+            );
+          await personnages.sauvegarder(p);
+          _minuteriePublication?.cancel();
+          _minuteriePublication = null;
+          unawaited(_publier(force: true));
+          return;
+        }
         final rd = f.rdContre(d.type);
         final net = math.max(0, d.montant - rd);
         final apres = math.max(avant - net, -f.deVie - 1);
@@ -1821,10 +1955,17 @@ class SeanceController extends ChangeNotifier {
       for (final x in liste) {
         final pv = x.pv;
         if (x.id != d.cible || pv == null) continue;
+        if (d.type == kTypeSoin) {
+          final max = x.pvMax ?? pv + d.montant;
+          await s.modifierCreature(
+              c, x.copie(pv: math.max(pv, math.min(max, pv + d.montant))));
+          continue;
+        }
         final reste = math.max(0, pv - d.montant);
         // Invocation temporaire à 0 PV : elle se dissipe.
         if (reste == 0 && x.toursRestants != null) {
           await s.retirerCreature(c, x.id);
+          await _noterDisparition(s, c, x, 'vaincue');
           if (_carte == x.id) _carte = kCarteScript;
           await _reordonner(s, c);
         } else {

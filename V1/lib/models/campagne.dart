@@ -16,7 +16,22 @@ class ParametresCampagne {
     this.pjVoientRessources = false,
     this.pjVoientPvCreatures = false,
     this.pjVoientFichesCreatures = false,
+    this.pjMonteeHorsSeance = false,
+    this.pjVoientEffetsAllies = false,
+    this.pjVoientEffetsCreatures = false,
   });
+
+  /// Les PJ peuvent monter de niveau en dehors d'une séance (19/11/2026) ;
+  /// sinon, seulement pendant une séance, avec l'accord du MJ.
+  final bool pjMonteeHorsSeance;
+
+  /// Pendant la séance, les PJ voient les bonus et malus des autres PJ et
+  /// de leurs alliés (19/11/2026).
+  final bool pjVoientEffetsAllies;
+
+  /// Pendant la séance, les PJ voient les bonus et malus des créatures
+  /// rencontrées (19/11/2026).
+  final bool pjVoientEffetsCreatures;
 
   /// Nombre maximum de joueurs (1 à 8), MJ non compris.
   final int joueursMax;
@@ -54,6 +69,9 @@ class ParametresCampagne {
     bool? pjVoientRessources,
     bool? pjVoientPvCreatures,
     bool? pjVoientFichesCreatures,
+    bool? pjMonteeHorsSeance,
+    bool? pjVoientEffetsAllies,
+    bool? pjVoientEffetsCreatures,
   }) =>
       ParametresCampagne(
         joueursMax: joueursMax ?? this.joueursMax,
@@ -68,6 +86,10 @@ class ParametresCampagne {
         pjVoientPvCreatures: pjVoientPvCreatures ?? this.pjVoientPvCreatures,
         pjVoientFichesCreatures:
             pjVoientFichesCreatures ?? this.pjVoientFichesCreatures,
+        pjMonteeHorsSeance: pjMonteeHorsSeance ?? this.pjMonteeHorsSeance,
+        pjVoientEffetsAllies: pjVoientEffetsAllies ?? this.pjVoientEffetsAllies,
+        pjVoientEffetsCreatures:
+            pjVoientEffetsCreatures ?? this.pjVoientEffetsCreatures,
       );
 
   Map<String, dynamic> versJson() => {
@@ -79,6 +101,9 @@ class ParametresCampagne {
         'pjVoientRessources': pjVoientRessources,
         'pjVoientPvCreatures': pjVoientPvCreatures,
         'pjVoientFichesCreatures': pjVoientFichesCreatures,
+        'pjMonteeHorsSeance': pjMonteeHorsSeance,
+        'pjVoientEffetsAllies': pjVoientEffetsAllies,
+        'pjVoientEffetsCreatures': pjVoientEffetsCreatures,
       };
 
   factory ParametresCampagne.depuisJson(Object? j) {
@@ -93,6 +118,9 @@ class ParametresCampagne {
       pjVoientRessources: j['pjVoientRessources'] as bool? ?? false,
       pjVoientPvCreatures: j['pjVoientPvCreatures'] as bool? ?? false,
       pjVoientFichesCreatures: j['pjVoientFichesCreatures'] as bool? ?? false,
+      pjMonteeHorsSeance: j['pjMonteeHorsSeance'] as bool? ?? false,
+      pjVoientEffetsAllies: j['pjVoientEffetsAllies'] as bool? ?? false,
+      pjVoientEffetsCreatures: j['pjVoientEffetsCreatures'] as bool? ?? false,
     );
   }
 }

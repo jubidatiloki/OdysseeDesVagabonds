@@ -94,7 +94,9 @@ class FicheScreen extends StatelessWidget {
         Future<void> enregistrer() => controller.sauvegarder(p);
         // Permissions de la campagne, en dehors d'une séance.
         final verrous = controller.restrictionsDe(p.id);
-        final monterNiveau = MonteeNiveau.possible(p) && !verrous.competences
+        final monterNiveau = MonteeNiveau.possible(p) &&
+                !verrous.competences &&
+                !controller.monteeBloqueeDe(p.id)
             ? () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => MonteeNiveauScreen(

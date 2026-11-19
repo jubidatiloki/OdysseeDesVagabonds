@@ -10,6 +10,7 @@ import '../../theme.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/dialogue_texte.dart';
 import '../../widgets/infos_creature.dart';
+import '../../widgets/jauge_animee.dart';
 import '../../widgets/profil_classe.dart';
 import '../bestiaire_screen.dart';
 import '../fiche/vues_fiche.dart';
@@ -49,8 +50,10 @@ class ListeCartes extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = seance;
     // Afflictions posées par les bonus de séance (immobilisation…).
+    // Visibles selon les permissions (19/11/2026).
     List<String> etats(String id) => [
-          for (final e in s.etatsDe(id)) '${e.effet} · ${e.dureeTexte}',
+          for (final e in s.bonusVisibles(id))
+            if (e.estEtat) '${e.effet} · ${e.dureeTexte}',
         ];
     return ListView(
       key: const Key('liste-cartes'),
@@ -98,9 +101,10 @@ class ListeCartes extends StatelessWidget {
             titre: 'Personnages',
             separe: s.cartesDiffusees.isNotEmpty,
           ),
-        for (final m in s.joueurs) ...[
+        for (final m in s.joueursOrdonnes) ...[
           _Carte(
             cle: 'carte-${m.uid}',
+            bonus: s.bonusSurCarte(m.uid),
             selectionnee: s.carte == m.uid,
             actif: s.etat.actif == m.uid,
             icone: Icons.person_outline,
@@ -125,6 +129,7 @@ class ListeCartes extends StatelessWidget {
               padding: const EdgeInsets.only(left: 20),
               child: _Carte(
                 cle: 'carte-${c.id}',
+                bonus: s.bonusSurCarte(c.id),
                 selectionnee: s.carte == c.id,
                 // Compagnon : il agit au tour de son maître.
                 actif: s.etat.actif == (c.estCompagnon ? m.uid : c.id),
@@ -207,6 +212,7 @@ class ListeCartes extends StatelessWidget {
           if (c.allie && !c.estAUnJoueur)
             _Carte(
               cle: 'carte-${c.id}',
+              bonus: s.bonusSurCarte(c.id),
               selectionnee: s.carte == c.id,
               actif: s.etat.actif == c.id,
               cleIcone: 'icone-${c.id}',
@@ -246,6 +252,7 @@ class ListeCartes extends StatelessWidget {
           if (!c.duCotePj)
             _Carte(
               cle: 'carte-${c.id}',
+              bonus: s.bonusSurCarte(c.id),
               selectionnee: s.carte == c.id,
               actif: s.etat.actif == c.id,
               cleIcone: 'icone-${c.id}',
@@ -380,10 +387,15 @@ class _Carte extends StatelessWidget {
     this.actif = false,
     this.onRetirer,
     this.cleRetirer,
+    this.bonus,
   });
 
   final String cle;
   final bool selectionnee;
+
+  /// Bonus et malus reçus (19/11/2026) : icône verte (bonus), rouge
+  /// (malus) ou or (les deux) ; `null` : aucun, ou pas visible.
+  final ({int bonus, int malus})? bonus;
   final IconData icone;
   final String? cleIcone;
 
@@ -490,6 +502,27 @@ class _Carte extends StatelessWidget {
                   ],
                 ),
               ),
+              if (bonus case final b?)
+                Tooltip(
+                  message: [
+                    if (b.bonus > 0) '${b.bonus} bonus',
+                    if (b.malus > 0) '${b.malus} malus',
+                  ].join(' · '),
+                  child: Icon(
+                    key: Key('$cle-bonus'),
+                    b.malus == 0
+                        ? Icons.arrow_circle_up
+                        : b.bonus == 0
+                            ? Icons.arrow_circle_down
+                            : Icons.swap_vertical_circle_outlined,
+                    size: 18,
+                    color: b.malus == 0
+                        ? couleurModificateur(1, theme.brightness)
+                        : b.bonus == 0
+                            ? couleurModificateur(-1, theme.brightness)
+                            : OdvCouleurs.or,
+                  ),
+                ),
               if (absent)
                 Tooltip(
                   message: 'Pas connecté ou pas dans la séance',
@@ -590,6 +623,7 @@ class DetailCarte extends StatelessWidget {
           referentiel: ref,
           controller: contexte.personnages,
           onModifie: () => contexte.personnages.sauvegarder(f.personnage),
+          onRepos: (d) => s.noterRepos(m.personnageNom, d),
           onEnvoyerObjet: s.joueurs.length < 2
               ? null
               : (o) => showDialog<void>(
@@ -682,6 +716,7 @@ class DetailCarte extends StatelessWidget {
                 fiche: f,
                 referentiel: ref,
                 onModifie: () => s.enregistrerFiche(f.personnage),
+                onRepos: (d) => s.noterRepos(m.personnageNom, d),
               ),
             ),
           ],
@@ -713,18 +748,30 @@ class DetailCarte extends StatelessWidget {
 
 /// PV, PM ou PE sur une carte : icône et valeur de la couleur de la ressource.
 class _Ressource extends StatelessWidget {
-  const _Ressource(this.icone, this.texte, this.couleur);
+  const _Ressource(
+    this.icone,
+    this.texte,
+    this.couleur, {
+    required this.valeur,
+    required this.max,
+    this.selon,
+  });
 
   factory _Ressource.vie(BuildContext context, int v, int max) => _Ressource(
         Icons.favorite,
         '$v/$max',
         couleurVie(Theme.of(context).brightness),
+        valeur: v,
+        max: max,
+        selon: couleurPv,
       );
 
   factory _Ressource.mana(BuildContext context, int v, int max) => _Ressource(
         Icons.water_drop,
         '$v/$max',
         couleurMana(Theme.of(context).brightness),
+        valeur: v,
+        max: max,
       );
 
   factory _Ressource.endurance(BuildContext context, int v, int max) =>
@@ -732,24 +779,44 @@ class _Ressource extends StatelessWidget {
         kIconeEndurance,
         '$v/$max',
         couleurEndurance(Theme.of(context).brightness),
+        valeur: v,
+        max: max,
       );
 
   final IconData icone;
   final String texte;
   final Color couleur;
+  final int valeur;
+  final int max;
+  final Color Function(double)? selon;
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context) => Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icone, size: 14, color: couleur),
-          const SizedBox(width: 2),
-          Text(
-            texte,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: couleur,
-                  fontWeight: FontWeight.w600,
-                ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icone, size: 14, color: couleur),
+              const SizedBox(width: 2),
+              Text(
+                texte,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: couleur,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+          // Jauge : l'évolution se voit (19/11/2026).
+          JaugeAnimee(
+            valeur: valeur,
+            max: max,
+            couleur: couleur,
+            couleurSelon: selon,
+            largeur: 48,
+            hauteur: 3,
           ),
         ],
       );
@@ -900,6 +967,18 @@ class _CreatureMj extends StatelessWidget {
                     ),
                   ],
                 ),
+              if (c.pv != null && (c.pvMax ?? 0) > 0)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                  child: JaugeAnimee(
+                    key: const Key('creature-jauge-pv'),
+                    valeur: c.pv!,
+                    max: c.pvMax!,
+                    couleur: couleurVie(theme.brightness),
+                    couleurSelon: couleurPv,
+                    hauteur: 8,
+                  ),
+                ),
               if (!c.estAUnJoueur) ...[
                 SwitchListTile(
                   key: const Key('creature-allie'),
@@ -1002,6 +1081,17 @@ class _CreaturePj extends StatelessWidget {
         if (creature.pv != null)
           Text('PV ${creature.pv}/${creature.pvMax}',
               key: const Key('creature-pv')),
+        if (creature.pv != null && (creature.pvMax ?? 0) > 0) ...[
+          const SizedBox(height: 4),
+          JaugeAnimee(
+            key: const Key('creature-jauge-pv'),
+            valeur: creature.pv!,
+            max: creature.pvMax!,
+            couleur: couleurVie(theme.brightness),
+            couleurSelon: couleurPv,
+            hauteur: 8,
+          ),
+        ],
         const SizedBox(height: 12),
         if (creature.description.isNotEmpty) Text(creature.description),
       ],

@@ -20,6 +20,7 @@ import '../../widgets/consultation.dart';
 import '../../widgets/voie_detail.dart';
 import '../de_screen.dart';
 import 'seance_bonus.dart';
+import 'seance_cibles.dart';
 import 'seance_messages.dart';
 
 /// Portion de droite : onglets Lancer de dés et Historique.
@@ -127,8 +128,14 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   var _visibilite = VisibiliteJet.tous;
   String? _cible;
 
-  /// Cible choisie pour les attaques et les sorts ('soi', '' : aucune).
-  String? _cibleAttaque;
+  /// Dernières cibles choisies dans la fenêtre de cibles (19/11/2026) ;
+  /// vide : aucune cible.
+  List<String> _ciblesChoisies = const [];
+
+  /// Sort en cours : ses dégâts ne vont qu'aux cibles touchées par son jet
+  /// d'attaque ([_touchees], `null` : pas de jet d'attaque).
+  var _sortEnCours = false;
+  Set<String>? _touchees;
 
   /// Dernier résultat affiché.
   _Resultat? _dernier;
@@ -305,17 +312,61 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   static bool _estDegats(String libelle) =>
       libelle.toLowerCase().contains('dégâts');
 
-  /// Cible en vigueur : celle choisie, sinon la première autre que soi.
-  String get _cibleEnCours {
-    final ids = _s.cibles.map((c) => c.id);
-    final v = _cibleAttaque;
-    if (v != null && (v == 'soi' || v.isEmpty || ids.contains(v))) return v;
-    return ids.isEmpty ? '' : ids.first;
+  /// Noms des cibles dans un jet (« soi-même » pour celui qui agit).
+  String _nomsCibles(List<String> ids) => [
+        for (final id in ids)
+          id == _s.idAttaquant ? 'soi-même' : _s.nomCible(id, _visibilite),
+      ].where((n) => n.isNotEmpty).join(', ');
+
+  /// Ouvre la fenêtre de cibles (19/11/2026) ; `null` : annulé.
+  Future<List<String>?> _choisirCibles(
+    String titre, {
+    int? maximum = 1,
+    bool aucune = true,
+  }) async {
+    final r = await showDialog<List<String>>(
+      context: context,
+      builder: (_) => DialogueCibles(
+        titre: titre,
+        cibles: _s.ciblesPotentielles,
+        maximum: maximum,
+        aucune: aucune,
+        derniere: _ciblesChoisies,
+      ),
+    );
+    if (r == null || !mounted) return null;
+    setState(() => _ciblesChoisies = r);
+    return r;
   }
 
-  String get _nomCible => _cibleEnCours == 'soi'
-      ? 'soi-même'
-      : _s.nomCible(_cibleEnCours, _visibilite);
+  /// Cibles d'une compétence ou d'un sort selon sa cible : soi-même, les
+  /// alliés, une ou plusieurs au choix (fenêtre) ; `null` : annulé.
+  Future<List<String>?> _ciblesDe(FicheCalculee f, Competence c) async {
+    final soi = _s.idAttaquant;
+    switch (c.cible) {
+      case CibleCompetence.soi:
+        return [soi];
+      case CibleCompetence.allies:
+        return [for (final m in _s.joueurs) m.uid];
+      case CibleCompetence.alliesSansLanceur:
+        return [
+          for (final m in _s.joueurs)
+            if (m.uid != soi) m.uid,
+        ];
+      case CibleCompetence.unique:
+        return _choisirCibles(c.nom, aucune: false);
+      case CibleCompetence.selection:
+        return _choisirCibles(
+          c.nom,
+          maximum: c.ciblesMax.isEmpty
+              ? null
+              : SeanceController.nombreDuree(f, c, c.ciblesMax, null),
+          aucune: false,
+        );
+      case null:
+        return _choisirCibles(c.nom);
+    }
+  }
 
   /// Sort : dépense son coût, puis lance ses dés (réussite, effets).
   Future<void> _lancerSort(
@@ -323,14 +374,20 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     ({Competence competence, int rangSort, int cout}) s,
   ) async {
     final sort = s.competence;
+    // Cibles d'abord (fenêtre) : annulé, rien n'est dépensé.
+    final cibles = await _ciblesDe(f, sort);
+    if (cibles == null || !mounted) return;
     _verifierAttaque();
     await _s.depenserSort(f, sort.nom, s.cout);
+    _sortEnCours = true;
+    _touchees = null;
     final jets = [
       if (f.jetReussite(sort) case final j?) j,
       ...f.jetsEffetSort(sort),
     ].where((j) => lireFormule(j.des) != null).toList();
-    // Totaux des jets (durée et nombre d'une invocation).
-    final totaux = <String, int>{};
+    // Jets lancés (durée et nombre d'une invocation, réussite). Un seul jet
+    // pour toutes les cibles (19/11/2026).
+    final resultats = <String, ResultatLancer>{};
     for (final j in jets) {
       final t = await _lancerFormule(
         j.libelle,
@@ -342,8 +399,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         type: sort.typeDegats.isEmpty ? 'physique' : sort.typeDegats,
         genre: GenreJet.sort,
         contreCa: j.attaqueMagique && j.difficulte == null,
+        cibles: cibles,
+        soin: j.libelle.endsWith('· soin'),
       );
-      if (t != null) totaux[j.libelle.toLowerCase()] = t;
+      if (t != null) resultats[j.libelle.toLowerCase()] = t;
     }
     if (jets.isEmpty) {
       await _lancer(
@@ -351,17 +410,35 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         parAttaquant: true,
         avecCible: true,
         genre: GenreJet.sort,
+        cibles: cibles,
       );
     }
+    // Soin sans dés (« 1 PV » : Petit soin) : rendu tel quel à chaque cible.
+    if (FicheCalculee.desDans(sort.soin) == null) {
+      final m = RegExp(r'^\s*(\d+)\s*PV').firstMatch(sort.soin);
+      if (m != null) {
+        for (final c in cibles) {
+          await _s.soigner(
+              c, int.parse(m[1]!), '${_s.attaquant.nom} · ${sort.nom}');
+        }
+      }
+    }
+    _sortEnCours = false;
+    _touchees = null;
+    final totaux = {
+      for (final e in resultats.entries) e.key: e.value.total,
+    };
     // Sort qui donne un bonus ou un malus : réussi si son jet de réussite
     // atteint la difficulté (ou sans difficulté).
     final jr = f.jetReussite(sort);
-    final dr = jr?.difficulte;
-    final tr = jr == null ? null : totaux[jr.libelle.toLowerCase()];
     await _donnerBonus(
       f,
       sort.nom,
-      reussi: dr == null || (tr != null && tr >= dr),
+      reussi: reussiteJet(
+        jr == null ? null : resultats[jr.libelle.toLowerCase()],
+        jr?.difficulte,
+      ),
+      cibles: cibles,
     );
     // Invocation temporaire : elle entre dans la partie, sous le lanceur,
     // pour la durée lancée (en tours).
@@ -388,8 +465,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   /// Lance une formule (« 1d8 + 1d6 + 2 »). Pour un d20 du personnage :
   /// bonus des situations (cochées ou permanentes) et avantage, comme sur la
   /// page dé ; [carac] : caractéristique testée, [savoir] : aptitude.
-  /// Renvoie le total lancé (`null` : rien lancé).
-  Future<int?> _lancerFormule(
+  /// Renvoie le lancer (`null` : rien lancé). [cibles] : celles choisies
+  /// (sinon les dernières) ; [soin] : le total rend des PV aux cibles.
+  Future<ResultatLancer?> _lancerFormule(
     String libelle,
     String des,
     int bonus, {
@@ -401,6 +479,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     bool contreCa = false,
     Carac? carac,
     String? savoir,
+    List<String>? cibles,
+    bool soin = false,
   }) async {
     final f = lireFormule(des);
     if (f == null) return null;
@@ -453,8 +533,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       type: type,
       genre: genre,
       contreCa: contreCa && d20,
+      cibles: cibles,
+      soin: soin,
     );
-    return r.total;
+    return r;
   }
 
   /// Enregistre le jet ; [resultat] `null` : action sans dés (sort sans jet,
@@ -468,8 +550,11 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     String type = 'physique',
     GenreJet genre = GenreJet.libre,
     bool contreCa = false,
+    List<String>? cibles,
+    bool soin = false,
   }) async {
     final r = resultat;
+    final ids = avecCible ? cibles ?? _ciblesChoisies : const <String>[];
     final total = r?.total ?? 0;
     if (r != null) {
       AnimationLancer.montrer(
@@ -481,8 +566,12 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       );
     }
     final fiche = parAttaquant ? _s.attaquant.fiche : null;
-    // Attaque : comparée à la CA de la cible, si elle est connue.
-    final cibleCa = _cibleEnCours == 'soi' ? '' : _cibleEnCours;
+    // Attaque : comparée à la CA de chaque cible, si elle est connue (un
+    // seul jet pour toutes, 19/11/2026).
+    final visees = [
+      for (final id in ids)
+        if (id != _s.idAttaquant) id,
+    ];
     final attaque = contreCa && r != null && r.d20;
     // CA visée : sorts → contre les sorts ; tir → distance ; sinon corps à
     // corps (bonus de CA de séance, 19/11/2026).
@@ -492,17 +581,45 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         : bas.contains('distance') || bas.contains('tir')
             ? 'DIST'
             : 'CaC';
-    final ca =
-        attaque && cibleCa.isNotEmpty ? _s.caDe(cibleCa, contre: contre) : null;
-    // Pas de comparaison : le jet dit pourquoi.
-    final sansComparaison = !attaque || ca != null
-        ? ''
-        : cibleCa.isEmpty
-            ? 'Sans cible : pas de comparaison'
-            : 'CA de la cible inconnue';
-    final touche = ca == null || r == null
-        ? null
-        : attaqueTouche(naturel: r.garde, total: total, ca: ca);
+    final cas = {
+      for (final id in visees) id: attaque ? _s.caDe(id, contre: contre) : null,
+    };
+    // 20 naturel (ou seuil de critique) : touche toujours ; 1 : rate.
+    bool toucheCa(int? ca) =>
+        ca == null || r!.reussiteCritique || (!r.echecCritique && total >= ca);
+    final ca = visees.length == 1 ? cas[visees.first] : null;
+    bool? touche;
+    var sansComparaison = '';
+    if (attaque) {
+      if (visees.isEmpty) {
+        sansComparaison = 'Sans cible : pas de comparaison';
+      } else if (visees.length == 1) {
+        if (ca == null) {
+          sansComparaison = 'CA de la cible inconnue';
+        } else {
+          touche = toucheCa(ca);
+        }
+      } else {
+        final ok = [
+          for (final id in visees)
+            if (toucheCa(cas[id])) id,
+        ];
+        final rates = [
+          for (final id in visees)
+            if (!ok.contains(id)) id,
+        ];
+        sansComparaison = [
+          'Touché : ${ok.isEmpty ? 'personne' : _nomsCibles(ok)}',
+          if (rates.isNotEmpty) 'raté : ${_nomsCibles(rates)}',
+        ].join(' · ');
+      }
+      if (_sortEnCours) {
+        _touchees = {
+          for (final id in visees)
+            if (toucheCa(cas[id])) id,
+        };
+      }
+    }
     final detail = r?.detail ?? '';
     final erreur = await _s.lancer(
       libelle: libelle,
@@ -517,30 +634,42 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       sansComparaison: sansComparaison,
       cibleJet: avecCible
           ? [
-              _nomCible,
-              if (degats && type != 'physique' && _nomCible.isNotEmpty)
-                '($type)',
+              _nomsCibles(ids),
+              if (degats && type != 'physique' && ids.isNotEmpty) '($type)',
             ].join(' ')
           : '',
     );
-    if (erreur == null && degats) {
-      final cible = _cibleEnCours == 'soi' ? _s.idAttaquant : _cibleEnCours;
-      // Attaque sans jet d'attaque sur un joueur : il pourra esquiver.
+    if (erreur == null && (degats || soin)) {
+      // Sort avec un jet d'attaque : seulement les cibles touchées.
+      final touchees = _sortEnCours ? _touchees : null;
+      final source = '${_s.attaquant.nom} · $libelle';
       int? esquive;
       var moitie = false;
-      final note = _sansJet[libelle];
-      if (note != null && _s.joueurs.any((m) => m.uid == cible)) {
-        esquive = await _demanderDifficulte(libelle);
-        moitie = esquiveDonneMoitie(note);
+      var demande = false;
+      for (final cible in ids) {
+        if (touchees != null && !touchees.contains(cible)) continue;
+        if (soin) {
+          await _s.soigner(cible, total, source);
+          continue;
+        }
+        // Attaque sans jet d'attaque sur un joueur : il pourra esquiver
+        // (difficulté demandée une fois).
+        final joueur = _s.joueurs.any((m) => m.uid == cible);
+        final note = _sansJet[libelle];
+        if (note != null && joueur && !demande) {
+          demande = true;
+          esquive = await _demanderDifficulte(libelle);
+          moitie = esquiveDonneMoitie(note);
+        }
+        await _s.infligerDegats(
+          cible,
+          total,
+          source,
+          type: type,
+          esquive: joueur ? esquive : null,
+          moitie: moitie,
+        );
       }
-      await _s.infligerDegats(
-        cible,
-        total,
-        '${_s.attaquant.nom} · $libelle',
-        type: type,
-        esquive: esquive,
-        moitie: moitie,
-      );
     }
     // Jet du personnage : inscrit dans son historique, avec la séance.
     if (erreur == null && r != null && fiche != null) {
@@ -626,6 +755,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     FicheCalculee f,
     String nom, {
     required bool reussi,
+    List<String>? cibles,
   }) async {
     final c = _competenceNommee(f, nom);
     if (c == null || c.bonusDonnes.isEmpty) return;
@@ -639,20 +769,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     var choisis = const <String>[];
     if (c.cible == CibleCompetence.unique ||
         c.cible == CibleCompetence.selection) {
-      final r = await showDialog<List<String>>(
-        context: context,
-        builder: (_) => DialogueCiblesBonus(
-          seance: _s,
-          titre: c.nom,
-          unique: c.cible == CibleCompetence.unique,
-          maximum: c.ciblesMax.isEmpty
-              ? null
-              : SeanceController.nombreDuree(f, c, c.ciblesMax, null),
-          // Malus ou affliction : les créatures aussi (paroles impies).
-          avecCreatures:
-              c.bonusDonnes.any((b) => b.portee == 'etat' || b.valeur < 0),
-        ),
-      );
+      // Cibles choisies au lancement (sinon demandées maintenant).
+      final r = cibles ?? await _ciblesDe(f, c);
       if (r == null || r.isEmpty || !mounted) return;
       choisis = r;
     }
@@ -743,18 +861,26 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         onPressed: pasDeCible || _horsTour
             ? null
             : () async {
-                final t = await _lancerFormule(
+                // Compétence qui donne un bonus : cibles choisies d'abord.
+                final c = _competenceNommee(fiche, j.origine);
+                List<String>? cibles;
+                if (c != null && c.bonusDonnes.isNotEmpty) {
+                  cibles = await _ciblesDe(fiche, c);
+                  if (cibles == null) return;
+                }
+                final r = await _lancerFormule(
                   j.libelle,
                   j.des,
                   j.bonus,
                   parAttaquant: true,
                   genre: GenreJet.test,
                 );
-                if (t == null) return;
+                if (r == null) return;
                 await _donnerBonus(
                   fiche,
                   j.origine,
-                  reussi: j.difficulte == null || t >= j.difficulte!,
+                  reussi: reussiteJet(r, j.difficulte),
+                  cibles: cibles,
                 );
               },
       );
@@ -771,17 +897,21 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         onPressed: pasDeCible || _horsTour || fiche.peActuels < a.cout
             ? null
             : () async {
+                // Compétence qui donne un bonus (musique vivifiante) : cibles
+                // choisies d'abord, puis son jet ; bonus donné s'il réussit.
+                final c = _competenceNommee(fiche, a.origine);
+                final donne = c != null && c.bonusDonnes.isNotEmpty;
+                List<String>? cibles;
+                if (donne) {
+                  cibles = await _ciblesDe(fiche, c);
+                  if (cibles == null) return;
+                }
                 await _s.depenserAction(fiche, a);
                 await _lancer(
                   libelle: '${a.libelle} (${a.cout} PE)',
                   parAttaquant: true,
                 );
-                // Compétence qui donne un bonus (musique vivifiante) :
-                // son jet est lancé, et le bonus donné s'il réussit.
-                if (_competenceNommee(fiche, a.origine)?.bonusDonnes.isEmpty ??
-                    true) {
-                  return;
-                }
+                if (!donne) return;
                 JetDisponible? jet;
                 for (final j in fiche.jetsCompetences) {
                   if (j.origine == a.origine && lireFormule(j.des) != null) {
@@ -789,7 +919,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                     break;
                   }
                 }
-                final t = jet == null
+                final r = jet == null
                     ? null
                     : await _lancerFormule(
                         jet.libelle,
@@ -798,11 +928,11 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                         parAttaquant: true,
                         genre: GenreJet.test,
                       );
-                final d = jet?.difficulte;
                 await _donnerBonus(
                   fiche,
                   a.origine,
-                  reussi: d == null || (t != null && t >= d),
+                  reussi: jet == null || reussiteJet(r, jet.difficulte),
+                  cibles: cibles,
                 );
               },
       );
@@ -881,9 +1011,12 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       texte: '${a.libelle} : ${formaterJet(a.des, a.bonus)}',
       onPressed: pasDeCible || _horsTour
           ? null
-          : () {
+          : () async {
+              // Fenêtre de cibles (19/11/2026) à chaque attaque.
+              final cibles = await _choisirCibles(a.libelle);
+              if (cibles == null) return;
               if (!a.degats) _verifierAttaque();
-              _lancerFormule(
+              await _lancerFormule(
                 a.libelle,
                 a.des,
                 a.bonus,
@@ -898,6 +1031,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 degats: a.degats,
                 type: a.type,
                 genre: a.degats ? GenreJet.degats : GenreJet.attaque,
+                cibles: cibles,
               );
             },
     );
@@ -1469,31 +1603,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             titre: 'Combat · $nom',
             icone: Icons.sports_martial_arts,
             children: [
-              // Attaques du personnage ou de la créature sélectionnée.
-              InputDecorator(
-                decoration: const InputDecoration(labelText: 'Cible'),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    key: const Key('cible-attaque'),
-                    isDense: true,
-                    isExpanded: true,
-                    value: _cibleEnCours,
-                    items: [
-                      for (final c in _s.cibles)
-                        DropdownMenuItem(
-                          value: c.id,
-                          child: Text(c.nom, overflow: TextOverflow.ellipsis),
-                        ),
-                      const DropdownMenuItem(
-                          value: 'soi', child: Text('Soi-même')),
-                      const DropdownMenuItem(
-                          value: '', child: Text('Aucune cible')),
-                    ],
-                    onChanged: (v) => setState(() => _cibleAttaque = v),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
+              // Attaques du personnage ou de la créature sélectionnée ; la
+              // cible est choisie dans une fenêtre à chaque attaque.
               Wrap(
                 spacing: 6,
                 runSpacing: 6,

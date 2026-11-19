@@ -17,6 +17,7 @@ class CampagnesController extends ChangeNotifier {
   CampagnesController({required this.compte, required this.service}) {
     compte.addListener(_suivreCompte);
     compte.personnages.restrictions = restrictionsDe;
+    compte.personnages.monteeBloquee = monteeBloqueeDe;
     _suivreCompte();
   }
 
@@ -147,6 +148,13 @@ class CampagnesController extends ChangeNotifier {
     );
   }
 
+  /// Montée de niveau interdite en dehors d'une séance (19/11/2026) : une
+  /// campagne de la fiche, sans séance en cours, ne la permet pas.
+  bool monteeBloqueeDe(String id) => [
+        for (final c in _engagees[id] ?? const <Campagne>[])
+          if (!c.seanceEnCours) c,
+      ].any((c) => !c.parametres.pjMonteeHorsSeance);
+
   /// Joueur : le MJ (et les autres joueurs selon les paramètres) peuvent
   /// lire la fiche engagée dans chaque campagne ; le MJ peut la modifier
   /// une fois le joueur accepté.
@@ -240,6 +248,7 @@ class CampagnesController extends ChangeNotifier {
   void dispose() {
     compte.removeListener(_suivreCompte);
     compte.personnages.restrictions = null;
+    compte.personnages.monteeBloquee = null;
     _ecoute?.cancel();
     _nouvellesSeances.close();
     super.dispose();

@@ -96,26 +96,32 @@ class BlocBonus extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              'Une compétence ou un sort qui aide (ou gêne) d\'autres '
-              'personnages ? Donne-leur un bonus ou un malus : il s\'ajoute '
-              'tout seul à leurs jets.',
+              s.estMj
+                  ? 'Une compétence ou un sort qui aide (ou gêne) d\'autres '
+                      'personnages ? Donne-leur un bonus ou un malus : il '
+                      's\'ajoute tout seul à leurs jets.'
+                  : 'Aucun bonus ni malus. Ceux de tes compétences et de tes '
+                      'sorts sont donnés quand tu les lances.',
               style: theme.textTheme.bodySmall,
             ),
           ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: OutlinedButton.icon(
-            key: const Key('donner-bonus'),
-            onPressed: s.joueurs.isEmpty
-                ? null
-                : () => showDialog<void>(
-                      context: context,
-                      builder: (_) => DialogueBonus(seance: s),
-                    ),
-            icon: const Icon(Icons.add_reaction_outlined),
-            label: const Text('Donner un bonus ou un malus'),
+        // Bonus donné à la main : le MJ seulement (19/11/2026) ; les PJ les
+        // donnent en lançant leurs compétences et leurs sorts.
+        if (s.estMj)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              key: const Key('donner-bonus'),
+              onPressed: s.joueurs.isEmpty
+                  ? null
+                  : () => showDialog<void>(
+                        context: context,
+                        builder: (_) => DialogueBonus(seance: s),
+                      ),
+              icon: const Icon(Icons.add_reaction_outlined),
+              label: const Text('Donner un bonus ou un malus'),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -378,117 +384,6 @@ class _DialogueBonusState extends State<DialogueBonus> {
           key: const Key('valider-bonus'),
           onPressed: pret ? _valider : null,
           child: const Text('Donner'),
-        ),
-      ],
-    );
-  }
-}
-
-/// Cibles d'une compétence ou d'un sort qui donne un bonus : un personnage
-/// ([unique]) ou plusieurs. Renvoie leurs uid.
-class DialogueCiblesBonus extends StatefulWidget {
-  const DialogueCiblesBonus({
-    super.key,
-    required this.seance,
-    required this.titre,
-    required this.unique,
-    this.maximum,
-    this.avecCreatures = false,
-  });
-
-  final SeanceController seance;
-  final String titre;
-  final bool unique;
-
-  /// Nombre de cibles au plus (`null` : sans limite).
-  final int? maximum;
-
-  /// Les créatures rencontrées sont aussi proposées (paroles impies).
-  final bool avecCreatures;
-
-  @override
-  State<DialogueCiblesBonus> createState() => _DialogueCiblesBonusState();
-}
-
-class _DialogueCiblesBonusState extends State<DialogueCiblesBonus> {
-  final Set<String> _choisis = {};
-
-  Widget _puce(String id, String nom) {
-    final choisi = _choisis.contains(id);
-    final max = widget.maximum;
-    final plein =
-        !widget.unique && max != null && _choisis.length >= max && !choisi;
-    return FilterChip(
-      key: Key('cible-competence-$id'),
-      label: Text(nom),
-      selected: choisi,
-      onSelected: plein
-          ? null
-          : (oui) => setState(() {
-                if (widget.unique) _choisis.clear();
-                oui ? _choisis.add(id) : _choisis.remove(id);
-              }),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = widget.seance;
-    final max = widget.maximum;
-    final creatures = [
-      for (final c in s.creatures)
-        if (!c.duCotePj) c,
-    ];
-    return AlertDialog(
-      key: const Key('fenetre-cibles-bonus'),
-      title: Text(widget.titre),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.unique
-                  ? 'Sur qui ?'
-                  : max == null
-                      ? 'Sur qui ? (un ou plusieurs)'
-                      : 'Sur qui ? (${_choisis.length} / $max au plus)',
-              key: const Key('compte-cibles'),
-            ),
-            if (widget.avecCreatures && creatures.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              const Text('Créatures'),
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [for (final c in creatures) _puce(c.id, c.nom)],
-              ),
-              const SizedBox(height: 8),
-              const Text('Personnages'),
-            ],
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final m in s.joueurs) _puce(m.uid, m.personnageNom),
-              ],
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FilledButton(
-          key: const Key('valider-cibles-bonus'),
-          onPressed: _choisis.isEmpty
-              ? null
-              : () => Navigator.pop(context, _choisis.toList()),
-          child: const Text('Valider'),
         ),
       ],
     );

@@ -414,6 +414,12 @@ class FormulairePermissions extends StatelessWidget {
           (v) => p.copie(pjCompetencesHorsSeance: v),
         ),
         ligne(
+          'pj-montee-hors-seance',
+          "Les PJ montent de niveau en dehors d'une séance",
+          p.pjMonteeHorsSeance,
+          (v) => p.copie(pjMonteeHorsSeance: v),
+        ),
+        ligne(
           'fiches-visibles-joueurs',
           'Les PJ voient leurs fiches de personnage entre eux',
           p.fichesVisiblesJoueurs,
@@ -437,6 +443,18 @@ class FormulairePermissions extends StatelessWidget {
           'Les PJ voient les fiches des créatures',
           p.pjVoientFichesCreatures,
           (v) => p.copie(pjVoientFichesCreatures: v),
+        ),
+        ligne(
+          'pj-voient-effets-allies',
+          'Les PJ voient les bonus et malus de leurs alliés',
+          p.pjVoientEffetsAllies,
+          (v) => p.copie(pjVoientEffetsAllies: v),
+        ),
+        ligne(
+          'pj-voient-effets-creatures',
+          'Les PJ voient les bonus et malus des créatures',
+          p.pjVoientEffetsCreatures,
+          (v) => p.copie(pjVoientEffetsCreatures: v),
         ),
       ],
     );
@@ -481,6 +499,7 @@ class ResumeParametres extends StatelessWidget {
         lignes([
           'Inventaire modifiable : ${oui(p.pjInventaireHorsSeance)}',
           'Compétences modifiables : ${oui(p.pjCompetencesHorsSeance)}',
+          'Montée de niveau : ${oui(p.pjMonteeHorsSeance)}',
           'Fiches visibles entre PJ : ${oui(p.fichesVisiblesJoueurs)}',
         ]),
         const SizedBox(height: 8),
@@ -491,6 +510,10 @@ class ResumeParametres extends StatelessWidget {
           'PV des créatures visibles : ${oui(p.pjVoientPvCreatures)}',
           'Fiches des créatures visibles : '
               '${oui(p.pjVoientFichesCreatures)}',
+          'Bonus et malus des alliés visibles : '
+              '${oui(p.pjVoientEffetsAllies)}',
+          'Bonus et malus des créatures visibles : '
+              '${oui(p.pjVoientEffetsCreatures)}',
         ]),
       ],
     );

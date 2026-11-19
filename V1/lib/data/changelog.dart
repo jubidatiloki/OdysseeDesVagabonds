@@ -29,6 +29,52 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.74.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Séance : fenêtre de cibles (soi-même en doré, alliés en vert, ennemis en rouge).',
+      ),
+      (
+        type: _a,
+        texte:
+            'Séance : sorts à plusieurs cibles (un seul jet pour toutes) ; les soins rendent des PV.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Séance : icône de bonus / malus sur les cartes, jauges de PV, PM et PE animées.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Permissions : effets des alliés, effets des créatures, montée de niveau hors séance.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Logs de séance : nuits de repos (jets de regain) et disparition des invocations.',
+      ),
+      (
+        type: _m,
+        texte:
+            'Séance : son personnage en tête de liste ; bonus à la main réservés au MJ.',
+      ),
+      (
+        type: _c,
+        texte:
+            'Jets : un 1 naturel échoue et un 20 naturel réussit toujours, bonus compris.',
+      ),
+      (
+        type: _c,
+        texte:
+            'Fiche : une modification du MJ n\'est plus masquée par une sauvegarde en attente.',
+      ),
+    ],
+  ),
+  (
     version: '0.73.0',
     date: '19/11/2026',
     changements: [
@@ -45,7 +91,8 @@ const List<VersionChangelog> kChangelog = [
     changements: [
       (
         type: _m,
-        texte: 'Nombre de cibles au plus : Cercle de protection, Soin de groupe, '
+        texte:
+            'Nombre de cibles au plus : Cercle de protection, Soin de groupe, '
             'Glas de soutien, Bourrasque, Flèches multiples…',
       ),
     ],
@@ -92,7 +139,8 @@ const List<VersionChangelog> kChangelog = [
       ),
       (
         type: _a,
-        texte: 'Écorces partagées, Cercle de protection, Sanctuaire, Mur d\'air, '
+        texte:
+            'Écorces partagées, Cercle de protection, Sanctuaire, Mur d\'air, '
             'Cri de ralliement, Bouclier mineur donnent leur CA.',
       ),
       (
@@ -107,7 +155,8 @@ const List<VersionChangelog> kChangelog = [
     changements: [
       (
         type: _a,
-        texte: 'Séance : Bénédiction, Brume, Bénédiction mineure, Charme fugace '
+        texte:
+            'Séance : Bénédiction, Brume, Bénédiction mineure, Charme fugace '
             'et Souffle de ki donnent leur bonus en les lançant.',
       ),
       (
@@ -691,7 +740,8 @@ const List<VersionChangelog> kChangelog = [
     changements: [
       (
         type: _c,
-        texte: 'Afflictions et types de dégâts : une carte par ligne, sur toute '
+        texte:
+            'Afflictions et types de dégâts : une carte par ligne, sur toute '
             'la largeur.',
       ),
       (
@@ -799,7 +849,8 @@ const List<VersionChangelog> kChangelog = [
     changements: [
       (
         type: _a,
-        texte: 'Afflictions : empoisonné, en feu, saignement, effrayé, à terre, '
+        texte:
+            'Afflictions : empoisonné, en feu, saignement, effrayé, à terre, '
             'assourdi, endormi, paralysé, affaibli, charmé.',
       ),
     ],

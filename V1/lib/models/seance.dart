@@ -704,6 +704,15 @@ class JetSeance {
       );
 }
 
+/// Camp d'une cible vu de celui qui agit (fenêtre de cibles, 19/11/2026).
+enum CampCible { soi, allie, ennemi }
+
+/// Une cible proposée : id (uid d'un joueur ou id de créature), nom, camp.
+typedef CibleSeance = ({String id, String nom, CampCible camp});
+
+/// Type des « dégâts » qui rendent des PV (sorts de soin, 19/11/2026).
+const kTypeSoin = 'soin';
+
 /// Attaque contre la CA (règle du 07/11/2026) : total ≥ CA ; un 20 naturel
 /// touche toujours, un 1 naturel rate toujours.
 bool attaqueTouche({

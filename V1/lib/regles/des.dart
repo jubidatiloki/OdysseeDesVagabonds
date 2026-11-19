@@ -346,3 +346,14 @@ String typeDegatsDepuis(String texte) {
   }
   return 'physique';
 }
+
+/// Réussite d'un jet (19/11/2026) : au d20, un 1 naturel échoue et un 20
+/// naturel réussit toujours, quels que soient les bonus ; sans difficulté,
+/// réussi sauf échec critique. Sans jet : réussi s'il n'y a pas de
+/// difficulté.
+bool reussiteJet(ResultatLancer? r, int? difficulte) {
+  if (r == null) return difficulte == null;
+  if (r.echecCritique) return false;
+  if (r.reussiteCritique) return true;
+  return difficulte == null || r.total >= difficulte;
+}

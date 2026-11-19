@@ -15,6 +15,7 @@ import '../../widgets/carte_choix.dart';
 import '../../widgets/carte_emprunts.dart';
 import '../../widgets/carte_identite.dart';
 import '../../widgets/carte_selection.dart';
+import '../../widgets/jauge_animee.dart';
 import '../../widgets/resume_fiche.dart';
 import '../../widgets/voie_detail.dart';
 
@@ -29,10 +30,15 @@ class OngletFiche extends StatelessWidget {
     required this.onModifie,
     this.onModifierIdentite,
     this.equipements = const [],
+    this.onRepos,
   });
 
   final FicheCalculee fiche;
   final Future<void> Function() onModifie;
+
+  /// Nuit de repos prise (en séance : notée dans les logs, 19/11/2026),
+  /// avec le détail des jets et des gains.
+  final void Function(String detail)? onRepos;
 
   /// Catalogue (arme choisie par le gnome reprise du catalogue).
   final List<Equipement> equipements;
@@ -176,6 +182,7 @@ class OngletFiche extends StatelessWidget {
     }
     p.journaliser(detail, categorie: CategorieHistorique.vie);
     await onModifie();
+    onRepos?.call(detail);
     messenger.showSnackBar(SnackBar(content: Text(detail)));
   }
 
@@ -929,7 +936,6 @@ class _Jauge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final ratio = max <= 0 ? 0.0 : (actuel / max).clamp(0.0, 1.0).toDouble();
     final rouge = couleurMoins(context);
     final gain = couleurPlus(context);
     return Card(
@@ -965,13 +971,16 @@ class _Jauge extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: LinearProgressIndicator(
-                value: ratio,
-                minHeight: 12,
+              // Barre animée : la variation se voit (19/11/2026).
+              child: JaugeAnimee(
+                key: Key('$cle-jauge'),
+                valeur: actuel,
+                max: max,
+                hauteur: 12,
                 // PV : vert, or puis rouge selon l'état ; PM : bleu.
-                color: cle == 'pv' ? couleurPv(ratio) : couleur,
-                backgroundColor: scheme.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(6),
+                couleur: couleur,
+                couleurSelon: cle == 'pv' ? couleurPv : null,
+                fond: scheme.surfaceContainerLowest,
               ),
             ),
             if (etat != null) ...[

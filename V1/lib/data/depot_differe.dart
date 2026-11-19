@@ -104,12 +104,29 @@ class DepotDiffere implements DepotEnLigne {
   }
 
   /// Liste en ligne corrigée par les modifications en attente.
-  List<Personnage> _fusion(List<Personnage> enLigne) => [
-        for (final p in enLigne)
-          if (!_attente.containsKey(p.id)) p,
-        for (final p in _attente.values)
-          if (p != null) p,
-      ];
+  ///
+  /// Fiche modifiée en ligne après la version en attente (le MJ pendant la
+  /// séance, 19/11/2026) : la version en ligne gagne et l'attente est
+  /// oubliée ; sinon elle masquerait la modification du MJ, puis
+  /// l'écraserait à l'envoi.
+  List<Personnage> _fusion(List<Personnage> enLigne) {
+    var oubliee = false;
+    for (final p in enLigne) {
+      final a = _attente[p.id];
+      if (a != null && p.modifieLe.isAfter(a.modifieLe)) {
+        _attente.remove(p.id);
+        _versions.remove(p.id);
+        oubliee = true;
+      }
+    }
+    if (oubliee) unawaited(_garder());
+    return [
+      for (final p in enLigne)
+        if (!_attente.containsKey(p.id)) p,
+      for (final p in _attente.values)
+        if (p != null) p,
+    ];
+  }
 
   /// Garde une copie des fiches du compte, pour démarrer sans internet.
   Future<void> _garderMiroir(List<Personnage> liste) async {
