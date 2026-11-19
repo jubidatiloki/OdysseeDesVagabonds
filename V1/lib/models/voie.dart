@@ -779,8 +779,16 @@ class Competence {
           if (b.option.isNotEmpty) b.option,
       }.toList();
 
-  /// Copie avec un autre nom, d'autres dégâts ou un autre coût affiché.
-  Competence copie({String? nom, String? degats, String? mana}) => Competence(
+  /// Copie avec un autre nom, d'autres dégâts, un autre coût affiché ou
+  /// d'autres cibles (renforcement : « jusqu'à 3 cibles »).
+  Competence copie({
+    String? nom,
+    String? degats,
+    String? mana,
+    CibleCompetence? cible,
+    String? ciblesMax,
+  }) =>
+      Competence(
         rang: rang,
         nom: nom ?? this.nom,
         type: type,
@@ -809,10 +817,10 @@ class Competence {
         endurance: endurance,
         selonProfil: selonProfil,
         typeDegats: typeDegats,
-        cible: cible,
+        cible: cible ?? this.cible,
         duree: duree,
         bonusDonnes: bonusDonnes,
-        ciblesMax: ciblesMax,
+        ciblesMax: ciblesMax ?? this.ciblesMax,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un

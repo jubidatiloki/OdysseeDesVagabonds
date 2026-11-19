@@ -21,7 +21,12 @@ class Effet {
     this.si = '',
     this.rangMin,
     this.rangMax,
+    this.ciblesMax = '',
   });
+
+  /// Renforcement qui change le nombre de cibles de la compétence améliorée
+  /// (« 3 », « INT ») : elle vise alors une sélection d'au plus ce nombre.
+  final String ciblesMax;
 
   /// Effet actif seulement à partir de ce rang atteint dans la voie (trait
   /// de l'arme familiale : niveau II au rang 3) ; `null` : toujours.
@@ -83,6 +88,7 @@ class Effet {
       si: chaine('si'),
       rangMin: int.tryParse(chaine('rangMin')),
       rangMax: int.tryParse(chaine('rangMax')),
+      ciblesMax: chaine('ciblesMax'),
     );
   }
 
@@ -99,6 +105,7 @@ class Effet {
         if (si.isNotEmpty) 'si': si,
         if (rangMin != null) 'rangMin': rangMin,
         if (rangMax != null) 'rangMax': rangMax,
+        if (ciblesMax.isNotEmpty) 'ciblesMax': ciblesMax,
         if (sousEffets.isNotEmpty)
           'effets': [for (final e in sousEffets) e.versJson()],
       };
@@ -120,6 +127,7 @@ class Effet {
       si: si,
       rangMin: rangMin,
       rangMax: rangMax,
+      ciblesMax: ciblesMax,
     );
   }
 
@@ -143,6 +151,7 @@ class Effet {
       si: si,
       rangMin: rangMin,
       rangMax: rangMax,
+      ciblesMax: ciblesMax,
     );
   }
 
@@ -160,6 +169,7 @@ class Effet {
         si: si,
         rangMin: rangMin,
         rangMax: rangMax,
+        ciblesMax: ciblesMax,
       );
 
   /// Copie avec « RANG » (rang atteint dans la voie) remplacé dans la valeur

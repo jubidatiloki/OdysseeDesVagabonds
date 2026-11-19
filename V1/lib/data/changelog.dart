@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.73.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: "Renforcements : Tenir en joue jusqu'à 3 cibles, Bénédiction et "
+            'Distraction charnelle 2 cibles.',
+      ),
+    ],
+  ),
+  (
     version: '0.72.1',
     date: '19/11/2026',
     changements: [

@@ -468,9 +468,42 @@ class FicheCalculee {
       );
 
   /// Compétences acquises (voie raciale + voies de classe), résolues pour
-  /// ce personnage.
+  /// ce personnage, avec les cibles changées par un renforcement acquis
+  /// (Rechargement rapide : Tenir en joue jusqu'à 3 cibles).
   List<({Voie voie, Competence competence, bool raciale})>
-      get competencesAcquises => [
+      get competencesAcquises {
+    final brutes = _competencesAcquisesBrutes;
+    // Nom de base de la compétence renforcée → nombre de cibles.
+    // (Le renforcement ne s'applique pas à la compétence qui le porte.)
+    final cibles = <String, ({String max, String source})>{};
+    for (final c in brutes) {
+      for (final e in c.competence.effets) {
+        if (e.estRenforcement && e.ciblesMax.isNotEmpty && e.nom.isNotEmpty) {
+          cibles[Effet.nomDeBase(e.nom)] =
+              (max: e.ciblesMax, source: c.competence.nom);
+        }
+      }
+    }
+    if (cibles.isEmpty) return brutes;
+    return [
+      for (final c in brutes)
+        if (cibles[Effet.nomDeBase(c.competence.nom)]
+            case (:final max, :final source) when source != c.competence.nom)
+          (
+            voie: c.voie,
+            competence: c.competence.copie(
+              cible: CibleCompetence.selection,
+              ciblesMax: max,
+            ),
+            raciale: c.raciale,
+          )
+        else
+          c,
+    ];
+  }
+
+  List<({Voie voie, Competence competence, bool raciale})>
+      get _competencesAcquisesBrutes => [
             for (final c in Progression.competencesAcquises(
               niveau: personnage.niveau,
               race: race,

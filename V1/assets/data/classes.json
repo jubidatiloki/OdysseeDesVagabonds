@@ -1966,7 +1966,7 @@
             "effet": "Rechargement gratuit après avoir tiré (pas avec 2 armes). Tenir en joue : jusqu'à 3 cibles (une seule réaction de tir par tour).",
             "effets": [
               {"type": "texte", "effet": "Rechargement gratuit après avoir tiré (pas avec 2 armes)."},
-              {"type": "renforcement", "nom": "Tenir en joue", "effet": "Jusqu'à 3 cibles (une seule réaction de tir par tour)."}
+              {"type": "renforcement", "nom": "Tenir en joue", "ciblesMax": "3", "effet": "Jusqu'à 3 cibles (une seule réaction de tir par tour)."}
             ]
           },
           {
@@ -3429,7 +3429,7 @@
             "effets": [
               {"type": "bonus", "categorie": "CON", "valeur": "2"},
               {"type": "renforcement", "nom": "Lien vital", "effet": "Utilisable dans l'autre sens (test d'attaque magique si lancé sur un ennemi)."},
-              {"type": "renforcement", "nom": "Bénédiction", "effet": "Peut viser 2 cibles."}
+              {"type": "renforcement", "nom": "Bénédiction", "ciblesMax": "2", "effet": "Peut viser 2 cibles."}
             ]
           }
         ]
@@ -4151,7 +4151,7 @@
             "effet": "+4 SOC. Distraction charnelle en combat : 2 cibles. 1×/aventure, une cible qui rate la distraction hors combat devient un allié dévoué tant que le voleur ne la trahit pas ouvertement.",
             "effets": [
               {"type": "bonus", "categorie": "SOC", "valeur": "4"},
-              {"type": "renforcement", "nom": "Distraction charnelle", "effet": "En combat : 2 cibles."},
+              {"type": "renforcement", "nom": "Distraction charnelle", "ciblesMax": "2", "effet": "En combat : 2 cibles."},
               {"type": "usage", "nom": "Allié dévoué", "valeur": "1", "condition": "par aventure", "effet": "Une cible qui rate la distraction hors combat devient un allié dévoué tant que le voleur ne la trahit pas ouvertement."}
             ]
           }
