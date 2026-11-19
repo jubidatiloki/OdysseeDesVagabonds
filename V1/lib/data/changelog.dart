@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.72.1',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Nombre de cibles au plus : Cercle de protection, Soin de groupe, '
+            'Glas de soutien, Bourrasque, Flèches multiples…',
+      ),
+    ],
+  ),
+  (
     version: '0.72.0',
     date: '19/11/2026',
     changements: [

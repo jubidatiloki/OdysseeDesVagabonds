@@ -122,6 +122,8 @@ void main() {
     expect(de, inInclusiveRange(4, 9));
     expect(n('1d6/2'), inInclusiveRange(1, 3));
     expect(n('INT + 1d4'), inInclusiveRange(4, 7));
+    expect(n('INT + 1'), 4);
+    expect(n('RANG + AdM'), 1); // RANG 0, AdM +0 : 1 au moins
     expect(n(''), 1);
   });
   test('bonus de CA : selon l\'attaque, le plus fort par nom', () {
@@ -215,5 +217,21 @@ void main() {
     expect((etat.estEtat, etat.effet), (true, 'Immobilisation'));
     expect(etat.compte(genre: GenreJet.attaque, d20: true, degats: false),
         isFalse);
+  });
+  test('données : nombre de cibles au plus (19/11/2026)', () {
+    for (final (nom, max) in [
+      ('Pissenlit protecteur', 'INT'),
+      ('Pistoléro', '2'),
+      ('Cercle de protection', 'INT'),
+      ('Bourrasque', 'RANG + AdM'),
+      ("Chaîne d'éclairs", '4'),
+      ('Soin de groupe', 'INT + 1'),
+      ('Glas de soutien', 'INT + 1'),
+      ('Flèches multiples', '3'),
+    ]) {
+      final c = _depuis('classes.json', nom);
+      expect((c.cible, c.ciblesMax), (CibleCompetence.selection, max),
+          reason: nom);
+    }
   });
 }
