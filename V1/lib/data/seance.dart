@@ -332,6 +332,9 @@ class ServiceSeanceMemoire implements ServiceSeance {
   @override
   Future<bool> prendreDegats(Campagne c, String id) async {
     final liste = _partie(c).degats;
+    // Comme en ligne : la transaction ne voit pas encore les dégâts que ce
+    // compte vient d'écrire (écriture en attente).
+    if (liste.any((d) => d.id == id && d.auteur == uid)) return false;
     final avant = liste.length;
     liste.removeWhere((d) => d.id == id);
     return liste.length < avant;

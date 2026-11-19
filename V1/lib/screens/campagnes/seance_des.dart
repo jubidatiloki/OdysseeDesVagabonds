@@ -639,6 +639,18 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             ].join(' ')
           : '',
     );
+    // Jet du personnage : inscrit dans son historique, avec la séance ;
+    // avant les dégâts et soins (un soin sur soi-même est écrit sur la
+    // fiche juste après : il ne doit pas être écrasé par cette copie).
+    if (erreur == null && r != null && fiche != null) {
+      await _s.journaliserJet(
+        fiche,
+        '$libelle : $total ($detail)'
+        '${r.reussiteCritique ? ' · réussite critique' : ''}'
+        '${r.echecCritique ? ' · échec critique' : ''}'
+        '${touche == null ? '' : touche ? ' · touché' : ' · raté'}',
+      );
+    }
     if (erreur == null && (degats || soin)) {
       // Sort avec un jet d'attaque : seulement les cibles touchées.
       final touchees = _sortEnCours ? _touchees : null;
@@ -670,16 +682,6 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           moitie: moitie,
         );
       }
-    }
-    // Jet du personnage : inscrit dans son historique, avec la séance.
-    if (erreur == null && r != null && fiche != null) {
-      await _s.journaliserJet(
-        fiche,
-        '$libelle : $total ($detail)'
-        '${r.reussiteCritique ? ' · réussite critique' : ''}'
-        '${r.echecCritique ? ' · échec critique' : ''}'
-        '${touche == null ? '' : touche ? ' · touché' : ' · raté'}',
-      );
     }
     if (!mounted) return;
     setState(() {

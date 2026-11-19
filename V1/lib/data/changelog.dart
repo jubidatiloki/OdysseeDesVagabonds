@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.74.1',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte:
+            'Séance : les dégâts d\'une créature du MJ sur une autre créature sont bien retirés.',
+      ),
+      (
+        type: _c,
+        texte:
+            'Séance : un soin lancé sur soi-même n\'est plus annulé juste après.',
+      ),
+    ],
+  ),
+  (
     version: '0.74.0',
     date: '19/11/2026',
     changements: [

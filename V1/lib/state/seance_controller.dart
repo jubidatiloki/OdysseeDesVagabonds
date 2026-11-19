@@ -1792,22 +1792,28 @@ class SeanceController extends ChangeNotifier {
     int? esquive,
     bool moitie = false,
   }) {
-    return _agir((s, c) async {
-      if (montant <= 0 || cible.isEmpty) return;
-      await s.envoyerDegats(
-        c,
-        DegatsSeance(
-          cible: cible,
-          destinataire: joueurs.any((m) => m.uid == cible) ? cible : c.mj,
-          auteur: uid,
-          montant: montant,
-          source: source,
-          type: type,
-          difficulteEsquive: esquive,
-          moitieSiEsquive: moitie,
-        ),
-      );
-    });
+    final c0 = campagne;
+    if (c0 == null) return Future.value('Cette campagne n\'existe plus.');
+    if (montant <= 0 || cible.isEmpty) return Future.value();
+    final d = DegatsSeance(
+      cible: cible,
+      destinataire: joueurs.any((m) => m.uid == cible) ? cible : c0.mj,
+      auteur: uid,
+      montant: montant,
+      source: source,
+      type: type,
+      difficulteEsquive: esquive,
+      moitieSiEsquive: moitie,
+    );
+    // Pour soi-même (MJ → créature, PJ → lui-même) : appliqué ici, sans
+    // passer par la base (19/11/2026). En ligne, la transaction qui prend
+    // les dégâts ne voyait pas encore le document qu'on venait d'écrire :
+    // les dégâts étaient perdus (élémentaire du MJ contre un jeune ours).
+    if (d.destinataire == uid && esquive == null) {
+      _fileDegats = _fileDegats.then((_) => _appliquerDegats(d, stocke: false));
+      return _fileDegats.then((_) => null);
+    }
+    return _agir((s, c) => s.envoyerDegats(c, d));
   }
 
   /// Attaques sans jet d'attaque qui visent ce joueur : il choisit
@@ -1911,9 +1917,11 @@ class SeanceController extends ChangeNotifier {
     }
   }
 
-  Future<void> _appliquerDegats(DegatsSeance d) async {
+  /// [stocke] : dégâts lus dans la base (pris une seule fois, par
+  /// transaction) ; sinon appliqués directement (dégâts pour soi-même).
+  Future<void> _appliquerDegats(DegatsSeance d, {bool stocke = true}) async {
     await _agir((s, c) async {
-      if (!await s.prendreDegats(c, d.id)) return;
+      if (stocke && !await s.prendreDegats(c, d.id)) return;
       if (d.cible == uid) {
         final f = maFiche;
         if (f == null) return;
@@ -1973,6 +1981,8 @@ class SeanceController extends ChangeNotifier {
         }
       }
     });
+    // Dégâts pour soi-même : aucun flux ne prévient, l'écran est redessiné ici.
+    notifyListeners();
   }
 
   /// Nom de la cible dans un jet : même discrétion que pour le lanceur.

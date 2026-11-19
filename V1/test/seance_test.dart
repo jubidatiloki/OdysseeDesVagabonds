@@ -1412,6 +1412,47 @@ void main() {
         isNull,
       );
     });
+    testWidgets('MJ : l\'invocation d\'un PJ frappe une créature, PV retirés',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(
+              id: 'inv',
+              nom: 'Loup',
+              creatureId: 'loup',
+              pv: 12,
+              pvMax: 12,
+              proprietaire: 'j1',
+              toursRestants: 5,
+            ),
+          );
+          await mj.ajouterCreature(
+            c,
+            const CreatureSeance(
+              id: 'ours',
+              nom: 'Jeune ours',
+              pv: 12,
+              pvMax: 12,
+            ),
+          );
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await tap(tester, find.byKey(const Key('carte-inv')));
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-1')));
+      await tapDes(tester, 'attaque-1', cibleAuto: false);
+      await tap(tester, find.byKey(const Key('choix-cible-ours')));
+      final jet = partie.jets.last;
+      expect(jet.cible, 'Jeune ours');
+      expect(partie.creatures['ours']!.pv, 12 - jet.total);
+    });
+
     testWidgets('dégâts : retirés des PV de la créature ciblée',
         (tester) async {
       final x = await ouvrir(
