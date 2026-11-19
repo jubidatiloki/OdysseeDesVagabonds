@@ -813,7 +813,7 @@ class SeanceController extends ChangeNotifier {
       estMj ||
       !x.estAUnJoueur ||
       x.proprietaire == uid ||
-      (campagne?.parametres.fichesVisiblesJoueurs ?? false);
+      (campagne?.parametres.fichesEntrePj(enSeance: true) ?? false);
 
   /// Compagnons et invocations d'un joueur entrés dans la partie (PV
   /// suivis, initiative).
@@ -1084,7 +1084,7 @@ class SeanceController extends ChangeNotifier {
     if (c == null || s == null) return;
     final visibles = estMj
         ? c.parametres.fichesVisiblesMj
-        : c.parametres.fichesVisiblesJoueurs;
+        : c.parametres.fichesEntrePj(enSeance: true);
     final ids = {
       if (visibles)
         for (final m in joueurs)

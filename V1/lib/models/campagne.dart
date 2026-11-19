@@ -19,7 +19,18 @@ class ParametresCampagne {
     this.pjMonteeHorsSeance = false,
     this.pjVoientEffetsAllies = false,
     this.pjVoientEffetsCreatures = false,
+    this.pjVoientFichesEnSeance = false,
   });
+
+  /// Pendant la séance, les PJ voient leurs fiches de personnage entre eux
+  /// (19/11/2026), même si elles sont cachées en dehors.
+  final bool pjVoientFichesEnSeance;
+
+  /// Les PJ voient-ils les fiches des autres PJ ? Toujours avec
+  /// [fichesVisiblesJoueurs], seulement pendant la séance avec
+  /// [pjVoientFichesEnSeance].
+  bool fichesEntrePj({required bool enSeance}) =>
+      fichesVisiblesJoueurs || (enSeance && pjVoientFichesEnSeance);
 
   /// Les PJ peuvent monter de niveau en dehors d'une séance (19/11/2026) ;
   /// sinon, seulement pendant une séance, avec l'accord du MJ.
@@ -72,6 +83,7 @@ class ParametresCampagne {
     bool? pjMonteeHorsSeance,
     bool? pjVoientEffetsAllies,
     bool? pjVoientEffetsCreatures,
+    bool? pjVoientFichesEnSeance,
   }) =>
       ParametresCampagne(
         joueursMax: joueursMax ?? this.joueursMax,
@@ -90,6 +102,8 @@ class ParametresCampagne {
         pjVoientEffetsAllies: pjVoientEffetsAllies ?? this.pjVoientEffetsAllies,
         pjVoientEffetsCreatures:
             pjVoientEffetsCreatures ?? this.pjVoientEffetsCreatures,
+        pjVoientFichesEnSeance:
+            pjVoientFichesEnSeance ?? this.pjVoientFichesEnSeance,
       );
 
   Map<String, dynamic> versJson() => {
@@ -104,6 +118,7 @@ class ParametresCampagne {
         'pjMonteeHorsSeance': pjMonteeHorsSeance,
         'pjVoientEffetsAllies': pjVoientEffetsAllies,
         'pjVoientEffetsCreatures': pjVoientEffetsCreatures,
+        'pjVoientFichesEnSeance': pjVoientFichesEnSeance,
       };
 
   factory ParametresCampagne.depuisJson(Object? j) {
@@ -121,6 +136,7 @@ class ParametresCampagne {
       pjMonteeHorsSeance: j['pjMonteeHorsSeance'] as bool? ?? false,
       pjVoientEffetsAllies: j['pjVoientEffetsAllies'] as bool? ?? false,
       pjVoientEffetsCreatures: j['pjVoientEffetsCreatures'] as bool? ?? false,
+      pjVoientFichesEnSeance: j['pjVoientFichesEnSeance'] as bool? ?? false,
     );
   }
 }

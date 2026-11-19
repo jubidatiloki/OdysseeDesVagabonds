@@ -180,7 +180,9 @@ class CampagnesController extends ChangeNotifier {
         lecteurs.add(c.mj);
         if (accepte) editeurs.putIfAbsent(moi.personnageId, () => {}).add(c.mj);
       }
-      if (c.parametres.fichesVisiblesJoueurs && accepte) {
+      // Pendant la séance seulement, selon la permission (19/11/2026) :
+      // partage ajouté au début de la séance, retiré à la fin.
+      if (c.parametres.fichesEntrePj(enSeance: c.seanceEnCours) && accepte) {
         lecteurs.addAll(c.joueurs.where((u) => u != s.uid));
       }
       if (accepte) engagees.putIfAbsent(moi.personnageId, () => []).add(c);

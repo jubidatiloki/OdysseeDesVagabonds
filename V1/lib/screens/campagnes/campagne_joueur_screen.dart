@@ -228,10 +228,12 @@ class CampagneJoueurScreen extends StatelessWidget {
                               contentPadding: EdgeInsets.zero,
                               title: Text('${m.personnageNom} (${m.nom})'),
                               subtitle: Text(m.personnageResume),
-                              trailing: c.parametres.fichesVisiblesJoueurs
+                              trailing: c.parametres
+                                      .fichesEntrePj(enSeance: c.seanceEnCours)
                                   ? const Icon(Icons.chevron_right)
                                   : null,
-                              onTap: c.parametres.fichesVisiblesJoueurs
+                              onTap: c.parametres
+                                      .fichesEntrePj(enSeance: c.seanceEnCours)
                                   ? () =>
                                       ouvrirFichePartagee(context, contexte, m)
                                   : null,

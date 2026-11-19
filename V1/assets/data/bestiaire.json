@@ -600,6 +600,7 @@
     "archetype": "Monture",
     "taille": "standard",
     "description": "Bouquetin des montagnes dompté par le nain : cornes recourbées, sabots sûrs, il galope comme un cheval et grimpe partout.",
+    "ca": 12,
     "pv": 15,
     "note": "Monté : +10 en escalade.",
     "attaques": [
@@ -613,6 +614,7 @@
     "archetype": "Soutien",
     "taille": "standard",
     "description": "Jeune écuyer au service du chevalier : porte jusqu'à 30 kg, aide à revêtir l'armure et entretient l'équipement.",
+    "ca": 11,
     "pv": 8,
     "attaques": [
       {"nom": "Dague", "portee": "CaC", "toucher": "1d20 + AdC du chevalier", "degats": "1d4 perçant"}
@@ -625,6 +627,7 @@
     "archetype": "Soutien",
     "taille": "petite",
     "description": "Petit automate d'engrenages et de métal fabriqué par l'ingénieur ; porte du matériel.",
+    "ca": 13,
     "pv": 10,
     "attaques": [
       {"nom": "Pince", "portee": "CaC", "toucher": "1d20 + AdC de l'ingénieur", "degats": "1d4 contondant"}
@@ -638,6 +641,7 @@
     "taille": "petite",
     "siChoix": "familier-necromancien:corbeau",
     "description": "Familier du nécromancien : Corbeau aux yeux luisants.",
+    "ca": 12,
     "pv": 3,
     "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
     "attaques": [
@@ -652,6 +656,7 @@
     "taille": "minuscule",
     "siChoix": "familier-necromancien:rat",
     "description": "Familier du nécromancien : Rat furtif.",
+    "ca": 12,
     "pv": 3,
     "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
     "attaques": [
@@ -666,6 +671,7 @@
     "taille": "petite",
     "siChoix": "familier-necromancien:chat-noir",
     "description": "Familier du nécromancien : Chat noir silencieux.",
+    "ca": 13,
     "pv": 3,
     "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
     "attaques": [
@@ -680,6 +686,7 @@
     "taille": "minuscule",
     "siChoix": "familier-necromancien:crane-flottant",
     "description": "Familier du nécromancien : Crâne qui flotte dans les airs.",
+    "ca": 12,
     "pv": 3,
     "note": "Avec concentration, le nécromancien voit par ses yeux jusqu'à 50 m.",
     "attaques": [
@@ -694,6 +701,7 @@
     "taille": "petite",
     "siChoix": "animal-druide:jeune-ours",
     "description": "Animal de compagnie du druide.",
+    "ca": 13,
     "pv": 12,
     "note": "Attaque faible avant le rang 3 (Animal de combat).",
     "attaques": [
@@ -724,6 +732,7 @@
     "taille": "standard",
     "siChoix": "animal-druide:panthere",
     "description": "Animal de compagnie du druide.",
+    "ca": 14,
     "pv": 10,
     "note": "Attaque faible avant le rang 3 (Animal de combat).",
     "attaques": [
@@ -754,6 +763,7 @@
     "taille": "standard",
     "siChoix": "animal-druide:sanglier",
     "description": "Animal de compagnie du druide.",
+    "ca": 12,
     "pv": 12,
     "note": "Attaque faible avant le rang 3 (Animal de combat).",
     "attaques": [
@@ -784,6 +794,7 @@
     "taille": "minuscule",
     "siChoix": "animal-druide:chouette",
     "description": "Animal de compagnie du druide.",
+    "ca": 13,
     "pv": 4,
     "note": "Attaque faible avant le rang 3 (Animal de combat). Vole, voit dans le noir.",
     "attaques": [
@@ -815,6 +826,7 @@
     "taille": "petite",
     "siChoix": "animal-druide:aigle",
     "description": "Animal de compagnie du druide.",
+    "ca": 13,
     "pv": 5,
     "note": "Attaque faible avant le rang 3 (Animal de combat). Vole.",
     "attaques": [
@@ -846,6 +858,7 @@
     "taille": "petite",
     "siChoix": "animal-druide:chien",
     "description": "Animal de compagnie du druide.",
+    "ca": 12,
     "pv": 8,
     "note": "Attaque faible avant le rang 3 (Animal de combat).",
     "attaques": [
@@ -876,6 +889,7 @@
     "taille": "standard",
     "siChoix": "animal-druide:loup",
     "description": "Animal de compagnie du druide.",
+    "ca": 13,
     "pv": 9,
     "note": "Attaque faible avant le rang 3 (Animal de combat).",
     "attaques": [
@@ -906,6 +920,7 @@
     "taille": "minuscule",
     "siChoix": "animal-druide:lievre",
     "description": "Animal de compagnie du druide.",
+    "ca": 14,
     "pv": 3,
     "note": "Attaque faible avant le rang 3 (Animal de combat).",
     "attaques": [
@@ -936,6 +951,7 @@
     "taille": "standard",
     "siChoix": "compagnon-rodeur:loup",
     "description": "Compagnon animal du rôdeur, encore jeune.",
+    "ca": 13,
     "pv": 9,
     "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
     "attaques": [
@@ -982,6 +998,7 @@
     "taille": "standard",
     "siChoix": "compagnon-rodeur:chien",
     "description": "Compagnon animal du rôdeur, encore jeune.",
+    "ca": 12,
     "pv": 8,
     "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
     "attaques": [
@@ -1028,6 +1045,7 @@
     "taille": "standard",
     "siChoix": "compagnon-rodeur:lynx",
     "description": "Compagnon animal du rôdeur, encore jeune.",
+    "ca": 14,
     "pv": 8,
     "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
     "attaques": [
@@ -1074,6 +1092,7 @@
     "taille": "petite",
     "siChoix": "compagnon-rodeur:renard",
     "description": "Compagnon animal du rôdeur, encore jeune.",
+    "ca": 13,
     "pv": 5,
     "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
     "attaques": [
@@ -1120,6 +1139,7 @@
     "taille": "standard",
     "siChoix": "compagnon-rodeur:jeune-sanglier",
     "description": "Compagnon animal du rôdeur, encore jeune.",
+    "ca": 12,
     "pv": 10,
     "note": "Attaque faible avant le rang 3 (Compagnon adulte).",
     "attaques": [

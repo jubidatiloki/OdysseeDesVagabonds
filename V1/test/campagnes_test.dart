@@ -256,6 +256,44 @@ void main() {
       }
     });
 
+    test('fiches entre PJ pendant la séance seulement (permission)', () async {
+      final base = BaseCampagnesMemoire(Random(7));
+      final brom = _brom();
+      base.fiches['brom'] =
+          (fiche: brom, proprietaire: 'j1', partage: [], editeurs: []);
+      final mj =
+          await _connecter(base, const Utilisateur(uid: 'mj', nom: 'Ben'));
+      final j = await _connecter(base, const Utilisateur(uid: 'j1', nom: 'Léa'),
+          fiches: [brom]);
+      final s = mj.campagnes.serviceActuel!;
+      final c = await s.creer(
+        nom: 'Valfroid',
+        mjNom: 'Ben',
+        parametres: const ParametresCampagne(pjVoientFichesEnSeance: true),
+      );
+      final aria = Personnage(
+          id: 'aria', nom: 'Aria', raceId: 'nain', classeId: 'guerrier');
+      await j.campagnes.serviceActuel!.demander(c, _membre('j1', 'Léa', brom));
+      await ServiceCampagnesMemoire(base, 'j2')
+          .demander(base.campagnes[c.id]!, _membre('j2', 'Tom', aria));
+      await s.accepter(base.campagnes[c.id]!, 'j1');
+      await s.accepter(base.campagnes[c.id]!, 'j2');
+      await pumpEventQueue();
+      // Hors séance : le MJ seulement.
+      expect(base.fiches['brom']!.partage, ['mj']);
+      await s.demarrerSeance(base.campagnes[c.id]!);
+      await pumpEventQueue();
+      expect(base.fiches['brom']!.partage, unorderedEquals(['mj', 'j2']));
+      await s.terminerSeance(base.campagnes[c.id]!);
+      await pumpEventQueue();
+      expect(base.fiches['brom']!.partage, ['mj']);
+      for (final x in [mj, j]) {
+        x.campagnes.dispose();
+        x.compte.dispose();
+        x.personnages.dispose();
+      }
+    });
+
     test('MJ / joueur, séance signalée, fiche partagée avec le MJ', () async {
       final base = BaseCampagnesMemoire(Random(5));
       final brom = _brom();

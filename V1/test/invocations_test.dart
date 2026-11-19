@@ -78,9 +78,9 @@ void main() {
         expect(catalogueCreatures, contains(c.remplace), reason: c.id);
       }
     }
-    // Petits compagnons : PV et une attaque faible (11/11/2026).
+    // Petits compagnons : PV, CA (19/11/2026) et une attaque faible.
     final bouquetin = catalogueCreatures['bouquetin-nain']!;
-    expect((bouquetin.pv, bouquetin.ca), (15, null));
+    expect((bouquetin.pv, bouquetin.ca), (15, 12));
     expect(bouquetin.attaques.single.degats, '1d6 contondant');
     expect(catalogueCreatures['familier-corbeau']!.pv, 3);
     // Le diablotin combat (1d6 feu infernal).

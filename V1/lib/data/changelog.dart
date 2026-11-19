@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.75.0',
+    date: '19/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Bestiaire : CA des 20 compagnons, familiers et montures qui n\'en avaient pas.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Permission : les PJ voient leurs fiches entre eux pendant la séance.',
+      ),
+    ],
+  ),
+  (
     version: '0.74.1',
     date: '19/11/2026',
     changements: [

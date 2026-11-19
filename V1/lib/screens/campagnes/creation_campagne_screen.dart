@@ -427,6 +427,12 @@ class FormulairePermissions extends StatelessWidget {
         ),
         titre('permissions-seance', Icons.casino_outlined, 'Pendant la séance'),
         ligne(
+          'pj-voient-fiches-en-seance',
+          'Les PJ voient leurs fiches de personnage entre eux',
+          p.pjVoientFichesEnSeance,
+          (v) => p.copie(pjVoientFichesEnSeance: v),
+        ),
+        ligne(
           'pj-voient-ressources',
           'Les PJ voient leurs PV, PM et PE entre eux',
           p.pjVoientRessources,
@@ -506,6 +512,7 @@ class ResumeParametres extends StatelessWidget {
         Text('Pendant la séance', style: style),
         const SizedBox(height: 4),
         lignes([
+          'Fiches visibles entre PJ : ${oui(p.fichesEntrePj(enSeance: true))}',
           'PV, PM et PE visibles entre PJ : ${oui(p.pjVoientRessources)}',
           'PV des créatures visibles : ${oui(p.pjVoientPvCreatures)}',
           'Fiches des créatures visibles : '
