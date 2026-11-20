@@ -585,6 +585,8 @@ IconData iconeCategorie(CategorieObjet c) {
       return Icons.science_outlined;
     case CategorieObjet.divers:
       return Icons.inventory_2_outlined;
+    case CategorieObjet.quete:
+      return Icons.key_outlined;
   }
 }
 

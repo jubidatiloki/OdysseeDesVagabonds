@@ -38,6 +38,25 @@ class ButinSeance {
     return parties.isEmpty ? 'Vide' : parties.join(' · ');
   }
 
+  /// Ajoute [o] au butin (20/11/2026) : un objet identique déjà présent
+  /// (même fiche, hors identifiant et quantité) voit sa quantité augmenter,
+  /// pour que le PJ choisisse combien il en prend (2 épées courtes).
+  ButinSeance avecObjet(Objet o) {
+    Map<String, dynamic> cle(Objet x) => x.versJson()
+      ..remove('id')
+      ..remove('quantite');
+    final k = jsonEncode(cle(o));
+    final i = objets.indexWhere((x) => jsonEncode(cle(x)) == k);
+    if (i < 0) return copie(objets: [...objets, o]);
+    return copie(objets: [
+      for (final (j, x) in objets.indexed)
+        j == i
+            ? (Objet.depuisJson(x.versJson())
+              ..quantite = x.quantite + o.quantite)
+            : x,
+    ]);
+  }
+
   ButinSeance copie({
     String? id,
     Bourse? bourse,

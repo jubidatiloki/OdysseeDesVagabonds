@@ -1829,6 +1829,168 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('PJ : état de santé des autres PJ sans la permission des PV',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'j2')
+            .seance
+            .publierPersonnage(c,
+                resume: 'Nain · Guerrier · niveau 1',
+                initiative: 10,
+                ca: 15,
+                sante: SantePj.grave.name),
+      );
+      final carte = find.byKey(const Key('carte-j2'));
+      expect(
+          find.descendant(of: carte, matching: find.text('Gravement blessé')),
+          findsOneWidget);
+      // Ni ses PV ni sa CA (même visibilité).
+      expect(find.byKey(const Key('ca-j2')), findsNothing);
+      // Sa propre carte : PV et CA.
+      expect(find.byKey(const Key('ca-j1')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('combat : cartes par initiative, créatures en rouge',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          for (final (id, ini) in [('lent', 2), ('vif', 18)]) {
+            await mj.ajouterCreature(
+                c, CreatureSeance(id: id, nom: id, initiative: ini));
+          }
+          await mj.demarrerCombat(c, ['j1', 'j2', 'lent', 'vif']);
+        },
+      );
+      double haut(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
+      expect(haut('carte-vif'), lessThan(haut('carte-lent')));
+      final carte = tester.widget<Card>(find
+          .ancestor(
+              of: find.byKey(const Key('carte-lent')),
+              matching: find.byType(Card))
+          .first);
+      expect(carte.color, OdvCouleurs.red.withValues(alpha: 0.18));
+    });
+
+    testWidgets('PJ en séance : pas de soin ni d\'objet ajouté à la main',
+        (tester) async {
+      await ouvrir(tester, 'j1', fiches: [_brom()..pvActuels = 5]);
+      await tap(tester, find.byKey(const Key('carte-j1')));
+      expect(
+          tester.widget<IconButton>(find.byKey(const Key('pv-plus'))).onPressed,
+          isNull);
+      expect(
+          tester
+              .widget<IconButton>(find.byKey(const Key('pv-moins')))
+              .onPressed,
+          isNotNull);
+      await tap(tester, find.byKey(const Key('vue-inventaire')));
+      expect(find.byKey(const Key('ajouter-objet')), findsNothing);
+      expect(find.byKey(const Key('inventaire-ajout-mj')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('panneau : recherche et étoile de favori', (tester) async {
+      await ouvrir(tester, 'j1', fiches: [_brom()..rangsVoies['chant'] = 3]);
+      await tester.enterText(find.byKey(const Key('recherche-actions')), 'hym');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('resultats-recherche')), findsOneWidget);
+      expect(find.textContaining('Hymne'), findsOneWidget);
+      expect(find.textContaining('Bénir'), findsNothing);
+      // Étoile : en favori.
+      await tap(tester, find.byKey(const Key('etoile-trouve-competence-1')));
+      final enregistre = tester
+          .widget<SeanceScreen>(find.byType(SeanceScreen))
+          .contexte
+          .personnages
+          .parId('brom')!;
+      expect(enregistre.favoris, contains('Hymne'));
+      await tap(tester, find.byKey(const Key('effacer-recherche')));
+      expect(find.byKey(const Key('resultats-recherche')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('réaction : hors de son tour, une par manche', (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .demarrerCombat(c, ['j2', 'j1']),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(
+          tester
+              .widget<InputChip>(find.byKey(const Key('attaque-0')))
+              .onPressed,
+          isNull);
+      await tap(tester, find.byKey(const Key('reaction')));
+      expect(find.byKey(const Key('en-reaction')), findsOneWidget);
+      await tapDes(tester, 'attaque-0');
+      expect(partie.jets.last.libelle, startsWith('Réaction · '));
+      await tap(tester, find.byKey(const Key('fin-reaction')));
+      expect(
+          tester
+              .widget<OutlinedButton>(find.byKey(const Key('reaction')))
+              .onPressed,
+          isNull);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : tour d\'une créature à terre, il confirme',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+              c,
+              const CreatureSeance(
+                  id: 'mort', nom: 'Gobelin', pv: 0, pvMax: 7));
+          await mj.demarrerCombat(c, ['mort', 'j1', 'j2']);
+        },
+      );
+      expect(find.byKey(const Key('fenetre-tour-au-sol')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('passer-tour-au-sol')));
+      expect(x.base.parties[x.campagne.id]!.etat.actif, isNot('mort'));
+    });
+
+    testWidgets('messages : toute la table, et entre deux joueurs',
+        (tester) async {
+      final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
+      await tap(tester, find.byKey(const Key('onglet-messages')));
+      await tap(tester, find.byKey(const Key('message-joueur')));
+      await tap(tester, find.text('Toute la table').last);
+      await tester.enterText(find.byKey(const Key('message-texte')), 'Salut !');
+      await tap(tester, find.byKey(const Key('message-envoyer')));
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(partie.messages.last.conversation, MessageSeance.general);
+      await tap(tester, find.byKey(const Key('message-joueur')));
+      await tap(tester, find.text('aria').last);
+      await tester.enterText(find.byKey(const Key('message-texte')), 'Psst');
+      await tap(tester, find.byKey(const Key('message-envoyer')));
+      expect(partie.messages.last.participants, ['j1', 'j2']);
+      // Le MJ lit la table, pas la conversation privée des joueurs.
+      final mj = await ServiceCampagnesMemoire(x.base, 'mj')
+          .seance
+          .lireMessages(x.campagne);
+      expect(mj.map((m) => m.texte), ['Salut !']);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('MJ : PV publiés par le joueur, même si la fiche a du retard',
         (tester) async {
       // Fiche en ligne en retard (envoi différé) : 10 PV ; le joueur a
@@ -2779,6 +2941,10 @@ void main() {
       await tapDes(tester, 'test-seance-CHAN');
       final partie = x.base.parties[x.campagne.id]!;
       expect(partie.jets.last.detail, startsWith('Avantage (Chanceux)'));
+      // Le résultat est en haut du panneau.
+      await tester.drag(
+          find.byKey(const Key('panneau-des')), const Offset(0, 3000));
+      await tester.pumpAndSettle();
       expect(find.byKey(const Key('resultat-seance')), findsOneWidget);
       expect(find.byKey(const Key('resultat-total')), findsOneWidget);
       expect(
@@ -2797,6 +2963,18 @@ void main() {
         'groupe-situations',
         find.byKey(const Key('bloc-situations')),
       );
+      for (var i = 0;
+          i < 30 &&
+              find
+                  .textContaining('en montagne')
+                  .hitTestable()
+                  .evaluate()
+                  .isEmpty;
+          i++) {
+        await tester.drag(
+            find.byKey(const Key('panneau-des')), const Offset(0, -80));
+        await tester.pumpAndSettle();
+      }
       await tap(tester, find.textContaining('en montagne').first);
       await tapDes(tester, 'test-seance-FOR');
       expect(partie.jets.last.detail, contains('+2 (Chanceux)'));
@@ -2917,7 +3095,7 @@ void main() {
       );
       expect(find.byKey(const Key('hors-tour')), findsOneWidget);
       final attaque =
-          tester.widget<ActionChip>(find.byKey(const Key('attaque-0')));
+          tester.widget<InputChip>(find.byKey(const Key('attaque-0')));
       expect(attaque.onPressed, isNull);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
@@ -2935,7 +3113,7 @@ void main() {
       );
       expect(find.byKey(const Key('hors-tour')), findsNothing);
       final attaque =
-          tester.widget<ActionChip>(find.byKey(const Key('attaque-0')));
+          tester.widget<InputChip>(find.byKey(const Key('attaque-0')));
       expect(attaque.onPressed, isNotNull);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
@@ -3026,16 +3204,15 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(find.byKey(Key('vue-carte-${port.id}')), findsOneWidget);
-      // Carte affichée : pas d'onglet Dés, les logs sont ouverts.
-      expect(find.byKey(const Key('onglet-des')), findsNothing);
-      expect(find.text('Aucun jet pour l\'instant.'), findsOneWidget);
+      // Carte affichée : les dés du personnage restent à droite (20/11/2026).
+      expect(find.byKey(const Key('onglet-des')), findsOneWidget);
+      expect(find.byKey(const Key('panneau-des')), findsOneWidget);
       // Le MJ la retire : elle disparaît, la vue revient aux notes.
       await ServiceCampagnesMemoire(x.base, 'mj')
           .modifierCarte(x.campagne, port.copie(diffusee: false));
       await tester.pumpAndSettle();
       expect(find.byKey(Key('carte-plan-${port.id}')), findsNothing);
       expect(find.byKey(Key('vue-carte-${port.id}')), findsNothing);
-      // Plus de carte affichée : l'onglet Dés revient.
       expect(find.byKey(const Key('onglet-des')), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
@@ -3231,11 +3408,12 @@ void main() {
           )
           .first;
       await tester.scrollUntilVisible(
-        find.byKey(const Key('competence-seance-2')),
+        find.byKey(const Key('competence-seance-0')),
         200,
         scrollable: panneau,
       );
-      await tapDes(tester, 'competence-seance-2', cibleAuto: false);
+      // Ordre alphabétique : Bénir en tête.
+      await tapDes(tester, 'competence-seance-0', cibleAuto: false);
       // Qui ? puis quelle option ?
       expect(find.byKey(const Key('fenetre-cibles')), findsOneWidget);
       await tap(tester, find.byKey(const Key('choix-cible-j2')));

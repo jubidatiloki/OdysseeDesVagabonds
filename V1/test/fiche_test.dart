@@ -294,23 +294,26 @@ void main() {
     await _tap(tester, find.byKey(const Key('quantite-plus')));
     await _tap(tester, find.byKey(const Key('enregistrer-objet')));
 
-    final baton = p.inventaire.single;
+    // Arme ×2 : deux lignes, chacune s'équipe à part (20/11/2026).
+    expect(p.inventaire, hasLength(2));
+    final baton = p.inventaire.first;
     expect(baton.nom, 'Bâton');
-    expect(baton.quantite, 2);
+    expect(baton.quantite, 1);
+    expect(p.inventaire.last.id, isNot(baton.id));
     expect(baton.polyvalente, isTrue);
     expect(baton.degatsDeuxMains, '1d8');
     expect(baton.duCatalogue, isTrue);
     expect(baton.personnalise, isFalse);
     expect(find.byKey(Key('personnalise-${baton.id}')), findsNothing);
-    expect(find.text('Bâton ×2'), findsOneWidget);
+    expect(find.text('Bâton'), findsNWidgets(2));
 
     // Éditer : sans changement, pas personnalisé ; nom changé : personnalisé
     // (clé à molette).
-    await _tap(tester, find.text('Bâton ×2'));
+    await _tap(tester, find.byKey(Key('objet-${baton.id}')));
     await _tap(tester, find.byKey(const Key('editer-objet')));
     await _tap(tester, find.byKey(const Key('enregistrer-objet')));
     expect(baton.personnalise, isFalse);
-    await _tap(tester, find.text('Bâton ×2'));
+    await _tap(tester, find.byKey(Key('objet-${baton.id}')));
     await _tap(tester, find.byKey(const Key('editer-objet')));
     await tester.enterText(
         find.byKey(const Key('champ-nom-objet')), 'Bâton de chêne');
@@ -318,7 +321,7 @@ void main() {
     expect(baton.personnalise, isTrue);
     expect(find.byKey(Key('personnalise-${baton.id}')), findsOneWidget);
     // Personnalisé : le formulaire s'ouvre directement modifiable.
-    await _tap(tester, find.text('Bâton de chêne ×2'));
+    await _tap(tester, find.text('Bâton de chêne'));
     expect(find.byKey(const Key('champ-nom-objet')), findsOneWidget);
     await tester.enterText(find.byKey(const Key('champ-nom-objet')), 'Bâton');
     await _tap(tester, find.byKey(const Key('enregistrer-objet')));

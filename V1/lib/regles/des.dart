@@ -6,6 +6,37 @@ final Random _aleatoire = Random();
 int lancerDe(int faces, {Random? aleatoire}) =>
     (aleatoire ?? _aleatoire).nextInt(faces) + 1;
 
+/// Dés « au maximum » (20/11/2026) : chaque dé donne sa plus haute face
+/// (dégâts d'un coup critique).
+class DesAuMaximum implements Random {
+  const DesAuMaximum();
+
+  @override
+  int nextInt(int max) => max - 1;
+
+  @override
+  double nextDouble() => 0.999999;
+
+  @override
+  bool nextBool() => true;
+}
+
+/// Dégâts après une réussite critique au toucher (règle du 20/11/2026) :
+/// dés au maximum, puis le total (bonus compris) doublé.
+ResultatLancer? degatsCritiques({
+  required String libelle,
+  required String de,
+  int bonus = 0,
+  List<BonusSituation> situations = const [],
+}) =>
+    ResultatLancer.lancer(
+      libelle: libelle,
+      de: de,
+      bonus: bonus,
+      situations: situations,
+      aleatoire: const DesAuMaximum(),
+    )?.multiplie(2);
+
 /// Mode d'un jet de d20 : normal (1 dé), avantage ou désavantage (2 dés).
 enum ModeLancer {
   normal('Normal'),

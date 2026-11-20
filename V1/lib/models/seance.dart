@@ -211,6 +211,32 @@ enum EtatCreature {
   }
 }
 
+/// État de santé d'un PJ, montré aux autres PJ qui ne voient pas ses PV
+/// (20/11/2026) : mêmes seuils que les créatures.
+enum SantePj {
+  indemne('Indemne'),
+  blesse('Blessé'),
+  grave('Gravement blessé'),
+  inconscient('Inconscient');
+
+  const SantePj(this.libelle);
+  final String libelle;
+
+  static SantePj? depuisCode(String c) {
+    for (final e in values) {
+      if (e.name == c) return e;
+    }
+    return null;
+  }
+
+  /// Gravement blessé : 25 % des PV ou moins ; inconscient : 0 PV ou moins.
+  static SantePj depuisPv(int pv, int pvMax) {
+    if (pv <= 0) return inconscient;
+    if (pvMax <= 0 || pv >= pvMax) return indemne;
+    return pv * 4 <= pvMax ? grave : blesse;
+  }
+}
+
 /// Créature ajoutée à la partie. Côté PJ, [nom] est le nom affiché et ni
 /// [creatureId], ni [pv], ni [pvMax] ne sont connus.
 class CreatureSeance {
@@ -586,6 +612,7 @@ class JetSeance {
     this.caCible,
     this.touche,
     this.sansComparaison = '',
+    this.serveur,
     this.invocation = '',
     this.nombre = 1,
     this.tours,
@@ -678,8 +705,18 @@ class JetSeance {
         if (renvoi.isNotEmpty) 'renvoi': renvoi,
       };
 
+  /// Heure du serveur (20/11/2026), pour classer les logs de tous les
+  /// appareils dans le même ordre ; `null` tant que le serveur n'a pas
+  /// répondu (jet qu'on vient d'écrire) ou pour un ancien jet.
+  final DateTime? serveur;
+
+  /// Heure retenue pour classer et afficher : celle du serveur, sinon celle
+  /// de l'appareil qui a lancé.
+  DateTime get heure => serveur ?? date;
+
   factory JetSeance.depuisJson(String id, Map<String, dynamic> j) => JetSeance(
         id: id,
+        serveur: DateTime.tryParse('${j['serveur'] ?? ''}'),
         auteur: j['auteur'] as String? ?? '',
         auteurNom: j['auteurNom'] as String? ?? '',
         libelle: j['libelle'] as String? ?? '',
@@ -840,9 +877,34 @@ class MessageSeance {
     required this.texte,
     required this.date,
     this.seance = 0,
+    this.conversation = '',
   });
 
   final String id;
+
+  /// Conversation (20/11/2026) : vide = MJ ↔ [joueur] ; [general] = toute
+  /// la table ; « pj:a|b » = deux joueurs entre eux ([entrePj]).
+  final String conversation;
+
+  static const general = 'general';
+
+  /// Conversation privée entre deux joueurs (ordre des uid sans importance).
+  static String entrePj(String a, String b) {
+    final l = [a, b]..sort();
+    return 'pj:${l[0]}|${l[1]}';
+  }
+
+  /// Clé de la conversation : uid du joueur (avec le MJ), [general] ou
+  /// « pj:a|b ».
+  String get cle => conversation.isEmpty ? joueur : conversation;
+
+  /// Comptes qui lisent le message ; vide pour la conversation générale
+  /// (toute la table).
+  List<String> get participants => conversation == general
+      ? const []
+      : conversation.startsWith('pj:')
+          ? conversation.substring(3).split('|')
+          : [mj, joueur];
 
   /// Numéro de la séance où le message a été écrit (0 : ancien message,
   /// d'avant le 08/11/2026).
@@ -863,10 +925,11 @@ class MessageSeance {
         'de': de,
         'joueur': joueur,
         'mj': mj,
-        'participants': [mj, joueur],
+        'participants': participants,
         'texte': texte,
         'date': date.toIso8601String(),
         if (seance > 0) 'seance': seance,
+        if (conversation.isNotEmpty) 'conversation': conversation,
       };
 
   factory MessageSeance.depuisJson(String id, Map<String, dynamic> j) =>
@@ -878,6 +941,7 @@ class MessageSeance {
         texte: j['texte'] as String? ?? '',
         date: DateTime.tryParse('${j['date']}') ?? DateTime(2026),
         seance: (j['seance'] as num?)?.toInt() ?? 0,
+        conversation: j['conversation'] as String? ?? '',
       );
 }
 

@@ -66,6 +66,44 @@ class _SeanceScreenState extends State<SeanceScreen>
     );
     _seance.annonce.addListener(_annoncer);
     _seance.addListener(_verifierEsquives);
+    _seance.addListener(_verifierTourAuSol);
+  }
+
+  /// Tours déjà confirmés (« manche:actif ») : une question par tour.
+  final Set<String> _toursConfirmes = {};
+
+  /// MJ : le tour arrive à un personnage ou une créature à terre (0 PV ou
+  /// moins, 20/11/2026) : joue-t-il son tour ?
+  void _verifierTourAuSol() {
+    final cle = _seance.tourAConfirmer;
+    if (cle == null || !mounted || !_toursConfirmes.add(cle)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final nom = _seance.nomActif;
+      final jouer = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          key: const Key('fenetre-tour-au-sol'),
+          title: Text('$nom est à terre'),
+          content:
+              Text('$nom n\'a plus de PV. Joue-t-il son tour quand même ?'),
+          actions: [
+            TextButton(
+              key: const Key('jouer-tour-au-sol'),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Jouer son tour'),
+            ),
+            FilledButton(
+              key: const Key('passer-tour-au-sol'),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Passer son tour'),
+            ),
+          ],
+        ),
+      );
+      if (jouer == false && mounted) await _seance.passerTour();
+    });
   }
 
   /// Attaques sans jet déjà présentées au joueur (une fenêtre chacune).
@@ -146,6 +184,7 @@ class _SeanceScreenState extends State<SeanceScreen>
   void dispose() {
     _seance.annonce.removeListener(_annoncer);
     _seance.removeListener(_verifierEsquives);
+    _seance.removeListener(_verifierTourAuSol);
     _vues.dispose();
     _seance.dispose();
     super.dispose();

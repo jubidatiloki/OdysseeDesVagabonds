@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/seance.dart';
 import '../../state/seance_controller.dart';
 import '../../widgets/consultation.dart';
 
@@ -13,7 +14,8 @@ String heureMessage(DateTime d, DateTime maintenant) {
   return memeJour ? heure : '${n(d.day)}/${n(d.month)} · $heure';
 }
 
-/// Messagerie privée de la séance : une conversation par joueur avec le MJ.
+/// Messagerie de la séance : conversations MJ ↔ joueur, entre joueurs et
+/// avec toute la table (20/11/2026).
 class OngletMessages extends StatefulWidget {
   const OngletMessages({super.key, required this.seance});
 
@@ -29,12 +31,12 @@ class _OngletMessagesState extends State<OngletMessages> {
 
   SeanceController get _s => widget.seance;
 
-  /// Joueur de la conversation : soi-même, ou celui que choisit le MJ.
+  /// Conversation affichée : celle choisie, sinon la première (le premier
+  /// joueur pour le MJ, le MJ pour un joueur).
   String? get _joueur {
-    if (!_s.estMj) return _s.uid;
-    final ids = _s.joueurs.map((m) => m.uid);
-    if (ids.contains(_joueurChoisi)) return _joueurChoisi;
-    return ids.isEmpty ? null : ids.first;
+    final cles = _s.conversations.map((c) => c.cle).toList();
+    if (cles.contains(_joueurChoisi)) return _joueurChoisi;
+    return cles.isEmpty ? null : cles.first;
   }
 
   /// La conversation affichée a des messages non lus : ils deviennent lus
@@ -88,37 +90,30 @@ class _OngletMessagesState extends State<OngletMessages> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (_s.estMj)
-            InputDecorator(
-              decoration: const InputDecoration(labelText: 'Conversation avec'),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  key: const Key('message-joueur'),
-                  isDense: true,
-                  isExpanded: true,
-                  value: j,
-                  items: [
-                    for (final m in _s.joueurs)
-                      DropdownMenuItem(
-                        value: m.uid,
-                        child: Badge(
-                          key: Key('non-lus-${m.uid}'),
-                          isLabelVisible:
-                              m.uid != j && _s.nonLusAvec(m.uid) > 0,
-                          label: Text('${_s.nonLusAvec(m.uid)}'),
-                          child: Text(
-                            m.personnageNom,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+          InputDecorator(
+            decoration: const InputDecoration(labelText: 'Conversation avec'),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                key: const Key('message-joueur'),
+                isDense: true,
+                isExpanded: true,
+                value: j,
+                items: [
+                  for (final c in _s.conversations)
+                    DropdownMenuItem(
+                      value: c.cle,
+                      child: Badge(
+                        key: Key('non-lus-${c.cle}'),
+                        isLabelVisible: c.cle != j && _s.nonLusAvec(c.cle) > 0,
+                        label: Text('${_s.nonLusAvec(c.cle)}'),
+                        child: Text(c.nom, overflow: TextOverflow.ellipsis),
                       ),
-                  ],
-                  onChanged: (v) => setState(() => _joueurChoisi = v),
-                ),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _joueurChoisi = v),
               ),
-            )
-          else
-            Text('Conversation avec le MJ', style: theme.textTheme.titleSmall),
+            ),
+          ),
           if (!_s.anciensMessagesCharges)
             Align(
               alignment: Alignment.centerLeft,
@@ -149,6 +144,10 @@ class _OngletMessagesState extends State<OngletMessages> {
                     itemBuilder: (context, i) {
                       final m = messages[i];
                       final moi = m.de == _s.uid;
+                      // Toute la table : qui parle.
+                      final auteur = j == MessageSeance.general && !moi
+                          ? _s.nomAuteurMessage(m)
+                          : null;
                       return Align(
                         alignment:
                             moi ? Alignment.centerRight : Alignment.centerLeft,
@@ -170,6 +169,13 @@ class _OngletMessagesState extends State<OngletMessages> {
                                 : CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (auteur != null)
+                                Text(
+                                  auteur,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               Text(m.texte),
                               const SizedBox(height: 2),
                               Text(
@@ -194,7 +200,11 @@ class _OngletMessagesState extends State<OngletMessages> {
                   key: const Key('message-texte'),
                   controller: _texte,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(hintText: 'Message privé'),
+                  decoration: InputDecoration(
+                    hintText: j == MessageSeance.general
+                        ? 'Message à toute la table'
+                        : 'Message privé',
+                  ),
                   onSubmitted: (_) => _envoyer(),
                 ),
               ),

@@ -25,6 +25,8 @@ List<Widget> vuesFiche(
   PersonnagesController? controller,
   void Function(Objet)? onEnvoyerObjet,
   void Function(String detail)? onRepos,
+  bool seancePj = false,
+  bool mj = false,
   ({bool inventaire, bool competences}) verrous = (
     inventaire: false,
     competences: false,
@@ -40,6 +42,7 @@ List<Widget> vuesFiche(
         fiche: fiche,
         onModifie: onModifie,
         onRepos: onRepos,
+        gainInterdit: seancePj,
         equipements: referentiel.equipements,
         onModifierIdentite: () async {
           if (await FormulaireIdentite.ouvrir(context, p)) {
@@ -60,6 +63,8 @@ List<Widget> vuesFiche(
       child: OngletInventaire(
         personnage: p,
         verrouille: verrous.inventaire,
+        ajoutInterdit: seancePj,
+        mj: mj,
         onModifie: onModifie,
         onEnvoyer: onEnvoyerObjet,
         refusRestriction: fiche.refusRestriction,
@@ -90,7 +95,15 @@ class FicheComplete extends StatelessWidget {
     this.controller,
     this.onEnvoyerObjet,
     this.onRepos,
+    this.seancePj = false,
+    this.mj = false,
   });
+
+  /// Fiche du PJ en séance : pas de gain manuel, ni argent ni objet ajouté.
+  final bool seancePj;
+
+  /// Fiche d'un joueur ouverte par le MJ (objets de quête modifiables).
+  final bool mj;
 
   final FicheCalculee fiche;
   final Referentiel referentiel;
@@ -131,6 +144,8 @@ class FicheComplete extends StatelessWidget {
                 controller: controller,
                 onEnvoyerObjet: onEnvoyerObjet,
                 onRepos: onRepos,
+                seancePj: seancePj,
+                mj: mj,
               ),
             ),
           ),

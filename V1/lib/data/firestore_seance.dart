@@ -122,9 +122,15 @@ class FirestoreServiceSeance implements ServiceSeance {
     final requete = _jets(c)
         .where('lecteurs', arrayContains: uid)
         .where('seance', isEqualTo: numero);
+    // Heure du serveur (Timestamp) lue comme une date.
     List<JetSeance> lire(QuerySnapshot<Map<String, dynamic>> s) => [
-          for (final d in s.docs) JetSeance.depuisJson(d.id, d.data()),
-        ]..sort((a, b) => a.date.compareTo(b.date));
+          for (final d in s.docs)
+            JetSeance.depuisJson(d.id, {
+              ...d.data(),
+              if (d.data()['serveur'] case final Timestamp t)
+                'serveur': t.toDate().toIso8601String(),
+            }),
+        ]..sort((a, b) => a.heure.compareTo(b.heure));
     // Index pas encore déployé (firestore.indexes.json) : tous les jets.
     return _avecRepli(
       requete.orderBy('date', descending: true).limit(kJetsSuivis),
@@ -239,8 +245,11 @@ class FirestoreServiceSeance implements ServiceSeance {
   }
 
   @override
-  Future<void> lancer(Campagne c, JetSeance jet) =>
-      _jets(c).add(jet.versJson());
+  Future<void> lancer(Campagne c, JetSeance jet) => _jets(c).add({
+        ...jet.versJson(),
+        // Heure du serveur : même ordre des logs sur tous les appareils.
+        'serveur': FieldValue.serverTimestamp(),
+      });
 
   Query<Map<String, dynamic>> _mesMessages(Campagne c) => _campagne(c)
       .collection('messages')
@@ -255,17 +264,58 @@ class FirestoreServiceSeance implements ServiceSeance {
       ].where((m) => seance == null || m.seance == seance).toList()
         ..sort((a, b) => a.date.compareTo(b.date));
 
-  @override
-  Stream<List<MessageSeance>> ecouterMessages(Campagne c, int numero) =>
-      _avecRepli(
-        _mesMessages(c).where('seance', isEqualTo: numero),
-        _mesMessages(c),
-        (s) => _lireMessages(s, seance: numero),
-      );
+  /// Conversation générale (20/11/2026) : lue par toute la table.
+  Query<Map<String, dynamic>> _messagesGeneraux(Campagne c) => _campagne(c)
+      .collection('messages')
+      .where('conversation', isEqualTo: MessageSeance.general);
 
   @override
-  Future<List<MessageSeance>> lireMessages(Campagne c) async =>
-      _lireMessages(await _mesMessages(c).get());
+  Stream<List<MessageSeance>> ecouterMessages(Campagne c, int numero) {
+    final prives = _avecRepli(
+      _mesMessages(c).where('seance', isEqualTo: numero),
+      _mesMessages(c),
+      (s) => _lireMessages(s, seance: numero),
+    );
+    final generaux = _avecRepli(
+      _messagesGeneraux(c).where('seance', isEqualTo: numero),
+      _messagesGeneraux(c),
+      (s) => _lireMessages(s, seance: numero),
+    );
+    // Les deux listes réunies, triées par date.
+    List<MessageSeance>? a, b;
+    final abonnements = <StreamSubscription<List<MessageSeance>>>[];
+    late final StreamController<List<MessageSeance>> sortie;
+    void publier() {
+      if (a == null && b == null) return;
+      sortie.add([...?a, ...?b]..sort((x, y) => x.date.compareTo(y.date)));
+    }
+
+    sortie = StreamController<List<MessageSeance>>(
+      onListen: () {
+        abonnements
+          ..add(prives.listen((v) {
+            a = v;
+            publier();
+          }, onError: sortie.addError))
+          ..add(generaux.listen((v) {
+            b = v;
+            publier();
+          }, onError: (Object _) {}));
+      },
+      onCancel: () async {
+        for (final x in abonnements) {
+          await x.cancel();
+        }
+      },
+    );
+    return sortie.stream;
+  }
+
+  @override
+  Future<List<MessageSeance>> lireMessages(Campagne c) async => [
+        ..._lireMessages(await _mesMessages(c).get()),
+        ..._lireMessages(await _messagesGeneraux(c).get()),
+      ]..sort((x, y) => x.date.compareTo(y.date));
 
   @override
   Future<void> envoyerMessage(Campagne c, MessageSeance message) =>
@@ -368,6 +418,7 @@ class FirestoreServiceSeance implements ServiceSeance {
     int? initiative,
     int? ca,
     String? nom,
+    String? sante,
   }) async {
     final membre = resume != null && initiative != null;
     if (ressources == null && !membre) return;
@@ -382,6 +433,7 @@ class FirestoreServiceSeance implements ServiceSeance {
         'initiative': initiative,
         if (ca != null) 'ca': ca,
         if (nom != null && nom.isNotEmpty) 'personnageNom': nom,
+        if (sante != null) 'sante': sante,
       });
     }
     await lot.commit();

@@ -334,6 +334,7 @@ class MembreCampagne {
     required this.date,
     this.initiative = 0,
     this.ca,
+    this.sante = '',
   });
 
   final String uid;
@@ -356,6 +357,11 @@ class MembreCampagne {
   /// CA du personnage, visible de tous : les attaques y sont comparées.
   final int? ca;
 
+  /// État de santé publié par le joueur (`SantePj` : indemne, blesse,
+  /// grave, inconscient), lu par les PJ qui ne voient pas ses PV
+  /// (20/11/2026) ; vide : pas encore publié.
+  final String sante;
+
   MembreCampagne copie({StatutMembre? statut}) => MembreCampagne(
         uid: uid,
         nom: nom,
@@ -366,6 +372,7 @@ class MembreCampagne {
         date: date,
         initiative: initiative,
         ca: ca,
+        sante: sante,
       );
 
   Map<String, dynamic> versJson() => {
@@ -378,6 +385,7 @@ class MembreCampagne {
         'date': date.toIso8601String(),
         'initiative': initiative,
         if (ca != null) 'ca': ca,
+        if (sante.isNotEmpty) 'sante': sante,
       };
 
   factory MembreCampagne.depuisJson(Map<String, dynamic> j) => MembreCampagne(
@@ -390,6 +398,7 @@ class MembreCampagne {
         date: DateTime.tryParse('${j['date']}') ?? DateTime(2026),
         initiative: (j['initiative'] as num?)?.toInt() ?? 0,
         ca: (j['ca'] as num?)?.toInt(),
+        sante: j['sante'] as String? ?? '',
       );
 }
 

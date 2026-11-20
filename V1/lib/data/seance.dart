@@ -105,6 +105,7 @@ abstract class ServiceSeance {
     int? initiative,
     int? ca,
     String? nom,
+    String? sante,
   });
 
   /// Joueur : notes personnelles d'une séance (lui seul peut les lire).
@@ -291,13 +292,17 @@ class ServiceSeanceMemoire implements ServiceSeance {
   Stream<List<MessageSeance>> ecouterMessages(Campagne c, int numero) =>
       _suivre(() => [
             for (final m in _partie(c).messages)
-              if ((m.mj == uid || m.joueur == uid) && m.seance == numero) m,
+              if (_lit(m) && m.seance == numero) m,
           ]);
+
+  /// Comme les règles : ses conversations, et la conversation générale.
+  bool _lit(MessageSeance m) =>
+      m.participants.contains(uid) || m.conversation == MessageSeance.general;
 
   @override
   Future<List<MessageSeance>> lireMessages(Campagne c) async => [
         for (final m in _partie(c).messages)
-          if (m.mj == uid || m.joueur == uid) m,
+          if (_lit(m)) m,
       ];
 
   @override
@@ -405,6 +410,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
     int? initiative,
     int? ca,
     String? nom,
+    String? sante,
   }) async {
     if (ressources != null) _partie(c).ressources[uid] = ressources;
     final m = base.membres[c.id]?[uid];
@@ -419,6 +425,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
         date: m.date,
         initiative: initiative,
         ca: ca,
+        sante: sante ?? m.sante,
       );
     }
     base.signaler();

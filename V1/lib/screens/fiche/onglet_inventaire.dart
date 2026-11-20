@@ -28,7 +28,22 @@ class OngletInventaire extends StatelessWidget {
     this.onEnvoyer,
     this.refusRestriction,
     this.alerteObjet,
+    this.ajoutInterdit = false,
+    this.mj = false,
   });
+
+  /// Pendant la séance, pour le PJ (20/11/2026) : ni argent reçu ou
+  /// corrigé, ni objet ajouté (le MJ les donne) ; il peut payer, équiper,
+  /// utiliser.
+  final bool ajoutInterdit;
+
+  /// Le MJ (fiche d'un joueur ouverte en séance) : il peut modifier les
+  /// objets de quête.
+  final bool mj;
+
+  /// Objet de quête : seul le MJ le modifie.
+  bool _bloque(Objet o) =>
+      verrouille || (o.categorie == CategorieObjet.quete && !mj);
 
   /// Restriction de classe ou de race : raison d'un refus d'équiper.
   final String? Function(Objet)? refusRestriction;
@@ -202,7 +217,8 @@ class OngletInventaire extends StatelessWidget {
   Future<void> _ajouter(BuildContext context) async {
     final objet = await ChoixObjet.ouvrir(context, equipements);
     if (objet == null) return;
-    _inventaire.add(objet);
+    // 2 épées : deux lignes, chacune s'équipe à part.
+    _inventaire.addAll(objet.separe());
     _journal(
       'Objet ajouté : ${_nomQuantite(objet)}'
       '${objet.resume.isEmpty ? '' : ' (${objet.resume})'}'
@@ -450,18 +466,29 @@ class OngletInventaire extends StatelessWidget {
         ] else ...[
           _CarteBourse(
             bourse: personnage.bourse,
-            onModifier: () => _modifierBourse(context),
+            onModifier: ajoutInterdit ? null : () => _modifierBourse(context),
             onAjuster: (piece, delta) => _ajusterPiece(context, piece, delta),
-            onRecevoir: () => _transaction(context, recevoir: true),
+            onRecevoir: ajoutInterdit
+                ? null
+                : () => _transaction(context, recevoir: true),
             onPayer: () => _transaction(context, recevoir: false),
           ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            key: const Key('ajouter-objet'),
-            onPressed: () => _ajouter(context),
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter un objet'),
-          ),
+          if (ajoutInterdit) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Pendant la séance, l\'argent et les objets sont donnés par le MJ.',
+              key: const Key('inventaire-ajout-mj'),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ] else ...[
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              key: const Key('ajouter-objet'),
+              onPressed: () => _ajouter(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Ajouter un objet'),
+            ),
+          ],
         ],
         const SizedBox(height: 20),
         _TitreSection(
@@ -553,7 +580,7 @@ class OngletInventaire extends StatelessWidget {
           o.equipe ? scheme.primaryContainer : scheme.surfaceContainerHighest,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: verrouille ? null : () => _modifier(context, o),
+        onTap: _bloque(o) ? null : () => _modifier(context, o),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
           child: Row(
@@ -654,7 +681,7 @@ class OngletInventaire extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (consommable && !verrouille)
+              if (consommable && !_bloque(o))
                 IconButton(
                   key: Key('utiliser-${o.id}'),
                   tooltip: 'Utiliser (−1)',
@@ -672,7 +699,20 @@ class OngletInventaire extends StatelessWidget {
                   icon: const Icon(Icons.radio_button_unchecked),
                   selectedIcon: const Icon(Icons.check_circle),
                 ),
-              if (!verrouille)
+              if (o.categorie == CategorieObjet.quete && !mj)
+                Tooltip(
+                  message: 'Objet de quête : seul le MJ peut le modifier',
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.lock_outline,
+                      key: Key('quete-${o.id}'),
+                      size: 18,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              if (!_bloque(o))
                 PopupMenuButton<String>(
                   key: Key('menu-objet-${o.id}'),
                   tooltip: 'Actions',
@@ -706,8 +746,11 @@ class OngletInventaire extends StatelessWidget {
                       ),
                     const PopupMenuItem(
                         value: 'modifier', child: Text('Modifier')),
-                    const PopupMenuItem(
-                        value: 'plus', child: Text('Quantité +1')),
+                    // Ajouter un exemplaire : pas en séance pour un PJ ; pas
+                    // pour un objet qui s'équipe (une ligne par objet).
+                    if (!ajoutInterdit && !o.categorie.equipable)
+                      const PopupMenuItem(
+                          value: 'plus', child: Text('Quantité +1')),
                     const PopupMenuItem(
                         value: 'moins', child: Text('Quantité −1')),
                     const PopupMenuItem(
@@ -773,16 +816,19 @@ class _Vide extends StatelessWidget {
 class _CarteBourse extends StatelessWidget {
   const _CarteBourse({
     required this.bourse,
-    required this.onModifier,
+    this.onModifier,
     required this.onAjuster,
-    required this.onRecevoir,
+    this.onRecevoir,
     required this.onPayer,
   });
 
   final Bourse bourse;
-  final VoidCallback onModifier;
+
+  /// `null` : pas de correction ni de réception (PJ en séance) ; les
+  /// boutons + des pièces sont alors désactivés.
+  final VoidCallback? onModifier;
   final void Function(String piece, int delta) onAjuster;
-  final VoidCallback onRecevoir;
+  final VoidCallback? onRecevoir;
   final VoidCallback onPayer;
 
   @override
@@ -828,7 +874,8 @@ class _CarteBourse extends StatelessWidget {
                     key: Key('bourse-$cle-plus'),
                     tooltip: '+1 $libelle',
                     visualDensity: VisualDensity.compact,
-                    onPressed: () => onAjuster(cle, 1),
+                    onPressed:
+                        onRecevoir == null ? null : () => onAjuster(cle, 1),
                     icon: const Icon(Icons.add_circle_outline),
                   ),
                 ],
@@ -854,12 +901,13 @@ class _CarteBourse extends StatelessWidget {
                 Expanded(
                   child: Text('Bourse', style: theme.textTheme.titleMedium),
                 ),
-                IconButton(
-                  key: const Key('bouton-bourse'),
-                  tooltip: 'Corriger les montants',
-                  onPressed: onModifier,
-                  icon: const Icon(Icons.edit_outlined),
-                ),
+                if (onModifier != null)
+                  IconButton(
+                    key: const Key('bouton-bourse'),
+                    tooltip: 'Corriger les montants',
+                    onPressed: onModifier,
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
               ],
             ),
             Row(

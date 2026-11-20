@@ -31,7 +31,12 @@ class OngletFiche extends StatelessWidget {
     this.onModifierIdentite,
     this.equipements = const [],
     this.onRepos,
+    this.gainInterdit = false,
   });
+
+  /// Pendant la séance, pour le PJ (20/11/2026) : il ne se rend ni PV, ni
+  /// PM, ni PE à la main (soins, repos et sorts passent par la séance).
+  final bool gainInterdit;
 
   final FicheCalculee fiche;
   final Future<void> Function() onModifie;
@@ -264,6 +269,7 @@ class OngletFiche extends StatelessWidget {
             libellePlus: 'Soins',
             iconeMoins: Icons.heart_broken_outlined,
             iconePlus: Icons.healing,
+            gainInterdit: gainInterdit,
             onChange: _changerPv,
           );
           final pm = _Jauge(
@@ -278,6 +284,7 @@ class OngletFiche extends StatelessWidget {
             libellePlus: 'Récupérer',
             iconeMoins: Icons.auto_awesome,
             iconePlus: Icons.autorenew,
+            gainInterdit: gainInterdit,
             onChange: _changerPm,
           );
           final pe = _Jauge(
@@ -292,6 +299,7 @@ class OngletFiche extends StatelessWidget {
             libellePlus: 'Récupérer',
             iconeMoins: Icons.trending_down,
             iconePlus: Icons.autorenew,
+            gainInterdit: gainInterdit,
             onChange: _changerPe,
           );
           // Physique : PV + PE ; lanceur : PV + PM ; hybride : les trois.
@@ -881,7 +889,11 @@ class _Jauge extends StatelessWidget {
     required this.iconePlus,
     required this.onChange,
     this.etat,
+    this.gainInterdit = false,
   });
+
+  /// Pas de +1 ni de montant positif (PJ en séance).
+  final bool gainInterdit;
 
   final String cle;
   final String titre;
@@ -927,9 +939,16 @@ class _Jauge extends StatelessWidget {
         couleurPlus: couleurPlus(context),
       ),
     );
-    if (resultat != null) {
-      onChange(actuel + resultat.montant, false, resultat.commentaire);
+    if (resultat == null) return;
+    if (gainInterdit && resultat.montant > 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Pendant la séance, seul le MJ peut te les rendre.'),
+        ));
+      }
+      return;
     }
+    onChange(actuel + resultat.montant, false, resultat.commentaire);
   }
 
   @override
@@ -1007,8 +1026,9 @@ class _Jauge extends StatelessWidget {
                   key: Key('$cle-plus'),
                   tooltip: '$libellePlus : +1',
                   color: gain,
-                  onPressed:
-                      actuel < max ? () => onChange(actuel + 1, true) : null,
+                  onPressed: actuel < max && !gainInterdit
+                      ? () => onChange(actuel + 1, true)
+                      : null,
                   icon: const Icon(Icons.add_circle),
                 ),
                 Expanded(

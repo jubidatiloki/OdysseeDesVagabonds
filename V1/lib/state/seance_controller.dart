@@ -70,7 +70,8 @@ class SeanceController extends ChangeNotifier {
       unawaited(_ajusterOrdre());
     });
     suivre(seance.ecouterJets(c, _numero), (v) {
-      _jets = v;
+      // Ordre chronologique selon l'heure du serveur (20/11/2026).
+      _jets = [...v]..sort((a, b) => a.heure.compareTo(b.heure));
       _traiterInvocations();
     });
     suivre(seance.ecouterPresences(c), (v) => _presences = v);
@@ -148,6 +149,7 @@ class SeanceController extends ChangeNotifier {
   RessourcesPj? _publiees;
   int? _initiativePubliee;
   int? _caPubliee;
+  String? _santePubliee;
   String? _nomPublie;
   final Set<String> _caCompletees = {};
   String? _resumePublie;
@@ -163,6 +165,14 @@ class SeanceController extends ChangeNotifier {
   final Map<String, int> _lus = {};
   Timer? _minuteriePresence;
   Timer? _minuterieAbsences;
+
+  /// Fiche pas encore partagée (permission qui vient de changer) : nouvel
+  /// essai quelques secondes après (20/11/2026), au lieu d'attendre la
+  /// minute ; au plus [_essaisFicheMax] fois par fiche.
+  Timer? _minuterieEssaiFiches;
+  final Map<String, int> _essaisFiche = {};
+  static const int _essaisFicheMax = 10;
+  static const Duration delaiEssaiFiche = Duration(seconds: 3);
 
   /// Dégâts reçus, traités un par un (deux coups ne s'écrasent pas).
   List<DegatsSeance> _degats = const [];
@@ -491,9 +501,13 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Personnages des joueurs dans la liste de gauche (19/11/2026) : pour un
-  /// PJ, le sien d'abord, puis par ordre alphabétique.
+  /// PJ, le sien d'abord, puis par ordre alphabétique. En combat : par
+  /// initiative, le plus rapide en haut (20/11/2026).
   List<MembreCampagne> get joueursOrdonnes {
     final liste = [...joueurs]..sort((a, b) {
+        if (_etat.enCombat && a.initiative != b.initiative) {
+          return b.initiative.compareTo(a.initiative);
+        }
         if (!estMj && (a.uid == uid) != (b.uid == uid)) {
           return a.uid == uid ? -1 : 1;
         }
@@ -501,6 +515,21 @@ class SeanceController extends ChangeNotifier {
             .toLowerCase()
             .compareTo(b.personnageNom.toLowerCase());
       });
+    return liste;
+  }
+
+  /// CA affichée sur la carte d'un joueur : la sienne d'après sa fiche (à
+  /// jour sans attendre la publication), celle publiée pour les autres.
+  int? caJoueur(MembreCampagne m) =>
+      m.uid == uid ? maFiche?.classeArmure ?? m.ca : m.ca;
+
+  /// Créatures de la liste de gauche (20/11/2026) : en combat, par
+  /// initiative (le plus rapide en haut) ; sinon dans l'ordre d'ajout.
+  List<CreatureSeance> get creaturesOrdonnees {
+    final liste = [..._creatures];
+    if (_etat.enCombat) {
+      liste.sort((a, b) => b.initiative.compareTo(a.initiative));
+    }
     return liste;
   }
 
@@ -954,11 +983,37 @@ class SeanceController extends ChangeNotifier {
     return 'MJ';
   }
 
-  /// Conversation privée avec un joueur (MJ), ou avec le MJ (joueur).
-  List<MessageSeance> messagesAvec(String joueur) => [
+  /// Messages d'une conversation (clé `MessageSeance.cle`) : uid du joueur
+  /// (avec le MJ), `MessageSeance.general` (toute la table) ou « pj:a|b »
+  /// (deux joueurs, 20/11/2026).
+  List<MessageSeance> messagesAvec(String cle) => [
         for (final m in [...?_anciens, ..._messages])
-          if (m.joueur == joueur) m,
+          if (m.cle == cle) m,
       ];
+
+  /// Conversations proposées (20/11/2026) : pour le MJ, une par joueur ;
+  /// pour un PJ, le MJ puis les autres PJ ; toute la table pour tous.
+  List<({String cle, String nom})> get conversations => [
+        if (estMj)
+          for (final m in joueurs) (cle: m.uid, nom: m.personnageNom)
+        else ...[
+          (cle: uid, nom: 'MJ'),
+          for (final m in joueurs)
+            if (m.uid != uid)
+              (cle: MessageSeance.entrePj(uid, m.uid), nom: m.personnageNom),
+        ],
+        (cle: MessageSeance.general, nom: 'Toute la table'),
+      ];
+
+  /// Nom de qui a écrit un message (conversation générale) : son
+  /// personnage, ou « MJ ».
+  String nomAuteurMessage(MessageSeance m) {
+    if (m.de == campagne?.mj) return 'MJ';
+    for (final x in joueurs) {
+      if (x.uid == m.de) return x.personnageNom;
+    }
+    return 'Joueur';
+  }
 
   /// Lit une fois les messages des séances précédentes.
   Future<String?> chargerAnciensMessages() => _agir((s, c) async {
@@ -970,8 +1025,8 @@ class SeanceController extends ChangeNotifier {
         notifyListeners();
       });
 
-  int _recusAvec(String joueur) =>
-      _messages.where((m) => m.joueur == joueur && m.de != uid).length;
+  int _recusAvec(String cle) =>
+      _messages.where((m) => m.cle == cle && m.de != uid).length;
 
   /// Messages reçus pas encore lus dans la conversation avec [joueur].
   int nonLusAvec(String joueur) {
@@ -981,8 +1036,8 @@ class SeanceController extends ChangeNotifier {
 
   /// Messages reçus pas encore lus, toutes conversations confondues.
   int get nonLus {
-    final joueurs = {for (final m in _messages) m.joueur};
-    return joueurs.fold(0, (n, j) => n + nonLusAvec(j));
+    final cles = {for (final m in _messages) m.cle};
+    return cles.fold(0, (n, k) => n + nonLusAvec(k));
   }
 
   /// La conversation avec [joueur] est à l'écran : ses messages sont lus.
@@ -993,20 +1048,23 @@ class SeanceController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Envoie un message privé ; [joueur] : le joueur de la conversation.
-  Future<String?> envoyerMessage(String joueur, String texte) {
+  /// Envoie un message dans la conversation [cle] : uid du joueur (avec le
+  /// MJ), toute la table, ou deux joueurs entre eux.
+  Future<String?> envoyerMessage(String cle, String texte) {
     return _agir((s, c) async {
       final t = texte.trim();
       if (t.isEmpty) return;
+      final avecMj = cle != MessageSeance.general && !cle.startsWith('pj:');
       await s.envoyerMessage(
         c,
         MessageSeance(
           de: uid,
-          joueur: joueur,
+          joueur: avecMj ? cle : (estMj ? '' : uid),
           mj: c.mj,
           texte: t,
           date: DateTime.now(),
           seance: _numero,
+          conversation: avecMj ? '' : cle,
         ),
       );
     });
@@ -1099,6 +1157,7 @@ class SeanceController extends ChangeNotifier {
       _fichesFlux[id] ??= s.ecouterFiche(id).listen((p) {
         // Une modification du MJ en attente garde la main.
         if (_aEcrire.containsKey(id)) return;
+        _essaisFiche.remove(id);
         if (p == null) {
           _fiches.remove(id);
         } else {
@@ -1107,9 +1166,17 @@ class SeanceController extends ChangeNotifier {
         notifyListeners();
         unawaited(_synchroniserCompagnons());
       }, onError: (Object _) {
-        // Pas encore partagée (le joueur vient de changer de personnage) :
-        // on réessaiera, à la minute ou au prochain changement.
+        // Pas encore partagée (permission qui vient de changer, joueur qui
+        // change de personnage) : nouvel essai dans quelques secondes.
         _fichesFlux.remove(id)?.cancel();
+        final n = (_essaisFiche[id] ?? 0) + 1;
+        _essaisFiche[id] = n;
+        if (n <= _essaisFicheMax) {
+          _minuterieEssaiFiches ??= Timer(delaiEssaiFiche, () {
+            _minuterieEssaiFiches = null;
+            _suivreFiches();
+          });
+        }
       });
     }
   }
@@ -1204,7 +1271,9 @@ class SeanceController extends ChangeNotifier {
         'niveau ${f.personnage.niveau}';
     final ressourcesChangent = r != _publiees;
     final nom = f.personnage.nom.trim();
+    final sante = SantePj.depuisPv(f.pvActuels, f.pvMax).name;
     final membreChange = resume != _resumePublie ||
+        sante != _santePubliee ||
         nom != _nomPublie ||
         f.initiative != _initiativePubliee ||
         f.classeArmure != _caPubliee;
@@ -1229,6 +1298,7 @@ class SeanceController extends ChangeNotifier {
     _resumePublie = resume;
     _initiativePubliee = f.initiative;
     _caPubliee = f.classeArmure;
+    _santePubliee = sante;
     _nomPublie = nom;
     // Seul ce qui a changé est écrit (PV seuls le plus souvent).
     final erreur = await campagnes.agir(
@@ -1239,6 +1309,7 @@ class SeanceController extends ChangeNotifier {
         initiative: membreChange ? f.initiative : null,
         ca: membreChange ? f.classeArmure : null,
         nom: membreChange && nom.isNotEmpty ? nom : null,
+        sante: membreChange ? sante : null,
       ),
     );
     // Échec : réessayé au prochain changement.
@@ -1530,7 +1601,7 @@ class SeanceController extends ChangeNotifier {
         ..or += pris.argent.or
         ..argent += pris.argent.argent
         ..cuivre += pris.argent.cuivre;
-      if (o != null) p.inventaire.add(o);
+      if (o != null) p.inventaire.addAll(o.separe());
       final quoi = [
         if (o != null) o.quantite > 1 ? '${o.nom} ×${o.quantite}' : o.nom,
         if (!pris.argent.vide) pris.argent.texte,
@@ -1608,7 +1679,7 @@ class SeanceController extends ChangeNotifier {
       if (!await s.prendreEnvoi(c, e.id)) return;
       final f = maFiche;
       if (f == null) return;
-      final p = f.personnage..inventaire.add(e.objet);
+      final p = f.personnage..inventaire.addAll(e.objet.separe());
       if (!e.discret) {
         p.journaliser(
           'Objet reçu de ${e.auteurNom} : ${e.objet.nom}',
@@ -1626,7 +1697,7 @@ class SeanceController extends ChangeNotifier {
   Future<String?> donnerObjet(String joueur, Objet objet) async {
     final f = ficheDe(joueur);
     if (f == null) return 'Fiche non partagée.';
-    f.personnage.inventaire.add(objet);
+    f.personnage.inventaire.addAll(objet.separe());
     f.personnage.journaliser(
       'Objet reçu du MJ : ${objet.nom}',
       categorie: CategorieHistorique.inventaire,
@@ -1636,6 +1707,22 @@ class SeanceController extends ChangeNotifier {
   }
 
   Future<String?> passerTour() => _agir((s, c) => s.passerTour(c));
+
+  /// Celui dont c'est le tour est à terre (0 PV ou moins, 20/11/2026) :
+  /// le MJ confirme s'il joue son tour. Clé « manche:actif » (une seule
+  /// question par tour), `null` sinon.
+  String? get tourAConfirmer {
+    if (!estMj || !_etat.enCombat) return null;
+    final a = _etat.actif;
+    if (a == null) return null;
+    int? pv;
+    for (final x in _creatures) {
+      if (x.id == a) pv = x.pv;
+    }
+    if (joueurs.any((m) => m.uid == a)) pv = ressourcesDe(a)?.pv;
+    return pv != null && pv <= 0 ? '${_etat.manche}:$a' : null;
+  }
+
   Future<String?> tourPrecedent() => _agir((s, c) => s.tourPrecedent(c));
 
   /// MJ : ajoute une créature du bestiaire (numérotée si elle y est déjà) ;
@@ -1820,6 +1907,20 @@ class SeanceController extends ChangeNotifier {
   /// d'esquiver ou de subir les dégâts.
   final List<DegatsSeance> _esquives = [];
   List<DegatsSeance> get esquivesEnAttente => List.unmodifiable(_esquives);
+
+  /// Préfixe des jets faits en réaction, hors de son tour (20/11/2026).
+  static const prefixeReaction = 'Réaction · ';
+
+  /// Une seule réaction par manche (20/11/2026) : déjà faite ?
+  bool get reactionUtilisee =>
+      _etat.enCombat &&
+      _jets.any(
+        (j) =>
+            j.auteur == uid &&
+            j.libelle.startsWith(prefixeReaction) &&
+            j.mode == ModeJeu.combat &&
+            j.manche == _etat.manche,
+      );
 
   /// Une seule esquive par tour de combat (règles §3.3).
   bool get esquiveUtilisee =>
@@ -2136,6 +2237,7 @@ class SeanceController extends ChangeNotifier {
     }
     _minuteriePresence?.cancel();
     _minuterieAbsences?.cancel();
+    _minuterieEssaiFiches?.cancel();
     _minuteriePublication?.cancel();
     annonce.dispose();
     _signalerPresence(false);

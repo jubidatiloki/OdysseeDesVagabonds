@@ -29,6 +29,72 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.76.0',
+    date: '20/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Séance : chat avec toute la table, et conversations privées entre joueurs.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Combat : bouton Réaction hors de son tour (une par manche), noté dans les logs.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Combat : après un 20 naturel au toucher, les dégâts suivants sont au maximum, doublés.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Combat : le MJ confirme si un personnage ou une créature à terre joue son tour.',
+      ),
+      (
+        type: _a,
+        texte:
+            "Panneau d'actions : recherche, ordre alphabétique et étoile de favori sur chaque action.",
+      ),
+      (
+        type: _a,
+        texte:
+            'Cartes : CA des personnages, état de santé si les PV sont cachés, créatures en rouge.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Inventaire : objets de quête (modifiables par le MJ seul) ; 2 épées = 2 lignes.',
+      ),
+      (
+        type: _m,
+        texte:
+            "Séance : pendant la séance, les PJ ne se soignent plus et n'ajoutent ni argent ni objet.",
+      ),
+      (
+        type: _m,
+        texte:
+            'Combat : cartes triées par initiative ; une seule carte de dégâts pour deux armes identiques.',
+      ),
+      (
+        type: _m,
+        texte:
+            'Butin : objets identiques regroupés (on choisit combien en prendre) ; un PJ ne fait que prendre.',
+      ),
+      (
+        type: _m,
+        texte:
+            "Carte de campagne affichée : les dés restent à droite ; logs dans l'ordre du serveur, sur plusieurs lignes.",
+      ),
+      (
+        type: _c,
+        texte:
+            'Permissions : les fiches partagées par les autres joueurs arrivent en quelques secondes.',
+      ),
+    ],
+  ),
+  (
     version: '0.75.0',
     date: '19/11/2026',
     changements: [

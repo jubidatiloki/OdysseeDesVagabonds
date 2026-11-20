@@ -109,7 +109,13 @@ class ListeCartes extends StatelessWidget {
             actif: s.etat.actif == m.uid,
             icone: Icons.person_outline,
             titre: m.personnageNom,
-            lignes: [m.personnageResume, ...etats(m.uid)],
+            lignes: [
+              m.personnageResume,
+              // PV cachés (permission) : état de santé (20/11/2026).
+              if (s.ressourcesDe(m.uid) == null)
+                if (SantePj.depuisCode(m.sante) case final e?) e.libelle,
+              ...etats(m.uid),
+            ],
             absent: !s.estPresent(m.uid),
             initiative: s.etat.enCombat ? m.initiative : null,
             ressources: [
@@ -117,6 +123,8 @@ class ListeCartes extends StatelessWidget {
                 _Ressource.vie(context, r.pv, r.pvMax),
                 if (r.pmMax > 0) _Ressource.mana(context, r.pm, r.pmMax),
                 if (r.peMax > 0) _Ressource.endurance(context, r.pe, r.peMax),
+                // CA : même visibilité que les PV (20/11/2026).
+                if (s.caJoueur(m) case final ca?) _Ca(ca, cle: 'ca-${m.uid}'),
               ],
             ],
             onTap: () => _choisir(m.uid),
@@ -208,7 +216,7 @@ class ListeCartes extends StatelessWidget {
               ),
         ],
         // Alliés des PJ contrôlés par le MJ (escorte…), avec les personnages.
-        for (final c in s.creatures)
+        for (final c in s.creaturesOrdonnees)
           if (c.allie && !c.estAUnJoueur)
             _Carte(
               cle: 'carte-${c.id}',
@@ -248,10 +256,12 @@ class ListeCartes extends StatelessWidget {
             titre: 'Créatures rencontrées',
             separe: true,
           ),
-        for (final c in s.creatures)
+        for (final c in s.creaturesOrdonnees)
           if (!c.duCotePj)
             _Carte(
               cle: 'carte-${c.id}',
+              // En rouge : on les distingue des PJ et des alliés.
+              ennemi: true,
               bonus: s.bonusSurCarte(c.id),
               selectionnee: s.carte == c.id,
               actif: s.etat.actif == c.id,
@@ -388,7 +398,11 @@ class _Carte extends StatelessWidget {
     this.onRetirer,
     this.cleRetirer,
     this.bonus,
+    this.ennemi = false,
   });
+
+  /// Créature rencontrée : carte teintée de rouge (20/11/2026).
+  final bool ennemi;
 
   final String cle;
   final bool selectionnee;
@@ -426,7 +440,11 @@ class _Carte extends StatelessWidget {
     return Card(
       key: actif ? Key('$cle-tour') : null,
       // C'est son tour : carte teintée d'or, elle ressort des autres.
-      color: actif ? OdvCouleurs.or.withValues(alpha: 0.3) : null,
+      color: actif
+          ? OdvCouleurs.or.withValues(alpha: 0.3)
+          : ennemi
+              ? OdvCouleurs.red.withValues(alpha: 0.18)
+              : null,
       margin: const EdgeInsets.only(bottom: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -624,6 +642,7 @@ class DetailCarte extends StatelessWidget {
           controller: contexte.personnages,
           onModifie: () => contexte.personnages.sauvegarder(f.personnage),
           onRepos: (d) => s.noterRepos(m.personnageNom, d),
+          seancePj: true,
           onEnvoyerObjet: s.joueurs.length < 2
               ? null
               : (o) => showDialog<void>(
@@ -717,6 +736,7 @@ class DetailCarte extends StatelessWidget {
                 referentiel: ref,
                 onModifie: () => s.enregistrerFiche(f.personnage),
                 onRepos: (d) => s.noterRepos(m.personnageNom, d),
+                mj: true,
               ),
             ),
           ],
@@ -820,6 +840,37 @@ class _Ressource extends StatelessWidget {
           ),
         ],
       );
+}
+
+/// CA sur la carte d'un personnage : bouclier et valeur.
+class _Ca extends StatelessWidget {
+  const _Ca(this.ca, {required this.cle});
+
+  final int ca;
+  final String cle;
+
+  @override
+  Widget build(BuildContext context) {
+    final couleur = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Tooltip(
+      message: "Classe d'armure",
+      child: Row(
+        key: Key(cle),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.shield_outlined, size: 14, color: couleur),
+          const SizedBox(width: 2),
+          Text(
+            'CA $ca',
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: couleur, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Script (MJ) ou notes de séance (PJ), enregistrés au bouton.

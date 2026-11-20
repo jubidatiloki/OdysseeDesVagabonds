@@ -52,8 +52,7 @@ class DetailButin extends StatelessWidget {
   Future<void> _ajouterObjet(BuildContext context) async {
     final o = await ChoixObjet.ouvrir(context, seance.referentiel.equipements);
     if (o == null || !context.mounted) return;
-    final erreur =
-        await seance.modifierButin(butin.copie(objets: [...butin.objets, o]));
+    final erreur = await seance.modifierButin(butin.avecObjet(o));
     if (context.mounted) _erreur(context, erreur);
   }
 
@@ -169,9 +168,7 @@ class DetailButin extends StatelessWidget {
                         builder: (_) => DialogueObjetAleatoire(
                           seance: s,
                           action: 'Mettre dans le butin',
-                          valider: (o) => s.modifierButin(
-                            b.copie(objets: [...b.objets, o]),
-                          ),
+                          valider: (o) => s.modifierButin(b.avecObjet(o)),
                           confirmation: (o) => '${o.nom} : ajouté au butin.',
                         ),
                       ),

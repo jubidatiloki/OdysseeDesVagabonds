@@ -210,7 +210,16 @@ service cloud.firestore {
           || membreDe(id) && request.resource.data.nom == resource.data.nom
             && request.resource.data.get('cache', false)
               == resource.data.get('cache', false)
-            && resource.data.get('cache', false) == false);
+            && resource.data.get('cache', false) == false
+            // Un PJ ne fait que prendre (20/11/2026) : l'argent et la liste
+            // des objets ne peuvent que diminuer.
+            && request.resource.data.get('or', 0) <= resource.data.get('or', 0)
+            && request.resource.data.get('argent', 0)
+              <= resource.data.get('argent', 0)
+            && request.resource.data.get('cuivre', 0)
+              <= resource.data.get('cuivre', 0)
+            && request.resource.data.get('objets', '').size()
+              <= resource.data.get('objets', '').size());
       }
 
       // Objets envoyés entre joueurs, pris par leur destinataire.
@@ -224,15 +233,22 @@ service cloud.firestore {
       }
 
       // Messages privés entre le MJ et un joueur.
+      // Conversations (20/11/2026) : MJ ↔ joueur, deux joueurs entre eux
+      // (« pj:a|b »), ou toute la table (« general », lue par les membres).
       match /messages/{message} {
-        allow read: if connecte() && soi() in resource.data.participants;
+        allow read: if connecte()
+          && (soi() in resource.data.participants
+            || resource.data.get('conversation', '') == 'general'
+              && (mjDe(id) || membreDe(id)));
         allow create: if connecte()
           && request.resource.data.de == soi()
-          && soi() in request.resource.data.participants
-          && (mjDe(id)
-              && request.resource.data.mj == soi()
-            || membreDe(id)
-              && request.resource.data.joueur == soi());
+          && (request.resource.data.get('conversation', '') == 'general'
+              && (mjDe(id) || membreDe(id))
+            || soi() in request.resource.data.participants
+              && (mjDe(id)
+                  && request.resource.data.mj == soi()
+                || membreDe(id)
+                  && request.resource.data.joueur == soi()));
         allow delete: if connecte() && mjDe(id);
       }
 

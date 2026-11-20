@@ -21,7 +21,9 @@ enum CategorieObjet {
   compagnon('Compagnon', 0),
   instrument('Instrument de musique', 0),
   consommable('Potion / consommable', 0),
-  divers('Objet divers', 0);
+  divers('Objet divers', 0),
+  // Objet de quête (20/11/2026) : donné par le MJ, non modifiable par un PJ.
+  quete('Objet de quête', 0);
 
   const CategorieObjet(this.libelle, this.emplacementsMax);
 
@@ -342,6 +344,17 @@ class Objet {
         if (duCatalogue) 'duCatalogue': true,
         if (personnalise) 'personnalise': true,
       };
+
+  /// Objets identiques (2 épées) : un objet par exemplaire (20/11/2026),
+  /// chacun s'équipe à part. Les consommables, objets divers et de quête
+  /// restent groupés (« Potion ×3 »).
+  List<Objet> separe() {
+    if (quantite <= 1 || !categorie.equipable) return [this];
+    return [
+      for (var i = 0; i < quantite; i++)
+        Objet.depuisJson({...versJson(), 'id': null, 'quantite': 1}),
+    ];
+  }
 
   factory Objet.depuisJson(Map<String, dynamic> j) => Objet(
         id: j['id'] as String?,
