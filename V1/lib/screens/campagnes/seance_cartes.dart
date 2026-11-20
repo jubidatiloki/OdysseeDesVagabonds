@@ -630,6 +630,7 @@ class DetailCarte extends StatelessWidget {
           contexte: contexte,
           campagne: s.campagne!,
           carte: p,
+          seance: s,
         );
       }
     }

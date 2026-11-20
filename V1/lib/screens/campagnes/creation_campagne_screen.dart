@@ -518,6 +518,20 @@ class FormulairePermissions extends StatelessWidget {
           p.pjVoientEffetsCreatures,
           (v) => p.copie(pjVoientEffetsCreatures: v),
         ),
+        // Pions sur les cartes diffusées (20/11/2026).
+        titre('permissions-cartes', Icons.map_outlined, 'Cartes'),
+        ligne(
+          'pj-gerent-leur-pion',
+          'Les PJ placent et déplacent le pion de leur personnage',
+          p.pjGerentLeurPion,
+          (v) => p.copie(pjGerentLeurPion: v),
+        ),
+        ligne(
+          'pj-gerent-pions-allies',
+          'Les PJ gèrent aussi les pions des alliés',
+          p.pjGerentPionsAllies,
+          (v) => p.copie(pjGerentPionsAllies: v),
+        ),
       ],
     );
   }
@@ -582,6 +596,15 @@ class ResumeParametres extends StatelessWidget {
               '${oui(p.pjVoientEffetsAllies)}',
           'Bonus et malus des créatures visibles : '
               '${oui(p.pjVoientEffetsCreatures)}',
+        ]),
+        const SizedBox(height: 8),
+        Text('Cartes', style: style),
+        const SizedBox(height: 4),
+        lignes([
+          'Pion de son personnage géré par le PJ : '
+              '${oui(p.pjGerentLeurPion)}',
+          'Pions des alliés gérés par les PJ : '
+              '${oui(p.pjGerentPionsAllies)}',
         ]),
       ],
     );

@@ -29,6 +29,23 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.78.0',
+    date: '20/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Cartes : pions des personnages et des créatures (icône et nom), '
+            'à poser, glisser et retirer.',
+      ),
+      (
+        type: _a,
+        texte: 'Campagne : permissions des PJ sur les pions (le leur, ceux des '
+            'alliés) ; le MJ gère tous les pions.',
+      ),
+    ],
+  ),
+  (
     version: '0.77.0',
     date: '20/11/2026',
     changements: [

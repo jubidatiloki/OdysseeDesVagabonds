@@ -85,3 +85,90 @@ class CarteCampagne {
     return n.length > longueurNomMax ? n.substring(0, longueurNomMax) : n;
   }
 }
+
+/// Pion posé sur une carte (20/11/2026) : l'icône d'un personnage ou d'une
+/// créature, avec son nom au-dessus. Un pion par personnage ou créature et
+/// par carte : son id est celui du personnage (uid du joueur) ou de la
+/// créature de la partie. Position relative à l'image (0 à 1), pour qu'elle
+/// tienne quelle que soit la taille de l'écran.
+class PionCarte {
+  const PionCarte({
+    required this.id,
+    required this.nom,
+    required this.personnage,
+    this.proprietaire = '',
+    this.allie = false,
+    this.classeId = '',
+    this.raceId = '',
+    this.element = '',
+    this.famille = '',
+    this.x = 0.5,
+    this.y = 0.5,
+  });
+
+  final String id;
+  final String nom;
+
+  /// Personnage d'un joueur ; sinon, créature.
+  final bool personnage;
+
+  /// Joueur à qui il appartient (son personnage, ses compagnons et
+  /// invocations) ; vide : créature du MJ.
+  final String proprietaire;
+
+  /// Du côté des PJ (personnage, compagnon, allié joué par le MJ).
+  final bool allie;
+
+  /// Icône d'un personnage : classe, race, élément du draconien.
+  final String classeId;
+  final String raceId;
+  final String element;
+
+  /// Icône d'une créature : sa famille du bestiaire.
+  final String famille;
+
+  /// Position, de 0 (gauche, haut) à 1 (droite, bas).
+  final double x;
+  final double y;
+
+  PionCarte deplace(double x, double y) => PionCarte(
+        id: id,
+        nom: nom,
+        personnage: personnage,
+        proprietaire: proprietaire,
+        allie: allie,
+        classeId: classeId,
+        raceId: raceId,
+        element: element,
+        famille: famille,
+        x: x.clamp(0.0, 1.0),
+        y: y.clamp(0.0, 1.0),
+      );
+
+  Map<String, dynamic> versJson() => {
+        'nom': nom,
+        'personnage': personnage,
+        'proprietaire': proprietaire,
+        'allie': allie,
+        if (classeId.isNotEmpty) 'classeId': classeId,
+        if (raceId.isNotEmpty) 'raceId': raceId,
+        if (element.isNotEmpty) 'element': element,
+        if (famille.isNotEmpty) 'famille': famille,
+        'x': x,
+        'y': y,
+      };
+
+  factory PionCarte.depuisJson(String id, Map<String, dynamic> j) => PionCarte(
+        id: id,
+        nom: j['nom'] as String? ?? '',
+        personnage: j['personnage'] as bool? ?? false,
+        proprietaire: j['proprietaire'] as String? ?? '',
+        allie: j['allie'] as bool? ?? false,
+        classeId: j['classeId'] as String? ?? '',
+        raceId: j['raceId'] as String? ?? '',
+        element: j['element'] as String? ?? '',
+        famille: j['famille'] as String? ?? '',
+        x: ((j['x'] as num?)?.toDouble() ?? 0.5).clamp(0.0, 1.0),
+        y: ((j['y'] as num?)?.toDouble() ?? 0.5).clamp(0.0, 1.0),
+      );
+}

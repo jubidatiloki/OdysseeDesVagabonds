@@ -7,6 +7,10 @@ import 'package:flutter/material.dart';
 import '../../data/image_carte.dart';
 import '../../models/campagne.dart';
 import '../../models/carte_campagne.dart';
+import '../../state/seance_controller.dart';
+import '../../theme.dart';
+import '../../widgets/cadre_classe.dart';
+import '../../widgets/infos_creature.dart';
 import '../../widgets/consultation.dart';
 import 'campagnes_screen.dart';
 
@@ -382,18 +386,24 @@ void ouvrirCarte(
     );
 
 /// Image d'une carte, lue une seule fois puis gardée en mémoire (la relire
-/// ne coûte rien) ; zoomable.
+/// ne coûte rien) ; zoomable. Pions des personnages et des créatures posés
+/// dessus (20/11/2026) : [seance] donnée, on peut en ajouter ; on déplace
+/// (glisser) et retire (toucher) ceux qu'on a le droit de gérer.
 class VueCarte extends StatefulWidget {
   const VueCarte({
     super.key,
     required this.contexte,
     required this.campagne,
     required this.carte,
+    this.seance,
   });
 
   final ContexteCampagnes contexte;
   final Campagne campagne;
   final CarteCampagne carte;
+
+  /// Séance en cours : personnages et créatures qu'on peut poser.
+  final SeanceController? seance;
 
   @override
   State<VueCarte> createState() => _VueCarteState();
@@ -401,6 +411,14 @@ class VueCarte extends StatefulWidget {
 
 class _VueCarteState extends State<VueCarte> {
   late Future<Uint8List> _image = _lire();
+  late Stream<List<PionCarte>>? _pions = _ecouterPions();
+
+  /// Zone de l'image : sert à convertir la position du doigt (zoom compris).
+  final _zone = GlobalKey();
+
+  /// Pion en cours de déplacement : sa position provisoire.
+  String? _deplace;
+  Offset _position = Offset.zero;
 
   Future<Uint8List> _lire() {
     final s = widget.contexte.campagnes.serviceActuel;
@@ -410,6 +428,10 @@ class _VueCarteState extends State<VueCarte> {
     return s.lireImageCarte(widget.campagne, widget.carte);
   }
 
+  Stream<List<PionCarte>>? _ecouterPions() =>
+      widget.contexte.campagnes.serviceActuel
+          ?.ecouterPions(widget.campagne, widget.carte);
+
   @override
   void didUpdateWidget(VueCarte ancien) {
     super.didUpdateWidget(ancien);
@@ -417,6 +439,154 @@ class _VueCarteState extends State<VueCarte> {
         ancien.carte.octets != widget.carte.octets) {
       _image = _lire();
     }
+    if (ancien.carte.id != widget.carte.id) _pions = _ecouterPions();
+  }
+
+  /// Campagne à jour (permissions changées pendant la séance).
+  Campagne get _campagne =>
+      widget.contexte.campagnes.parId(widget.campagne.id) ?? widget.campagne;
+
+  bool _peutGerer(PionCarte p) {
+    final s = widget.seance;
+    if (s != null) return s.peutGererPion(p);
+    final uid = widget.contexte.campagnes.uid ?? '';
+    return _campagne.estMj(uid) ||
+        _campagne.parametres
+            .pjGerePion(uid, (proprietaire: p.proprietaire, allie: p.allie));
+  }
+
+  Future<void> _agir(Future<void> Function() action) async {
+    final erreur = await widget.contexte.campagnes.agir((_) => action());
+    if (erreur != null && mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(erreur)));
+    }
+  }
+
+  Future<void> _ajouter(List<PionCarte> poses) async {
+    final deja = {for (final p in poses) p.id};
+    final libres = [
+      for (final p in widget.seance?.pionsPossibles ?? const <PionCarte>[])
+        if (!deja.contains(p.id)) p,
+    ];
+    final choisi = await showDialog<PionCarte>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Poser un pion'),
+        children: [
+          if (libres.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Tous les pions que tu peux gérer sont déjà sur '
+                  'la carte.'),
+            ),
+          for (final p in libres)
+            SimpleDialogOption(
+              key: Key('poser-pion-${p.id}'),
+              onPressed: () => Navigator.pop(context, p),
+              child: Row(
+                children: [
+                  IconePion(pion: p, rayon: 14),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(p.nom, overflow: TextOverflow.ellipsis),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+    if (choisi == null) return;
+    final s = widget.contexte.campagnes.serviceActuel;
+    if (s == null) return;
+    // Au centre de la carte ; on le glisse ensuite à sa place.
+    await _agir(() => s.placerPion(widget.campagne, widget.carte, choisi));
+  }
+
+  Future<void> _menu(PionCarte p, Offset global) async {
+    final choix = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(global.dx, global.dy, global.dx, 0),
+      items: [
+        PopupMenuItem(
+          key: Key('retirer-pion-${p.id}'),
+          value: 'retirer',
+          child: Text('Retirer « ${p.nom} » de la carte'),
+        ),
+      ],
+    );
+    if (choix != 'retirer') return;
+    final s = widget.contexte.campagnes.serviceActuel;
+    if (s == null) return;
+    await _agir(() => s.retirerPion(widget.campagne, widget.carte, p));
+  }
+
+  /// Position relative (0 à 1) du doigt sur l'image.
+  Offset? _relative(Offset global) {
+    final box = _zone.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return null;
+    final l = box.globalToLocal(global);
+    return Offset(
+      (l.dx / box.size.width).clamp(0.0, 1.0),
+      (l.dy / box.size.height).clamp(0.0, 1.0),
+    );
+  }
+
+  Widget _pion(PionCarte p) {
+    final gere = _peutGerer(p);
+    final enCours = _deplace == p.id;
+    final widgetPion = Column(
+      key: Key('pion-${p.id}'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          constraints: const BoxConstraints(maxWidth: 110),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            p.nom,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 11),
+          ),
+        ),
+        const SizedBox(height: 2),
+        IconePion(pion: p, rayon: 16, souligne: enCours),
+      ],
+    );
+    if (!gere) return widgetPion;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapUp: (d) => _menu(p, d.globalPosition),
+      onPanStart: (d) {
+        final r = _relative(d.globalPosition);
+        if (r != null) {
+          setState(() {
+            _deplace = p.id;
+            _position = r;
+          });
+        }
+      },
+      onPanUpdate: (d) {
+        final r = _relative(d.globalPosition);
+        if (r != null) setState(() => _position = r);
+      },
+      onPanEnd: (_) async {
+        final pos = _position;
+        final s = widget.contexte.campagnes.serviceActuel;
+        if (s != null) {
+          await _agir(() => s.placerPion(
+              widget.campagne, widget.carte, p.deplace(pos.dx, pos.dy)));
+        }
+        if (mounted) setState(() => _deplace = null);
+      },
+      child: widgetPion,
+    );
   }
 
   @override
@@ -439,17 +609,138 @@ class _VueCarteState extends State<VueCarte> {
           if (octets == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          return InteractiveViewer(
-            key: Key('vue-carte-${widget.carte.id}'),
-            maxScale: 6,
-            child: Center(
-              child: Image.memory(
-                octets,
-                gaplessPlayback: true,
-                errorBuilder: (_, __, ___) => const Text('Image illisible.'),
-              ),
-            ),
+          final c = widget.carte;
+          final ratio =
+              c.largeur > 0 && c.hauteur > 0 ? c.largeur / c.hauteur : 4 / 3;
+          return StreamBuilder<List<PionCarte>>(
+            stream: _pions,
+            builder: (context, flux) {
+              final pions = flux.data ?? const <PionCarte>[];
+              final peutAjouter =
+                  widget.seance?.pionsPossibles.isNotEmpty ?? false;
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: InteractiveViewer(
+                      key: Key('vue-carte-${widget.carte.id}'),
+                      maxScale: 6,
+                      child: Center(
+                        child: AspectRatio(
+                          aspectRatio: ratio,
+                          child: LayoutBuilder(
+                            builder: (context, taille) => Stack(
+                              key: _zone,
+                              clipBehavior: Clip.none,
+                              children: [
+                                Positioned.fill(
+                                  child: Image.memory(
+                                    octets,
+                                    fit: BoxFit.fill,
+                                    gaplessPlayback: true,
+                                    errorBuilder: (_, __, ___) => const Center(
+                                        child: Text('Image illisible.')),
+                                  ),
+                                ),
+                                for (final p in pions)
+                                  Positioned(
+                                    left: (_deplace == p.id
+                                            ? _position.dx
+                                            : p.x) *
+                                        taille.maxWidth,
+                                    top: (_deplace == p.id
+                                            ? _position.dy
+                                            : p.y) *
+                                        taille.maxHeight,
+                                    child: FractionalTranslation(
+                                      translation: const Offset(-0.5, -0.7),
+                                      child: _pion(p),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (peutAjouter)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: FilledButton.tonalIcon(
+                        key: const Key('ajouter-pion'),
+                        onPressed: () => _ajouter(pions),
+                        icon: const Icon(Icons.person_pin_circle_outlined),
+                        label: const Text('Pion'),
+                      ),
+                    ),
+                ],
+              );
+            },
           );
         },
       );
+}
+
+/// Icône d'un pion (20/11/2026) : celle du personnage comme sur l'écran
+/// principal, ou celle de la famille de la créature (contour vert : allié,
+/// rouge : ennemi).
+class IconePion extends StatelessWidget {
+  const IconePion({
+    super.key,
+    required this.pion,
+    this.rayon = 16,
+    this.souligne = false,
+  });
+
+  final PionCarte pion;
+  final double rayon;
+
+  /// En cours de déplacement : halo doré.
+  final bool souligne;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final Widget icone;
+    if (pion.personnage) {
+      icone = AvatarClasse(
+        nom: pion.nom,
+        classeId: pion.classeId.isEmpty ? null : pion.classeId,
+        raceId: pion.raceId.isEmpty ? null : pion.raceId,
+        element: pion.element.isEmpty ? null : pion.element,
+        rayon: rayon,
+      );
+    } else {
+      final style = pion.famille.isEmpty
+          ? null
+          : styleFamille(pion.famille, theme.brightness);
+      icone = Container(
+        width: rayon * 2,
+        height: rayon * 2,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: theme.colorScheme.surface,
+          border: Border.all(
+            color: pion.allie ? OdvCouleurs.green : OdvCouleurs.red,
+            width: 2,
+          ),
+        ),
+        child: Icon(
+          style?.icone ?? Icons.pets_outlined,
+          size: rayon * 1.1,
+          color: style?.couleur ?? theme.colorScheme.primary,
+        ),
+      );
+    }
+    if (!souligne) return icone;
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: OdvCouleurs.or, blurRadius: 10)],
+      ),
+      child: icone,
+    );
+  }
 }

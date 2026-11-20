@@ -19,6 +19,7 @@ rules_version = '2';
 //   messages/{m} : messages privés MJ - joueur
 //   notesJoueurs/{uid}/seances/{n} : le joueur seulement
 //   cartes/{c} (+ morceaux/{n}) : cartes du MJ, lues par les PJ si diffusées
+//     (+ pions/{p} : pions des personnages et créatures posés sur la carte)
 //   bonus/{b} : bonus et malus donnés pendant la séance
 // Collection « codes » : code d'invitation → campagne.
 service cloud.firestore {
@@ -307,6 +308,40 @@ service cloud.firestore {
             && request.resource.data.donnees is bytes
             && request.resource.data.donnees.size() <= 950000;
           allow delete: if connecte() && mjDe(id);
+        }
+
+        // Pions (20/11/2026) : le MJ, ou un PJ selon les permissions (son
+        // pion : « pjGerentLeurPion », oui par défaut ; ceux des alliés :
+        // « pjGerentPionsAllies »), sur une carte diffusée.
+        function carteDiffusee() {
+          return get(/databases/$(database)/documents/campagnes/$(id)/cartes/$(carte))
+            .data.diffusee == true;
+        }
+        function pionPermis(d) {
+          return d.proprietaire == soi()
+            ? get(/databases/$(database)/documents/campagnes/$(id))
+                .data.parametres.get('pjGerentLeurPion', true) == true
+            : d.allie == true && parametre(id, 'pjGerentPionsAllies');
+        }
+        function pionValide() {
+          let d = request.resource.data;
+          return d.nom is string && d.nom.size() <= 120
+            && d.x is number && d.y is number
+            && d.proprietaire is string && d.allie is bool;
+        }
+        match /pions/{pion} {
+          allow read: if connecte()
+            && (mjDe(id) || membreDe(id) && carteDiffusee());
+          allow create: if connecte() && pionValide()
+            && (mjDe(id) || membreDe(id) && carteDiffusee()
+              && pionPermis(request.resource.data));
+          allow update: if connecte() && pionValide()
+            && (mjDe(id) || membreDe(id) && carteDiffusee()
+              && pionPermis(resource.data)
+              && pionPermis(request.resource.data));
+          allow delete: if connecte()
+            && (mjDe(id) || membreDe(id) && carteDiffusee()
+              && pionPermis(resource.data));
         }
       }
 

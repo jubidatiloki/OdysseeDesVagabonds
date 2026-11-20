@@ -257,6 +257,61 @@ class SeanceController extends ChangeNotifier {
     return FicheCalculee(personnage: p, race: race, classe: classe);
   }
 
+  /// Pion d'un personnage de joueur (20/11/2026) : icône d'après sa fiche
+  /// si ce compte la lit, sinon d'après son résumé (« Nain · Guerrier »).
+  PionCarte pionDe(MembreCampagne m) {
+    final p = ficheDe(m.uid)?.personnage;
+    var race = p?.raceId ?? '';
+    var classe = p?.classeId ?? '';
+    if (p == null) {
+      final parts = m.personnageResume.split(' · ');
+      for (final r in referentiel.races) {
+        if (parts.isNotEmpty && r.nom == parts.first) race = r.id;
+      }
+      for (final c in referentiel.classes) {
+        if (parts.length > 1 && c.nom == parts[1]) classe = c.id;
+      }
+    }
+    return PionCarte(
+      id: m.uid,
+      nom: m.personnageNom,
+      personnage: true,
+      proprietaire: m.uid,
+      allie: true,
+      raceId: race,
+      classeId: classe,
+      element: p?.choix['element-draconien'] ?? '',
+    );
+  }
+
+  /// Pion d'une créature de la partie (nom vu des PJ).
+  PionCarte pionCreature(CreatureSeance c) => PionCarte(
+        id: c.id,
+        nom: c.nomPublic,
+        personnage: false,
+        proprietaire: c.proprietaire,
+        allie: c.duCotePj,
+        famille:
+            c.famille.isNotEmpty ? c.famille : ficheCreature(c)?.famille ?? '',
+      );
+
+  /// Ce compte peut-il gérer [pion] sur une carte (20/11/2026) ? Le MJ
+  /// toujours ; un PJ selon les permissions de la campagne.
+  bool peutGererPion(PionCarte pion) =>
+      estMj ||
+      (campagne?.parametres.pjGerePion(
+            uid,
+            (proprietaire: pion.proprietaire, allie: pion.allie),
+          ) ??
+          false);
+
+  /// Pions que ce compte peut poser : personnages et créatures de la
+  /// partie (cartes cachées exclues pour les PJ : ils ne les voient pas).
+  List<PionCarte> get pionsPossibles => [
+        for (final m in joueurs) pionDe(m),
+        for (final c in _creatures) pionCreature(c),
+      ].where(peutGererPion).toList();
+
   /// Fiche d'un joueur, si ce compte peut la lire.
   FicheCalculee? ficheDe(String joueur) {
     if (joueur == uid) return maFiche;

@@ -162,10 +162,15 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
     ]) {
       refs.addAll((await q.get()).docs.map((d) => d.reference));
     }
-    // Cartes et leurs images.
+    // Cartes, leurs images et leurs pions.
     for (final carte in (await _cartes(campagne.id).get()).docs) {
       refs.addAll(
         (await carte.reference.collection('morceaux').get())
+            .docs
+            .map((d) => d.reference),
+      );
+      refs.addAll(
+        (await carte.reference.collection('pions').get())
             .docs
             .map((d) => d.reference),
       );
@@ -466,10 +471,34 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
     for (var i = 0; i < carte.morceaux; i++) {
       lot.delete(doc.collection('morceaux').doc('$i'));
     }
+    for (final p in (await doc.collection('pions').get()).docs) {
+      lot.delete(p.reference);
+    }
     lot.delete(doc);
     await lot.commit();
     _images.remove(_cleImage(campagne, carte));
   }
+
+  CollectionReference<Map<String, dynamic>> _pions(
+          Campagne campagne, CarteCampagne carte) =>
+      _cartes(campagne.id).doc(carte.id).collection('pions');
+
+  @override
+  Stream<List<PionCarte>> ecouterPions(
+          Campagne campagne, CarteCampagne carte) =>
+      _pions(campagne, carte).snapshots().map((s) => [
+            for (final d in s.docs) PionCarte.depuisJson(d.id, d.data()),
+          ]);
+
+  @override
+  Future<void> placerPion(
+          Campagne campagne, CarteCampagne carte, PionCarte pion) =>
+      _pions(campagne, carte).doc(pion.id).set(pion.versJson());
+
+  @override
+  Future<void> retirerPion(
+          Campagne campagne, CarteCampagne carte, PionCarte pion) =>
+      _pions(campagne, carte).doc(pion.id).delete();
 
   /// Images déjà lues pendant que l'application est ouverte (les 12
   /// dernières) : rouvrir une carte ne coûte aucune lecture.

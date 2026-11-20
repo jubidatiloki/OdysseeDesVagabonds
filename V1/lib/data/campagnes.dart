@@ -115,6 +115,17 @@ abstract class ServiceCampagnes {
 
   /// Image d'une carte (JPEG), lue en une fois.
   Future<Uint8List> lireImageCarte(Campagne campagne, CarteCampagne carte);
+
+  /// Pions posés sur une carte (20/11/2026), suivis en direct.
+  Stream<List<PionCarte>> ecouterPions(Campagne campagne, CarteCampagne carte);
+
+  /// Pose ou déplace un pion (le MJ, ou un PJ selon les permissions).
+  Future<void> placerPion(
+      Campagne campagne, CarteCampagne carte, PionCarte pion);
+
+  /// Retire un pion de la carte.
+  Future<void> retirerPion(
+      Campagne campagne, CarteCampagne carte, PionCarte pion);
 }
 
 /// Contrôles communs aux implémentations.
@@ -159,6 +170,9 @@ class BaseCampagnesMemoire {
   /// Cartes (id de campagne → id de carte → carte et image).
   final Map<String, Map<String, ({CarteCampagne carte, Uint8List image})>>
       cartes = {};
+
+  /// Pions (id de campagne → id de carte → id de pion → pion).
+  final Map<String, Map<String, Map<String, PionCarte>>> pions = {};
 
   /// Dates des séances (id de campagne → numéro → date).
   final Map<String, Map<int, DateTime>> datesRecaps = {};
@@ -566,6 +580,7 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
   Future<void> supprimerCarte(Campagne campagne, CarteCampagne carte) async {
     _exigerMj(campagne);
     base.cartes[campagne.id]?.remove(carte.id);
+    base.pions[campagne.id]?.remove(carte.id);
     base.signaler();
   }
 
@@ -582,5 +597,56 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
       throw const ErreurCampagne('Cette carte n\'est pas disponible.');
     }
     return x.image;
+  }
+
+  /// MJ, ou membre si la carte est diffusée.
+  bool _litCarte(Campagne campagne, CarteCampagne carte) {
+    final c = base.campagnes[campagne.id];
+    if (c == null) return false;
+    final x = base.cartes[campagne.id]?[carte.id];
+    return c.estMj(uid) ||
+        c.joueurs.contains(uid) && (x?.carte.diffusee ?? false);
+  }
+
+  @override
+  Stream<List<PionCarte>> ecouterPions(
+      Campagne campagne, CarteCampagne carte) async* {
+    List<PionCarte> liste() => _litCarte(campagne, carte)
+        ? (base.pions[campagne.id]?[carte.id]?.values.toList() ?? [])
+        : const [];
+    yield liste();
+    await for (final _ in base.changements) {
+      yield liste();
+    }
+  }
+
+  /// Comme les règles en ligne : le MJ, ou le PJ selon les permissions.
+  void _exigerPion(Campagne campagne, CarteCampagne carte, PionCarte pion) {
+    final c = _lire(campagne.id);
+    if (c.estMj(uid)) return;
+    final avant = base.pions[campagne.id]?[carte.id]?[pion.id];
+    bool permis(PionCarte p) => c.parametres
+        .pjGerePion(uid, (proprietaire: p.proprietaire, allie: p.allie));
+    if (!_litCarte(campagne, carte) ||
+        !permis(pion) ||
+        (avant != null && !permis(avant))) {
+      throw const ErreurCampagne('Tu ne peux pas gérer ce pion.');
+    }
+  }
+
+  @override
+  Future<void> placerPion(
+      Campagne campagne, CarteCampagne carte, PionCarte pion) async {
+    _exigerPion(campagne, carte, pion);
+    ((base.pions[campagne.id] ??= {})[carte.id] ??= {})[pion.id] = pion;
+    base.signaler();
+  }
+
+  @override
+  Future<void> retirerPion(
+      Campagne campagne, CarteCampagne carte, PionCarte pion) async {
+    _exigerPion(campagne, carte, pion);
+    base.pions[campagne.id]?[carte.id]?.remove(pion.id);
+    base.signaler();
   }
 }

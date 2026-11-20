@@ -23,7 +23,23 @@ class ParametresCampagne {
     this.inventaireParMj = false,
     this.personnageExistant = true,
     this.actionsParTour = 1,
+    this.pjGerentLeurPion = true,
+    this.pjGerentPionsAllies = false,
   });
+
+  /// Cartes (20/11/2026) : les PJ placent, déplacent et retirent le pion de
+  /// leur personnage (et de leurs compagnons et invocations).
+  final bool pjGerentLeurPion;
+
+  /// Cartes (20/11/2026) : les PJ gèrent aussi les pions des alliés (autres
+  /// PJ, leurs créatures, alliés joués par le MJ).
+  final bool pjGerentPionsAllies;
+
+  /// Le joueur [uid] peut-il gérer [pion] ? (Le MJ peut toujours.)
+  bool pjGerePion(String uid, ({String proprietaire, bool allie}) pion) =>
+      pion.proprietaire == uid
+          ? pjGerentLeurPion
+          : pion.allie && pjGerentPionsAllies;
 
   /// Inventaire des joueurs défini par le MJ (20/11/2026) : à l'acceptation,
   /// objets et argent de la fiche sont retirés, le MJ donne ce qu'il veut ;
@@ -104,6 +120,8 @@ class ParametresCampagne {
     bool? inventaireParMj,
     bool? personnageExistant,
     int? actionsParTour,
+    bool? pjGerentLeurPion,
+    bool? pjGerentPionsAllies,
   }) =>
       ParametresCampagne(
         joueursMax: joueursMax ?? this.joueursMax,
@@ -127,6 +145,8 @@ class ParametresCampagne {
         inventaireParMj: inventaireParMj ?? this.inventaireParMj,
         personnageExistant: personnageExistant ?? this.personnageExistant,
         actionsParTour: actionsParTour ?? this.actionsParTour,
+        pjGerentLeurPion: pjGerentLeurPion ?? this.pjGerentLeurPion,
+        pjGerentPionsAllies: pjGerentPionsAllies ?? this.pjGerentPionsAllies,
       );
 
   Map<String, dynamic> versJson() => {
@@ -145,6 +165,8 @@ class ParametresCampagne {
         'inventaireParMj': inventaireParMj,
         'personnageExistant': personnageExistant,
         'actionsParTour': actionsParTour,
+        'pjGerentLeurPion': pjGerentLeurPion,
+        'pjGerentPionsAllies': pjGerentPionsAllies,
       };
 
   factory ParametresCampagne.depuisJson(Object? j) {
@@ -167,6 +189,8 @@ class ParametresCampagne {
       personnageExistant: j['personnageExistant'] as bool? ?? true,
       actionsParTour: ((j['actionsParTour'] as num?)?.toInt() ?? 1)
           .clamp(0, actionsParTourMax),
+      pjGerentLeurPion: j['pjGerentLeurPion'] as bool? ?? true,
+      pjGerentPionsAllies: j['pjGerentPionsAllies'] as bool? ?? false,
     );
   }
 }

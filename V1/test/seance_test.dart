@@ -16,6 +16,7 @@ import 'package:odyssee_vagabonds/models/bonus_seance.dart';
 import 'package:odyssee_vagabonds/models/butin.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/creation_campagne_screen.dart';
 import 'package:odyssee_vagabonds/models/campagne.dart';
+import 'package:odyssee_vagabonds/models/carte_campagne.dart';
 import 'package:odyssee_vagabonds/models/classe.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/models/carac.dart';
@@ -1133,6 +1134,19 @@ void main() {
       expect(
         (p.actionsParTour, p.inventaireParMj, p.personnageExistant),
         (3, true, false),
+      );
+      // Pions (20/11/2026) : son pion oui, ceux des alliés non.
+      expect(
+        (defaut.pjGerentLeurPion, defaut.pjGerentPionsAllies),
+        (true, false),
+      );
+      final pions = ParametresCampagne.depuisJson(const ParametresCampagne(
+        pjGerentLeurPion: false,
+        pjGerentPionsAllies: true,
+      ).versJson());
+      expect(
+        (pions.pjGerentLeurPion, pions.pjGerentPionsAllies),
+        (false, true),
       );
       // Ancienne campagne : une action par tour.
       expect(ParametresCampagne.depuisJson(const {}).actionsParTour, 1);
@@ -3424,6 +3438,135 @@ void main() {
       expect(find.byKey(Key('carte-plan-${port.id}')), findsNothing);
       expect(find.byKey(Key('vue-carte-${port.id}')), findsNothing);
       expect(find.byKey(const Key('onglet-des')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    test('pions des cartes : permissions du MJ et des PJ', () async {
+      final p = await _partie();
+      final mj = ServiceCampagnesMemoire(p.base, 'mj');
+      final j1 = ServiceCampagnesMemoire(p.base, 'j1');
+      await mj.ajouterCarte(p.campagne,
+          nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+      var carte = (await mj.ecouterCartes(p.campagne).first).single;
+      const brom = PionCarte(
+          id: 'j1',
+          nom: 'Brom',
+          personnage: true,
+          proprietaire: 'j1',
+          allie: true);
+      const aria = PionCarte(
+          id: 'j2',
+          nom: 'Aria',
+          personnage: true,
+          proprietaire: 'j2',
+          allie: true);
+      const rat = PionCarte(id: 'rat', nom: 'Rat', personnage: false);
+      Future<bool> essai(Future<void> Function() f) async {
+        try {
+          await f();
+          return true;
+        } on ErreurCampagne {
+          return false;
+        }
+      }
+
+      // Carte pas diffusée : rien pour les PJ.
+      expect(await essai(() => j1.placerPion(p.campagne, carte, brom)), false);
+      carte = carte.copie(diffusee: true);
+      await mj.modifierCarte(p.campagne, carte);
+      // Par défaut : son propre pion seulement.
+      expect(await essai(() => j1.placerPion(p.campagne, carte, brom)), true);
+      expect(await essai(() => j1.placerPion(p.campagne, carte, aria)), false);
+      expect(await essai(() => j1.placerPion(p.campagne, carte, rat)), false);
+      // Le MJ gère tout.
+      expect(await essai(() => mj.placerPion(p.campagne, carte, rat)), true);
+      expect(await essai(() => mj.placerPion(p.campagne, carte, aria)), true);
+      expect(await essai(() => j1.retirerPion(p.campagne, carte, rat)), false);
+      // Pions des alliés permis : Aria, mais toujours pas le rat.
+      p.base.campagnes[p.campagne.id] = p.base.campagnes[p.campagne.id]!.copie(
+          parametres: const ParametresCampagne(pjGerentPionsAllies: true));
+      expect(
+          await essai(
+              () => j1.placerPion(p.campagne, carte, aria.deplace(0.2, 0.3))),
+          true);
+      expect(await essai(() => j1.retirerPion(p.campagne, carte, rat)), false);
+      // Son propre pion interdit.
+      p.base.campagnes[p.campagne.id] = p.base.campagnes[p.campagne.id]!
+          .copie(parametres: const ParametresCampagne(pjGerentLeurPion: false));
+      expect(await essai(() => j1.retirerPion(p.campagne, carte, brom)), false);
+      final pions = await j1.ecouterPions(p.campagne, carte).first;
+      expect({for (final x in pions) x.id}, {'j1', 'j2', 'rat'});
+      expect(pions.firstWhere((x) => x.id == 'j2').x, 0.2);
+      // Carte supprimée : ses pions aussi.
+      await mj.supprimerCarte(p.campagne, carte);
+      expect(p.base.pions[p.campagne.id]?[carte.id], isNull);
+      // Sauvegarde.
+      final relu = PionCarte.depuisJson('j1', brom.deplace(2, -1).versJson());
+      expect((relu.x, relu.y, relu.personnage, relu.allie),
+          (1.0, 0.0, true, true));
+    });
+
+    testWidgets('PJ : pose, déplace et retire son pion sur la carte',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj');
+          await mj.seance.ajouterCreature(
+              c, const CreatureSeance(id: 'rat', nom: 'Rat', famille: 'Bêtes'));
+          await mj.ajouterCarte(c,
+              nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+          final port = (await mj.ecouterCartes(c).first).last;
+          await mj.modifierCarte(c, port.copie(diffusee: true));
+        },
+      );
+      final port = x.base.cartes[x.campagne.id]!.values.single.carte;
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(Key('carte-plan-${port.id}')));
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('ajouter-pion')));
+      // Seulement son personnage : ni Aria, ni le rat.
+      expect(find.byKey(const Key('poser-pion-j1')), findsOneWidget);
+      expect(find.byKey(const Key('poser-pion-j2')), findsNothing);
+      expect(find.byKey(const Key('poser-pion-rat')), findsNothing);
+      await tap(tester, find.byKey(const Key('poser-pion-j1')));
+      expect(find.byKey(const Key('pion-j1')), findsOneWidget);
+      // Nom au-dessus de l'icône.
+      expect(
+        find.descendant(
+            of: find.byKey(const Key('pion-j1')),
+            matching: find
+                .text(x.base.pions[x.campagne.id]!.values.single['j1']!.nom)),
+        findsOneWidget,
+      );
+      final pions = x.base.pions[x.campagne.id]![port.id]!;
+      expect(pions['j1']!.x, 0.5);
+      await tester.drag(find.byKey(const Key('pion-j1')), const Offset(60, 40));
+      await tester.pumpAndSettle();
+      expect(pions['j1']!.x, greaterThan(0.5));
+      expect(pions['j1']!.y, greaterThan(0.5));
+      // Le pion du rat, posé par le MJ : visible, mais pas gérable.
+      await ServiceCampagnesMemoire(x.base, 'mj').placerPion(
+          x.campagne,
+          port,
+          const PionCarte(
+              id: 'rat', nom: 'Rat', personnage: false, famille: 'Bêtes'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('pion-rat')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('pion-rat')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('retirer-pion-rat')), findsNothing);
+      // Retirer le sien.
+      await tester.tap(find.byKey(const Key('pion-j1')));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('retirer-pion-j1')));
+      expect(pions.containsKey('j1'), isFalse);
+      expect(find.byKey(const Key('pion-j1')), findsNothing);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
