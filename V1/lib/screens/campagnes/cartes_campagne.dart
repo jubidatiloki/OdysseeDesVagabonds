@@ -534,6 +534,20 @@ class _VueCarteState extends State<VueCarte> {
     );
   }
 
+  /// Nom affiché : celui de la séance, à jour (créatures numérotées « 2 »,
+  /// personnage renommé) ; sinon, celui enregistré à la pose.
+  String _nom(PionCarte p) {
+    final s = widget.seance;
+    if (s == null) return p.nom;
+    for (final m in s.joueurs) {
+      if (m.uid == p.id) return m.personnageNom;
+    }
+    for (final c in s.creatures) {
+      if (c.id == p.id) return s.estMj ? c.nom : c.nomPublic;
+    }
+    return p.nom;
+  }
+
   Widget _pion(PionCarte p) {
     final gere = _peutGerer(p);
     final enCours = _deplace == p.id;
@@ -541,17 +555,19 @@ class _VueCarteState extends State<VueCarte> {
       key: Key('pion-${p.id}'),
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Nom en entier, sur plusieurs lignes si besoin (20/11/2026).
         Container(
-          constraints: const BoxConstraints(maxWidth: 110),
+          constraints: const BoxConstraints(maxWidth: 120),
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            p.nom,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            _nom(p),
+            key: Key('nom-pion-${p.id}'),
+            textAlign: TextAlign.center,
+            softWrap: true,
             style: const TextStyle(color: Colors.white, fontSize: 11),
           ),
         ),

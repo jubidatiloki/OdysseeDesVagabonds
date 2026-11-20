@@ -31,6 +31,7 @@ import 'package:odyssee_vagabonds/regles/des.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/regles/objet_aleatoire.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
+import 'package:odyssee_vagabonds/screens/campagnes/cartes_campagne.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/rejoindre_campagne_screen.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/seance_screen.dart';
 import 'package:odyssee_vagabonds/screens/fiche_screen.dart';
@@ -3536,12 +3537,13 @@ void main() {
       expect(find.byKey(const Key('poser-pion-rat')), findsNothing);
       await tap(tester, find.byKey(const Key('poser-pion-j1')));
       expect(find.byKey(const Key('pion-j1')), findsOneWidget);
-      // Nom au-dessus de l'icône.
+      // Nom au-dessus de l'icône : celui du personnage dans la séance.
+      final seance = tester.widget<VueCarte>(find.byType(VueCarte)).seance!;
       expect(
         find.descendant(
             of: find.byKey(const Key('pion-j1')),
-            matching: find
-                .text(x.base.pions[x.campagne.id]!.values.single['j1']!.nom)),
+            matching: find.text(
+                seance.joueurs.firstWhere((m) => m.uid == 'j1').personnageNom)),
         findsOneWidget,
       );
       final pions = x.base.pions[x.campagne.id]![port.id]!;
@@ -3555,9 +3557,16 @@ void main() {
           x.campagne,
           port,
           const PionCarte(
-              id: 'rat', nom: 'Rat', personnage: false, famille: 'Bêtes'));
+              id: 'rat',
+              nom: 'Ancien nom',
+              personnage: false,
+              famille: 'Bêtes'));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('pion-rat')), findsOneWidget);
+      // Nom de la séance (à jour), en entier sur plusieurs lignes.
+      final nom = tester.widget<Text>(find.byKey(const Key('nom-pion-rat')));
+      expect(nom.data, 'Rat');
+      expect((nom.maxLines, nom.overflow), (null, null));
       await tester.tap(find.byKey(const Key('pion-rat')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('retirer-pion-rat')), findsNothing);

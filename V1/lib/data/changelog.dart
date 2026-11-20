@@ -29,6 +29,17 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.78.1',
+    date: '20/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte: 'Cartes : nom des pions en entier (sur plusieurs lignes) et à '
+            'jour, numéro compris (« Bandit 2 »).',
+      ),
+    ],
+  ),
+  (
     version: '0.78.0',
     date: '20/11/2026',
     changements: [
