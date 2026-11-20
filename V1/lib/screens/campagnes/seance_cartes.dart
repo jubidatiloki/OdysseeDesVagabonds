@@ -55,53 +55,8 @@ class ListeCartes extends StatelessWidget {
           for (final e in s.bonusVisibles(id))
             if (e.estEtat) '${e.effet} · ${e.dureeTexte}',
         ];
-    return ListView(
-      key: const Key('liste-cartes'),
-      padding: const EdgeInsets.all(8),
-      children: [
-        if (s.estMj)
-          _Carte(
-            cle: 'carte-script',
-            selectionnee: s.carte == kCarteScript,
-            icone: Icons.history_edu_outlined,
-            titre: 'Script',
-            onTap: () => _choisir(kCarteScript),
-          )
-        else
-          _Carte(
-            cle: 'carte-notes',
-            selectionnee: s.carte == kCarteNotes,
-            icone: Icons.edit_note,
-            titre: 'Mes notes de séance',
-            onTap: () => _choisir(kCarteNotes),
-          ),
-        // Cartes de la campagne diffusées par le MJ, en haut, dans leur
-        // propre bloc (16/11/2026).
-        if (s.cartesDiffusees.isNotEmpty)
-          const _TitrePartie(
-            cle: 'partie-cartes',
-            icone: Icons.map_outlined,
-            titre: 'Cartes',
-          ),
-        for (final p in s.cartesDiffusees)
-          _Carte(
-            cle: 'carte-plan-${p.id}',
-            selectionnee: s.carte == '$kPrefixePlan${p.id}',
-            icone: Icons.map_outlined,
-            couleurIcone: OdvCouleurs.or,
-            titre: p.nom,
-            onTap: () => _choisir('$kPrefixePlan${p.id}'),
-          ),
-        // Deux parties bien séparées : les personnages des joueurs (et
-        // leurs compagnons), puis les créatures rencontrées.
-        if (s.joueurs.isNotEmpty || s.creatures.any((c) => c.allie))
-          _TitrePartie(
-            cle: 'partie-personnages',
-            icone: Icons.groups_outlined,
-            titre: 'Personnages',
-            separe: s.cartesDiffusees.isNotEmpty,
-          ),
-        for (final m in s.joueursOrdonnes) ...[
+    // Carte d'un joueur, puis ses compagnons et invocations.
+    List<Widget> joueur(MembreCampagne m) => [
           _Carte(
             cle: 'carte-${m.uid}',
             bonus: s.bonusSurCarte(m.uid),
@@ -153,6 +108,7 @@ class ListeCartes extends StatelessWidget {
                 ressources: [
                   if (c.pv != null && s.voitPvDe(c))
                     _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+                  if (s.caCarte(c) case final ca?) _Ca(ca, cle: 'ca-${c.id}'),
                   // Invocation temporaire : tours restants.
                   if (c.toursRestants case final t?)
                     Tooltip(
@@ -214,87 +170,154 @@ class ListeCartes extends StatelessWidget {
                   onTap: () => afficherCreature(context, x.creature),
                 ),
               ),
-        ],
-        // Alliés des PJ contrôlés par le MJ (escorte…), avec les personnages.
-        for (final c in s.creaturesOrdonnees)
-          if (c.allie && !c.estAUnJoueur)
-            _Carte(
-              cle: 'carte-${c.id}',
-              bonus: s.bonusSurCarte(c.id),
-              selectionnee: s.carte == c.id,
-              actif: s.etat.actif == c.id,
-              cleIcone: 'icone-${c.id}',
-              icone: Icons.shield_outlined,
-              couleurIcone: OdvCouleurs.green,
-              titre: c.nom,
-              initiative: s.etat.enCombat ? c.initiative : null,
-              ressources: [
-                if (c.pv != null)
-                  _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
-              ],
-              lignes: [
-                'Allié · joué par le MJ',
-                ...etats(c.id),
-                if (s.estMj && c.cachee) 'Carte cachée aux PJ',
-              ],
-              onTap: () => _choisir(c.id),
-              onRetirer: s.estMj
-                  ? () async {
-                      final erreur = await s.retirerCreature(c);
-                      if (erreur != null && context.mounted) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(SnackBar(content: Text(erreur)));
-                      }
-                    }
-                  : null,
-              cleRetirer: 'retirer-${c.id}',
-            ),
-        if (s.creatures.any((c) => !c.duCotePj))
-          const _TitrePartie(
-            cle: 'partie-creatures',
-            icone: Icons.pets_outlined,
-            titre: 'Créatures rencontrées',
-            separe: true,
+        ];
+    // Allié des PJ joué par le MJ (escorte…).
+    Widget allie(CreatureSeance c) => _Carte(
+          cle: 'carte-${c.id}',
+          bonus: s.bonusSurCarte(c.id),
+          selectionnee: s.carte == c.id,
+          actif: s.etat.actif == c.id,
+          cleIcone: 'icone-${c.id}',
+          icone: Icons.shield_outlined,
+          couleurIcone: OdvCouleurs.green,
+          titre: c.nom,
+          initiative: s.etat.enCombat ? c.initiative : null,
+          ressources: [
+            if (c.pv != null) _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+            // CA (20/11/2026) : alliés pour tous, ennemis pour le MJ seul.
+            if (s.caCarte(c) case final ca?) _Ca(ca, cle: 'ca-${c.id}'),
+          ],
+          lignes: [
+            'Allié · joué par le MJ',
+            ...etats(c.id),
+            if (s.estMj && c.cachee) 'Carte cachée aux PJ',
+          ],
+          onTap: () => _choisir(c.id),
+          onRetirer: s.estMj
+              ? () async {
+                  final erreur = await s.retirerCreature(c);
+                  if (erreur != null && context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(erreur)));
+                  }
+                }
+              : null,
+          cleRetirer: 'retirer-${c.id}',
+        );
+    // Créature rencontrée.
+    Widget creature(CreatureSeance c) => _Carte(
+          cle: 'carte-${c.id}',
+          // En rouge : on les distingue des PJ et des alliés.
+          ennemi: true,
+          bonus: s.bonusSurCarte(c.id),
+          selectionnee: s.carte == c.id,
+          actif: s.etat.actif == c.id,
+          cleIcone: 'icone-${c.id}',
+          icone: _styleCreature(context, c)?.icone ?? Icons.pets_outlined,
+          couleurIcone: _styleCreature(context, c)?.couleur,
+          titre: c.nom,
+          initiative: s.etat.enCombat ? c.initiative : null,
+          ressources: [
+            if (c.pv != null) _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
+            // CA (20/11/2026) : alliés pour tous, ennemis pour le MJ seul.
+            if (s.caCarte(c) case final ca?) _Ca(ca, cle: 'ca-${c.id}'),
+          ],
+          lignes: [
+            if (c.pv == null) c.etat.libelle,
+            ...etats(c.id),
+            if (s.estMj && c.cachee)
+              'Carte cachée aux PJ'
+            else if (s.estMj && c.nomCache)
+              'Nom caché aux PJ',
+          ],
+          onTap: () => _choisir(c.id),
+          // Petite croix rouge : retirer la créature de la partie.
+          onRetirer: s.estMj
+              ? () async {
+                  final erreur = await s.retirerCreature(c);
+                  if (erreur != null && context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(erreur)));
+                  }
+                }
+              : null,
+          cleRetirer: 'retirer-${c.id}',
+        );
+    return ListView(
+      key: const Key('liste-cartes'),
+      padding: const EdgeInsets.all(8),
+      children: [
+        if (s.estMj)
+          _Carte(
+            cle: 'carte-script',
+            selectionnee: s.carte == kCarteScript,
+            icone: Icons.history_edu_outlined,
+            titre: 'Script',
+            onTap: () => _choisir(kCarteScript),
+          )
+        else
+          _Carte(
+            cle: 'carte-notes',
+            selectionnee: s.carte == kCarteNotes,
+            icone: Icons.edit_note,
+            titre: 'Mes notes de séance',
+            onTap: () => _choisir(kCarteNotes),
           ),
-        for (final c in s.creaturesOrdonnees)
-          if (!c.duCotePj)
-            _Carte(
-              cle: 'carte-${c.id}',
-              // En rouge : on les distingue des PJ et des alliés.
-              ennemi: true,
-              bonus: s.bonusSurCarte(c.id),
-              selectionnee: s.carte == c.id,
-              actif: s.etat.actif == c.id,
-              cleIcone: 'icone-${c.id}',
-              icone: _styleCreature(context, c)?.icone ?? Icons.pets_outlined,
-              couleurIcone: _styleCreature(context, c)?.couleur,
-              titre: c.nom,
-              initiative: s.etat.enCombat ? c.initiative : null,
-              ressources: [
-                if (c.pv != null)
-                  _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
-              ],
-              lignes: [
-                if (c.pv == null) c.etat.libelle,
-                ...etats(c.id),
-                if (s.estMj && c.cachee)
-                  'Carte cachée aux PJ'
-                else if (s.estMj && c.nomCache)
-                  'Nom caché aux PJ',
-              ],
-              onTap: () => _choisir(c.id),
-              // Petite croix rouge : retirer la créature de la partie.
-              onRetirer: s.estMj
-                  ? () async {
-                      final erreur = await s.retirerCreature(c);
-                      if (erreur != null && context.mounted) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(SnackBar(content: Text(erreur)));
-                      }
-                    }
-                  : null,
-              cleRetirer: 'retirer-${c.id}',
+        // Cartes de la campagne diffusées par le MJ, en haut, dans leur
+        // propre bloc (16/11/2026).
+        if (s.cartesDiffusees.isNotEmpty)
+          const _TitrePartie(
+            cle: 'partie-cartes',
+            icone: Icons.map_outlined,
+            titre: 'Cartes',
+          ),
+        for (final p in s.cartesDiffusees)
+          _Carte(
+            cle: 'carte-plan-${p.id}',
+            selectionnee: s.carte == '$kPrefixePlan${p.id}',
+            icone: Icons.map_outlined,
+            couleurIcone: OdvCouleurs.or,
+            titre: p.nom,
+            onTap: () => _choisir('$kPrefixePlan${p.id}'),
+          ),
+        // En combat (20/11/2026) : une seule liste, dans l'ordre du combat
+        // (initiative, le plus rapide en haut), personnages et créatures
+        // mêlés ; les compagnons restent sous leur maître.
+        if (s.etat.enCombat) ...[
+          _TitrePartie(
+            cle: 'partie-combat',
+            icone: Icons.sports_martial_arts,
+            titre: 'Ordre du combat',
+            separe: s.cartesDiffusees.isNotEmpty,
+          ),
+          for (final e in s.ordreDesCartes)
+            if (e.joueur case final m?)
+              ...joueur(m)
+            else if (e.creature case final c?)
+              c.duCotePj ? allie(c) : creature(c),
+        ] else ...[
+          // Deux parties bien séparées : les personnages des joueurs (et
+          // leurs compagnons), puis les créatures rencontrées.
+          if (s.joueurs.isNotEmpty || s.creatures.any((c) => c.allie))
+            _TitrePartie(
+              cle: 'partie-personnages',
+              icone: Icons.groups_outlined,
+              titre: 'Personnages',
+              separe: s.cartesDiffusees.isNotEmpty,
             ),
+          for (final m in s.joueursOrdonnes) ...joueur(m),
+          for (final c in s.creaturesOrdonnees)
+            if (c.allie && !c.estAUnJoueur) allie(c),
+          if (s.creatures.any((c) => !c.duCotePj))
+            const _TitrePartie(
+              cle: 'partie-creatures',
+              icone: Icons.pets_outlined,
+              titre: 'Créatures rencontrées',
+              separe: true,
+            ),
+          for (final c in s.creaturesOrdonnees)
+            if (!c.duCotePj) creature(c),
+        ],
         for (final b in s.butins)
           _Carte(
             cle: 'carte-${b.id}',

@@ -523,6 +523,39 @@ class SeanceController extends ChangeNotifier {
   int? caJoueur(MembreCampagne m) =>
       m.uid == uid ? maFiche?.classeArmure ?? m.ca : m.ca;
 
+  /// CA sur la carte d'une créature (20/11/2026) : alliés, compagnons et
+  /// invocations pour tous ; créatures rencontrées pour le MJ seul (la CA
+  /// d'une cible n'est jamais montrée aux PJ).
+  int? caCarte(CreatureSeance c) =>
+      estMj || c.duCotePj ? c.ca ?? ficheCreature(c)?.ca : null;
+
+  /// Liste de gauche en combat (20/11/2026) : personnages des joueurs,
+  /// alliés et créatures rencontrées mêlés, dans l'ordre du combat
+  /// (initiative) ; ceux qui n'y sont pas encore suivent, par initiative.
+  /// Compagnons et invocations restent sous leur maître.
+  List<({MembreCampagne? joueur, CreatureSeance? creature})>
+      get ordreDesCartes {
+    final liste = <({MembreCampagne? joueur, CreatureSeance? creature})>[
+      for (final m in joueurs) (joueur: m, creature: null),
+      for (final c in _creatures)
+        if (!c.estAUnJoueur) (joueur: null, creature: c),
+    ];
+    int rang(String id) {
+      final i = _etat.ordre.indexOf(id);
+      return i < 0 ? 1 << 20 : i;
+    }
+
+    String id(({MembreCampagne? joueur, CreatureSeance? creature}) x) =>
+        x.joueur?.uid ?? x.creature!.id;
+    int ini(({MembreCampagne? joueur, CreatureSeance? creature}) x) =>
+        x.joueur?.initiative ?? x.creature!.initiative;
+    return liste
+      ..sort((a, b) {
+        final r = rang(id(a)).compareTo(rang(id(b)));
+        return r != 0 ? r : ini(b).compareTo(ini(a));
+      });
+  }
+
   /// Créatures de la liste de gauche (20/11/2026) : en combat, par
   /// initiative (le plus rapide en haut) ; sinon dans l'ordre d'ajout.
   List<CreatureSeance> get creaturesOrdonnees {

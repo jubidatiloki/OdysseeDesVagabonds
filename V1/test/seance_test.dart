@@ -1864,19 +1864,48 @@ void main() {
           final mj = ServiceCampagnesMemoire(b, 'mj').seance;
           for (final (id, ini) in [('lent', 2), ('vif', 18)]) {
             await mj.ajouterCreature(
-                c, CreatureSeance(id: id, nom: id, initiative: ini));
+                c,
+                CreatureSeance(
+                    id: id, nom: id, initiative: ini, creatureId: 'loup'));
           }
-          await mj.demarrerCombat(c, ['j1', 'j2', 'lent', 'vif']);
+          await mj.demarrerCombat(c, ['vif', 'j1', 'j2', 'lent']);
         },
       );
+      // Personnages et créatures mêlés, le plus rapide en haut.
       double haut(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
-      expect(haut('carte-vif'), lessThan(haut('carte-lent')));
+      expect(haut('carte-vif'), lessThan(haut('carte-j1')));
+      expect(haut('carte-j2'), lessThan(haut('carte-lent')));
+      expect(find.byKey(const Key('partie-creatures')), findsNothing);
+      // Le MJ voit la CA des créatures rencontrées.
+      expect(find.byKey(const Key('ca-vif')), findsOneWidget);
       final carte = tester.widget<Card>(find
           .ancestor(
               of: find.byKey(const Key('carte-lent')),
               matching: find.byType(Card))
           .first);
       expect(carte.color, OdvCouleurs.red.withValues(alpha: 0.18));
+    });
+
+    testWidgets('PJ : CA des alliés visible, pas celle des ennemis',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+              c,
+              const CreatureSeance(
+                  id: 'garde', nom: 'Garde', ca: 14, allie: true));
+          await mj.ajouterCreature(
+              c, const CreatureSeance(id: 'rat', nom: 'Rat', ca: 11));
+        },
+      );
+      expect(find.byKey(const Key('ca-garde')), findsOneWidget);
+      expect(find.byKey(const Key('ca-rat')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('PJ en séance : pas de soin ni d\'objet ajouté à la main',
@@ -2212,14 +2241,13 @@ void main() {
         },
       );
       await tester.pumpAndSettle();
-      // Carte dans la partie « Personnages », avant les créatures.
-      final titrePj =
-          tester.getRect(find.byKey(const Key('partie-personnages')));
-      final titreCreatures =
-          tester.getRect(find.byKey(const Key('partie-creatures')));
-      final garde = tester.getRect(find.byKey(const Key('carte-garde')));
-      expect(garde.top, greaterThan(titrePj.bottom));
-      expect(garde.bottom, lessThan(titreCreatures.top));
+      // En combat : une seule liste, dans l'ordre du combat (20/11/2026).
+      expect(find.byKey(const Key('partie-combat')), findsOneWidget);
+      double haut(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
+      expect(haut('carte-j1'), lessThan(haut('carte-garde')));
+      expect(haut('carte-garde'), lessThan(haut('carte-rat')));
+      // CA de l'allié (loup du bestiaire : 13).
+      expect(find.byKey(const Key('ca-garde')), findsOneWidget);
       expect(find.text('Allié · joué par le MJ'), findsOneWidget);
       // Le MJ le fait agir : il vise d'abord la créature rencontrée.
       await tap(tester, find.byKey(const Key('carte-garde')));

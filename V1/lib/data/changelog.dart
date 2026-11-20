@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.76.1',
+    date: '20/11/2026',
+    changements: [
+      (
+        type: _c,
+        texte:
+            'Combat : une seule liste dans l\'ordre d\'initiative, personnages et créatures mêlés.',
+      ),
+      (
+        type: _c,
+        texte:
+            'Cartes : CA des alliés et compagnons ; celle des créatures rencontrées pour le MJ.',
+      ),
+    ],
+  ),
+  (
     version: '0.76.0',
     date: '20/11/2026',
     changements: [
