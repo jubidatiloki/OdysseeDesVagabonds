@@ -7,6 +7,7 @@ import '../../regles/invocations.dart';
 import '../../regles/montee_niveau.dart';
 import '../../state/seance_controller.dart';
 import '../../theme.dart';
+import '../../widgets/cadre_classe.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/dialogue_texte.dart';
 import '../../widgets/infos_creature.dart';
@@ -180,6 +181,7 @@ class ListeCartes extends StatelessWidget {
           cleIcone: 'icone-${c.id}',
           icone: Icons.shield_outlined,
           couleurIcone: OdvCouleurs.green,
+          mort: c.morte,
           titre: c.nom,
           initiative: s.etat.enCombat ? c.initiative : null,
           ressources: [
@@ -215,6 +217,7 @@ class ListeCartes extends StatelessWidget {
           cleIcone: 'icone-${c.id}',
           icone: _styleCreature(context, c)?.icone ?? Icons.pets_outlined,
           couleurIcone: _styleCreature(context, c)?.couleur,
+          mort: c.morte,
           titre: c.nom,
           initiative: s.etat.enCombat ? c.initiative : null,
           ressources: [
@@ -422,10 +425,14 @@ class _Carte extends StatelessWidget {
     this.cleRetirer,
     this.bonus,
     this.ennemi = false,
+    this.mort = false,
   });
 
   /// Créature rencontrée : carte teintée de rouge (20/11/2026).
   final bool ennemi;
+
+  /// Créature morte (0 PV) : un crâne remplace son icône (20/11/2026).
+  final bool mort;
 
   final String cle;
   final bool selectionnee;
@@ -488,12 +495,23 @@ class _Carte extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
           child: Row(
             children: [
-              Icon(
-                icone,
-                key: cleIcone == null ? null : Key(cleIcone!),
-                size: 20,
-                color: couleurIcone ?? scheme.primary,
-              ),
+              if (mort)
+                Tooltip(
+                  message: 'Mort',
+                  child: IconeMotif(
+                    MotifClasse.crane,
+                    key: Key('mort-$cle'),
+                    taille: 20,
+                    couleur: scheme.error,
+                  ),
+                )
+              else
+                Icon(
+                  icone,
+                  key: cleIcone == null ? null : Key(cleIcone!),
+                  size: 20,
+                  color: couleurIcone ?? scheme.primary,
+                ),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(

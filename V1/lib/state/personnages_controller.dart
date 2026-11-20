@@ -33,6 +33,12 @@ class PersonnagesController extends ChangeNotifier {
 
   bool monteeBloqueeDe(String id) => monteeBloquee?.call(id) ?? false;
 
+  /// Fiche engagée dans une campagne (20/11/2026) : le joueur ne modifie
+  /// plus ses objets (seul le MJ). Fourni par les campagnes.
+  bool Function(String id)? objetsFiges;
+
+  bool objetsFigesDe(String id) => objetsFiges?.call(id) ?? false;
+
   /// Les verrous ont changé : les écrans se redessinent.
   void signalerRestrictions() => notifyListeners();
 

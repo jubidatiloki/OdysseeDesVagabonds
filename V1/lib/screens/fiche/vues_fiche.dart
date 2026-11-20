@@ -27,6 +27,7 @@ List<Widget> vuesFiche(
   void Function(String detail)? onRepos,
   bool seancePj = false,
   bool mj = false,
+  bool objetsFiges = false,
   ({bool inventaire, bool competences}) verrous = (
     inventaire: false,
     competences: false,
@@ -64,6 +65,8 @@ List<Widget> vuesFiche(
         personnage: p,
         verrouille: verrous.inventaire,
         ajoutInterdit: seancePj,
+        // En campagne, seul le MJ modifie les objets (20/11/2026).
+        objetsFiges: !mj && (seancePj || objetsFiges),
         mj: mj,
         onModifie: onModifie,
         onEnvoyer: onEnvoyerObjet,

@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import '../data/campagnes.dart';
 import '../data/compte.dart';
 import '../models/campagne.dart';
+import '../models/historique.dart';
+import '../models/objet.dart';
 import 'compte_controller.dart';
 
 /// Campagnes du compte connecté (MJ et joueur), suivies en direct. Sans
@@ -18,6 +20,7 @@ class CampagnesController extends ChangeNotifier {
     compte.addListener(_suivreCompte);
     compte.personnages.restrictions = restrictionsDe;
     compte.personnages.monteeBloquee = monteeBloqueeDe;
+    compte.personnages.objetsFiges = objetsFigesDe;
     _suivreCompte();
   }
 
@@ -155,6 +158,33 @@ class CampagnesController extends ChangeNotifier {
           if (!c.seanceEnCours) c,
       ].any((c) => !c.parametres.pjMonteeHorsSeance);
 
+  /// Fiche engagée dans une campagne (20/11/2026) : objets et équipements
+  /// ne sont modifiés que par le MJ, en séance comme en dehors.
+  bool objetsFigesDe(String id) =>
+      (_engagees[id] ?? const <Campagne>[]).isNotEmpty;
+
+  /// Marque d'une fiche déjà vidée pour une campagne (dans [objetsRecus] :
+  /// jamais revidée, même si le joueur est accepté de nouveau).
+  static String marqueInventaireMj(String campagne) =>
+      'inventaire-mj:$campagne';
+
+  /// Inventaire défini par le MJ (20/11/2026) : à l'acceptation, objets et
+  /// argent de la fiche sont retirés, une seule fois.
+  Future<void> _viderInventaire(String id, Campagne c) async {
+    final p = compte.personnages.parId(id);
+    final marque = marqueInventaireMj(c.id);
+    if (p == null || p.objetsRecus.contains(marque)) return;
+    p.inventaire.clear();
+    p.bourse = Bourse();
+    p.objetsRecus.add(marque);
+    p.journaliser(
+      'Inventaire et bourse vidés : le MJ de « ${c.nom} » définit '
+      "l'inventaire",
+      categorie: CategorieHistorique.inventaire,
+    );
+    await compte.personnages.sauvegarder(p);
+  }
+
   /// Joueur : le MJ (et les autres joueurs selon les paramètres) peuvent
   /// lire la fiche engagée dans chaque campagne ; le MJ peut la modifier
   /// une fois le joueur accepté.
@@ -186,6 +216,9 @@ class CampagnesController extends ChangeNotifier {
         lecteurs.addAll(c.joueurs.where((u) => u != s.uid));
       }
       if (accepte) engagees.putIfAbsent(moi.personnageId, () => []).add(c);
+      if (accepte && c.parametres.inventaireParMj) {
+        await _viderInventaire(moi.personnageId, c);
+      }
     }
     _engagees = engagees;
     compte.personnages.signalerRestrictions();
@@ -251,6 +284,7 @@ class CampagnesController extends ChangeNotifier {
     compte.removeListener(_suivreCompte);
     compte.personnages.restrictions = null;
     compte.personnages.monteeBloquee = null;
+    compte.personnages.objetsFiges = null;
     _ecoute?.cancel();
     _nouvellesSeances.close();
     super.dispose();

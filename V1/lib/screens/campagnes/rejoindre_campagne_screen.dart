@@ -13,6 +13,11 @@ String resumePersonnage(ContexteCampagnes contexte, Personnage p) => [
       'niveau ${p.niveau}',
     ].join(' · ');
 
+/// Personnage accepté pour rejoindre [c] (20/11/2026) : tous, ou, si le
+/// MJ refuse les personnages existants, ceux créés après la campagne.
+bool personnageAdmis(Campagne c, Personnage p) =>
+    c.parametres.personnageExistant || p.creeLe.isAfter(c.creeLe);
+
 /// Membre (demande) d'un joueur avec un personnage.
 MembreCampagne membrePour(ContexteCampagnes contexte, Personnage p) {
   final u = contexte.campagnes.compte.utilisateur;
@@ -74,10 +79,16 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
     });
   }
 
+  /// Personnage choisi et admis, rien en attente.
+  bool _peutEnvoyer(Campagne c) {
+    final p = widget.contexte.personnages.parId(_personnageId ?? '');
+    return !_attente && p != null && personnageAdmis(c, p);
+  }
+
   Future<void> _demander() async {
     final c = _campagne;
     final p = widget.contexte.personnages.parId(_personnageId ?? '');
-    if (c == null || p == null) return;
+    if (c == null || p == null || !personnageAdmis(c, p)) return;
     setState(() => _attente = true);
     final erreur = await widget.contexte.campagnes
         .agir((s) => s.demander(c, membrePour(widget.contexte, p)));
@@ -175,6 +186,15 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
               ),
               Text('Avec quel personnage ?', style: theme.textTheme.titleSmall),
               const SizedBox(height: 8),
+              if (!c.parametres.personnageExistant) ...[
+                Text(
+                  'Le MJ demande un nouveau personnage, créé pour cette '
+                  'campagne.',
+                  key: const Key('nouveau-personnage-demande'),
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+                const SizedBox(height: 8),
+              ],
               if (personnages.isEmpty)
                 const TexteAVenir('Tu n\'as pas encore de personnage : '
                     'crée-le maintenant.')
@@ -188,8 +208,13 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
                         RadioListTile<String>(
                           key: Key('choisir-${p.id}'),
                           value: p.id,
+                          enabled: personnageAdmis(c, p),
                           title: Text(p.nom),
-                          subtitle: Text(resumePersonnage(widget.contexte, p)),
+                          subtitle: Text([
+                            resumePersonnage(widget.contexte, p),
+                            if (!personnageAdmis(c, p))
+                              'créé avant la campagne : refusé',
+                          ].join(' · ')),
                         ),
                     ],
                   ),
@@ -207,7 +232,7 @@ class _RejoindreState extends State<RejoindreCampagneScreen> {
               const SizedBox(height: 12),
               FilledButton.icon(
                 key: const Key('envoyer-demande'),
-                onPressed: _personnageId == null || _attente ? null : _demander,
+                onPressed: _peutEnvoyer(c) ? _demander : null,
                 icon: const Icon(Icons.send_outlined),
                 label: const Text('Envoyer la demande au MJ'),
               ),

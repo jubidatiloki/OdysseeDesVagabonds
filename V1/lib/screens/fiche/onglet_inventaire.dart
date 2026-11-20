@@ -30,7 +30,13 @@ class OngletInventaire extends StatelessWidget {
     this.alerteObjet,
     this.ajoutInterdit = false,
     this.mj = false,
+    this.objetsFiges = false,
   });
+
+  /// Fiche engagée dans une campagne, pour le joueur (20/11/2026) : ni
+  /// modification ni suppression d'un objet (seul le MJ) ; il peut toujours
+  /// équiper, utiliser, envoyer.
+  final bool objetsFiges;
 
   /// Pendant la séance, pour le PJ (20/11/2026) : ni argent reçu ou
   /// corrigé, ni objet ajouté (le MJ les donne) ; il peut payer, équiper,
@@ -580,7 +586,7 @@ class OngletInventaire extends StatelessWidget {
           o.equipe ? scheme.primaryContainer : scheme.surfaceContainerHighest,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: _bloque(o) ? null : () => _modifier(context, o),
+        onTap: _bloque(o) || objetsFiges ? null : () => _modifier(context, o),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
           child: Row(
@@ -744,8 +750,9 @@ class OngletInventaire extends StatelessWidget {
                         value: 'bidouiller',
                         child: Text('Bidouiller (10 pa)'),
                       ),
-                    const PopupMenuItem(
-                        value: 'modifier', child: Text('Modifier')),
+                    if (!objetsFiges)
+                      const PopupMenuItem(
+                          value: 'modifier', child: Text('Modifier')),
                     // Ajouter un exemplaire : pas en séance pour un PJ ; pas
                     // pour un objet qui s'équipe (une ligne par objet).
                     if (!ajoutInterdit && !o.categorie.equipable)
@@ -753,10 +760,11 @@ class OngletInventaire extends StatelessWidget {
                           value: 'plus', child: Text('Quantité +1')),
                     const PopupMenuItem(
                         value: 'moins', child: Text('Quantité −1')),
-                    const PopupMenuItem(
-                      value: 'supprimer',
-                      child: Text('Supprimer'),
-                    ),
+                    if (!objetsFiges)
+                      const PopupMenuItem(
+                        value: 'supprimer',
+                        child: Text('Supprimer'),
+                      ),
                   ],
                 ),
             ],

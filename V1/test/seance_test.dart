@@ -30,6 +30,7 @@ import 'package:odyssee_vagabonds/regles/des.dart';
 import 'package:odyssee_vagabonds/regles/fiche_calculee.dart';
 import 'package:odyssee_vagabonds/regles/objet_aleatoire.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/campagnes_screen.dart';
+import 'package:odyssee_vagabonds/screens/campagnes/rejoindre_campagne_screen.dart';
 import 'package:odyssee_vagabonds/screens/campagnes/seance_screen.dart';
 import 'package:odyssee_vagabonds/screens/fiche_screen.dart';
 import 'package:odyssee_vagabonds/state/campagnes_controller.dart';
@@ -1046,6 +1047,100 @@ void main() {
       campagnes.dispose();
       compte.dispose();
       personnages.dispose();
+    });
+
+    test('inventaire défini par le MJ : vidé une fois, objets figés', () async {
+      final p = await _partie(
+        parametres: const ParametresCampagne(inventaireParMj: true),
+      );
+      final personnages = PersonnagesController(
+        EnMemoirePersonnageRepository([
+          _brom()
+            ..bourse = Bourse(or: 3)
+            ..inventaire.add(Objet(nom: 'Corde')),
+        ]),
+      );
+      await personnages.charger();
+      final compte = CompteController(
+        service: _Compte(const Utilisateur(uid: 'j1')),
+        personnages: personnages,
+        local: personnages.repository,
+        depotEnLigne: (_) => EnMemoireDepotEnLigne([_brom()]),
+      );
+      await compte.demarrer();
+      final campagnes = CampagnesController(
+        compte: compte,
+        service: (u) => ServiceCampagnesMemoire(p.base, u.uid),
+      );
+      await pumpEventQueue();
+      final brom = personnages.parId('brom')!;
+      expect(brom.inventaire, isEmpty);
+      expect(brom.bourse.vide, isTrue);
+      expect(
+        brom.objetsRecus,
+        contains(CampagnesController.marqueInventaireMj(p.campagne.id)),
+      );
+      // Une seule fois : ce que le MJ donne ensuite reste.
+      brom.inventaire.add(Objet(nom: 'Épée du MJ'));
+      await personnages.sauvegarder(brom);
+      await ServiceCampagnesMemoire(p.base, 'mj')
+          .terminerSeance(p.base.campagnes[p.campagne.id]!);
+      await pumpEventQueue();
+      expect(personnages.parId('brom')!.inventaire, hasLength(1));
+      // En campagne : seul le MJ modifie les objets (20/11/2026).
+      expect(personnages.objetsFigesDe('brom'), isTrue);
+      expect(personnages.objetsFigesDe('autre'), isFalse);
+      campagnes.dispose();
+      compte.dispose();
+      personnages.dispose();
+    });
+
+    test('personnage existant refusé : seulement créé après la campagne',
+        () async {
+      final p = await _partie();
+      final ancien = _brom();
+      final nouveau = Personnage(
+        id: 'n',
+        nom: 'Nouveau',
+        raceId: 'nain',
+        classeId: 'guerrier',
+        creeLe: p.campagne.creeLe.add(const Duration(minutes: 1)),
+      );
+      final vieux = Personnage(
+        id: 'v',
+        nom: 'Vieux',
+        raceId: 'nain',
+        classeId: 'guerrier',
+        creeLe: p.campagne.creeLe.subtract(const Duration(days: 1)),
+      );
+      expect(personnageAdmis(p.campagne, ancien), isTrue);
+      final strict = p.campagne.copie(
+          parametres: const ParametresCampagne(personnageExistant: false));
+      expect(personnageAdmis(strict, vieux), isFalse);
+      expect(personnageAdmis(strict, nouveau), isTrue);
+    });
+
+    test('nouveaux paramètres : valeurs par défaut et sauvegarde', () {
+      const defaut = ParametresCampagne();
+      expect(defaut.actionsParTour, 1);
+      expect(defaut.inventaireParMj, isFalse);
+      expect(defaut.personnageExistant, isTrue);
+      final p = ParametresCampagne.depuisJson(const ParametresCampagne(
+        actionsParTour: 3,
+        inventaireParMj: true,
+        personnageExistant: false,
+      ).versJson());
+      expect(
+        (p.actionsParTour, p.inventaireParMj, p.personnageExistant),
+        (3, true, false),
+      );
+      // Ancienne campagne : une action par tour.
+      expect(ParametresCampagne.depuisJson(const {}).actionsParTour, 1);
+      // États des créatures au masculin (20/11/2026).
+      expect(
+        [for (final e in EtatCreature.values) e.libelle],
+        ['Indemne', 'Blessé', 'Gravement blessé', 'Vaincu'],
+      );
     });
 
     test('le MJ modifie une fiche que le joueur lui a ouverte', () async {
@@ -2164,19 +2259,26 @@ void main() {
         'j1',
         fiches: [_brom()],
         avant: (b, c) async {
+          // Sans limite d'actions : la deuxième attaque n'est qu'alertée.
+          b.campagnes[c.id] =
+              c.copie(parametres: const ParametresCampagne(actionsParTour: 0));
           final mj = ServiceCampagnesMemoire(b, 'mj').seance;
           await mj.ajouterCreature(
-            c,
+            b.campagnes[c.id]!,
             const CreatureSeance(id: 'l', nom: 'Loup', ca: 14),
           );
-          await mj.demarrerCombat(c, ['j1', 'l']);
+          await mj.demarrerCombat(b.campagnes[c.id]!, ['j1', 'l']);
         },
       );
       final partie = x.base.parties[x.campagne.id]!;
       await deplier(
           tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      expect(find.byKey(const Key('actions-restantes')), findsNothing);
       await tapDes(tester, 'attaque-0');
       final j = partie.jets.last;
+      // L'arme utilisée est notée (20/11/2026).
+      expect(j.libelle, startsWith('Toucher CaC · '));
+      expect(j.action, isTrue);
       expect(j.caCible, 14);
       expect(j.touche, isNotNull);
       expect(j.attaquant, 'j1');
@@ -2496,7 +2598,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(partie.creatures.containsKey(id), isFalse);
       expect(partie.etat.ordre, ['j1', 'j2']);
-      expect(note('Loup (invocation de brom) disparaît : vaincue'), isTrue);
+      expect(note('Loup (invocation de brom) disparaît : vaincu'), isTrue);
     });
 
     testWidgets('invocation d\'un autre PJ : selon les permissions',
@@ -3147,6 +3249,86 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('PJ en combat : une action par tour, les dégâts restent',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+              c, const CreatureSeance(id: 'l', nom: 'Loup', ca: 14));
+          await mj.demarrerCombat(c, ['j1', 'l']);
+        },
+      );
+      expect(find.text('Actions restantes ce tour : 1'), findsOneWidget);
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      await tapDes(tester, 'attaque-0');
+      final partie = x.base.parties[x.campagne.id]!;
+      expect(partie.jets.last.action, isTrue);
+      expect(find.byKey(const Key('actions-restantes')), findsOneWidget);
+      expect(find.textContaining("Plus d'action ce tour"), findsOneWidget);
+      expect(
+        tester.widget<InputChip>(find.byKey(const Key('attaque-0'))).onPressed,
+        isNull,
+      );
+      final degats = tester.widget<InputChip>(find
+          .ancestor(
+            of: find.textContaining('Dégâts · '),
+            matching: find.byType(InputChip),
+          )
+          .first);
+      expect(degats.onPressed, isNotNull);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('créature morte : un crâne sur sa carte', (tester) async {
+      await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+              c, const CreatureSeance(id: 'mort', nom: 'Rat', pv: 0, pvMax: 4));
+          await mj.ajouterCreature(
+              c, const CreatureSeance(id: 'vif', nom: 'Loup', pv: 3, pvMax: 8));
+        },
+      );
+      expect(find.byKey(const Key('mort-carte-mort')), findsOneWidget);
+      expect(find.byKey(const Key('mort-carte-vif')), findsNothing);
+    });
+
+    testWidgets('fiche en campagne : objets ni modifiés ni supprimés',
+        (tester) async {
+      tester.view.physicalSize = const Size(1200, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final personnages = PersonnagesController(
+        EnMemoirePersonnageRepository(
+            [_brom()..inventaire.add(Objet(nom: 'Corde'))]),
+      )..objetsFiges = (_) => true;
+      await personnages.charger();
+      await tester.pumpWidget(MaterialApp(
+        home: FicheScreen(
+          personnageId: 'brom',
+          referentiel: _referentiel,
+          controller: personnages,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tap(tester, find.text('Inventaire').first);
+      final menu = find.byWidgetPredicate((w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith('menu-objet-'));
+      await tap(tester, menu.first);
+      expect(find.text('Modifier'), findsNothing);
+      expect(find.text('Supprimer'), findsNothing);
+      expect(find.text('Quantité −1'), findsOneWidget);
+    });
+
     testWidgets('PJ renommé pendant la séance : nom à jour pour tous',
         (tester) async {
       final x = await ouvrir(tester, 'j1', fiches: [_brom()]);
@@ -3271,9 +3453,14 @@ void main() {
         tester,
         'j1',
         fiches: [brom],
-        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
-            .seance
-            .demarrerCombat(c, ['j1', 'j2']),
+        avant: (b, c) {
+          // Deux compétences dans le même tour : deux actions.
+          b.campagnes[c.id] =
+              c.copie(parametres: const ParametresCampagne(actionsParTour: 2));
+          return ServiceCampagnesMemoire(b, 'mj')
+              .seance
+              .demarrerCombat(b.campagnes[c.id]!, ['j1', 'j2']);
+        },
       );
       final partie = x.base.parties[x.campagne.id]!;
       final panneau = find

@@ -29,6 +29,42 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.77.0',
+    date: '20/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Campagne : actions par tour en combat (1 par défaut : une attaque, '
+            'toucher et dégâts), sans limite au choix.',
+      ),
+      (
+        type: _a,
+        texte: 'Campagne : inventaire des joueurs défini par le MJ (vidé à '
+            "l'acceptation) ou celui du personnage.",
+      ),
+      (
+        type: _a,
+        texte: 'Campagne : le MJ peut refuser les personnages existants '
+            '(personnage créé pour la campagne).',
+      ),
+      (
+        type: _m,
+        texte: 'Inventaire : en campagne, seul le MJ modifie ou supprime les '
+            'objets des joueurs.',
+      ),
+      (
+        type: _m,
+        texte: "Logs : l'arme utilisée est notée sur chaque jet d'attaque.",
+      ),
+      (
+        type: _m,
+        texte: 'Séance : un crâne sur la carte des créatures mortes ; états '
+            'au masculin (blessé, vaincu).',
+      ),
+    ],
+  ),
+  (
     version: '0.76.1',
     date: '20/11/2026',
     changements: [

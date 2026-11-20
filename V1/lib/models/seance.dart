@@ -188,9 +188,10 @@ List<String> ordreCombat(
 /// État approximatif d'une créature, seule indication donnée aux PJ.
 enum EtatCreature {
   indemne('Indemne'),
-  blessee('Blessée'),
-  gravement('Gravement blessée'),
-  vaincue('Vaincue');
+  // Au masculin (20/11/2026) : « un ennemi blessé ».
+  blessee('Blessé'),
+  gravement('Gravement blessé'),
+  vaincue('Vaincu');
 
   const EtatCreature(this.libelle);
   final String libelle;
@@ -304,6 +305,9 @@ class CreatureSeance {
 
   /// Du côté des PJ : créature d'un joueur ou allié.
   bool get duCotePj => estAUnJoueur || allie;
+
+  /// Morte (20/11/2026) : 0 PV ou moins (ou « vaincu » vu d'un PJ).
+  bool get morte => (pv != null && pv! <= 0) || etat == EtatCreature.vaincue;
 
   String get nomPublic => nomCache ? nomInconnu : nom;
 
@@ -617,7 +621,12 @@ class JetSeance {
     this.nombre = 1,
     this.tours,
     this.renvoi = '',
+    this.action = false,
   });
+
+  /// Jet qui commence une action du tour (attaque, sort, compétence),
+  /// compté dans la limite d'actions par tour (20/11/2026).
+  final bool action;
 
   final String id;
   final String auteur;
@@ -703,6 +712,7 @@ class JetSeance {
         if (invocation.isNotEmpty) 'nombre': nombre,
         if (tours != null) 'tours': tours,
         if (renvoi.isNotEmpty) 'renvoi': renvoi,
+        if (action) 'action': true,
       };
 
   /// Heure du serveur (20/11/2026), pour classer les logs de tous les
@@ -738,6 +748,7 @@ class JetSeance {
         nombre: (j['nombre'] as num?)?.toInt() ?? 1,
         tours: (j['tours'] as num?)?.toInt(),
         renvoi: j['renvoi'] as String? ?? '',
+        action: j['action'] as bool? ?? false,
       );
 }
 

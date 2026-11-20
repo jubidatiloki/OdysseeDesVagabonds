@@ -158,6 +158,17 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   /// puis le total est doublé. « manche:actif|attaquant ».
   String? _critiqueEnAttente;
 
+  /// Arme de chaque jet d'attaque (libellé → « Épée longue »), notée dans
+  /// les logs (20/11/2026).
+  final Map<String, String> _armes = {};
+
+  /// Une action du tour commence (attaque, sort, compétence) : le prochain
+  /// jet est marqué comme tel (limite d'actions par tour, 20/11/2026).
+  var _nouvelleAction = false;
+
+  /// PJ en combat, à son tour : plus d'action possible ce tour.
+  bool get _actionsEpuisees => !_enReaction && _s.actionsRestantes == 0;
+
   /// Recherche dans les actions du panneau (20/11/2026).
   String _recherche = '';
   final _champRecherche = TextEditingController();
@@ -253,6 +264,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     }
 
     _sansJet.clear();
+    _armes.clear();
     if (a.creature case final c?) {
       // Compagnon choisi par le MJ : toucher d'après la fiche de son maître.
       final maitre = _s.ficheDe(_s.creatureChoisie?.proprietaire ?? '');
@@ -285,11 +297,15 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       final cac = f.detailDegatsCac;
       final dist = f.detailDegatsDistance;
       final mainsNues = cac.mainsNues && dist.armes.isEmpty;
+      String noms(Iterable<String> l) => l.toSet().join(' et ');
       if (cac.armes.isNotEmpty || mainsNues) {
         ajouter('Toucher CaC', '1d20', f.toucherCac);
+        _armes['Toucher CaC'] =
+            mainsNues ? 'Mains nues' : noms(cac.armes.map((x) => x.nom));
       }
       if (dist.armes.isNotEmpty) {
         ajouter('Toucher distance', '1d20', f.toucherDistance);
+        _armes['Toucher distance'] = noms(dist.armes.map((x) => x.nom));
       }
       for (final d in [cac, dist]) {
         for (final arme in d.armes) {
@@ -317,6 +333,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
           (x.distance == true ? f.toucherDistance : f.toucherCac) +
               (x.toucher ?? 0),
         );
+        _armes[j.libelle] = x.sansArme ? 'Mains nues' : arme!.nom;
         final g = degatsAttaque(f, j, x.sansArme ? null : arme);
         ajouter(
           'Dégâts · ${j.libelle}',
@@ -432,6 +449,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     final cibles = await _ciblesDe(f, sort);
     if (cibles == null || !mounted) return;
     _verifierAttaque();
+    _nouvelleAction = true;
     await _s.depenserSort(f, sort.nom, s.cout);
     _sortEnCours = true;
     _touchees = null;
@@ -691,9 +709,15 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     }
     final detail = r?.detail ?? '';
     // Hors de son tour, en réaction : noté comme tel (une par manche).
+    // Attaque : l'arme utilisée (20/11/2026).
+    final arme = genre == GenreJet.attaque ? _armes[libelle] : null;
+    final libelleArme =
+        arme == null || arme.isEmpty ? libelle : '$libelle · $arme';
     final libelleJet = parAttaquant && _enReaction
-        ? '${SeanceController.prefixeReaction}$libelle'
-        : libelle;
+        ? '${SeanceController.prefixeReaction}$libelleArme'
+        : libelleArme;
+    final action = parAttaquant && _nouvelleAction;
+    _nouvelleAction = false;
     final erreur = await _s.lancer(
       libelle: libelleJet,
       detail: detail,
@@ -705,6 +729,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       caCible: ca,
       touche: touche,
       sansComparaison: sansComparaison,
+      action: action,
       cibleJet: avecCible
           ? [
               _nomsCibles(ids),
@@ -718,7 +743,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     if (erreur == null && r != null && fiche != null) {
       await _s.journaliserJet(
         fiche,
-        '$libelle : $total ($detail)'
+        '$libelleArme : $total ($detail)'
         '${r.reussiteCritique ? ' · réussite critique' : ''}'
         '${r.echecCritique ? ' · échec critique' : ''}'
         '${touche == null ? '' : touche ? ' · touché' : ' · raté'}',
@@ -950,7 +975,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         texte: '${s.competence.nom} : ${s.cout} ${fiche.uniteSorts}',
         fiche: fiche,
         favori: s.competence.nom,
-        onPressed: pasDeCible || _horsTour || fiche.pointsPourSorts < s.cout
+        onPressed: pasDeCible ||
+                _horsTour ||
+                _actionsEpuisees ||
+                fiche.pointsPourSorts < s.cout
             ? null
             : () => _lancerSort(fiche, s),
       );
@@ -966,7 +994,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
         fiche: fiche,
         favori: j.origine,
-        onPressed: pasDeCible || _horsTour
+        onPressed: pasDeCible || _horsTour || _actionsEpuisees
             ? null
             : () async {
                 // Compétence qui donne un bonus : cibles choisies d'abord.
@@ -976,6 +1004,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   cibles = await _ciblesDe(fiche, c);
                   if (cibles == null) return;
                 }
+                _nouvelleAction = true;
                 final r = await _lancerFormule(
                   j.libelle,
                   j.des,
@@ -1004,7 +1033,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         texte: '${a.libelle} : ${a.cout} PE',
         fiche: fiche,
         favori: a.origine,
-        onPressed: pasDeCible || _horsTour || fiche.peActuels < a.cout
+        onPressed: pasDeCible ||
+                _horsTour ||
+                _actionsEpuisees ||
+                fiche.peActuels < a.cout
             ? null
             : () async {
                 // Compétence qui donne un bonus (musique vivifiante) : cibles
@@ -1017,6 +1049,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   if (cibles == null) return;
                 }
                 await _s.depenserAction(fiche, a);
+                _nouvelleAction = true;
                 await _lancer(
                   libelle: '${a.libelle} (${a.cout} PE)',
                   parAttaquant: true,
@@ -1125,13 +1158,17 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       texte: '${a.libelle} : ${formaterJet(a.des, a.bonus)}',
       fiche: fiche,
       favori: 'att:${a.libelle}',
-      onPressed: pasDeCible || _horsTour
+      // Dégâts : partie de l'attaque, jamais bloqués par la limite.
+      onPressed: pasDeCible || _horsTour || (!a.degats && _actionsEpuisees)
           ? null
           : () async {
               // Fenêtre de cibles (19/11/2026) à chaque attaque.
               final cibles = await _choisirCibles(a.libelle);
               if (cibles == null) return;
-              if (!a.degats) _verifierAttaque();
+              if (!a.degats) {
+                _verifierAttaque();
+                _nouvelleAction = true;
+              }
               await _lancerFormule(
                 a.libelle,
                 a.des,
@@ -1647,6 +1684,30 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                 child: Text(
                   _alerte!,
                   style: TextStyle(color: theme.colorScheme.tertiary),
+                ),
+              ),
+            ],
+          ),
+        ],
+        // Limite d'actions du tour (20/11/2026).
+        if (!_horsTour && !_enReaction && _s.actionsRestantes != null) ...[
+          const SizedBox(height: 8),
+          Row(
+            key: const Key('actions-restantes'),
+            children: [
+              Icon(
+                _actionsEpuisees ? Icons.block : Icons.bolt,
+                size: 18,
+                color: _actionsEpuisees
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _actionsEpuisees
+                      ? "Plus d'action ce tour : seuls les dégâts restent."
+                      : 'Actions restantes ce tour : ${_s.actionsRestantes}',
                 ),
               ),
             ],

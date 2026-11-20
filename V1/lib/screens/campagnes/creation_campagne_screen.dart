@@ -400,6 +400,26 @@ class FormulairePermissions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Arrivée des joueurs (20/11/2026).
+        titre('permissions-arrivee', Icons.group_add_outlined,
+            'Arrivée des joueurs'),
+        ligne(
+          'personnage-existant',
+          'Les joueurs rejoignent avec un personnage existant',
+          p.personnageExistant,
+          (v) => p.copie(personnageExistant: v),
+        ),
+        SwitchListTile(
+          key: const Key('inventaire-par-mj'),
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Inventaire des joueurs défini par le MJ'),
+          subtitle: Text(p.inventaireParMj
+              ? "À l'acceptation, objets et argent de la fiche sont retirés : "
+                  'tu donnes ce que tu veux.'
+              : 'Chaque personnage garde son inventaire de base.'),
+          value: p.inventaireParMj,
+          onChanged: (x) => onChange(p.copie(inventaireParMj: x)),
+        ),
         titre('permissions-hors-seance', Icons.home_outlined, 'Hors séance'),
         ligne(
           'pj-inventaire-hors-seance',
@@ -426,6 +446,42 @@ class FormulairePermissions extends StatelessWidget {
           (v) => p.copie(fichesVisiblesJoueurs: v),
         ),
         titre('permissions-seance', Icons.casino_outlined, 'Pendant la séance'),
+        // Actions par tour d'un PJ en combat (20/11/2026) ; 0 : sans limite.
+        Row(
+          children: [
+            const Expanded(
+              child: Text('Actions par tour (attaque, sort, compétence)'),
+            ),
+            IconButton(
+              key: const Key('actions-par-tour-moins'),
+              onPressed: p.actionsParTour > 0
+                  ? () =>
+                      onChange(p.copie(actionsParTour: p.actionsParTour - 1))
+                  : null,
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+            SizedBox(
+              width: 44,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  p.actionsParTour == 0 ? '∞' : '${p.actionsParTour}',
+                  key: const Key('actions-par-tour-valeur'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ),
+            IconButton(
+              key: const Key('actions-par-tour-plus'),
+              onPressed: p.actionsParTour < ParametresCampagne.actionsParTourMax
+                  ? () =>
+                      onChange(p.copie(actionsParTour: p.actionsParTour + 1))
+                  : null,
+              icon: const Icon(Icons.add_circle_outline),
+            ),
+          ],
+        ),
         ligne(
           'pj-voient-fiches-en-seance',
           'Les PJ voient leurs fiches de personnage entre eux',
@@ -498,6 +554,9 @@ class ResumeParametres extends StatelessWidget {
         lignes([
           'Joueurs au maximum : ${p.joueursMax}',
           'Fiches visibles par le MJ : ${oui(p.fichesVisiblesMj)}',
+          'Personnage existant accepté : ${oui(p.personnageExistant)}',
+          'Inventaire des joueurs : '
+              '${p.inventaireParMj ? 'défini par le MJ' : 'celui du personnage'}',
         ]),
         const SizedBox(height: 8),
         Text('Hors séance', style: style),
@@ -512,6 +571,8 @@ class ResumeParametres extends StatelessWidget {
         Text('Pendant la séance', style: style),
         const SizedBox(height: 4),
         lignes([
+          'Actions par tour : '
+              '${p.actionsParTour == 0 ? 'sans limite' : p.actionsParTour}',
           'Fiches visibles entre PJ : ${oui(p.fichesEntrePj(enSeance: true))}',
           'PV, PM et PE visibles entre PJ : ${oui(p.pjVoientRessources)}',
           'PV des créatures visibles : ${oui(p.pjVoientPvCreatures)}',

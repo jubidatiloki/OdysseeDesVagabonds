@@ -20,7 +20,24 @@ class ParametresCampagne {
     this.pjVoientEffetsAllies = false,
     this.pjVoientEffetsCreatures = false,
     this.pjVoientFichesEnSeance = false,
+    this.inventaireParMj = false,
+    this.personnageExistant = true,
+    this.actionsParTour = 1,
   });
+
+  /// Inventaire des joueurs défini par le MJ (20/11/2026) : à l'acceptation,
+  /// objets et argent de la fiche sont retirés, le MJ donne ce qu'il veut ;
+  /// sinon, chaque personnage garde son inventaire de base.
+  final bool inventaireParMj;
+
+  /// Rejoindre avec un personnage existant (20/11/2026) ; sinon, seulement
+  /// avec un personnage créé après la campagne.
+  final bool personnageExistant;
+
+  /// Actions par tour d'un PJ en combat (20/11/2026) : une attaque (toucher
+  /// et dégâts), un sort ou une compétence ; 0 : sans limite.
+  final int actionsParTour;
+  static const int actionsParTourMax = 5;
 
   /// Pendant la séance, les PJ voient leurs fiches de personnage entre eux
   /// (19/11/2026), même si elles sont cachées en dehors.
@@ -84,6 +101,9 @@ class ParametresCampagne {
     bool? pjVoientEffetsAllies,
     bool? pjVoientEffetsCreatures,
     bool? pjVoientFichesEnSeance,
+    bool? inventaireParMj,
+    bool? personnageExistant,
+    int? actionsParTour,
   }) =>
       ParametresCampagne(
         joueursMax: joueursMax ?? this.joueursMax,
@@ -104,6 +124,9 @@ class ParametresCampagne {
             pjVoientEffetsCreatures ?? this.pjVoientEffetsCreatures,
         pjVoientFichesEnSeance:
             pjVoientFichesEnSeance ?? this.pjVoientFichesEnSeance,
+        inventaireParMj: inventaireParMj ?? this.inventaireParMj,
+        personnageExistant: personnageExistant ?? this.personnageExistant,
+        actionsParTour: actionsParTour ?? this.actionsParTour,
       );
 
   Map<String, dynamic> versJson() => {
@@ -119,6 +142,9 @@ class ParametresCampagne {
         'pjVoientEffetsAllies': pjVoientEffetsAllies,
         'pjVoientEffetsCreatures': pjVoientEffetsCreatures,
         'pjVoientFichesEnSeance': pjVoientFichesEnSeance,
+        'inventaireParMj': inventaireParMj,
+        'personnageExistant': personnageExistant,
+        'actionsParTour': actionsParTour,
       };
 
   factory ParametresCampagne.depuisJson(Object? j) {
@@ -137,6 +163,10 @@ class ParametresCampagne {
       pjVoientEffetsAllies: j['pjVoientEffetsAllies'] as bool? ?? false,
       pjVoientEffetsCreatures: j['pjVoientEffetsCreatures'] as bool? ?? false,
       pjVoientFichesEnSeance: j['pjVoientFichesEnSeance'] as bool? ?? false,
+      inventaireParMj: j['inventaireParMj'] as bool? ?? false,
+      personnageExistant: j['personnageExistant'] as bool? ?? true,
+      actionsParTour: ((j['actionsParTour'] as num?)?.toInt() ?? 1)
+          .clamp(0, actionsParTourMax),
     );
   }
 }

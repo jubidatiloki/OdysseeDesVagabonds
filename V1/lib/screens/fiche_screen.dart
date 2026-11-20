@@ -223,6 +223,7 @@ class FicheScreen extends StatelessWidget {
                 onModifie: enregistrer,
                 controller: controller,
                 verrous: verrous,
+                objetsFiges: controller.objetsFigesDe(p.id),
               ),
             ),
           ),

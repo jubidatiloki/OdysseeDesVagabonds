@@ -1562,7 +1562,7 @@ class SeanceController extends ChangeNotifier {
       );
 
   /// Invocation temporaire disparue (19/11/2026) : notée dans les logs avec
-  /// la raison (vaincue, durée expirée, renvoyée).
+  /// la raison (vaincu, durée expirée, renvoyée).
   Future<void> _noterDisparition(
     ServiceSeance s,
     Campagne c,
@@ -1955,6 +1955,25 @@ class SeanceController extends ChangeNotifier {
             j.manche == _etat.manche,
       );
 
+  /// Actions qui restent au PJ pendant son tour de combat (20/11/2026),
+  /// selon la limite de la campagne ; `null` : pas de limite (MJ, hors
+  /// combat, réglage « sans limite »). Les réactions ne comptent pas.
+  int? get actionsRestantes {
+    final max = campagne?.parametres.actionsParTour ?? 0;
+    if (estMj || !_etat.enCombat || max <= 0) return null;
+    final faites = _jets
+        .where(
+          (j) =>
+              j.auteur == uid &&
+              j.action &&
+              !j.libelle.startsWith(prefixeReaction) &&
+              j.mode == ModeJeu.combat &&
+              j.manche == _etat.manche,
+        )
+        .length;
+    return max - faites < 0 ? 0 : max - faites;
+  }
+
   /// Une seule esquive par tour de combat (règles §3.3).
   bool get esquiveUtilisee =>
       _etat.enCombat &&
@@ -2107,7 +2126,7 @@ class SeanceController extends ChangeNotifier {
         // Invocation temporaire à 0 PV : elle se dissipe.
         if (reste == 0 && x.toursRestants != null) {
           await s.retirerCreature(c, x.id);
-          await _noterDisparition(s, c, x, 'vaincue');
+          await _noterDisparition(s, c, x, 'vaincu');
           if (_carte == x.id) _carte = kCarteScript;
           await _reordonner(s, c);
         } else {
@@ -2218,6 +2237,7 @@ class SeanceController extends ChangeNotifier {
     int? caCible,
     bool? touche,
     String sansComparaison = '',
+    bool action = false,
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -2244,6 +2264,7 @@ class SeanceController extends ChangeNotifier {
             caCible: caCible,
             touche: touche,
             sansComparaison: sansComparaison,
+            action: action,
           ),
         ),
       );
