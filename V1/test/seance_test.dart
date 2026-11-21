@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -674,6 +675,30 @@ void main() {
       e = e.precedent();
       expect((e.actif, e.manche), ('b', 1));
       expect(const EtatJeu(ordre: ['a']).actif, isNull); // pas en exploration
+    });
+
+    test('embuscade : embusqués en tête de la manche 1 seulement', () {
+      var e =
+          const EtatJeu().commencerCombat(['a', 'b', 'c'], embusques: ['c']);
+      expect(e.ordreTour, ['c', 'a', 'b']);
+      expect(e.embuscadeEnCours, isTrue);
+      expect(e.actif, 'c');
+      e = e.suivant();
+      expect(e.actif, 'a');
+      // Créature ajoutée pendant la manche 1 : l'embusqué reste en tête.
+      final ajout = e.avecOrdre(['z', 'a', 'b', 'c']);
+      expect(ajout.ordreTour, ['c', 'z', 'a', 'b']);
+      expect(ajout.actif, 'a');
+      e = e.suivant().suivant();
+      // Manche 2 : ordre normal (initiative).
+      expect((e.manche, e.actif, e.embuscadeEnCours), (2, 'a', false));
+      expect(e.ordreTour, ['a', 'b', 'c']);
+      expect((e.precedent().manche, e.precedent().actif), (1, 'b'));
+      // Sauvegarde ; repasser en exploration l'oublie.
+      final relu = EtatJeu.depuisJson(const EtatJeu()
+          .commencerCombat(['a', 'c'], embusques: ['c']).versJson());
+      expect(relu.ordreTour, ['c', 'a']);
+      expect(relu.enExploration().embusques, isEmpty);
     });
 
     test('ordre recalculé : le tour reste à celui qui joue', () {
@@ -2941,6 +2966,24 @@ void main() {
         'rat',
       );
       expect(find.byKey(Key('vue-carte-${port.id}')), findsOneWidget);
+      // Loup caché aux PJ : son pion reste pour le MJ, estompé.
+      await tester.tap(find.byKey(const Key('carte-loup')),
+          buttons: kSecondaryMouseButton);
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-creature-cachee')));
+      final estompe = tester.widget<Opacity>(find
+          .ancestor(
+              of: find.byKey(const Key('pion-loup')),
+              matching: find.byType(Opacity))
+          .first);
+      expect(estompe.opacity, lessThan(1));
+      // Rat retiré de la partie : son pion disparaît de la carte.
+      await tester.tap(find.byKey(const Key('carte-rat')),
+          buttons: kSecondaryMouseButton);
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-creature-retirer')));
+      expect(x.base.pions[x.campagne.id]![port.id]!.containsKey('rat'), false);
+      expect(find.byKey(const Key('pion-rat')), findsNothing);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
@@ -3452,6 +3495,74 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('MJ : combat avec embuscade, embusqués en tête',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .ajouterCreature(
+                c, const CreatureSeance(id: 'r', nom: 'Rat', initiative: 1)),
+      );
+      await tap(tester, find.byKey(const Key('combat-embuscade')));
+      // Rien de coché : on ne peut pas démarrer.
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('demarrer-embuscade')))
+            .onPressed,
+        isNull,
+      );
+      await tap(tester, find.byKey(const Key('embusque-r')));
+      await tap(tester, find.byKey(const Key('demarrer-embuscade')));
+      final etat = x.base.parties[x.campagne.id]!.etat;
+      expect(etat.enCombat, isTrue);
+      expect(etat.embusques, ['r']);
+      // Le rat, moins rapide, joue quand même en premier.
+      expect(etat.actif, 'r');
+      expect(etat.ordre.first, isNot('r'));
+      expect(find.byKey(const Key('embuscade-en-cours')), findsOneWidget);
+      double haut(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
+      expect(haut('carte-r'), lessThan(haut('carte-j1')));
+      expect(x.base.recaps[x.campagne.id]![1]!, contains('Embuscade : Rat'));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : clic droit sur une créature, visibilité et camp',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .ajouterCreature(c, const CreatureSeance(id: 'r', nom: 'Rat')),
+      );
+      CreatureSeance rat() => x.base.parties[x.campagne.id]!.creatures['r']!;
+      await tester.tap(find.byKey(const Key('carte-r')),
+          buttons: kSecondaryMouseButton);
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-creature-cachee')));
+      expect(rat().cachee, isTrue);
+      await tester.tap(find.byKey(const Key('carte-r')),
+          buttons: kSecondaryMouseButton);
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-creature-nom')));
+      expect((rat().cachee, rat().nomCache), (false, true));
+      // Appui long (téléphone) : même menu.
+      await tester.longPress(find.byKey(const Key('carte-r')));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-creature-neutre')));
+      expect(rat().neutre, isTrue);
+      await tester.longPress(find.byKey(const Key('carte-r')));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-creature-retirer')));
+      expect(
+          x.base.parties[x.campagne.id]!.creatures.containsKey('r'), isFalse);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('PJ en combat, hors de son tour : attaques bloquées',
         (tester) async {
       await ouvrir(
@@ -3800,6 +3911,14 @@ void main() {
       await tap(tester, find.byKey(const Key('retirer-pion-j1')));
       expect(pions.containsKey('j1'), isFalse);
       expect(find.byKey(const Key('pion-j1')), findsNothing);
+      // Pion lié à sa créature (21/11/2026) : le MJ cache le rat, son pion
+      // disparaît pour les PJ.
+      final rat = x.base.parties[x.campagne.id]!.creatures['rat']!;
+      await ServiceCampagnesMemoire(x.base, 'mj')
+          .seance
+          .modifierCreature(x.campagne, rat.copie(cachee: true));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('pion-rat')), findsNothing);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

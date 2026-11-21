@@ -537,17 +537,34 @@ class _VueCarteState extends State<VueCarte> {
 
   /// Nom affiché : celui de la séance, à jour (créatures numérotées « 2 »,
   /// personnage renommé) ; sinon, celui enregistré à la pose.
-  String _nom(PionCarte p) {
+  /// Pion lié à son personnage ou sa créature (21/11/2026) : en séance, son
+  /// nom, son camp et son icône viennent de la partie, à jour ; une
+  /// créature retirée de la partie, ou cachée aux PJ, n'a plus de pion
+  /// visible (`null`). Hors séance : le pion tel qu'il a été posé.
+  PionCarte? _aJour(PionCarte p) {
     final s = widget.seance;
-    if (s == null) return p.nom;
-    for (final m in s.joueurs) {
-      if (m.uid == p.id) return m.personnageNom;
+    if (s == null) return p;
+    if (p.personnage) {
+      for (final m in s.joueurs) {
+        if (m.uid == p.id) return s.pionDe(m).deplace(p.x, p.y);
+      }
+      return p;
     }
     for (final c in s.creatures) {
-      if (c.id == p.id) return s.estMj ? c.nom : c.nomPublic;
+      if (c.id != p.id) continue;
+      final q = s.pionCreature(c).deplace(p.x, p.y);
+      // Le MJ voit le vrai nom.
+      return s.estMj && q.nom != c.nom
+          ? PionCarte.depuisJson(q.id, q.versJson()..['nom'] = c.nom)
+          : q;
     }
-    return p.nom;
+    return null;
   }
+
+  /// MJ : créature dont la carte est cachée aux PJ (pion estompé).
+  bool _cacheeAuxPj(PionCarte p) =>
+      (widget.seance?.estMj ?? false) &&
+      (widget.seance?.creatures.any((c) => c.id == p.id && c.cachee) ?? false);
 
   /// Bonus, malus et afflictions visibles du personnage ou de la créature
   /// du pion (en séance).
@@ -561,7 +578,16 @@ class _VueCarteState extends State<VueCarte> {
   Widget _pion(PionCarte p) {
     final gere = _peutGerer(p);
     final enCours = _deplace == p.id;
-    final widgetPion = Column(
+    final widgetPion = Opacity(
+      opacity: _cacheeAuxPj(p) ? 0.45 : 1,
+      child: _contenuPion(p, enCours),
+    );
+    if (!gere) return widgetPion;
+    return _deplacable(p, widgetPion);
+  }
+
+  Widget _contenuPion(PionCarte p, bool enCours) {
+    return Column(
       key: Key('pion-${p.id}'),
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -574,7 +600,7 @@ class _VueCarteState extends State<VueCarte> {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            _nom(p),
+            p.nom,
             key: Key('nom-pion-${p.id}'),
             textAlign: TextAlign.center,
             softWrap: true,
@@ -644,7 +670,11 @@ class _VueCarteState extends State<VueCarte> {
         ),
       ],
     );
-    if (!gere) return widgetPion;
+  }
+
+  /// Pion qu'on a le droit de gérer : glisser pour le déplacer, toucher
+  /// pour le retirer.
+  Widget _deplacable(PionCarte p, Widget widgetPion) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapUp: (d) => _menu(p, d.globalPosition),
@@ -700,7 +730,10 @@ class _VueCarteState extends State<VueCarte> {
           return StreamBuilder<List<PionCarte>>(
             stream: _pions,
             builder: (context, flux) {
-              final pions = flux.data ?? const <PionCarte>[];
+              final pions = [
+                for (final p in flux.data ?? const <PionCarte>[])
+                  if (_aJour(p) case final q?) q,
+              ];
               final peutAjouter =
                   widget.seance?.pionsPossibles.isNotEmpty ?? false;
               return Stack(

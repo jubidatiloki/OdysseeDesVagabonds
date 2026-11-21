@@ -29,6 +29,29 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.81.0',
+    date: '21/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Séance : bouton Embuscade, les embusqués jouent en premier à la '
+            'manche 1, puis ordre normal.',
+      ),
+      (
+        type: _a,
+        texte:
+            'MJ : clic droit (appui long) sur une créature : visibilité, camp, '
+            'retrait de la partie.',
+      ),
+      (
+        type: _m,
+        texte: 'Cartes : pion lié à sa créature (cachée, retirée, camp, nom) ; '
+            'pions retirés avec elle.',
+      ),
+    ],
+  ),
+  (
     version: '0.80.0',
     date: '21/11/2026',
     changements: [

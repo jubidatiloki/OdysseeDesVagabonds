@@ -493,6 +493,7 @@ class SeanceController extends ChangeNotifier {
         final reste = x.toursRestants! - passees;
         if (reste <= 0) {
           await s.retirerCreature(c, x.id);
+          await _retirerPions(c, x.id);
           await _noterDisparition(s, c, x, 'durée expirée');
           if (_carte == x.id) _carte = kCarteScript;
         } else {
@@ -597,7 +598,8 @@ class SeanceController extends ChangeNotifier {
         if (!c.estAUnJoueur) (joueur: null, creature: c),
     ];
     int rang(String id) {
-      final i = _etat.ordre.indexOf(id);
+      // Ordre de la manche (embusqués en tête à la manche 1).
+      final i = _etat.ordreTour.indexOf(id);
       return i < 0 ? 1 << 20 : i;
     }
 
@@ -993,6 +995,7 @@ class SeanceController extends ChangeNotifier {
         }
         for (final x in aRetirer) {
           await s.retirerCreature(c, x.id);
+          await _retirerPions(c, x.id);
         }
         await _reordonner(s, c);
       });
@@ -1443,15 +1446,23 @@ class SeanceController extends ChangeNotifier {
 
   /// MJ : combat (ordre par initiative) ou exploration. Le début d'un
   /// combat est noté dans le récapitulatif de la séance.
-  Future<String?> basculerMode({DateTime? maintenant}) async {
+  Future<String?> basculerMode({
+    DateTime? maintenant,
+    List<String> embusques = const [],
+  }) async {
     final debut = !_etat.enCombat;
     final erreur = await _agir((s, c) => _etat.enCombat
         ? s.passerEnExploration(c)
-        : s.demarrerCombat(
-            c,
-            ordreCombat(joueurs, _creatures,
-                bonusInitiative: _bonusInitiative)));
+        : s.demarrerCombat(c,
+            ordreCombat(joueurs, _creatures, bonusInitiative: _bonusInitiative),
+            embusques: embusques));
     if (erreur != null) return erreur;
+    // Embuscade (21/11/2026) : notée dans le récapitulatif.
+    if (debut && embusques.isNotEmpty) {
+      await noterDansRecap('Embuscade : ${[
+        for (final id in embusques) nomParticipant(id),
+      ].join(', ')}');
+    }
     final h = maintenant ?? DateTime.now();
     if (debut) {
       // Sans les compagnons ni les invocations des joueurs ; les
@@ -1910,6 +1921,7 @@ class SeanceController extends ChangeNotifier {
   }) =>
       _agir((s, c) async {
         await s.retirerCreature(c, creature.id);
+        await _retirerPions(c, creature.id);
         if (creature.toursRestants != null) {
           await _noterDisparition(s, c, creature, raison);
         }
@@ -1929,6 +1941,34 @@ class SeanceController extends ChangeNotifier {
     final nom = attaquant.nom;
     return nom.isEmpty ? (estMj ? 'MJ' : 'Joueur') : nom;
   }
+
+  /// Créature qui quitte la partie (21/11/2026) : ses pions disparaissent
+  /// des cartes (un échec n'empêche pas le retrait).
+  Future<void> _retirerPions(Campagne c, String id) async {
+    try {
+      await campagnes.serviceActuel?.retirerPionsDe(c, id);
+    } catch (_) {}
+  }
+
+  /// Nom d'un participant au combat (personnage ou créature).
+  String nomParticipant(String id) {
+    for (final m in joueurs) {
+      if (m.uid == id) return m.personnageNom;
+    }
+    for (final c in _creatures) {
+      if (c.id == id) return c.nom;
+    }
+    return id;
+  }
+
+  /// Participants possibles d'une embuscade : personnages et créatures qui
+  /// ont leur propre tour (pas les compagnons).
+  List<({String id, String nom, bool joueur})> get participantsCombat => [
+        for (final m in joueurs)
+          (id: m.uid, nom: m.personnageNom, joueur: true),
+        for (final c in _creatures)
+          if (!c.estCompagnon) (id: c.id, nom: c.nom, joueur: false),
+      ];
 
   /// Celui qui agit dans le lancer de dés : joueur (uid) ou créature (id).
   String get idAttaquant => estMj ? creatureChoisie?.id ?? _acteur : uid;
@@ -2236,6 +2276,7 @@ class SeanceController extends ChangeNotifier {
         // Invocation temporaire à 0 PV : elle se dissipe.
         if (reste == 0 && x.toursRestants != null) {
           await s.retirerCreature(c, x.id);
+          await _retirerPions(c, x.id);
           await _noterDisparition(s, c, x, 'vaincu');
           if (_carte == x.id) _carte = kCarteScript;
           await _reordonner(s, c);

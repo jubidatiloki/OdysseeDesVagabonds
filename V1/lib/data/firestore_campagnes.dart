@@ -500,6 +500,15 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
           Campagne campagne, CarteCampagne carte, PionCarte pion) =>
       _pions(campagne, carte).doc(pion.id).delete();
 
+  @override
+  Future<void> retirerPionsDe(Campagne campagne, String id) async {
+    final lot = _base.batch();
+    for (final carte in (await _cartes(campagne.id).get()).docs) {
+      lot.delete(carte.reference.collection('pions').doc(id));
+    }
+    await lot.commit();
+  }
+
   /// Images déjà lues pendant que l'application est ouverte (les 12
   /// dernières) : rouvrir une carte ne coûte aucune lecture.
   static final Map<String, Uint8List> _images = {};

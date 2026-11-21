@@ -27,7 +27,28 @@ class EtatJeu {
     this.manche = 1,
     this.lieu = '',
     this.montees = const {},
+    this.embusques = const [],
   });
+
+  /// Embuscade (21/11/2026) : participants qui ont tendu l'embuscade ;
+  /// pendant la manche 1, ils jouent en premier (entre eux par
+  /// initiative), puis les autres ; ensuite, ordre normal.
+  final List<String> embusques;
+
+  /// Ordre des tours de la manche en cours : [ordre] (initiative), avec les
+  /// embusqués en tête pendant la manche 1.
+  List<String> get ordreTour => embuscadeEnCours
+      ? [
+          for (final id in ordre)
+            if (embusques.contains(id)) id,
+          for (final id in ordre)
+            if (!embusques.contains(id)) id,
+        ]
+      : ordre;
+
+  /// Manche 1 d'un combat avec embuscade.
+  bool get embuscadeEnCours =>
+      enCombat && manche == 1 && embusques.any(ordre.contains);
 
   /// Lieu de la scène, choisi par le MJ.
   final String lieu;
@@ -46,12 +67,18 @@ class EtatJeu {
   bool peutMonter(String joueur, int niveau, {String personnage = ''}) =>
       (montees[cleMontee(joueur, personnage)] ?? 0) > niveau;
 
-  /// Début d'un combat : le lieu et les autorisations restent.
-  EtatJeu commencerCombat(List<String> ordre) => EtatJeu(
+  /// Début d'un combat : le lieu et les autorisations restent ;
+  /// [embusques] jouent en tête de la première manche.
+  EtatJeu commencerCombat(
+    List<String> ordre, {
+    List<String> embusques = const [],
+  }) =>
+      EtatJeu(
         mode: ModeJeu.combat,
         ordre: ordre,
         lieu: lieu,
         montees: montees,
+        embusques: embusques,
       );
 
   /// Nouvelle séance : exploration, seul le lieu reste (la partie reprend où
@@ -68,6 +95,7 @@ class EtatJeu {
         manche: manche,
         lieu: lieu ?? this.lieu,
         montees: montees ?? this.montees,
+        embusques: embusques,
       );
 
   final ModeJeu mode;
@@ -83,7 +111,7 @@ class EtatJeu {
 
   /// Participant dont c'est le tour, `null` hors combat.
   String? get actif =>
-      enCombat && index >= 0 && index < ordre.length ? ordre[index] : null;
+      enCombat && index >= 0 && index < ordre.length ? ordreTour[index] : null;
 
   /// Tour suivant : après le dernier, nouvelle manche.
   EtatJeu suivant() {
@@ -96,6 +124,7 @@ class EtatJeu {
       manche: fin ? manche + 1 : manche,
       lieu: lieu,
       montees: montees,
+      embusques: embusques,
     );
   }
 
@@ -110,16 +139,24 @@ class EtatJeu {
       manche: debut ? manche - 1 : manche,
       lieu: lieu,
       montees: montees,
+      embusques: embusques,
     );
   }
 
   /// Ordre recalculé (créature ajoutée ou retirée) : le tour reste à celui
   /// qui jouait ; s'il a disparu, au suivant à la même place.
   EtatJeu avecOrdre(List<String> nouveau) {
-    final i = nouveau.indexOf(actif ?? '');
+    final tour = EtatJeu(
+      mode: mode,
+      ordre: nouveau,
+      manche: manche,
+      embusques: embusques,
+    ).ordreTour;
+    final i = tour.indexOf(actif ?? '');
     return EtatJeu(
       mode: mode,
       ordre: nouveau,
+      embusques: embusques,
       index: i >= 0
           ? i
           : nouveau.isEmpty
@@ -138,6 +175,7 @@ class EtatJeu {
         'manche': manche,
         if (lieu.isNotEmpty) 'lieu': lieu,
         if (montees.isNotEmpty) 'montees': montees,
+        if (embusques.isNotEmpty) 'embusques': embusques,
       };
 
   factory EtatJeu.depuisJson(Object? j) {
@@ -153,6 +191,7 @@ class EtatJeu {
           for (final e in m.entries)
             if (e.value is num) '${e.key}': (e.value as num).toInt(),
       },
+      embusques: [for (final o in j['embusques'] as List? ?? const []) '$o'],
     );
   }
 }

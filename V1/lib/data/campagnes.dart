@@ -126,6 +126,10 @@ abstract class ServiceCampagnes {
   /// Retire un pion de la carte.
   Future<void> retirerPion(
       Campagne campagne, CarteCampagne carte, PionCarte pion);
+
+  /// MJ (21/11/2026) : retire de toutes les cartes les pions d'une
+  /// créature qui quitte la partie.
+  Future<void> retirerPionsDe(Campagne campagne, String id);
 }
 
 /// Contrôles communs aux implémentations.
@@ -647,6 +651,16 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
       Campagne campagne, CarteCampagne carte, PionCarte pion) async {
     _exigerPion(campagne, carte, pion);
     base.pions[campagne.id]?[carte.id]?.remove(pion.id);
+    base.signaler();
+  }
+
+  @override
+  Future<void> retirerPionsDe(Campagne campagne, String id) async {
+    _exigerMj(campagne);
+    for (final pions in base.pions[campagne.id]?.values ??
+        const <Map<String, PionCarte>>[]) {
+      pions.remove(id);
+    }
     base.signaler();
   }
 }

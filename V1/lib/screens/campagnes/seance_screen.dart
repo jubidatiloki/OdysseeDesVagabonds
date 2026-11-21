@@ -545,6 +545,66 @@ Future<void> _suivre(BuildContext context, Future<String?> action) async {
   if (context.mounted) _erreur(context, erreur);
 }
 
+/// Embuscade (21/11/2026) : le MJ coche ceux qui l'ont tendue (créatures
+/// ou PJ) ; ils jouent en premier pendant la manche 1. Renvoie leurs ids.
+class DialogueEmbuscade extends StatefulWidget {
+  const DialogueEmbuscade({super.key, required this.participants});
+
+  final List<({String id, String nom, bool joueur})> participants;
+
+  @override
+  State<DialogueEmbuscade> createState() => _DialogueEmbuscadeState();
+}
+
+class _DialogueEmbuscadeState extends State<DialogueEmbuscade> {
+  final Set<String> _choisis = {};
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text('Combat avec embuscade'),
+        content: SizedBox(
+          width: 380,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const Text('Qui a tendu l\'embuscade ? Ils jouent en premier '
+                  'pendant la première manche, puis l\'ordre redevient '
+                  'normal (initiative).'),
+              const SizedBox(height: 8),
+              for (final p in widget.participants)
+                CheckboxListTile(
+                  key: Key('embusque-${p.id}'),
+                  contentPadding: EdgeInsets.zero,
+                  secondary: Icon(
+                    p.joueur ? Icons.person_outline : Icons.pets_outlined,
+                  ),
+                  title: Text(p.nom, overflow: TextOverflow.ellipsis),
+                  value: _choisis.contains(p.id),
+                  onChanged: (v) => setState(() =>
+                      v == true ? _choisis.add(p.id) : _choisis.remove(p.id)),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            key: const Key('demarrer-embuscade'),
+            onPressed: _choisis.isEmpty
+                ? null
+                : () => Navigator.pop(context, [
+                      for (final p in widget.participants)
+                        if (_choisis.contains(p.id)) p.id,
+                    ]),
+            child: const Text('Démarrer le combat'),
+          ),
+        ],
+      );
+}
+
 /// En-tête : pastille du mode, bien visible, et lieu de la scène.
 class _EnTeteMode extends StatelessWidget {
   const _EnTeteMode({required this.seance});
@@ -700,6 +760,32 @@ class _BarreTours extends StatelessWidget {
                 label: Text(
                   e.enCombat ? 'Passer en exploration' : 'Passer en combat',
                 ),
+              ),
+            // Embuscade (21/11/2026) : combat où les embusqués jouent en
+            // premier à la manche 1.
+            if (s.estMj && !e.enCombat)
+              OutlinedButton.icon(
+                key: const Key('combat-embuscade'),
+                onPressed: () async {
+                  final embusques = await showDialog<List<String>>(
+                    context: context,
+                    builder: (_) =>
+                        DialogueEmbuscade(participants: s.participantsCombat),
+                  );
+                  if (embusques == null || !context.mounted) return;
+                  await _suivre(context, s.basculerMode(embusques: embusques));
+                },
+                icon: const Icon(Icons.visibility_off_outlined),
+                label: const Text('Embuscade'),
+              ),
+            if (e.embuscadeEnCours)
+              Chip(
+                key: const Key('embuscade-en-cours'),
+                avatar: const Icon(Icons.visibility_off_outlined, size: 16),
+                label: Text('Embuscade : ${[
+                  for (final id in e.embusques)
+                    if (e.ordre.contains(id)) s.nomParticipant(id),
+                ].join(', ')}'),
               ),
           ],
         ),

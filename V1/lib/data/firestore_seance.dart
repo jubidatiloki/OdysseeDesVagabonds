@@ -167,8 +167,12 @@ class FirestoreServiceSeance implements ServiceSeance {
   }
 
   @override
-  Future<void> demarrerCombat(Campagne c, List<String> ordre) =>
-      _modifierEtat(c, (e) => e.commencerCombat(ordre));
+  Future<void> demarrerCombat(
+    Campagne c,
+    List<String> ordre, {
+    List<String> embusques = const [],
+  }) =>
+      _modifierEtat(c, (e) => e.commencerCombat(ordre, embusques: embusques));
 
   @override
   Future<void> passerEnExploration(Campagne c) =>

@@ -31,7 +31,11 @@ abstract class ServiceSeance {
   Stream<List<JetSeance>> ecouterJets(Campagne c, int numero);
 
   /// MJ : passe en combat avec cet ordre, ou revient en exploration.
-  Future<void> demarrerCombat(Campagne c, List<String> ordre);
+  Future<void> demarrerCombat(
+    Campagne c,
+    List<String> ordre, {
+    List<String> embusques = const [],
+  });
   Future<void> passerEnExploration(Campagne c);
 
   /// MJ : ordre recalculé pendant le combat.
@@ -199,9 +203,13 @@ class ServiceSeanceMemoire implements ServiceSeance {
   }
 
   @override
-  Future<void> demarrerCombat(Campagne c, List<String> ordre) async {
+  Future<void> demarrerCombat(
+    Campagne c,
+    List<String> ordre, {
+    List<String> embusques = const [],
+  }) async {
     _exigerMj(c);
-    _changer(c, _partie(c).etat.commencerCombat(ordre));
+    _changer(c, _partie(c).etat.commencerCombat(ordre, embusques: embusques));
   }
 
   @override

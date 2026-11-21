@@ -35,6 +35,70 @@ class ListeCartes extends StatelessWidget {
     onChoisie?.call();
   }
 
+  /// MJ (21/11/2026) : clic droit (ou appui long) sur une créature :
+  /// visibilité pour les PJ, camp, retrait de la partie.
+  Future<void> _menuCreature(
+    BuildContext context,
+    CreatureSeance c,
+    Offset pos,
+  ) async {
+    final s = seance;
+    final visibilite = c.cachee
+        ? 'cachee'
+        : c.nomCache
+            ? 'nom'
+            : 'visible';
+    final camp = c.allie
+        ? 'allie'
+        : c.neutre
+            ? 'neutre'
+            : 'ennemi';
+    PopupMenuEntry<String> choix(String v, String texte, bool coche) =>
+        CheckedPopupMenuItem(
+          key: Key('menu-creature-$v'),
+          value: v,
+          checked: coche,
+          child: Text(texte),
+        );
+    final r = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx, pos.dy),
+      items: [
+        choix('visible', 'Visible des PJ', visibilite == 'visible'),
+        choix('cachee', 'Carte cachée aux PJ', visibilite == 'cachee'),
+        choix('nom', 'Nom caché (« Créature inconnue »)', visibilite == 'nom'),
+        const PopupMenuDivider(),
+        choix('ennemi', 'Ennemi', camp == 'ennemi'),
+        choix('neutre', 'Neutre', camp == 'neutre'),
+        choix('allie', 'Allié des PJ', camp == 'allie'),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          key: Key('menu-creature-retirer'),
+          value: 'retirer',
+          child: Text('Retirer de la partie'),
+        ),
+      ],
+    );
+    final CreatureSeance? nouvelle = switch (r) {
+      'visible' => c.copie(cachee: false, nomCache: false),
+      'cachee' => c.copie(cachee: true),
+      'nom' => c.copie(cachee: false, nomCache: true),
+      'ennemi' => c.copie(allie: false, neutre: false),
+      'neutre' => c.copie(neutre: true),
+      'allie' => c.copie(allie: true),
+      _ => null,
+    };
+    final erreur = r == 'retirer'
+        ? await s.retirerCreature(c)
+        : nouvelle == null
+            ? null
+            : await s.modifierCreature(nouvelle);
+    if (erreur != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(erreur)));
+    }
+  }
+
   /// Icône et couleur de la famille, comme dans le bestiaire. Une créature
   /// ajoutée avant la version 0.29 retrouve sa famille par sa fiche.
   ({Color couleur, IconData icone})? _styleCreature(
@@ -183,6 +247,7 @@ class ListeCartes extends StatelessWidget {
           couleurIcone: OdvCouleurs.green,
           mort: c.morte,
           titre: c.nom,
+          onMenu: s.estMj ? (pos) => _menuCreature(context, c, pos) : null,
           initiative: s.etat.enCombat ? c.initiative : null,
           ressources: [
             if (c.pv != null) _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
@@ -220,6 +285,7 @@ class ListeCartes extends StatelessWidget {
           couleurIcone: _styleCreature(context, c)?.couleur,
           mort: c.morte,
           titre: c.nom,
+          onMenu: s.estMj ? (pos) => _menuCreature(context, c, pos) : null,
           initiative: s.etat.enCombat ? c.initiative : null,
           ressources: [
             if (c.pv != null) _Ressource.vie(context, c.pv!, c.pvMax ?? c.pv!),
@@ -438,7 +504,11 @@ class _Carte extends StatelessWidget {
     this.bonus,
     this.ennemi = false,
     this.mort = false,
+    this.onMenu,
   });
+
+  /// Clic droit ou appui long (21/11/2026) : menu de la carte.
+  final void Function(Offset position)? onMenu;
 
   /// Créature rencontrée : carte teintée de rouge (20/11/2026).
   final bool ennemi;
@@ -503,6 +573,16 @@ class _Carte extends StatelessWidget {
         key: Key(cle),
         borderRadius: BorderRadius.circular(10),
         onTap: onTap,
+        onSecondaryTapUp:
+            onMenu == null ? null : (d) => onMenu!(d.globalPosition),
+        onLongPress: onMenu == null
+            ? null
+            : () {
+                final box = context.findRenderObject() as RenderBox?;
+                onMenu!(box == null
+                    ? Offset.zero
+                    : box.localToGlobal(box.size.center(Offset.zero)));
+              },
         child: Padding(
           padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
           child: Row(
