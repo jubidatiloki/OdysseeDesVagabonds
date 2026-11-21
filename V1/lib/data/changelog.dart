@@ -29,6 +29,18 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.81.1',
+    date: '21/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte:
+            'Cartes : contour des pions selon le camp (vert PJ et alliés, gris '
+            'neutres, rouge ennemis).',
+      ),
+    ],
+  ),
+  (
     version: '0.81.0',
     date: '21/11/2026',
     changements: [

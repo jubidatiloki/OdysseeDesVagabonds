@@ -803,6 +803,14 @@ class _VueCarteState extends State<VueCarte> {
 /// Icône d'un pion (20/11/2026) : celle du personnage comme sur l'écran
 /// principal, ou celle de la famille de la créature (contour vert : allié,
 /// rouge : ennemi).
+/// Couleur du contour d'un pion selon son camp (21/11/2026) : vert pour
+/// les PJ et leurs alliés, gris pour les neutres, rouge pour les ennemis.
+Color couleurCampPion(PionCarte pion) => pion.personnage || pion.allie
+    ? OdvCouleurs.green
+    : pion.neutre
+        ? OdvCouleurs.grey
+        : OdvCouleurs.red;
+
 class IconePion extends StatelessWidget {
   const IconePion({
     super.key,
@@ -821,33 +829,37 @@ class IconePion extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final Widget icone;
+    final camp = couleurCampPion(pion);
     if (pion.personnage) {
-      icone = AvatarClasse(
-        nom: pion.nom,
-        classeId: pion.classeId.isEmpty ? null : pion.classeId,
-        raceId: pion.raceId.isEmpty ? null : pion.raceId,
-        element: pion.element.isEmpty ? null : pion.element,
-        rayon: rayon,
+      // Anneau du camp autour de l'icône du personnage.
+      icone = Container(
+        key: Key('contour-pion-${pion.id}'),
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: camp, width: 2.5),
+        ),
+        child: AvatarClasse(
+          nom: pion.nom,
+          classeId: pion.classeId.isEmpty ? null : pion.classeId,
+          raceId: pion.raceId.isEmpty ? null : pion.raceId,
+          element: pion.element.isEmpty ? null : pion.element,
+          rayon: rayon,
+        ),
       );
     } else {
       final style = pion.famille.isEmpty
           ? null
           : styleFamille(pion.famille, theme.brightness);
       icone = Container(
+        key: Key('contour-pion-${pion.id}'),
         width: rayon * 2,
         height: rayon * 2,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: theme.colorScheme.surface,
-          border: Border.all(
-            color: pion.allie
-                ? OdvCouleurs.green
-                : pion.neutre
-                    ? OdvCouleurs.grey
-                    : OdvCouleurs.red,
-            width: 2,
-          ),
+          border: Border.all(color: camp, width: 2.5),
         ),
         child: Icon(
           style?.icone ?? Icons.pets_outlined,

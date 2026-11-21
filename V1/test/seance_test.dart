@@ -3838,6 +3838,17 @@ void main() {
       await mj.supprimerCarte(p.campagne, carte);
       expect(p.base.pions[p.campagne.id]?[carte.id], isNull);
       // Sauvegarde.
+      // Contour selon le camp (21/11/2026).
+      expect(couleurCampPion(brom), OdvCouleurs.green);
+      expect(couleurCampPion(rat), OdvCouleurs.red);
+      expect(
+          couleurCampPion(const PionCarte(
+              id: 'm', nom: 'Marchand', personnage: false, neutre: true)),
+          OdvCouleurs.grey);
+      expect(
+          couleurCampPion(const PionCarte(
+              id: 'e', nom: 'Écuyer', personnage: false, allie: true)),
+          OdvCouleurs.green);
       final relu = PionCarte.depuisJson('j1', brom.deplace(2, -1).versJson());
       expect((relu.x, relu.y, relu.personnage, relu.allie),
           (1.0, 0.0, true, true));
@@ -3872,6 +3883,11 @@ void main() {
       expect(find.byKey(const Key('poser-pion-rat')), findsNothing);
       await tap(tester, find.byKey(const Key('poser-pion-j1')));
       expect(find.byKey(const Key('pion-j1')), findsOneWidget);
+      // Anneau vert autour du personnage.
+      final anneau = tester
+          .widget<Container>(find.byKey(const Key('contour-pion-j1')))
+          .decoration! as BoxDecoration;
+      expect((anneau.border! as Border).top.color, OdvCouleurs.green);
       // Nom au-dessus de l'icône : celui du personnage dans la séance.
       final seance = tester.widget<VueCarte>(find.byType(VueCarte)).seance!;
       expect(
