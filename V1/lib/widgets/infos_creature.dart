@@ -41,6 +41,13 @@ import '../theme.dart';
       icone: Icons.whatshot_outlined,
     );
   }
+  // Personnages non joueurs (21/11/2026) : noble, forgeron, marchand…
+  if (f == 'pnj') {
+    return (
+      couleur: sombre ? OdvCouleurs.or : OdvCouleurs.accentDark,
+      icone: Icons.face_outlined,
+    );
+  }
   // Invocations et compagnons des personnages : or.
   if (f.contains('invocation')) {
     return (
@@ -71,6 +78,8 @@ import '../theme.dart';
 /// Icône d'un archétype (meute, puissant, rapide…).
 IconData iconeArchetype(String archetype) {
   final a = archetype.toLowerCase();
+  // PNJ qui vendent (21/11/2026) : l'étiquette passe avant les autres.
+  if (a.contains('commerçant')) return Icons.storefront_outlined;
   if (a.contains('meute')) return Icons.groups_outlined;
   if (a.contains('puissant')) return Icons.fitness_center;
   if (a.contains('rapide')) return Icons.speed;

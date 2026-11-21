@@ -1465,8 +1465,27 @@ class SeanceController extends ChangeNotifier {
     final change = nouveau != ancien;
     final erreur = await _agir((s, c) => s.changerInfos(c, lieu: nouveau));
     if (erreur == null && change && nouveau.isNotEmpty) {
-      await noterDansRecap(
-        ancien.isEmpty ? 'Lieu : $nouveau' : 'Lieu : $ancien → $nouveau',
+      final texte =
+          ancien.isEmpty ? 'Lieu : $nouveau' : 'Lieu : $ancien → $nouveau';
+      await noterDansRecap(texte);
+      // Aussi dans les logs, pour tous (21/11/2026).
+      await _agir(
+        (s, c) => s.lancer(
+          c,
+          JetSeance(
+            auteur: uid,
+            auteurNom: 'MJ',
+            libelle: texte,
+            detail: '',
+            total: 0,
+            date: DateTime.now(),
+            seance: _numero,
+            lecteurs: lecteursDuJet(c, VisibiliteJet.tous, auteur: uid),
+            genre: GenreJet.lieu,
+            mode: _etat.mode,
+            manche: _etat.manche,
+          ),
+        ),
       );
     }
     return erreur;

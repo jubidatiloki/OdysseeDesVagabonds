@@ -1457,5 +1457,199 @@
       {"nom": "Coup de queue", "portee": "CaC", "toucher": "1d20 +15", "degats": "4d6", "note": "action gratuite"},
       {"nom": "Souffle élémentaire", "degats": "10d6 (de son élément)", "note": "pas de jet d'attaque ; esquive réussie : moitié des dégâts"}
     ]
+  },
+  {
+    "id": "noble",
+    "nom": "Noble",
+    "famille": "PNJ",
+    "archetype": "Chef",
+    "taille": "standard",
+    "description": "Aristocrate aux habits brodés, bague à chaque doigt, entouré de domestiques ; il porte une rapière plus décorative qu'utile.",
+    "comportement": "Méprise le petit peuple, négocie avec hauteur et appelle sa garde au moindre danger ; un service rendu lui ouvre sa bourse et ses salons.",
+    "ca": 11,
+    "pv": 9,
+    "initiative": 10,
+    "mods": {"ADC": 1, "DEX": 1, "SOC": 2, "MEN": 1},
+    "attaques": [
+      {"nom": "Rapière", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d6 +1"}
+    ]
+  },
+  {
+    "id": "forgeron",
+    "nom": "Forgeron",
+    "famille": "PNJ",
+    "archetype": "Commerçant, Puissant",
+    "taille": "standard",
+    "description": "Artisan aux bras épais et au tablier de cuir roussi, qui forge outils, fers et lames à la demande.",
+    "comportement": "Bourru mais honnête, il répare et vend outils, armes simples et pièces d'armure ; il ne se bat que pour défendre sa forge.",
+    "ca": 11,
+    "pv": 14,
+    "initiative": 8,
+    "mods": {"ADC": 2, "FOR": 2, "CON": 2},
+    "attaques": [
+      {"nom": "Marteau de forge", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6 +2"}
+    ]
+  },
+  {
+    "id": "marchand",
+    "nom": "Marchand",
+    "famille": "PNJ",
+    "archetype": "Commerçant",
+    "taille": "standard",
+    "description": "Négociant bien nourri, toujours une balance et un registre à portée de main, qui fait commerce de tout ce qui se vend.",
+    "comportement": "Marchande âprement, connaît les rumeurs des routes commerciales et paie bien les escortes ; il fuit au premier coup porté.",
+    "ca": 10,
+    "pv": 6,
+    "initiative": 10,
+    "mods": {"SOC": 2, "INT": 1},
+    "attaques": [
+      {"nom": "Dague", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "alchimiste",
+    "nom": "Alchimiste",
+    "famille": "PNJ",
+    "archetype": "Commerçant, Tireur",
+    "taille": "standard",
+    "description": "Savant aux doigts tachés et aux sourcils roussis, au milieu de fioles fumantes et d'alambics.",
+    "comportement": "Vend potions, onguents et réactifs ; curieux de tout ingrédient rare, il lance une fiole d'acide si on le menace.",
+    "ca": 10,
+    "pv": 7,
+    "initiative": 11,
+    "mods": {"ADT": 1, "DEX": 1, "INT": 2},
+    "attaques": [
+      {"nom": "Fiole d'acide", "portee": "distance", "toucher": "1d20 +1", "degats": "1d6", "note": "acide"}
+    ]
+  },
+  {
+    "id": "herboriste",
+    "nom": "Herboriste",
+    "famille": "PNJ",
+    "archetype": "Commerçant, Soutien",
+    "taille": "standard",
+    "description": "Guérisseuse des campagnes aux paniers chargés de simples, qui connaît chaque plante des sous-bois.",
+    "comportement": "Vend herbes, remèdes et cataplasmes, soigne les blessés contre quelques pièces et renseigne volontiers sur la forêt.",
+    "ca": 10,
+    "pv": 6,
+    "initiative": 11,
+    "mods": {"INT": 1, "PER": 2},
+    "attaques": [
+      {"nom": "Bâton", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "armurier",
+    "nom": "Armurier",
+    "famille": "PNJ",
+    "archetype": "Commerçant, Gardien",
+    "taille": "standard",
+    "description": "Maître d'armes reconverti, en cotte de mailles même derrière son comptoir, entouré d'épées, de boucliers et d'armures.",
+    "comportement": "Vend et ajuste armes et armures, juge les clients à leur garde et teste lui-même les lames qu'il vend.",
+    "ca": 14,
+    "pv": 14,
+    "initiative": 9,
+    "mods": {"ADC": 2, "FOR": 2, "CON": 2},
+    "attaques": [
+      {"nom": "Épée longue", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d8 +2"}
+    ]
+  },
+  {
+    "id": "aubergiste",
+    "nom": "Aubergiste",
+    "famille": "PNJ",
+    "archetype": "Commerçant",
+    "taille": "standard",
+    "description": "Tenancier jovial au tablier taché de bière, qui connaît tous les habitués et toutes les histoires du village.",
+    "comportement": "Loue des chambres, sert repas et boissons, colporte les nouvelles ; il sort son gourdin quand une bagarre éclate.",
+    "ca": 10,
+    "pv": 8,
+    "initiative": 10,
+    "mods": {"ADC": 1, "CON": 1, "SOC": 2},
+    "attaques": [
+      {"nom": "Gourdin", "portee": "CaC", "toucher": "1d20 +1", "degats": "1d4 +1"}
+    ]
+  },
+  {
+    "id": "maquignon",
+    "nom": "Maquignon",
+    "famille": "PNJ",
+    "archetype": "Commerçant",
+    "taille": "standard",
+    "description": "Marchand de chevaux à la voix forte, bottes crottées et fouet à la ceinture, qui vante chaque bête comme la meilleure du royaume.",
+    "comportement": "Vend et loue montures, mules et charrettes ; rusé, il cache les défauts de ses bêtes à qui ne sait pas les voir.",
+    "ca": 10,
+    "pv": 7,
+    "initiative": 10,
+    "mods": {"SOC": 2, "PER": 1},
+    "attaques": [
+      {"nom": "Fouet", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "garde-ville",
+    "nom": "Garde de la ville",
+    "famille": "PNJ",
+    "archetype": "Gardien",
+    "taille": "standard",
+    "description": "Soldat de la milice en tabard aux couleurs de la cité, lance à la main et arbalète dans le dos.",
+    "comportement": "Fait respecter la loi et le couvre-feu, demande les noms des étrangers et appelle des renforts au sifflet.",
+    "ca": 15,
+    "pv": 13,
+    "initiative": 11,
+    "mods": {"ADC": 2, "ADT": 1, "CON": 1},
+    "attaques": [
+      {"nom": "Lance", "portee": "CaC", "toucher": "1d20 +2", "degats": "1d6 +2"},
+      {"nom": "Arbalète légère", "portee": "distance", "toucher": "1d20 +1", "degats": "1d8 +1"}
+    ]
+  },
+  {
+    "id": "pretre-village",
+    "nom": "Prêtre de village",
+    "famille": "PNJ",
+    "archetype": "Soutien, Lanceur de sorts",
+    "taille": "standard",
+    "description": "Homme d'église en robe de bure, symbole sacré au cou, qui veille sur les âmes et les malades de sa paroisse.",
+    "comportement": "Soigne, bénit et conseille ; il n'attaque que pour protéger ses fidèles, en appelant la lumière de son dieu.",
+    "ca": 11,
+    "pv": 9,
+    "initiative": 10,
+    "mods": {"SOC": 1, "MEN": 2, "ADM": 2},
+    "attaques": [
+      {"nom": "Masse", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d6"},
+      {"nom": "Lumière sacrée", "portee": "distance", "toucher": "1d20 +2", "degats": "1d6 (magique)", "note": "attaque magique"}
+    ]
+  },
+  {
+    "id": "paysan",
+    "nom": "Paysan",
+    "famille": "PNJ",
+    "archetype": "Standard",
+    "taille": "standard",
+    "description": "Villageois aux mains calleuses et au chapeau de paille, qui vit au rythme des récoltes.",
+    "comportement": "Méfiant envers les étrangers mais serviable si on le respecte ; il défend sa ferme à la fourche et fuit devant les armes.",
+    "ca": 10,
+    "pv": 4,
+    "initiative": 10,
+    "mods": {"FOR": 1},
+    "attaques": [
+      {"nom": "Fourche", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d4"}
+    ]
+  },
+  {
+    "id": "mendiant",
+    "nom": "Mendiant",
+    "famille": "PNJ",
+    "archetype": "Furtif",
+    "taille": "standard",
+    "description": "Silhouette en haillons assise au coin des rues, qui voit et entend tout ce qui se passe en ville.",
+    "comportement": "Quémande quelques pièces et vend ses informations ; il disparaît dans la foule à la moindre menace.",
+    "ca": 10,
+    "pv": 4,
+    "initiative": 12,
+    "mods": {"DEX": 1, "PER": 2},
+    "attaques": [
+      {"nom": "Couteau", "portee": "CaC", "toucher": "1d20 +0", "degats": "1d4"}
+    ]
   }
 ]

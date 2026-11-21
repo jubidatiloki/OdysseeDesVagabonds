@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.79.0',
+    date: '21/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Logs : les changements de lieu du MJ y sont notés, pour tous.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Logs : sections par combat et exploration, numérotées, à replier '
+            "ou déplier (tout d'un coup aussi).",
+      ),
+      (
+        type: _a,
+        texte: 'Bestiaire : 12 PNJ (noble, forgeron, marchand, alchimiste, '
+            'herboriste, armurier…), étiquette Commerçant.',
+      ),
+    ],
+  ),
+  (
     version: '0.78.1',
     date: '20/11/2026',
     changements: [

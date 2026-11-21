@@ -3224,6 +3224,70 @@ void main() {
       // Heure de fin et durée.
       expect(lignes[3],
           matches(RegExp(r'· Fin du combat à \d\d:\d\d \(\d+ min\)$')));
+      // Changements de lieu aussi dans les logs, pour tous (21/11/2026).
+      final lieux = [
+        for (final j in x.base.parties[x.campagne.id]!.jets)
+          if (j.genre == GenreJet.lieu) j,
+      ];
+      expect([for (final j in lieux) j.libelle],
+          ['Lieu : Taverne', 'Lieu : Taverne → Forêt enchantée']);
+      expect(lieux.first.auteurNom, 'MJ');
+      expect(lieux.first.lecteurs, containsAll(['mj', 'j1', 'j2']));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('logs : sections par combat et exploration, repliables',
+        (tester) async {
+      JetSeance jet(String libelle, ModeJeu mode) => JetSeance(
+            auteur: 'mj',
+            auteurNom: 'MJ',
+            libelle: libelle,
+            detail: '3 +1',
+            total: 4,
+            date: DateTime.now(),
+            seance: 1,
+            lecteurs: const ['mj', 'j1', 'j2'],
+            mode: mode,
+          );
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final s = ServiceCampagnesMemoire(b, 'mj').seance;
+          for (final (l, m) in [
+            ('Jet A', ModeJeu.exploration),
+            ('Jet B', ModeJeu.combat),
+            ('Jet C', ModeJeu.combat),
+            ('Jet D', ModeJeu.exploration),
+          ]) {
+            await s.lancer(c, jet(l, m));
+          }
+        },
+      );
+      final ids = {
+        for (final j in x.base.parties[x.campagne.id]!.jets) j.libelle: j.id,
+      };
+      await tap(tester, find.byKey(const Key('onglet-historique')));
+      // Plus récente ouverte (exploration 2), les autres repliées.
+      expect(find.byKey(const Key('logs-exploration-2')), findsOneWidget);
+      expect(find.byKey(const Key('logs-combat-1')), findsOneWidget);
+      expect(find.byKey(const Key('logs-exploration-1')), findsOneWidget);
+      expect(find.byKey(Key('jet-${ids['Jet D']}')), findsOneWidget);
+      expect(find.byKey(Key('jet-${ids['Jet B']}')), findsNothing);
+      expect(find.textContaining('Combat 1 · 2 lignes'), findsOneWidget);
+      // Ouvrir le combat pour revoir un jet plus ancien.
+      await tap(tester, find.byKey(const Key('logs-combat-1')));
+      expect(find.byKey(Key('jet-${ids['Jet B']}')), findsOneWidget);
+      expect(find.byKey(Key('jet-${ids['Jet C']}')), findsOneWidget);
+      // Replier la plus récente.
+      await tap(tester, find.byKey(const Key('logs-exploration-2')));
+      expect(find.byKey(Key('jet-${ids['Jet D']}')), findsNothing);
+      // Tout déplier.
+      await tap(tester, find.byKey(const Key('logs-tout')));
+      for (final id in ids.values) {
+        expect(find.byKey(Key('jet-$id')), findsOneWidget);
+      }
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });

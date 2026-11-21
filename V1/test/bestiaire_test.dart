@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odyssee_vagabonds/models/carac.dart';
 import 'package:odyssee_vagabonds/models/creature.dart';
 import 'package:odyssee_vagabonds/screens/bestiaire_screen.dart';
+import 'package:odyssee_vagabonds/widgets/infos_creature.dart';
 
 /// Bestiaire (31/10/2026, invocations le 01/11/2026) : statistiques (CA, PV, initiative, modificateurs,
 /// attaques) du loup, loup alpha, ours noir et ours-hibou.
@@ -111,8 +112,42 @@ void main() {
     expect(creatures['dragon-juvenile']!.taille, TailleCreature.grande);
   });
 
+  test('PNJ : famille, commerçants étiquetés, icônes', () {
+    final pnj = {
+      for (final c in creatures.values)
+        if (c.famille == 'PNJ') c.id: c,
+    };
+    expect(
+      pnj.keys,
+      containsAll([
+        'noble',
+        'forgeron',
+        'marchand',
+        'alchimiste',
+        'herboriste',
+        'armurier',
+      ]),
+    );
+    final commercants = {
+      for (final c in pnj.values)
+        if (c.archetype.contains('Commerçant')) c.id,
+    };
+    expect(commercants, {
+      'forgeron',
+      'marchand',
+      'alchimiste',
+      'herboriste',
+      'armurier',
+      'aubergiste',
+      'maquignon',
+    });
+    expect(pnj['noble']!.archetype, isNot(contains('Commerçant')));
+    expect(iconeArchetype('Commerçant, Puissant'), Icons.storefront_outlined);
+    expect(styleFamille('PNJ', Brightness.dark).icone, Icons.face_outlined);
+  });
+
   test('toutes les créatures : statistiques complètes et cohérentes', () {
-    expect(creatures, hasLength(90));
+    expect(creatures, hasLength(102));
     const familles = {
       'Bêtes',
       'Monstres',
@@ -125,6 +160,7 @@ void main() {
       'Dragons',
       'Morts-vivants',
       'Démons',
+      'PNJ',
     };
     for (final c in creatures.values) {
       expect(familles, contains(c.famille), reason: c.id);

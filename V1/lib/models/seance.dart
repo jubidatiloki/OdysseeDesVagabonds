@@ -582,7 +582,9 @@ enum GenreJet {
   attaque('Attaque'),
   degats('Dégâts'),
   sort('Sort'),
-  test('Test de caractéristique');
+  test('Test de caractéristique'),
+  // Changement de lieu par le MJ (21/11/2026) : ligne sans dés.
+  lieu('Changement de lieu');
 
   const GenreJet(this.libelle);
 

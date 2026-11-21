@@ -2238,27 +2238,82 @@ IconData iconeGenreJet(GenreJet g) => switch (g) {
       GenreJet.degats => Icons.local_fire_department_outlined,
       GenreJet.sort => Icons.auto_awesome_outlined,
       GenreJet.test => Icons.fact_check_outlined,
+      GenreJet.lieu => Icons.place_outlined,
     };
 
-class _Historique extends StatelessWidget {
+/// Section des logs (21/11/2026) : jets d'un même combat ou d'une même
+/// phase d'exploration, numérotée depuis le début de la séance.
+typedef SectionLogs = ({ModeJeu mode, int numero, List<JetSeance> jets});
+
+/// Regroupe les jets (du plus ancien au plus récent) en sections, à chaque
+/// changement de mode ; renvoie les sections de la plus récente à la plus
+/// ancienne, jets du plus récent au plus ancien.
+List<SectionLogs> sectionsLogs(List<JetSeance> jets) {
+  final sections = <SectionLogs>[];
+  final numeros = <ModeJeu, int>{};
+  for (final j in jets) {
+    if (sections.isEmpty || sections.last.mode != j.mode) {
+      final n = numeros[j.mode] = (numeros[j.mode] ?? 0) + 1;
+      sections.add((mode: j.mode, numero: n, jets: <JetSeance>[]));
+    }
+    sections.last.jets.add(j);
+  }
+  return [
+    for (final s in sections.reversed)
+      (mode: s.mode, numero: s.numero, jets: s.jets.reversed.toList()),
+  ];
+}
+
+class _Historique extends StatefulWidget {
   const _Historique({required this.seance});
 
   final SeanceController seance;
 
   @override
+  State<_Historique> createState() => _HistoriqueState();
+}
+
+class _HistoriqueState extends State<_Historique> {
+  /// Sections ouvertes ou fermées à la main (« combat-2 » → ouverte) ; par
+  /// défaut, seule la plus récente est ouverte.
+  final Map<String, bool> _ouvertes = {};
+
+  static String _cle(SectionLogs s) => '${s.mode.name}-${s.numero}';
+
+  @override
   Widget build(BuildContext context) {
-    final jets = seance.jets.reversed.toList();
-    if (jets.isEmpty) {
+    final sections = sectionsLogs(widget.seance.jets);
+    if (sections.isEmpty) {
       return const Center(child: TexteAVenir('Aucun jet pour l\'instant.'));
     }
-    // Une section à chaque changement de mode (du plus récent au plus ancien).
-    final lignes = <Widget>[];
-    for (final (i, j) in jets.indexed) {
-      if (i == 0 || jets[i - 1].mode != j.mode) {
-        lignes.add(_TitreSectionLogs(mode: j.mode));
-      }
-      lignes.add(_LigneJet(jet: j));
-    }
+    bool ouverte(SectionLogs s) =>
+        _ouvertes[_cle(s)] ?? identical(s, sections.first);
+    final toutOuvert = sections.every(ouverte);
+    final lignes = <Widget>[
+      if (sections.length > 1)
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            key: const Key('logs-tout'),
+            onPressed: () => setState(() {
+              for (final s in sections) {
+                _ouvertes[_cle(s)] = !toutOuvert;
+              }
+            }),
+            icon: Icon(toutOuvert ? Icons.unfold_less : Icons.unfold_more),
+            label: Text(toutOuvert ? 'Tout replier' : 'Tout déplier'),
+          ),
+        ),
+      for (final s in sections) ...[
+        _TitreSectionLogs(
+          section: s,
+          ouverte: ouverte(s),
+          onTap: () => setState(() => _ouvertes[_cle(s)] = !ouverte(s)),
+        ),
+        if (ouverte(s))
+          for (final j in s.jets) _LigneJet(jet: j),
+      ],
+    ];
     return ListView(
       key: const Key('historique-seance'),
       padding: const EdgeInsets.all(8),
@@ -2267,34 +2322,70 @@ class _Historique extends StatelessWidget {
   }
 }
 
-/// Début d'une section des logs : combat ou exploration.
+/// Début d'une section des logs : combat ou exploration, numéro, nombre de
+/// lignes et heures ; toucher l'ouvre ou la replie (21/11/2026).
 class _TitreSectionLogs extends StatelessWidget {
-  const _TitreSectionLogs({required this.mode});
+  const _TitreSectionLogs({
+    required this.section,
+    required this.ouverte,
+    required this.onTap,
+  });
 
-  final ModeJeu mode;
+  final SectionLogs section;
+  final bool ouverte;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final mode = section.mode;
     final combat = mode == ModeJeu.combat;
     final couleur = combat ? OdvCouleurs.red : OdvCouleurs.green;
-    return Container(
-      key: Key('logs-${mode.name}'),
-      margin: const EdgeInsets.only(top: 8, bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
+    String heure(DateTime d) {
+      final h = d.toLocal();
+      return '${h.hour.toString().padLeft(2, '0')}:'
+          '${h.minute.toString().padLeft(2, '0')}';
+    }
+
+    final debut = heure(section.jets.last.heure);
+    final fin = heure(section.jets.first.heure);
+    final n = section.jets.length;
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Material(
         color: couleur.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            combat ? Icons.sports_martial_arts : Icons.explore,
-            size: 16,
-            color: couleur,
+        child: InkWell(
+          key: Key('logs-${mode.name}-${section.numero}'),
+          borderRadius: BorderRadius.circular(6),
+          onTap: onTap,
+          child: Padding(
+            key: Key('logs-${mode.name}'),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              children: [
+                Icon(
+                  combat ? Icons.sports_martial_arts : Icons.explore,
+                  size: 16,
+                  color: couleur,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '${mode.libelle} ${section.numero} · $n ligne'
+                    '${n > 1 ? 's' : ''} · '
+                    '${debut == fin ? debut : '$debut – $fin'}',
+                    style: theme.textTheme.labelLarge,
+                  ),
+                ),
+                Icon(
+                  ouverte ? Icons.expand_less : Icons.expand_more,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(width: 6),
-          Text(mode.libelle, style: Theme.of(context).textTheme.labelLarge),
-        ],
+        ),
       ),
     );
   }
