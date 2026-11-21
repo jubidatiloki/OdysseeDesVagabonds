@@ -66,6 +66,24 @@ class DetailButin extends StatelessWidget {
     if (context.mounted) _erreur(context, erreur);
   }
 
+  /// MJ (21/11/2026) : change le nombre d'exemplaires d'un objet du butin
+  /// (au moins 1 ; pour l'enlever, la corbeille).
+  Future<void> _changerQuantite(
+      BuildContext context, Objet o, int ecart) async {
+    final n = o.quantite + ecart;
+    if (n < 1) return;
+    final erreur = await seance.modifierButin(
+      butin.copie(objets: [
+        for (final x in butin.objets)
+          if (x.id == o.id)
+            Objet.depuisJson(x.versJson()..['quantite'] = n)
+          else
+            x,
+      ]),
+    );
+    if (context.mounted) _erreur(context, erreur);
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = seance;
@@ -136,11 +154,30 @@ class DetailButin extends StatelessWidget {
                   ),
                   subtitle: o.resume.isEmpty ? null : Text(o.resume),
                   trailing: s.estMj
-                      ? IconButton(
-                          key: Key('retirer-objet-butin-${o.id}'),
-                          tooltip: 'Retirer du butin',
-                          onPressed: () => _retirerObjet(context, o),
-                          icon: const Icon(Icons.delete_outline),
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              key: Key('moins-objet-butin-${o.id}'),
+                              tooltip: 'Un de moins',
+                              onPressed: o.quantite > 1
+                                  ? () => _changerQuantite(context, o, -1)
+                                  : null,
+                              icon: const Icon(Icons.remove_circle_outline),
+                            ),
+                            IconButton(
+                              key: Key('plus-objet-butin-${o.id}'),
+                              tooltip: 'Un de plus',
+                              onPressed: () => _changerQuantite(context, o, 1),
+                              icon: const Icon(Icons.add_circle_outline),
+                            ),
+                            IconButton(
+                              key: Key('retirer-objet-butin-${o.id}'),
+                              tooltip: 'Retirer du butin',
+                              onPressed: () => _retirerObjet(context, o),
+                              icon: const Icon(Icons.delete_outline),
+                            ),
+                          ],
                         )
                       : FilledButton.tonal(
                           key: Key('prendre-objet-${o.id}'),

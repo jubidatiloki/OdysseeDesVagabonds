@@ -2814,6 +2814,166 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    test('créature neutre : ni alliée ni ennemie', () {
+      const c = CreatureSeance(id: 'm', nom: 'Marchand', neutre: true);
+      expect((c.neutre, c.duCotePj, c.ennemie), (true, false, false));
+      // Allié ou neutre : l'un exclut l'autre.
+      expect(c.copie(allie: true).neutre, isFalse);
+      expect(c.copie(allie: true).copie(neutre: true).allie, isFalse);
+      // Lue par les PJ.
+      final relue = CreatureSeance.depuisDocuments(
+          'm', c.versPublic(const ParametresCampagne()));
+      expect(relue.neutre, isTrue);
+      expect(c.pourJoueur(const ParametresCampagne()).neutre, isTrue);
+      expect(const CreatureSeance(id: 'r', nom: 'Rat').ennemie, isTrue);
+    });
+
+    testWidgets('créature neutre : à part dans la liste et dans les cibles',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(
+              c, const CreatureSeance(id: 'm', nom: 'Marchand', neutre: true));
+          await mj.ajouterCreature(
+              c, const CreatureSeance(id: 'r', nom: 'Rat', ca: 10));
+        },
+      );
+      expect(find.byKey(const Key('partie-neutres')), findsOneWidget);
+      double haut(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
+      expect(haut('partie-neutres'), lessThan(haut('carte-m')));
+      expect(haut('carte-m'), lessThan(haut('partie-creatures')));
+      // Fenêtre de cibles : le marchand dans « Neutres », en gris.
+      await tapDes(tester, 'attaque-0', cibleAuto: false);
+      expect(ciblesProposees(), containsAll(['m', 'r']));
+      final marchand = tester.widget<Text>(find.descendant(
+          of: find.byKey(const Key('choix-cible-m')),
+          matching: find.byType(Text)));
+      expect(marchand.style!.color, OdvCouleurs.grey);
+      expect(find.text('Neutres'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('annuler-cibles')));
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+        'MJ : pion mort barré, effets actifs, acteur gardé sur la carte',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj');
+          await mj.seance.ajouterCreature(
+              c,
+              const CreatureSeance(
+                  id: 'rat', nom: 'Rat', pv: 0, pvMax: 4, creatureId: 'loup'));
+          await mj.seance.ajouterCreature(
+              c,
+              const CreatureSeance(
+                  id: 'loup',
+                  nom: 'Loup',
+                  pv: 9,
+                  pvMax: 9,
+                  creatureId: 'loup'));
+          await mj.seance.poserBonus(
+            c,
+            BonusSeance(
+              nom: 'Bénédiction',
+              valeur: 2,
+              portee: PorteeBonus.attaque,
+              cibles: const ['loup'],
+              auteur: 'mj',
+              auteurNom: 'MJ',
+              duree: DureeBonus.finCombat,
+              seance: 1,
+              date: DateTime(2026, 11, 21),
+            ),
+          );
+          await mj.ajouterCarte(c,
+              nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+          final port = (await mj.ecouterCartes(c).first).last;
+          await mj.modifierCarte(c, port.copie(diffusee: true));
+          for (final id in ['rat', 'loup']) {
+            await mj.placerPion(
+              c,
+              port,
+              PionCarte(id: id, nom: id, personnage: false)
+                  .deplace(id == 'rat' ? 0.2 : 0.7, 0.5),
+            );
+          }
+        },
+      );
+      final port = x.base.cartes[x.campagne.id]!.values.single.carte;
+      // Le MJ touche le loup : il agit ; puis il affiche la carte.
+      await tap(tester, find.byKey(const Key('carte-loup')));
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(Key('carte-plan-${port.id}')));
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('vue-carte-${port.id}')), findsOneWidget);
+      // Croix rouge sur le rat mort, pas sur le loup.
+      expect(find.byKey(const Key('pion-mort-rat')), findsOneWidget);
+      expect(find.byKey(const Key('pion-mort-loup')), findsNothing);
+      // Effet actif du loup à côté de son pion.
+      expect(find.byKey(const Key('effets-pion-loup')), findsOneWidget);
+      expect(find.byKey(const Key('effets-pion-rat')), findsNothing);
+      // Le loup agit toujours : ses attaques restent dans les dés.
+      expect(find.text('Loup'), findsWidgets);
+      final choix = tester.widget<DropdownButtonFormField<String>>(
+          find.byKey(const Key('acteur-mj')));
+      expect(choix.initialValue, 'loup');
+      await deplier(
+          tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
+      expect(find.byKey(const Key('attaque-0')), findsOneWidget);
+      // Choisir une autre créature dans les dés, sans quitter la carte.
+      await tap(tester, find.byKey(const Key('acteur-mj')));
+      await tap(tester, find.text('Rat').last);
+      expect(
+        tester
+            .widget<DropdownButtonFormField<String>>(
+                find.byKey(const Key('acteur-mj')))
+            .initialValue,
+        'rat',
+      );
+      expect(find.byKey(Key('vue-carte-${port.id}')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : quantité des objets du butin', (tester) async {
+      final fleches = Objet(nom: 'Flèche', quantite: 2);
+      final x = await ouvrir(
+        tester,
+        'mj',
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').seance.ecrireButin(
+              c,
+              ButinSeance(id: 'b', nom: 'Coffre', objets: [fleches]),
+            ),
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      await tap(tester, find.byKey(const Key('carte-b')));
+      await tap(tester, find.byKey(Key('plus-objet-butin-${fleches.id}')));
+      expect(partie.butins['b']!.objets.single.quantite, 3);
+      await tap(tester, find.byKey(Key('moins-objet-butin-${fleches.id}')));
+      await tap(tester, find.byKey(Key('moins-objet-butin-${fleches.id}')));
+      expect(partie.butins['b']!.objets.single.quantite, 1);
+      // Au moins 1 : pour l'enlever, la corbeille.
+      expect(
+        tester
+            .widget<IconButton>(
+                find.byKey(Key('moins-objet-butin-${fleches.id}')))
+            .onPressed,
+        isNull,
+      );
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('PJ : prend l\'argent et les objets du butin', (tester) async {
       final brom = _brom();
       final epee = Objet(nom: 'Épée courte');

@@ -209,8 +209,9 @@ class ListeCartes extends StatelessWidget {
     // Créature rencontrée.
     Widget creature(CreatureSeance c) => _Carte(
           cle: 'carte-${c.id}',
-          // En rouge : on les distingue des PJ et des alliés.
-          ennemi: true,
+          // En rouge : on les distingue des PJ et des alliés ; pas les
+          // neutres (21/11/2026).
+          ennemi: !c.neutre,
           bonus: s.bonusSurCarte(c.id),
           selectionnee: s.carte == c.id,
           actif: s.etat.actif == c.id,
@@ -226,6 +227,7 @@ class ListeCartes extends StatelessWidget {
             if (s.caCarte(c) case final ca?) _Ca(ca, cle: 'ca-${c.id}'),
           ],
           lignes: [
+            if (c.neutre) 'Neutre',
             if (c.pv == null) c.etat.libelle,
             ...etats(c.id),
             if (s.estMj && c.cachee)
@@ -311,7 +313,17 @@ class ListeCartes extends StatelessWidget {
           for (final m in s.joueursOrdonnes) ...joueur(m),
           for (final c in s.creaturesOrdonnees)
             if (c.allie && !c.estAUnJoueur) allie(c),
-          if (s.creatures.any((c) => !c.duCotePj))
+          // Neutres (21/11/2026) : marchands, passants…
+          if (s.creatures.any((c) => c.neutre))
+            const _TitrePartie(
+              cle: 'partie-neutres',
+              icone: Icons.storefront_outlined,
+              titre: 'Neutres',
+              separe: true,
+            ),
+          for (final c in s.creaturesOrdonnees)
+            if (c.neutre) creature(c),
+          if (s.creatures.any((c) => c.ennemie))
             const _TitrePartie(
               cle: 'partie-creatures',
               icone: Icons.pets_outlined,
@@ -319,7 +331,7 @@ class ListeCartes extends StatelessWidget {
               separe: true,
             ),
           for (final c in s.creaturesOrdonnees)
-            if (!c.duCotePj) creature(c),
+            if (c.ennemie) creature(c),
         ],
         for (final b in s.butins)
           _Carte(
@@ -1081,6 +1093,15 @@ class _CreatureMj extends StatelessWidget {
                   subtitle: const Text('Avec les personnages, joué par le MJ'),
                   value: c.allie,
                   onChanged: (v) => s.modifierCreature(c.copie(allie: v)),
+                ),
+                SwitchListTile(
+                  key: const Key('creature-neutre'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text('Neutre'),
+                  subtitle: const Text('Ni allié ni ennemi (un marchand…)'),
+                  value: c.neutre,
+                  onChanged: (v) => s.modifierCreature(c.copie(neutre: v)),
                 ),
                 SwitchListTile(
                   key: const Key('creature-cachee'),

@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/image_carte.dart';
+import '../../models/bonus_seance.dart';
 import '../../models/campagne.dart';
 import '../../models/carte_campagne.dart';
 import '../../state/seance_controller.dart';
@@ -548,6 +549,15 @@ class _VueCarteState extends State<VueCarte> {
     return p.nom;
   }
 
+  /// Bonus, malus et afflictions visibles du personnage ou de la créature
+  /// du pion (en séance).
+  List<BonusSeance> _effets(PionCarte p) =>
+      widget.seance?.bonusVisibles(p.id) ?? const [];
+
+  /// Créature de la partie morte (0 PV, ou « vaincu » vu d'un PJ).
+  bool _morte(PionCarte p) =>
+      widget.seance?.creatures.any((c) => c.id == p.id && c.morte) ?? false;
+
   Widget _pion(PionCarte p) {
     final gere = _peutGerer(p);
     final enCours = _deplace == p.id;
@@ -572,7 +582,66 @@ class _VueCarteState extends State<VueCarte> {
           ),
         ),
         const SizedBox(height: 2),
-        IconePion(pion: p, rayon: 16, souligne: enCours),
+        // Effets actifs à côté (21/11/2026) ; croix rouge si la créature
+        // est morte.
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconePion(pion: p, rayon: 16, souligne: enCours),
+                if (_morte(p))
+                  Positioned.fill(
+                    child: Icon(
+                      Icons.close,
+                      key: Key('pion-mort-${p.id}'),
+                      size: 34,
+                      color: OdvCouleurs.red,
+                    ),
+                  ),
+              ],
+            ),
+            if (_effets(p) case final effets when effets.isNotEmpty) ...[
+              const SizedBox(width: 2),
+              Container(
+                key: Key('effets-pion-${p.id}'),
+                padding: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final b in effets.take(4))
+                      Tooltip(
+                        message: '${b.nom} ${b.effet} · ${b.dureeTexte}',
+                        child: Icon(
+                          b.estEtat
+                              ? Icons.warning_amber_rounded
+                              : b.valeur >= 0
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                          key: Key('effet-pion-${b.id}'),
+                          size: 13,
+                          color: b.estEtat || b.valeur < 0
+                              ? OdvCouleurs.lightRed
+                              : OdvCouleurs.lightGreen,
+                        ),
+                      ),
+                    if (effets.length > 4)
+                      Text(
+                        '+${effets.length - 4}',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 9),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ],
     );
     if (!gere) return widgetPion;
@@ -739,7 +808,11 @@ class IconePion extends StatelessWidget {
           shape: BoxShape.circle,
           color: theme.colorScheme.surface,
           border: Border.all(
-            color: pion.allie ? OdvCouleurs.green : OdvCouleurs.red,
+            color: pion.allie
+                ? OdvCouleurs.green
+                : pion.neutre
+                    ? OdvCouleurs.grey
+                    : OdvCouleurs.red,
             width: 2,
           ),
         ),

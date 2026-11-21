@@ -1551,6 +1551,34 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  /// MJ (21/11/2026) : qui agit, même quand une carte est affichée au
+  /// centre.
+  Widget _choixActeur() {
+    return DropdownButtonFormField<String>(
+      key: const Key('acteur-mj'),
+      initialValue: _s.acteurMj,
+      isExpanded: true,
+      decoration: const InputDecoration(
+        labelText: 'Qui agit',
+        prefixIcon: Icon(Icons.person_search_outlined),
+      ),
+      items: [
+        const DropdownMenuItem(value: '', child: Text('Personne (MJ)')),
+        for (final m in _s.joueurs)
+          DropdownMenuItem(
+            value: m.uid,
+            child: Text(m.personnageNom, overflow: TextOverflow.ellipsis),
+          ),
+        for (final c in _s.creaturesOrdonnees)
+          DropdownMenuItem(
+            value: c.id,
+            child: Text(c.nom, overflow: TextOverflow.ellipsis),
+          ),
+      ],
+      onChanged: (v) => _s.choisirActeur(v ?? ''),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -1582,6 +1610,16 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       key: const Key('panneau-des'),
       padding: const EdgeInsets.all(12),
       children: [
+        // MJ (21/11/2026) : qui agit, même quand une carte est affichée au
+        // centre.
+        if (_s.estMj) ...[
+          // Reconstruite quand l'acteur change (carte touchée à gauche).
+          KeyedSubtree(
+            key: ValueKey('acteur-${_s.acteurMj}'),
+            child: _choixActeur(),
+          ),
+          const SizedBox(height: 8),
+        ],
         // Jets libres : MJ seulement ; les PJ passent par leurs boutons.
         if (_s.estMj) ...[
           Wrap(

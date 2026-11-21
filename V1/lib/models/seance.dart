@@ -257,6 +257,7 @@ class CreatureSeance {
     this.proprietaire = '',
     this.toursRestants,
     this.allie = false,
+    this.neutre = false,
   });
 
   /// Nom montré aux PJ quand le MJ cache le vrai nom.
@@ -306,6 +307,13 @@ class CreatureSeance {
   /// Du côté des PJ : créature d'un joueur ou allié.
   bool get duCotePj => estAUnJoueur || allie;
 
+  /// Neutre (21/11/2026) : ni allié ni ennemi (un marchand, un passant),
+  /// joué par le MJ ; pas en rouge, à part des créatures rencontrées.
+  final bool neutre;
+
+  /// Créature rencontrée hostile : ni du côté des PJ, ni neutre.
+  bool get ennemie => !duCotePj && !neutre;
+
   /// Morte (20/11/2026) : 0 PV ou moins (ou « vaincu » vu d'un PJ).
   bool get morte => (pv != null && pv! <= 0) || etat == EtatCreature.vaincue;
 
@@ -318,8 +326,12 @@ class CreatureSeance {
     bool? nomCache,
     int? toursRestants,
     bool? allie,
+    bool? neutre,
   }) {
     final v = pv ?? this.pv;
+    // Allié ou neutre : l'un exclut l'autre.
+    final a = allie ?? (neutre == true ? false : this.allie);
+    final n = neutre ?? (allie == true ? false : this.neutre);
     return CreatureSeance(
       id: id,
       nom: nom,
@@ -335,7 +347,8 @@ class CreatureSeance {
       nomCache: nomCache ?? this.nomCache,
       proprietaire: proprietaire,
       toursRestants: toursRestants ?? this.toursRestants,
-      allie: allie ?? this.allie,
+      allie: a,
+      neutre: n,
     );
   }
 
@@ -354,6 +367,7 @@ class CreatureSeance {
         proprietaire: proprietaire,
         toursRestants: toursRestants,
         allie: allie,
+        neutre: neutre,
       );
 
   /// Ce qu'un PJ a le droit de savoir, selon les permissions : la fiche
@@ -375,6 +389,7 @@ class CreatureSeance {
         proprietaire: proprietaire,
         toursRestants: toursRestants,
         allie: allie,
+        neutre: neutre,
       );
 
   /// Partie lisible par les PJ (si la carte n'est pas cachée).
@@ -389,6 +404,7 @@ class CreatureSeance {
         if (estAUnJoueur) 'proprietaire': proprietaire,
         if (toursRestants != null) 'toursRestants': toursRestants,
         if (allie) 'allie': true,
+        if (neutre) 'neutre': true,
         if (ca != null) 'ca': ca,
         'description': description,
         'initiative': initiative,
@@ -428,6 +444,7 @@ class CreatureSeance {
         proprietaire: public['proprietaire'] as String? ?? '',
         toursRestants: (public['toursRestants'] as num?)?.toInt(),
         allie: public['allie'] as bool? ?? false,
+        neutre: public['neutre'] as bool? ?? false,
       );
 }
 
@@ -755,7 +772,7 @@ class JetSeance {
 }
 
 /// Camp d'une cible vu de celui qui agit (fenêtre de cibles, 19/11/2026).
-enum CampCible { soi, allie, ennemi }
+enum CampCible { soi, allie, neutre, ennemi }
 
 /// Une cible proposée : id (uid d'un joueur ou id de créature), nom, camp.
 typedef CibleSeance = ({String id, String nom, CampCible camp});

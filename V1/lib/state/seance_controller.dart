@@ -291,6 +291,7 @@ class SeanceController extends ChangeNotifier {
         personnage: false,
         proprietaire: c.proprietaire,
         allie: c.duCotePj,
+        neutre: c.neutre,
         famille:
             c.famille.isNotEmpty ? c.famille : ficheCreature(c)?.famille ?? '',
       );
@@ -1008,10 +1009,35 @@ class SeanceController extends ChangeNotifier {
     return null;
   }
 
-  /// Créature sélectionnée, s'il y en a une.
+  /// MJ (21/11/2026) : qui agit dans le panneau des dés, gardé quand on
+  /// affiche autre chose au centre (une carte, le script) ; '' : personne.
+  String? _acteurMj;
+
+  /// Personnage ou créature de la partie ?
+  bool _estActeur(String id) =>
+      _creatures.any((c) => c.id == id) || joueurs.any((m) => m.uid == id);
+
+  /// Qui agit : pour le MJ, celui choisi (ou la dernière carte de
+  /// personnage ou de créature touchée) ; sinon la carte sélectionnée.
+  String get _acteur {
+    final a = _acteurMj;
+    if (estMj && a != null && (a.isEmpty || _estActeur(a))) return a;
+    return _carte;
+  }
+
+  /// MJ : qui agit dans le panneau des dés ('' : personne).
+  String get acteurMj => estMj && _estActeur(_acteur) ? _acteur : '';
+
+  /// MJ : choisit qui agit, sans changer ce qui est affiché au centre.
+  void choisirActeur(String id) {
+    _acteurMj = id;
+    notifyListeners();
+  }
+
+  /// Créature sélectionnée (celle qui agit pour le MJ), s'il y en a une.
   CreatureSeance? get creatureChoisie {
     for (final c in _creatures) {
-      if (c.id == _carte) return c;
+      if (c.id == _acteur) return c;
     }
     return null;
   }
@@ -1025,7 +1051,7 @@ class SeanceController extends ChangeNotifier {
     }
     final c = creatureChoisie;
     if (c != null) return (fiche: null, creature: ficheCreature(c), nom: c.nom);
-    final f = ficheDe(_carte);
+    final f = ficheDe(_acteur);
     return (fiche: f, creature: null, nom: f?.personnage.nom ?? '');
   }
 
@@ -1034,6 +1060,8 @@ class SeanceController extends ChangeNotifier {
 
   void choisirCarte(String id) {
     _carte = id;
+    // MJ : toucher un personnage ou une créature le fait agir.
+    if (estMj && _estActeur(id)) _acteurMj = id;
     notifyListeners();
   }
 
@@ -1839,6 +1867,7 @@ class SeanceController extends ChangeNotifier {
     bool cachee = false,
     bool nomCache = false,
     bool allie = false,
+    bool neutre = false,
   }) =>
       _agir((s, c) async {
         await s.ajouterCreature(
@@ -1856,6 +1885,7 @@ class SeanceController extends ChangeNotifier {
             cachee: cachee,
             nomCache: nomCache,
             allie: allie,
+            neutre: neutre && !allie,
           ),
         );
         await _reordonner(s, c);
@@ -1901,7 +1931,7 @@ class SeanceController extends ChangeNotifier {
   }
 
   /// Celui qui agit dans le lancer de dés : joueur (uid) ou créature (id).
-  String get idAttaquant => estMj ? creatureChoisie?.id ?? _carte : uid;
+  String get idAttaquant => estMj ? creatureChoisie?.id ?? _acteur : uid;
 
   /// Cibles possibles d'une attaque ou d'un sort, sauf celui qui agit. La
   /// première sert de cible par défaut : une créature rencontrée pour un PJ
@@ -1936,12 +1966,18 @@ class SeanceController extends ChangeNotifier {
     bool estCotePj(String id) =>
         joueurs.any((m) => m.uid == id) ||
         _creatures.any((c) => c.id == id && c.duCotePj);
+    // Neutres (21/11/2026) : à part, ni alliés ni ennemis.
+    bool estNeutre(String id) => _creatures.any((c) => c.id == id && c.neutre);
     return [
       for (final c in cibles)
         (
           id: c.id,
           nom: c.nom,
-          camp: estCotePj(c.id) == cotePj ? CampCible.allie : CampCible.ennemi,
+          camp: estNeutre(c.id)
+              ? CampCible.neutre
+              : estCotePj(c.id) == cotePj
+                  ? CampCible.allie
+                  : CampCible.ennemi,
         ),
       if (soi.isNotEmpty) (id: soi, nom: attaquant.nom, camp: CampCible.soi),
     ];

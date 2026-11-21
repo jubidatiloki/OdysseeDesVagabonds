@@ -9,6 +9,8 @@ Color couleurCamp(CampCible camp, Brightness b) => switch (camp) {
       CampCible.soi =>
         b == Brightness.dark ? OdvCouleurs.or : OdvCouleurs.peFonce,
       CampCible.allie => couleurModificateur(1, b),
+      CampCible.neutre =>
+        b == Brightness.dark ? OdvCouleurs.texteSecondaire : OdvCouleurs.grey,
       CampCible.ennemi => couleurModificateur(-1, b),
     };
 
@@ -141,6 +143,7 @@ class _DialogueCiblesState extends State<DialogueCibles> {
               key: const Key('compte-cibles'),
             ),
             ...(ennemisDabord ? parties : parties.reversed),
+            _partie('Neutres', CampCible.neutre),
             _partie('Soi-même', CampCible.soi),
           ],
         ),

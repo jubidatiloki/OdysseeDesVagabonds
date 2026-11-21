@@ -98,6 +98,7 @@ class PionCarte {
     required this.personnage,
     this.proprietaire = '',
     this.allie = false,
+    this.neutre = false,
     this.classeId = '',
     this.raceId = '',
     this.element = '',
@@ -119,6 +120,9 @@ class PionCarte {
   /// Du côté des PJ (personnage, compagnon, allié joué par le MJ).
   final bool allie;
 
+  /// Créature neutre (21/11/2026) : contour gris.
+  final bool neutre;
+
   /// Icône d'un personnage : classe, race, élément du draconien.
   final String classeId;
   final String raceId;
@@ -137,6 +141,7 @@ class PionCarte {
         personnage: personnage,
         proprietaire: proprietaire,
         allie: allie,
+        neutre: neutre,
         classeId: classeId,
         raceId: raceId,
         element: element,
@@ -150,6 +155,7 @@ class PionCarte {
         'personnage': personnage,
         'proprietaire': proprietaire,
         'allie': allie,
+        if (neutre) 'neutre': true,
         if (classeId.isNotEmpty) 'classeId': classeId,
         if (raceId.isNotEmpty) 'raceId': raceId,
         if (element.isNotEmpty) 'element': element,
@@ -164,6 +170,7 @@ class PionCarte {
         personnage: j['personnage'] as bool? ?? false,
         proprietaire: j['proprietaire'] as String? ?? '',
         allie: j['allie'] as bool? ?? false,
+        neutre: j['neutre'] as bool? ?? false,
         classeId: j['classeId'] as String? ?? '',
         raceId: j['raceId'] as String? ?? '',
         element: j['element'] as String? ?? '',

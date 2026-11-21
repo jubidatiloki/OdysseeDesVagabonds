@@ -13,7 +13,8 @@ class OngletCreatures extends StatelessWidget {
 
   Future<void> _ajouter(BuildContext context, Creature creature) async {
     final messager = ScaffoldMessenger.of(context);
-    final choix = await showDialog<({bool cachee, bool nomCache, bool allie})>(
+    final choix = await showDialog<
+        ({bool cachee, bool nomCache, bool allie, bool neutre})>(
       context: context,
       builder: (context) => _DialogueAjout(creature: creature),
     );
@@ -23,11 +24,12 @@ class OngletCreatures extends StatelessWidget {
       cachee: choix.cachee,
       nomCache: choix.nomCache,
       allie: choix.allie,
+      neutre: choix.neutre,
     );
     messager.showSnackBar(SnackBar(
       content: Text(erreur ??
           '${creature.nom} ajoutée à la partie'
-              '${choix.allie ? ' (alliée des PJ)' : ''}.'),
+              '${choix.allie ? ' (alliée des PJ)' : choix.neutre ? ' (neutre)' : ''}.'),
     ));
   }
 
@@ -63,6 +65,7 @@ class _DialogueAjoutState extends State<_DialogueAjout> {
   var _cachee = false;
   var _nomCache = false;
   var _allie = false;
+  var _neutre = false;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +82,22 @@ class _DialogueAjoutState extends State<_DialogueAjout> {
             subtitle: const Text('Avec les personnages ; c\'est toi qui le '
                 'contrôles.'),
             value: _allie,
-            onChanged: (v) => setState(() => _allie = v ?? false),
+            onChanged: (v) => setState(() {
+              _allie = v ?? false;
+              if (_allie) _neutre = false;
+            }),
+          ),
+          // Neutre (21/11/2026) : un marchand, un passant…
+          CheckboxListTile(
+            key: const Key('ajout-neutre'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Neutre'),
+            subtitle: const Text('Ni allié ni ennemi (un marchand…).'),
+            value: _neutre,
+            onChanged: (v) => setState(() {
+              _neutre = v ?? false;
+              if (_neutre) _allie = false;
+            }),
           ),
           CheckboxListTile(
             key: const Key('ajout-carte-cachee'),
@@ -112,6 +130,7 @@ class _DialogueAjoutState extends State<_DialogueAjout> {
               cachee: _cachee,
               nomCache: _nomCache && !_cachee,
               allie: _allie,
+              neutre: _neutre,
             ),
           ),
           child: const Text('Ajouter'),

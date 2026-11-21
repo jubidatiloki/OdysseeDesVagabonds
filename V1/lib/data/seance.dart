@@ -260,6 +260,7 @@ class ServiceSeanceMemoire implements ServiceSeance {
       nomCache: creature.nomCache,
       proprietaire: creature.proprietaire,
       allie: creature.allie,
+      neutre: creature.neutre,
       toursRestants: creature.toursRestants,
     );
     base.signaler();

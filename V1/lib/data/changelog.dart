@@ -29,6 +29,31 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.80.0',
+    date: '21/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : créatures neutres (un marchand…), ni alliées ni '
+            'ennemies, à part dans la liste et les cibles.',
+      ),
+      (
+        type: _a,
+        texte: 'Cartes : effets actifs à côté des pions, croix rouge sur une '
+            'créature morte.',
+      ),
+      (
+        type: _a,
+        texte: 'Butin : le MJ change la quantité de chaque objet (+1, −1).',
+      ),
+      (
+        type: _a,
+        texte: 'Dés du MJ : « Qui agit » choisit la créature qui lance, même '
+            'avec une carte affichée.',
+      ),
+    ],
+  ),
+  (
     version: '0.79.0',
     date: '21/11/2026',
     changements: [
