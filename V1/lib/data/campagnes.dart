@@ -577,6 +577,7 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
         diffusee: carte.diffusee,
         grille: carte.grille,
         colonnes: carte.colonnes,
+        epaisseur: carte.epaisseur,
       ),
       image: x.image,
     );

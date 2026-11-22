@@ -425,6 +425,7 @@ class _VueCarteState extends State<VueCarte> {
   /// (enregistré en fin de glissement du curseur).
   late bool _grille = widget.carte.grille;
   late int _colonnes = widget.carte.colonnes;
+  late int _epaisseur = widget.carte.epaisseur;
 
   /// MJ : panneau de réglage de la grille ouvert.
   var _reglages = false;
@@ -436,7 +437,11 @@ class _VueCarteState extends State<VueCarte> {
     if (s == null) return;
     await _agir(() => s.modifierCarte(
           widget.campagne,
-          widget.carte.copie(grille: _grille, colonnes: _colonnes),
+          widget.carte.copie(
+            grille: _grille,
+            colonnes: _colonnes,
+            epaisseur: _epaisseur,
+          ),
         ));
   }
 
@@ -463,9 +468,11 @@ class _VueCarteState extends State<VueCarte> {
     // Grille changée ailleurs (autre appareil, autre carte).
     if (ancien.carte.id != widget.carte.id ||
         ancien.carte.grille != widget.carte.grille ||
-        ancien.carte.colonnes != widget.carte.colonnes) {
+        ancien.carte.colonnes != widget.carte.colonnes ||
+        ancien.carte.epaisseur != widget.carte.epaisseur) {
       _grille = widget.carte.grille;
       _colonnes = widget.carte.colonnes;
+      _epaisseur = widget.carte.epaisseur;
     }
   }
 
@@ -578,12 +585,16 @@ class _VueCarteState extends State<VueCarte> {
                 ),
               ],
             ),
+            // Réglable même cachée aux PJ (22/11/2026) : le MJ la voit tant
+            // que ce panneau est ouvert.
             SwitchListTile(
               key: const Key('grille-affichee'),
               contentPadding: EdgeInsets.zero,
               dense: true,
-              title: const Text('Afficher la grille'),
-              subtitle: const Text('Visible de tous, pour donner l\'échelle'),
+              title: const Text('Grille visible des PJ'),
+              subtitle: Text(_grille
+                  ? 'Affichée pour tous, pour donner l\'échelle'
+                  : 'Cachée aux PJ (tu la vois pendant le réglage)'),
               value: _grille,
               onChanged: (v) {
                 setState(() => _grille = v);
@@ -602,8 +613,23 @@ class _VueCarteState extends State<VueCarte> {
               max: CarteCampagne.colonnesMax.toDouble(),
               divisions: CarteCampagne.colonnesMax - CarteCampagne.colonnesMin,
               label: '$_colonnes',
-              onChanged:
-                  _grille ? (v) => setState(() => _colonnes = v.round()) : null,
+              onChanged: (v) => setState(() => _colonnes = v.round()),
+              onChangeEnd: (_) => _enregistrerGrille(),
+            ),
+            // Épaisseur des traits (22/11/2026).
+            Text(
+              'Épaisseur des traits : $_epaisseur',
+              key: const Key('grille-epaisseur-texte'),
+              style: theme.textTheme.bodySmall,
+            ),
+            Slider(
+              key: const Key('grille-epaisseur'),
+              value: _epaisseur.toDouble(),
+              min: 1,
+              max: CarteCampagne.epaisseurMax.toDouble(),
+              divisions: CarteCampagne.epaisseurMax - 1,
+              label: '$_epaisseur',
+              onChanged: (v) => setState(() => _epaisseur = v.round()),
               onChangeEnd: (_) => _enregistrerGrille(),
             ),
           ],
@@ -848,12 +874,15 @@ class _VueCarteState extends State<VueCarte> {
                                   ),
                                 ),
                                 // Grille d'échelle, sous les pions.
-                                if (_grille)
+                                if (_grille || (_estMj && _reglages))
                                   Positioned.fill(
                                     child: IgnorePointer(
                                       child: CustomPaint(
                                         key: const Key('grille-carte'),
-                                        painter: PeintreGrille(_colonnes),
+                                        painter: PeintreGrille(
+                                          _colonnes,
+                                          epaisseur: _epaisseur,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -930,9 +959,12 @@ class _VueCarteState extends State<VueCarte> {
 /// sur la largeur ; traits fins, clairs et soulignés de sombre pour se voir
 /// sur toutes les images.
 class PeintreGrille extends CustomPainter {
-  const PeintreGrille(this.colonnes);
+  const PeintreGrille(this.colonnes, {this.epaisseur = 1});
 
   final int colonnes;
+
+  /// Épaisseur des traits (1 : fins).
+  final int epaisseur;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -940,10 +972,10 @@ class PeintreGrille extends CustomPainter {
     final pas = size.width / colonnes;
     final sombre = Paint()
       ..color = Colors.black.withValues(alpha: 0.35)
-      ..strokeWidth = 2;
+      ..strokeWidth = 1.2 + 0.8 * epaisseur;
     final clair = Paint()
       ..color = Colors.white.withValues(alpha: 0.55)
-      ..strokeWidth = 0.8;
+      ..strokeWidth = 0.8 * epaisseur;
     for (final p in [sombre, clair]) {
       for (var x = pas; x < size.width - 0.5; x += pas) {
         canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
@@ -955,7 +987,8 @@ class PeintreGrille extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PeintreGrille ancien) => ancien.colonnes != colonnes;
+  bool shouldRepaint(PeintreGrille ancien) =>
+      ancien.colonnes != colonnes || ancien.epaisseur != epaisseur;
 }
 
 /// Couleur du contour d'un pion selon son camp (21/11/2026) : vert pour

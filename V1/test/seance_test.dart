@@ -3529,6 +3529,54 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('MJ : crayon de visibilité sur les cartes, créatures, butins',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        taille: const Size(1800, 1000),
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj');
+          await mj.seance
+              .ajouterCreature(c, const CreatureSeance(id: 'r', nom: 'Rat'));
+          await mj.seance
+              .ecrireButin(c, const ButinSeance(id: 'b', nom: 'Coffre'));
+          await mj.ajouterCarte(c,
+              nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+        },
+      );
+      final partie = x.base.parties[x.campagne.id]!;
+      final plan = x.base.cartes[x.campagne.id]!.values.single.carte;
+      await tap(tester, find.byKey(const Key('editer-carte-r')));
+      await tap(tester, find.byKey(const Key('menu-creature-cachee')));
+      expect(partie.creatures['r']!.cachee, isTrue);
+      await tap(tester, find.byKey(const Key('editer-carte-b')));
+      await tap(tester, find.byKey(const Key('menu-butin-cache')));
+      expect(partie.butins['b']!.cache, isTrue);
+      await tap(tester, find.byKey(const Key('editer-carte-b')));
+      await tap(tester, find.byKey(const Key('menu-butin-visible')));
+      expect(partie.butins['b']!.cache, isFalse);
+      await tap(tester, find.byKey(Key('editer-carte-plan-${plan.id}')));
+      await tap(tester, find.byKey(const Key('menu-plan-visible')));
+      expect(x.base.cartes[x.campagne.id]![plan.id]!.carte.diffusee, isTrue);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('PJ : pas de crayon de visibilité', (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
+            .seance
+            .ajouterCreature(c, const CreatureSeance(id: 'r', nom: 'Rat')),
+      );
+      expect(find.byKey(const Key('editer-carte-r')), findsNothing);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('MJ : clic droit sur une créature, visibilité et camp',
         (tester) async {
       final x = await ouvrir(
@@ -3755,17 +3803,39 @@ void main() {
       expect(find.byKey(const Key('grille-carte')), findsNothing);
       await tap(tester, find.byKey(const Key('reglages-carte')));
       expect(find.byKey(const Key('panneau-grille')), findsOneWidget);
-      await tap(tester, find.byKey(const Key('grille-affichee')));
-      expect(enLigne().grille, isTrue);
+      // Cachée aux PJ, mais réglable (22/11/2026) : le MJ la voit pendant
+      // le réglage.
+      expect(enLigne().grille, isFalse);
       expect(find.byKey(const Key('grille-carte')), findsOneWidget);
       // Curseur : plus de cases (enregistré en fin de glissement).
       final curseur =
           tester.widget<Slider>(find.byKey(const Key('grille-curseur')));
+      expect(curseur.onChanged, isNotNull);
       curseur.onChanged!(30);
       curseur.onChangeEnd!(30);
       await tester.pumpAndSettle();
       expect(enLigne().colonnes, 30);
       expect(find.textContaining('30 cases sur la largeur'), findsOneWidget);
+      // Épaisseur des traits.
+      final epaisseur =
+          tester.widget<Slider>(find.byKey(const Key('grille-epaisseur')));
+      epaisseur.onChanged!(4);
+      epaisseur.onChangeEnd!(4);
+      await tester.pumpAndSettle();
+      expect(enLigne().epaisseur, 4);
+      final peintre = tester
+          .widget<CustomPaint>(find.byKey(const Key('grille-carte')))
+          .painter! as PeintreGrille;
+      expect((peintre.colonnes, peintre.epaisseur), (30, 4));
+      // Panneau fermé : grille cachée aux PJ, donc plus affichée.
+      await tap(tester, find.byKey(const Key('reglages-carte')));
+      expect(find.byKey(const Key('grille-carte')), findsNothing);
+      // Visible des PJ : affichée, panneau fermé ou non.
+      await tap(tester, find.byKey(const Key('reglages-carte')));
+      await tap(tester, find.byKey(const Key('grille-affichee')));
+      expect(enLigne().grille, isTrue);
+      await tap(tester, find.byKey(const Key('reglages-carte')));
+      expect(find.byKey(const Key('grille-carte')), findsOneWidget);
       expect(find.text('Grille : 30 cases'), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
@@ -3782,10 +3852,11 @@ void main() {
       );
       expect((c.grille, c.colonnes), (false, 20));
       expect(c.copie(colonnes: 500).colonnes, CarteCampagne.colonnesMax);
-      expect(c.copie(colonnes: 1).colonnes, CarteCampagne.colonnesMin);
+      expect(c.copie(colonnes: 1).colonnes, 2);
+      expect(c.copie(epaisseur: 99).epaisseur, CarteCampagne.epaisseurMax);
       final relue = CarteCampagne.depuisJson(
-          'c', c.copie(grille: true, colonnes: 12).versJson());
-      expect((relue.grille, relue.colonnes), (true, 12));
+          'c', c.copie(grille: true, colonnes: 2, epaisseur: 3).versJson());
+      expect((relue.grille, relue.colonnes, relue.epaisseur), (true, 2, 3));
     });
 
     testWidgets('PJ : voit la carte diffusée et l\'ouvre au centre',

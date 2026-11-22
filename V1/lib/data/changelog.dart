@@ -29,6 +29,28 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.83.0',
+    date: '22/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            'Cartes : épaisseur des traits de la grille ; 2 cases au moins sur '
+            'la largeur.',
+      ),
+      (
+        type: _m,
+        texte: 'Cartes : grille réglable même cachée aux PJ (le MJ la voit '
+            'pendant le réglage).',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : crayon sur les cartes, créatures et butins du MJ pour '
+            'régler vite leur visibilité.',
+      ),
+    ],
+  ),
+  (
     version: '0.82.0',
     date: '22/11/2026',
     changements: [

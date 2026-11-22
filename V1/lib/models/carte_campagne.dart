@@ -14,14 +14,19 @@ class CarteCampagne {
     required this.ajouteeLe,
     this.grille = false,
     this.colonnes = colonnesParDefaut,
+    this.epaisseur = 1,
   });
+
+  /// Épaisseur des traits de la grille (22/11/2026), de 1 à [epaisseurMax].
+  final int epaisseur;
+  static const int epaisseurMax = 8;
 
   /// Grille d'échelle (22/11/2026) : affichée sur la carte, pour tous.
   final bool grille;
 
   /// Nombre de cases sur la largeur de l'image (cases carrées).
   final int colonnes;
-  static const int colonnesMin = 4;
+  static const int colonnesMin = 2;
   static const int colonnesMax = 80;
   static const int colonnesParDefaut = 20;
 
@@ -56,6 +61,7 @@ class CarteCampagne {
     bool? diffusee,
     bool? grille,
     int? colonnes,
+    int? epaisseur,
   }) =>
       CarteCampagne(
         id: id,
@@ -68,6 +74,7 @@ class CarteCampagne {
         ajouteeLe: ajouteeLe,
         grille: grille ?? this.grille,
         colonnes: (colonnes ?? this.colonnes).clamp(colonnesMin, colonnesMax),
+        epaisseur: (epaisseur ?? this.epaisseur).clamp(1, epaisseurMax),
       );
 
   Map<String, dynamic> versJson() => {
@@ -80,6 +87,7 @@ class CarteCampagne {
         'ajouteeLe': ajouteeLe.toIso8601String(),
         'grille': grille,
         'colonnes': colonnes,
+        'epaisseur': epaisseur,
       };
 
   factory CarteCampagne.depuisJson(String id, Map<String, dynamic> j) =>
@@ -96,6 +104,8 @@ class CarteCampagne {
         grille: j['grille'] as bool? ?? false,
         colonnes: ((j['colonnes'] as num?)?.toInt() ?? colonnesParDefaut)
             .clamp(colonnesMin, colonnesMax),
+        epaisseur:
+            ((j['epaisseur'] as num?)?.toInt() ?? 1).clamp(1, epaisseurMax),
       );
 
   /// Nom propre : sans espaces en trop, sans extension de fichier, pas

@@ -464,6 +464,7 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
         'diffusee': carte.diffusee,
         'grille': carte.grille,
         'colonnes': carte.colonnes,
+        'epaisseur': carte.epaisseur,
       });
 
   @override

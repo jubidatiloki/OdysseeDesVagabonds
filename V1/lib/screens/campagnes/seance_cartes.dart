@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/butin.dart';
 import '../../models/campagne.dart';
 import '../../models/carte_campagne.dart';
 import '../../models/creature.dart';
@@ -34,6 +35,39 @@ class ListeCartes extends StatelessWidget {
   void _choisir(String id) {
     seance.choisirCarte(id);
     onChoisie?.call();
+  }
+
+  /// MJ (22/11/2026) : visibilité d'un butin pour les PJ (crayon, appui
+  /// long ou clic droit).
+  Future<void> _menuButin(
+    BuildContext context,
+    ButinSeance b,
+    Offset pos,
+  ) async {
+    final r = await showMenu<bool>(
+      context: context,
+      position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx, pos.dy),
+      items: [
+        CheckedPopupMenuItem(
+          key: const Key('menu-butin-visible'),
+          value: true,
+          checked: !b.cache,
+          child: const Text('Visible des PJ'),
+        ),
+        CheckedPopupMenuItem(
+          key: const Key('menu-butin-cache'),
+          value: false,
+          checked: b.cache,
+          child: const Text('Caché aux PJ'),
+        ),
+      ],
+    );
+    if (r == null || r == !b.cache) return;
+    final erreur = await seance.montrerButin(b, visible: r);
+    if (erreur != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(erreur)));
+    }
   }
 
   /// MJ (22/11/2026) : appui long (ou clic droit) sur une carte de la
@@ -452,6 +486,7 @@ class ListeCartes extends StatelessWidget {
               if (s.estMj && b.cache) 'Caché aux PJ',
             ],
             onTap: () => _choisir(b.id),
+            onMenu: s.estMj ? (pos) => _menuButin(context, b, pos) : null,
             onRetirer: s.estMj
                 ? () async {
                     final erreur = await s.retirerButin(b);
@@ -694,6 +729,27 @@ class _Carte extends StatelessWidget {
                   ],
                 ),
               ),
+              // Crayon (22/11/2026) : réglages rapides de visibilité, le même
+              // menu que l'appui long ou le clic droit.
+              if (onMenu != null)
+                Builder(
+                  builder: (bouton) => IconButton(
+                    key: Key('editer-$cle'),
+                    tooltip: 'Visibilité',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () {
+                      final box = bouton.findRenderObject() as RenderBox?;
+                      onMenu!(box == null
+                          ? Offset.zero
+                          : box.localToGlobal(box.size.center(Offset.zero)));
+                    },
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
               if (bonus case final b?)
                 Tooltip(
                   message: [
