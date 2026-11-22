@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/campagne.dart';
+import '../../models/carte_campagne.dart';
 import '../../models/creature.dart';
 import '../../models/seance.dart';
 import '../../regles/invocations.dart';
@@ -33,6 +34,39 @@ class ListeCartes extends StatelessWidget {
   void _choisir(String id) {
     seance.choisirCarte(id);
     onChoisie?.call();
+  }
+
+  /// MJ (22/11/2026) : appui long (ou clic droit) sur une carte de la
+  /// campagne : la montrer ou la cacher aux PJ.
+  Future<void> _menuPlan(
+    BuildContext context,
+    CarteCampagne p,
+    Offset pos,
+  ) async {
+    final r = await showMenu<bool>(
+      context: context,
+      position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx, pos.dy),
+      items: [
+        CheckedPopupMenuItem(
+          key: const Key('menu-plan-visible'),
+          value: true,
+          checked: p.diffusee,
+          child: const Text('Visible des PJ'),
+        ),
+        CheckedPopupMenuItem(
+          key: const Key('menu-plan-cachee'),
+          value: false,
+          checked: !p.diffusee,
+          child: const Text('Cachée aux PJ'),
+        ),
+      ],
+    );
+    if (r == null || r == p.diffusee) return;
+    final erreur = await seance.diffuserCarte(p, r);
+    if (erreur != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(erreur)));
+    }
   }
 
   /// MJ (21/11/2026) : clic droit (ou appui long) sur une créature :
@@ -336,20 +370,27 @@ class ListeCartes extends StatelessWidget {
           ),
         // Cartes de la campagne diffusées par le MJ, en haut, dans leur
         // propre bloc (16/11/2026).
-        if (s.cartesDiffusees.isNotEmpty)
+        if (s.cartesDeLaListe.isNotEmpty)
           const _TitrePartie(
             cle: 'partie-cartes',
             icone: Icons.map_outlined,
             titre: 'Cartes',
           ),
-        for (final p in s.cartesDiffusees)
+        for (final p in s.cartesDeLaListe)
           _Carte(
             cle: 'carte-plan-${p.id}',
             selectionnee: s.carte == '$kPrefixePlan${p.id}',
-            icone: Icons.map_outlined,
-            couleurIcone: OdvCouleurs.or,
+            // MJ : carte cachée aux PJ, icône barrée (22/11/2026).
+            icone:
+                p.diffusee ? Icons.map_outlined : Icons.visibility_off_outlined,
+            couleurIcone: p.diffusee ? OdvCouleurs.or : null,
             titre: p.nom,
+            lignes: [
+              if (s.estMj && !p.diffusee) 'Cachée aux PJ',
+              if (p.grille) 'Grille : ${p.colonnes} cases',
+            ],
             onTap: () => _choisir('$kPrefixePlan${p.id}'),
+            onMenu: s.estMj ? (pos) => _menuPlan(context, p, pos) : null,
           ),
         // En combat (20/11/2026) : une seule liste, dans l'ordre du combat
         // (initiative, le plus rapide en haut), personnages et créatures
@@ -359,7 +400,7 @@ class ListeCartes extends StatelessWidget {
             cle: 'partie-combat',
             icone: Icons.sports_martial_arts,
             titre: 'Ordre du combat',
-            separe: s.cartesDiffusees.isNotEmpty,
+            separe: s.cartesDeLaListe.isNotEmpty,
           ),
           for (final e in s.ordreDesCartes)
             if (e.joueur case final m?)
@@ -374,7 +415,7 @@ class ListeCartes extends StatelessWidget {
               cle: 'partie-personnages',
               icone: Icons.groups_outlined,
               titre: 'Personnages',
-              separe: s.cartesDiffusees.isNotEmpty,
+              separe: s.cartesDeLaListe.isNotEmpty,
             ),
           for (final m in s.joueursOrdonnes) ...joueur(m),
           for (final c in s.creaturesOrdonnees)
@@ -715,7 +756,7 @@ class DetailCarte extends StatelessWidget {
     if (id == kCarteScript || id == kCarteNotes) {
       return _EditeurSeance(key: ValueKey(id), seance: s);
     }
-    for (final p in s.cartesDiffusees) {
+    for (final p in s.cartesDeLaListe) {
       if ('$kPrefixePlan${p.id}' == id && s.campagne != null) {
         return VueCarte(
           key: ValueKey(p.id),

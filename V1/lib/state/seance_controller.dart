@@ -96,7 +96,7 @@ class SeanceController extends ChangeNotifier {
       _plans = v;
       // Carte retirée aux PJ alors qu'elle était affichée.
       if (_carte.startsWith(kPrefixePlan) &&
-          !cartesDiffusees.any((p) => '$kPrefixePlan${p.id}' == _carte)) {
+          !cartesDeLaListe.any((p) => '$kPrefixePlan${p.id}' == _carte)) {
         _carte = estMj ? kCarteScript : kCarteNotes;
       }
     });
@@ -229,6 +229,19 @@ class SeanceController extends ChangeNotifier {
         for (final p in _plans)
           if (p.diffusee) p,
       ];
+
+  /// Cartes de la liste de gauche (22/11/2026) : toutes pour le MJ (celles
+  /// cachées aux PJ sont signalées ; appui long pour les diffuser), les
+  /// diffusées pour les PJ.
+  List<CarteCampagne> get cartesDeLaListe => estMj ? _plans : cartesDiffusees;
+
+  /// MJ : montre ou cache une carte aux PJ.
+  Future<String?> diffuserCarte(CarteCampagne carte, bool oui) {
+    final c = campagne;
+    if (c == null) return Future.value('Cette campagne n\'existe plus.');
+    return campagnes
+        .agir((s) => s.modifierCarte(c, carte.copie(diffusee: oui)));
+  }
 
   /// MJ : montre ou cache la carte d'un butin aux PJ.
   Future<String?> montrerButin(ButinSeance butin, {required bool visible}) =>

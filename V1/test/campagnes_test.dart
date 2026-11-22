@@ -682,6 +682,11 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(find.byKey(Key('vue-carte-${carte.id}')), findsOneWidget);
+      // Grille réglée hors séance (22/11/2026).
+      await tap(find.byKey(const Key('reglages-carte')));
+      await tap(find.byKey(const Key('grille-affichee')));
+      expect(base.cartes[c.id]!.values.single.carte.grille, isTrue);
+      expect(find.byKey(const Key('grille-carte')), findsOneWidget);
       await tap(find.byTooltip('Back'));
       // Supprimer, après confirmation.
       await tap(find.byKey(Key('menu-carte-${carte.id}')));

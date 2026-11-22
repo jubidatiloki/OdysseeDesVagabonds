@@ -107,7 +107,8 @@ abstract class ServiceCampagnes {
     required int hauteur,
   });
 
-  /// MJ : renomme une carte, la diffuse ou la retire aux PJ.
+  /// MJ : renomme une carte, la diffuse ou la retire aux PJ, règle sa
+  /// grille.
   Future<void> modifierCarte(Campagne campagne, CarteCampagne carte);
 
   /// MJ : supprime une carte et son image.
@@ -574,6 +575,8 @@ class ServiceCampagnesMemoire implements ServiceCampagnes {
       carte: x.carte.copie(
         nom: CarteCampagne.nomPropre(carte.nom),
         diffusee: carte.diffusee,
+        grille: carte.grille,
+        colonnes: carte.colonnes,
       ),
       image: x.image,
     );

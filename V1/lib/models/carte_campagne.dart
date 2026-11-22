@@ -12,7 +12,18 @@ class CarteCampagne {
     this.morceaux = 1,
     this.diffusee = false,
     required this.ajouteeLe,
+    this.grille = false,
+    this.colonnes = colonnesParDefaut,
   });
+
+  /// Grille d'échelle (22/11/2026) : affichée sur la carte, pour tous.
+  final bool grille;
+
+  /// Nombre de cases sur la largeur de l'image (cases carrées).
+  final int colonnes;
+  static const int colonnesMin = 4;
+  static const int colonnesMax = 80;
+  static const int colonnesParDefaut = 20;
 
   /// Nombre maximum de cartes par campagne.
   static const int maxParCampagne = 30;
@@ -40,7 +51,13 @@ class CarteCampagne {
   /// « 1600 × 1200 · 420 Ko ».
   String get resume => '$largeur × $hauteur · ${(octets / 1024).round()} Ko';
 
-  CarteCampagne copie({String? nom, bool? diffusee}) => CarteCampagne(
+  CarteCampagne copie({
+    String? nom,
+    bool? diffusee,
+    bool? grille,
+    int? colonnes,
+  }) =>
+      CarteCampagne(
         id: id,
         nom: nom ?? this.nom,
         largeur: largeur,
@@ -49,6 +66,8 @@ class CarteCampagne {
         morceaux: morceaux,
         diffusee: diffusee ?? this.diffusee,
         ajouteeLe: ajouteeLe,
+        grille: grille ?? this.grille,
+        colonnes: (colonnes ?? this.colonnes).clamp(colonnesMin, colonnesMax),
       );
 
   Map<String, dynamic> versJson() => {
@@ -59,6 +78,8 @@ class CarteCampagne {
         'morceaux': morceaux,
         'diffusee': diffusee,
         'ajouteeLe': ajouteeLe.toIso8601String(),
+        'grille': grille,
+        'colonnes': colonnes,
       };
 
   factory CarteCampagne.depuisJson(String id, Map<String, dynamic> j) =>
@@ -72,6 +93,9 @@ class CarteCampagne {
         diffusee: j['diffusee'] as bool? ?? false,
         ajouteeLe: DateTime.tryParse(j['ajouteeLe'] as String? ?? '') ??
             DateTime(2026),
+        grille: j['grille'] as bool? ?? false,
+        colonnes: ((j['colonnes'] as num?)?.toInt() ?? colonnesParDefaut)
+            .clamp(colonnesMin, colonnesMax),
       );
 
   /// Nom propre : sans espaces en trop, sans extension de fichier, pas

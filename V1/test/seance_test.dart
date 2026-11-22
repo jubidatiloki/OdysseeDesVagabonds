@@ -3712,18 +3712,80 @@ void main() {
         ),
       );
       final carte = x.base.cartes[x.campagne.id]!.values.single.carte;
+      bool diffusee() =>
+          x.base.cartes[x.campagne.id]![carte.id]!.carte.diffusee;
       await tap(tester, find.byKey(const Key('seance-cartes')));
       expect(find.byKey(Key('ligne-carte-${carte.id}')), findsOneWidget);
-      // Pas encore diffusée : absente de la liste de gauche.
-      expect(find.byKey(Key('carte-plan-${carte.id}')), findsNothing);
-      await tap(tester, find.byKey(Key('diffuser-${carte.id}')));
-      expect(x.base.cartes[x.campagne.id]![carte.id]!.carte.diffusee, isTrue);
+      // Pas encore diffusée : dans la liste du MJ, signalée (22/11/2026).
       expect(find.byKey(Key('carte-plan-${carte.id}')), findsOneWidget);
-      // Retirée : elle disparaît.
+      expect(find.text('Cachée aux PJ'), findsOneWidget);
       await tap(tester, find.byKey(Key('diffuser-${carte.id}')));
-      expect(find.byKey(Key('carte-plan-${carte.id}')), findsNothing);
+      expect(diffusee(), isTrue);
+      expect(find.text('Cachée aux PJ'), findsNothing);
+      // Appui long sur la carte de la liste : la cacher, puis la montrer.
+      await tester.longPress(find.byKey(Key('carte-plan-${carte.id}')));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-plan-cachee')));
+      expect(diffusee(), isFalse);
+      await tester.longPress(find.byKey(Key('carte-plan-${carte.id}')));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('menu-plan-visible')));
+      expect(diffusee(), isTrue);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('MJ : grille d\'échelle de la carte, réglée à droite',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'mj',
+        taille: const Size(1800, 1000),
+        avant: (b, c) => ServiceCampagnesMemoire(b, 'mj').ajouterCarte(c,
+            nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30),
+      );
+      final carte = x.base.cartes[x.campagne.id]!.values.single.carte;
+      CarteCampagne enLigne() => x.base.cartes[x.campagne.id]![carte.id]!.carte;
+      // Carte cachée aux PJ : le MJ peut quand même l'ouvrir et la régler.
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(Key('carte-plan-${carte.id}')));
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('grille-carte')), findsNothing);
+      await tap(tester, find.byKey(const Key('reglages-carte')));
+      expect(find.byKey(const Key('panneau-grille')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('grille-affichee')));
+      expect(enLigne().grille, isTrue);
+      expect(find.byKey(const Key('grille-carte')), findsOneWidget);
+      // Curseur : plus de cases (enregistré en fin de glissement).
+      final curseur =
+          tester.widget<Slider>(find.byKey(const Key('grille-curseur')));
+      curseur.onChanged!(30);
+      curseur.onChangeEnd!(30);
+      await tester.pumpAndSettle();
+      expect(enLigne().colonnes, 30);
+      expect(find.textContaining('30 cases sur la largeur'), findsOneWidget);
+      expect(find.text('Grille : 30 cases'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    test('grille : bornes et sauvegarde', () {
+      final c = CarteCampagne(
+        id: 'c',
+        nom: 'Port',
+        largeur: 40,
+        hauteur: 30,
+        octets: 10,
+        ajouteeLe: DateTime(2026),
+      );
+      expect((c.grille, c.colonnes), (false, 20));
+      expect(c.copie(colonnes: 500).colonnes, CarteCampagne.colonnesMax);
+      expect(c.copie(colonnes: 1).colonnes, CarteCampagne.colonnesMin);
+      final relue = CarteCampagne.depuisJson(
+          'c', c.copie(grille: true, colonnes: 12).versJson());
+      expect((relue.grille, relue.colonnes), (true, 12));
     });
 
     testWidgets('PJ : voit la carte diffusée et l\'ouvre au centre',

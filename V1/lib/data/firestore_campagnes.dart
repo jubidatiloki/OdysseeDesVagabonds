@@ -462,6 +462,8 @@ class FirestoreServiceCampagnes implements ServiceCampagnes {
       _cartes(campagne.id).doc(carte.id).update({
         'nom': CarteCampagne.nomPropre(carte.nom),
         'diffusee': carte.diffusee,
+        'grille': carte.grille,
+        'colonnes': carte.colonnes,
       });
 
   @override

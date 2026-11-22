@@ -29,6 +29,24 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.82.0',
+    date: '22/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte:
+            "Cartes : grille d'échelle réglée par le MJ (curseur du nombre de "
+            'cases), en séance ou en dehors.',
+      ),
+      (
+        type: _a,
+        texte:
+            'Séance : le MJ voit toutes ses cartes à gauche ; appui long pour '
+            'les montrer ou cacher aux PJ.',
+      ),
+    ],
+  ),
+  (
     version: '0.81.1',
     date: '21/11/2026',
     changements: [

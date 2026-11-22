@@ -421,6 +421,25 @@ class _VueCarteState extends State<VueCarte> {
   String? _deplace;
   Offset _position = Offset.zero;
 
+  /// Grille d'échelle (22/11/2026) : réglage en cours, montré tout de suite
+  /// (enregistré en fin de glissement du curseur).
+  late bool _grille = widget.carte.grille;
+  late int _colonnes = widget.carte.colonnes;
+
+  /// MJ : panneau de réglage de la grille ouvert.
+  var _reglages = false;
+
+  bool get _estMj => _campagne.estMj(widget.contexte.campagnes.uid ?? '');
+
+  Future<void> _enregistrerGrille() async {
+    final s = widget.contexte.campagnes.serviceActuel;
+    if (s == null) return;
+    await _agir(() => s.modifierCarte(
+          widget.campagne,
+          widget.carte.copie(grille: _grille, colonnes: _colonnes),
+        ));
+  }
+
   Future<Uint8List> _lire() {
     final s = widget.contexte.campagnes.serviceActuel;
     if (s == null) {
@@ -441,6 +460,13 @@ class _VueCarteState extends State<VueCarte> {
       _image = _lire();
     }
     if (ancien.carte.id != widget.carte.id) _pions = _ecouterPions();
+    // Grille changée ailleurs (autre appareil, autre carte).
+    if (ancien.carte.id != widget.carte.id ||
+        ancien.carte.grille != widget.carte.grille ||
+        ancien.carte.colonnes != widget.carte.colonnes) {
+      _grille = widget.carte.grille;
+      _colonnes = widget.carte.colonnes;
+    }
   }
 
   /// Campagne à jour (permissions changées pendant la séance).
@@ -522,6 +548,68 @@ class _VueCarteState extends State<VueCarte> {
     final s = widget.contexte.campagnes.serviceActuel;
     if (s == null) return;
     await _agir(() => s.retirerPion(widget.campagne, widget.carte, p));
+  }
+
+  /// MJ (22/11/2026) : grille d'échelle de la carte (affichée ou non,
+  /// nombre de cases sur la largeur).
+  Widget _panneauGrille(BuildContext context) {
+    final theme = Theme.of(context);
+    final c = widget.carte;
+    final lignes = c.largeur > 0 && c.hauteur > 0
+        ? (_colonnes * c.hauteur / c.largeur).round()
+        : _colonnes;
+    return Card(
+      key: const Key('panneau-grille'),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4, 4, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Grille', style: theme.textTheme.titleSmall),
+                ),
+                IconButton(
+                  tooltip: 'Fermer',
+                  onPressed: () => setState(() => _reglages = false),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            SwitchListTile(
+              key: const Key('grille-affichee'),
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: const Text('Afficher la grille'),
+              subtitle: const Text('Visible de tous, pour donner l\'échelle'),
+              value: _grille,
+              onChanged: (v) {
+                setState(() => _grille = v);
+                _enregistrerGrille();
+              },
+            ),
+            Text(
+              '$_colonnes cases sur la largeur · $lignes sur la hauteur',
+              key: const Key('grille-cases'),
+              style: theme.textTheme.bodySmall,
+            ),
+            Slider(
+              key: const Key('grille-curseur'),
+              value: _colonnes.toDouble(),
+              min: CarteCampagne.colonnesMin.toDouble(),
+              max: CarteCampagne.colonnesMax.toDouble(),
+              divisions: CarteCampagne.colonnesMax - CarteCampagne.colonnesMin,
+              label: '$_colonnes',
+              onChanged:
+                  _grille ? (v) => setState(() => _colonnes = v.round()) : null,
+              onChangeEnd: (_) => _enregistrerGrille(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Position relative (0 à 1) du doigt sur l'image.
@@ -759,6 +847,16 @@ class _VueCarteState extends State<VueCarte> {
                                         child: Text('Image illisible.')),
                                   ),
                                 ),
+                                // Grille d'échelle, sous les pions.
+                                if (_grille)
+                                  Positioned.fill(
+                                    child: IgnorePointer(
+                                      child: CustomPaint(
+                                        key: const Key('grille-carte'),
+                                        painter: PeintreGrille(_colonnes),
+                                      ),
+                                    ),
+                                  ),
                                 for (final p in pions)
                                   Positioned(
                                     left: (_deplace == p.id
@@ -781,16 +879,41 @@ class _VueCarteState extends State<VueCarte> {
                       ),
                     ),
                   ),
-                  if (peutAjouter)
+                  // Boutons en haut à droite : pions, réglages du MJ.
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (peutAjouter)
+                          FilledButton.tonalIcon(
+                            key: const Key('ajouter-pion'),
+                            onPressed: () => _ajouter(pions),
+                            icon: const Icon(Icons.person_pin_circle_outlined),
+                            label: const Text('Pion'),
+                          ),
+                        if (_estMj) ...[
+                          const SizedBox(width: 6),
+                          IconButton.filledTonal(
+                            key: const Key('reglages-carte'),
+                            tooltip: 'Réglages de la carte (grille)',
+                            isSelected: _reglages,
+                            onPressed: () =>
+                                setState(() => _reglages = !_reglages),
+                            icon: const Icon(Icons.grid_on),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  // MJ : panneau de réglage de la grille, à droite.
+                  if (_estMj && _reglages)
                     Positioned(
-                      top: 8,
+                      top: 56,
                       right: 8,
-                      child: FilledButton.tonalIcon(
-                        key: const Key('ajouter-pion'),
-                        onPressed: () => _ajouter(pions),
-                        icon: const Icon(Icons.person_pin_circle_outlined),
-                        label: const Text('Pion'),
-                      ),
+                      width: 280,
+                      child: _panneauGrille(context),
                     ),
                 ],
               );
@@ -803,6 +926,38 @@ class _VueCarteState extends State<VueCarte> {
 /// Icône d'un pion (20/11/2026) : celle du personnage comme sur l'écran
 /// principal, ou celle de la famille de la créature (contour vert : allié,
 /// rouge : ennemi).
+/// Grille d'échelle d'une carte (22/11/2026) : cases carrées, [colonnes]
+/// sur la largeur ; traits fins, clairs et soulignés de sombre pour se voir
+/// sur toutes les images.
+class PeintreGrille extends CustomPainter {
+  const PeintreGrille(this.colonnes);
+
+  final int colonnes;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (colonnes <= 0 || size.width <= 0) return;
+    final pas = size.width / colonnes;
+    final sombre = Paint()
+      ..color = Colors.black.withValues(alpha: 0.35)
+      ..strokeWidth = 2;
+    final clair = Paint()
+      ..color = Colors.white.withValues(alpha: 0.55)
+      ..strokeWidth = 0.8;
+    for (final p in [sombre, clair]) {
+      for (var x = pas; x < size.width - 0.5; x += pas) {
+        canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
+      }
+      for (var y = pas; y < size.height - 0.5; y += pas) {
+        canvas.drawLine(Offset(0, y), Offset(size.width, y), p);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(PeintreGrille ancien) => ancien.colonnes != colonnes;
+}
+
 /// Couleur du contour d'un pion selon son camp (21/11/2026) : vert pour
 /// les PJ et leurs alliés, gris pour les neutres, rouge pour les ennemis.
 Color couleurCampPion(PionCarte pion) => pion.personnage || pion.allie
