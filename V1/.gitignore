@@ -42,3 +42,6 @@ app.*.map.json
 # (firebase_options.dart et google-services.json peuvent être committés,
 #  mais pas les clés de service)
 *service-account*.json
+
+# Cache de publication Firebase Hosting
+.firebase/
