@@ -29,6 +29,22 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.85.0',
+    date: '26/11/2026',
+    changements: [
+      (
+        type: _m,
+        texte: 'Séance : liste « Qui agit » du MJ par camp, avec les icônes, '
+            'qui joue, les cachés et les morts.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : le MJ fait des tests de statistique avec une '
+            'créature (FOR, DEX…).',
+      ),
+    ],
+  ),
+  (
     version: '0.84.0',
     date: '26/11/2026',
     changements: [

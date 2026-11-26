@@ -3076,8 +3076,29 @@ void main() {
       await deplier(
           tester, 'groupe-combat', find.byKey(const Key('attaque-0')));
       expect(find.byKey(const Key('attaque-0')), findsOneWidget);
-      // Choisir une autre créature dans les dés, sans quitter la carte.
+      // Statistiques de la créature (26/11/2026) : le loup du bestiaire,
+      // sans modificateurs, fait un test de FOR à +0.
+      final groupeStats = find.byWidgetPredicate((w) =>
+          w is ExpansionTile && '${w.key}'.contains('groupe-stats-creature'));
+      await tester.dragUntilVisible(groupeStats,
+          find.byKey(const Key('panneau-des')), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      await deplier(tester, 'groupe-stats-creature',
+          find.byKey(const Key('test-creature-FOR')));
+      expect(find.textContaining('Statistiques à définir'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('test-creature-FOR')));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      final test = x.base.parties[x.campagne.id]!.jets.last;
+      expect((test.libelle, test.auteurNom), ('Test de FOR', 'Loup'));
+      // Choisir une autre créature dans les dés, sans quitter la carte :
+      // liste regroupée par camp (26/11/2026).
+      await tester.dragUntilVisible(find.byKey(const Key('acteur-mj')),
+          find.byKey(const Key('panneau-des')), const Offset(0, 200));
+      await tester.pumpAndSettle();
       await tap(tester, find.byKey(const Key('acteur-mj')));
+      expect(find.byKey(const Key('groupe-acteur-Personnages')), findsWidgets);
+      expect(find.byKey(const Key('groupe-acteur-Ennemis')), findsWidgets);
       await tap(tester, find.text('Rat').last);
       expect(
         tester

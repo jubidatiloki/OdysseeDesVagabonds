@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../models/aptitude.dart';
 import '../../models/bonus_seance.dart';
 import '../../models/carac.dart';
+import '../../models/creature.dart';
 import '../../models/seance.dart';
 import '../../models/voie.dart';
 import '../../regles/des.dart';
@@ -20,6 +21,7 @@ import '../../widgets/consultation.dart';
 import '../../widgets/voie_detail.dart';
 import '../../widgets/types_competence.dart';
 import '../de_screen.dart';
+import 'cartes_campagne.dart' show IconePion;
 import 'seance_bonus.dart';
 import 'seance_cibles.dart';
 import 'seance_messages.dart';
@@ -1616,29 +1618,172 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
 
   /// MJ (21/11/2026) : qui agit, même quand une carte est affichée au
   /// centre.
+  /// MJ (26/11/2026) : liste « Qui agit » regroupée par camp
+  /// (personnages, alliés et compagnons, neutres, ennemis), avec l'icône de
+  /// chacun et ses repères (à son tour, caché, mort).
   Widget _choixActeur() {
+    final theme = Theme.of(context);
+    final actif = _s.etat.enCombat ? _s.etat.actif : '';
+    final creatures = _s.creaturesOrdonnees;
+    final groupes = <(String, List<(String, Widget, String, List<String>)>)>[
+      (
+        'Personnages',
+        [
+          for (final m in _s.joueursOrdonnes)
+            (
+              m.uid,
+              IconePion(pion: _s.pionDe(m), rayon: 12),
+              m.personnageNom,
+              <String>[]
+            ),
+        ],
+      ),
+      for (final (titre, garde) in [
+        ('Alliés et compagnons', (CreatureSeance c) => c.duCotePj),
+        ('Neutres', (CreatureSeance c) => !c.duCotePj && c.neutre),
+        ('Ennemis', (CreatureSeance c) => c.ennemie),
+      ])
+        (
+          titre,
+          [
+            for (final c in creatures)
+              if (garde(c))
+                (
+                  c.id,
+                  IconePion(pion: _s.pionCreature(c), rayon: 12),
+                  c.nom,
+                  [
+                    if (c.morte) 'mort',
+                    if (c.cachee) 'caché',
+                    if (!c.cachee && c.nomCache) 'nom caché',
+                  ],
+                ),
+          ],
+        ),
+    ];
+    Widget ligne(Widget icone, String nom, List<String> reperes, bool joue) =>
+        Row(
+          children: [
+            icone,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                nom,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    joue ? const TextStyle(fontWeight: FontWeight.w700) : null,
+              ),
+            ),
+            if (joue)
+              const Padding(
+                padding: EdgeInsets.only(left: 6),
+                child: Icon(Icons.play_arrow, size: 18, color: OdvCouleurs.or),
+              ),
+            if (reperes.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: Text(
+                  reperes.join(' · '),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+          ],
+        );
+    final items = <DropdownMenuItem<String>>[
+      DropdownMenuItem(
+        value: '',
+        child: ligne(
+          const Icon(Icons.casino_outlined, size: 24),
+          'Personne (MJ)',
+          const [],
+          false,
+        ),
+      ),
+      for (final (titre, liste) in groupes)
+        if (liste.isNotEmpty) ...[
+          // Titre de groupe : pas sélectionnable.
+          DropdownMenuItem(
+            value: '#$titre',
+            enabled: false,
+            child: Text(
+              '${titre.toUpperCase()} (${liste.length})',
+              key: Key('groupe-acteur-$titre'),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.primary,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+          for (final (id, icone, nom, reperes) in liste)
+            DropdownMenuItem(
+              value: id,
+              child: ligne(icone, nom, reperes, id == actif),
+            ),
+        ],
+    ];
     return DropdownButtonFormField<String>(
       key: const Key('acteur-mj'),
       initialValue: _s.acteurMj,
       isExpanded: true,
+      itemHeight: null,
+      menuMaxHeight: 520,
       decoration: const InputDecoration(
         labelText: 'Qui agit',
         prefixIcon: Icon(Icons.person_search_outlined),
       ),
-      items: [
-        const DropdownMenuItem(value: '', child: Text('Personne (MJ)')),
-        for (final m in _s.joueurs)
-          DropdownMenuItem(
-            value: m.uid,
-            child: Text(m.personnageNom, overflow: TextOverflow.ellipsis),
-          ),
-        for (final c in _s.creaturesOrdonnees)
-          DropdownMenuItem(
-            value: c.id,
-            child: Text(c.nom, overflow: TextOverflow.ellipsis),
+      items: items,
+      onChanged: (v) {
+        if (v == null || v.startsWith('#')) return;
+        _s.choisirActeur(v);
+      },
+    );
+  }
+
+  /// MJ (26/11/2026) : tests de caractéristique d'une créature, avec les
+  /// modificateurs de sa fiche du bestiaire (+0 s'ils manquent).
+  Widget _statsCreature(Creature creature, bool pasDeCible, bool combat) {
+    final aDefinir = creature.caracs.isEmpty && creature.mods.isEmpty;
+    return _GroupeJets(
+      cle: 'groupe-stats-creature',
+      memoire: 'groupe-stats-creature-${_s.etat.mode.name}',
+      ouvert: !combat,
+      titre: 'Statistiques',
+      icone: Icons.bar_chart,
+      children: [
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final c in Carac.values)
+              ActionChip(
+                key: Key('test-creature-${c.code}'),
+                label: Text(
+                    '${c.abrev} ${formaterModificateur(creature.mods[c] ?? 0)}'),
+                onPressed: pasDeCible
+                    ? null
+                    : () => _lancerFormule(
+                          'Test de ${c.abrev}',
+                          '1d20',
+                          creature.mods[c] ?? 0,
+                          parAttaquant: true,
+                          genre: GenreJet.test,
+                        ),
+              ),
+          ],
+        ),
+        if (aDefinir)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              'Statistiques à définir dans le bestiaire : +0 partout.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
           ),
       ],
-      onChanged: (v) => _s.choisirActeur(v ?? ''),
     );
   }
 
@@ -1986,6 +2131,9 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             const Text('Sélectionne un personnage ou une créature pour lancer '
                 'ses attaques.'),
           ],
+          // Tests de caractéristique d'une créature (MJ, 26/11/2026).
+          if (fiche == null && attaquant.creature != null)
+            _statsCreature(attaquant.creature!, pasDeCible, combat),
           // Tests de caractéristique du personnage du joueur.
           if (fiche != null) ...[
             _GroupeJets(
