@@ -22,7 +22,9 @@ enum CategorieCompetence {
   competence('Compétences'),
   soutien('Soutien'),
   soin('Soin'),
-  degats('Dégâts');
+  degats('Dégâts'),
+  // Hors de son tour (26/11/2026).
+  reaction('Réactions');
 
   const CategorieCompetence(this.libelle);
 
@@ -83,6 +85,7 @@ class IndexCompetences {
           c.jets.any((j) => j.attaque != null) ||
           _degats.hasMatch(texte))
         CategorieCompetence.degats,
+      if (type.contains('reaction')) CategorieCompetence.reaction,
     };
   }
 

@@ -91,6 +91,21 @@ const _guerrier = Classe(
         ),
       ],
     ),
+    // Catégorie « Réaction » (26/11/2026).
+    Voie(
+      id: 'garde',
+      nom: 'Voie de la garde',
+      competences: [
+        Competence(
+          rang: 1,
+          nom: 'Parade éclair',
+          type: 'actif, réaction',
+          jets: [
+            JetCompetence(libelle: 'Parade éclair', des: '1d20', carac: 'DEX'),
+          ],
+        ),
+      ],
+    ),
     // Compétence qui donne un bonus aux alliés quand on la lance.
     Voie(
       id: 'chant',
@@ -919,11 +934,99 @@ void main() {
         .ajouterCreature(p.campagne, _creature('rat', 3));
     await pumpEventQueue();
     expect(s.cibles.first.id, 'rat');
+    // Esquive et réaction : la même limite par manche (26/11/2026).
+    await ServiceCampagnesMemoire(p.base, 'mj')
+        .seance
+        .demarrerCombat(p.campagne, ['j2', 'j1']);
+    await pumpEventQueue();
+    expect((s.reactionUtilisee, s.esquiveUtilisee), (false, false));
+    expect(
+      await s.lancer(
+        libelle: "Jet d'esquive · Souffle",
+        detail: '12',
+        total: 12,
+        visibilite: VisibiliteJet.tous,
+      ),
+      isNull,
+    );
+    await pumpEventQueue();
+    expect((s.reactionUtilisee, s.esquiveUtilisee), (true, true));
     s.dispose();
     campagnes.dispose();
     compte.dispose();
     personnages.dispose();
   });
+  test('contrôleur MJ : créature inconnue, critiques et embuscade notés',
+      () async {
+    final p = await _partie();
+    final c = p.campagne;
+    final mjSeance = ServiceCampagnesMemoire(p.base, 'mj').seance;
+    await mjSeance.ajouterCreature(
+        c, const CreatureSeance(id: 'o', nom: 'Ombre', cachee: true));
+    final personnages = PersonnagesController(EnMemoirePersonnageRepository());
+    await personnages.charger();
+    final compte = CompteController(
+      service: _Compte(const Utilisateur(uid: 'mj')),
+      personnages: personnages,
+      local: personnages.repository,
+      depotEnLigne: (_) => EnMemoireDepotEnLigne(),
+    );
+    await compte.demarrer();
+    final campagnes = CampagnesController(
+      compte: compte,
+      service: (u) => ServiceCampagnesMemoire(p.base, u.uid),
+    );
+    await pumpEventQueue();
+    final s = SeanceController(
+      campagnes: campagnes,
+      personnages: personnages,
+      referentiel: _referentiel,
+      campagneId: c.id,
+    );
+    await pumpEventQueue();
+    // Créature cachée : « Créature inconnue » dans les logs, pas « MJ ».
+    s.choisirCarte('o');
+    expect(s.nomDuJet(VisibiliteJet.tous), CreatureSeance.nomInconnu);
+    expect(s.nomDuJet(VisibiliteJet.mjSeul), 'Ombre');
+    // Critiques d'un joueur : notés si tous les voient.
+    final j1 = ServiceCampagnesMemoire(p.base, 'j1').seance;
+    JetSeance jet(String critique, VisibiliteJet v) => JetSeance(
+          auteur: 'j1',
+          auteurNom: 'Brom',
+          libelle: 'Toucher CaC · Hache',
+          detail: '20 +3',
+          total: 23,
+          date: DateTime.now(),
+          seance: 1,
+          lecteurs: const ['j1', 'mj'],
+          visibilite: v,
+          cible: 'Chef des bandits',
+          touche: true,
+          critique: critique,
+        );
+    await j1.lancer(c, jet(JetSeance.critiqueReussite, VisibiliteJet.tous));
+    await j1.lancer(c, jet(JetSeance.critiqueEchec, VisibiliteJet.mjSeul));
+    await j1.lancer(c, jet('', VisibiliteJet.tous));
+    await pumpEventQueue();
+    var notes = p.base.recaps[c.id]![1]!;
+    expect(
+        notes,
+        contains('Réussite critique : Brom · Toucher CaC · Hache → '
+            'Chef des bandits (Touché)'));
+    expect(notes, isNot(contains('Échec critique')));
+    expect('Réussite critique'.allMatches(notes), hasLength(1));
+    // Embuscade de l'ombre : révélée aux PJ, notée au début du combat.
+    expect(await s.basculerMode(embusques: ['o']), isNull);
+    await pumpEventQueue();
+    expect(p.base.parties[c.id]!.creatures['o']!.cachee, isFalse);
+    notes = p.base.recaps[c.id]![1]!;
+    expect(notes, contains(', sur une embuscade (Ombre)'));
+    s.dispose();
+    campagnes.dispose();
+    compte.dispose();
+    personnages.dispose();
+  });
+
   test('messages : conversation privée entre le MJ et un joueur', () async {
     final p = await _partie();
     final c = p.campagne;
@@ -2087,7 +2190,11 @@ void main() {
       final x = await ouvrir(
         tester,
         'j1',
-        fiches: [_brom()],
+        fiches: [
+          _brom()
+            ..rangsVoies['garde'] = 1
+            ..rangsVoies['chant'] = 1,
+        ],
         avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
             .seance
             .demarrerCombat(c, ['j2', 'j1']),
@@ -2100,8 +2207,22 @@ void main() {
           isNull);
       await tap(tester, find.byKey(const Key('reaction')));
       expect(find.byKey(const Key('en-reaction')), findsOneWidget);
-      await tapDes(tester, 'attaque-0');
-      expect(partie.jets.last.libelle, startsWith('Réaction · '));
+      // Seules les compétences de réaction (26/11/2026) : ni l'attaque,
+      // ni le Chant de guerre ; la Parade éclair, oui.
+      expect(tester.widget<Text>(find.byKey(const Key('texte-reaction'))).data,
+          contains('Parade éclair'));
+      expect(
+          tester
+              .widget<InputChip>(find.byKey(const Key('attaque-0')))
+              .onPressed,
+          isNull);
+      await tapDes(tester, 'competence-seance-1');
+      expect(partie.jets.last.libelle, 'Réaction · Parade éclair');
+      expect(
+          tester
+              .widget<InputChip>(find.byKey(const Key('competence-seance-0')))
+              .onPressed,
+          isNull);
       await tap(tester, find.byKey(const Key('fin-reaction')));
       expect(
           tester
@@ -3503,7 +3624,9 @@ void main() {
         avant: (b, c) => ServiceCampagnesMemoire(b, 'mj')
             .seance
             .ajouterCreature(
-                c, const CreatureSeance(id: 'r', nom: 'Rat', initiative: 1)),
+                c,
+                const CreatureSeance(
+                    id: 'r', nom: 'Rat', initiative: 1, cachee: true)),
       );
       await tap(tester, find.byKey(const Key('combat-embuscade')));
       // Rien de coché : on ne peut pas démarrer.
@@ -3524,7 +3647,11 @@ void main() {
       expect(find.byKey(const Key('embuscade-en-cours')), findsOneWidget);
       double haut(String cle) => tester.getTopLeft(find.byKey(Key(cle))).dy;
       expect(haut('carte-r'), lessThan(haut('carte-j1')));
-      expect(x.base.recaps[x.campagne.id]![1]!, contains('Embuscade : Rat'));
+      // Notes de séance : le combat commence sur une embuscade (26/11/2026).
+      expect(x.base.recaps[x.campagne.id]![1]!,
+          contains(', sur une embuscade (Rat) : Rat'));
+      // Le rat embusqué, caché, est révélé aux PJ.
+      expect(x.base.parties[x.campagne.id]!.creatures['r']!.cachee, isFalse);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
@@ -3827,6 +3954,21 @@ void main() {
           .widget<CustomPaint>(find.byKey(const Key('grille-carte')))
           .painter! as PeintreGrille;
       expect((peintre.colonnes, peintre.epaisseur), (30, 4));
+      // Décalage horizontal et vertical (26/11/2026).
+      for (final (cle, v) in [
+        ('grille-decalage-x', 40),
+        ('grille-decalage-y', 75)
+      ]) {
+        final s = tester.widget<Slider>(find.byKey(Key(cle)));
+        s.onChanged!(v.toDouble());
+        s.onChangeEnd!(v.toDouble());
+        await tester.pumpAndSettle();
+      }
+      expect((enLigne().decalageX, enLigne().decalageY), (40, 75));
+      final decale = tester
+          .widget<CustomPaint>(find.byKey(const Key('grille-carte')))
+          .painter! as PeintreGrille;
+      expect((decale.decalageX, decale.decalageY), (40, 75));
       // Panneau fermé : grille cachée aux PJ, donc plus affichée.
       await tap(tester, find.byKey(const Key('reglages-carte')));
       expect(find.byKey(const Key('grille-carte')), findsNothing);
@@ -3854,6 +3996,13 @@ void main() {
       expect(c.copie(colonnes: 500).colonnes, CarteCampagne.colonnesMax);
       expect(c.copie(colonnes: 1).colonnes, 2);
       expect(c.copie(epaisseur: 99).epaisseur, CarteCampagne.epaisseurMax);
+      // Décalage de la grille (26/11/2026), en % d'une case.
+      expect((c.decalageX, c.decalageY), (0, 0));
+      expect(c.copie(decalageX: 150).decalageX, CarteCampagne.decalageMax);
+      expect(c.copie(decalageY: -3).decalageY, 0);
+      final decalee = CarteCampagne.depuisJson(
+          'c', c.copie(decalageX: 25, decalageY: 60).versJson());
+      expect((decalee.decalageX, decalee.decalageY), (25, 60));
       final relue = CarteCampagne.depuisJson(
           'c', c.copie(grille: true, colonnes: 2, epaisseur: 3).versJson());
       expect((relue.grille, relue.colonnes, relue.epaisseur), (true, 2, 3));

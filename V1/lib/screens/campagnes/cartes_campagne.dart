@@ -426,6 +426,8 @@ class _VueCarteState extends State<VueCarte> {
   late bool _grille = widget.carte.grille;
   late int _colonnes = widget.carte.colonnes;
   late int _epaisseur = widget.carte.epaisseur;
+  late int _decalageX = widget.carte.decalageX;
+  late int _decalageY = widget.carte.decalageY;
 
   /// MJ : panneau de réglage de la grille ouvert.
   var _reglages = false;
@@ -441,6 +443,8 @@ class _VueCarteState extends State<VueCarte> {
             grille: _grille,
             colonnes: _colonnes,
             epaisseur: _epaisseur,
+            decalageX: _decalageX,
+            decalageY: _decalageY,
           ),
         ));
   }
@@ -469,10 +473,14 @@ class _VueCarteState extends State<VueCarte> {
     if (ancien.carte.id != widget.carte.id ||
         ancien.carte.grille != widget.carte.grille ||
         ancien.carte.colonnes != widget.carte.colonnes ||
-        ancien.carte.epaisseur != widget.carte.epaisseur) {
+        ancien.carte.epaisseur != widget.carte.epaisseur ||
+        ancien.carte.decalageX != widget.carte.decalageX ||
+        ancien.carte.decalageY != widget.carte.decalageY) {
       _grille = widget.carte.grille;
       _colonnes = widget.carte.colonnes;
       _epaisseur = widget.carte.epaisseur;
+      _decalageX = widget.carte.decalageX;
+      _decalageY = widget.carte.decalageY;
     }
   }
 
@@ -630,6 +638,36 @@ class _VueCarteState extends State<VueCarte> {
               divisions: CarteCampagne.epaisseurMax - 1,
               label: '$_epaisseur',
               onChanged: (v) => setState(() => _epaisseur = v.round()),
+              onChangeEnd: (_) => _enregistrerGrille(),
+            ),
+            // Décalage horizontal et vertical (26/11/2026), en pourcentage
+            // d'une case : pour caler la grille sur celle de l'image.
+            Text(
+              'Décalage horizontal : $_decalageX % d\'une case',
+              key: const Key('grille-decalage-x-texte'),
+              style: theme.textTheme.bodySmall,
+            ),
+            Slider(
+              key: const Key('grille-decalage-x'),
+              value: _decalageX.toDouble(),
+              max: CarteCampagne.decalageMax.toDouble(),
+              divisions: CarteCampagne.decalageMax,
+              label: '$_decalageX %',
+              onChanged: (v) => setState(() => _decalageX = v.round()),
+              onChangeEnd: (_) => _enregistrerGrille(),
+            ),
+            Text(
+              'Décalage vertical : $_decalageY % d\'une case',
+              key: const Key('grille-decalage-y-texte'),
+              style: theme.textTheme.bodySmall,
+            ),
+            Slider(
+              key: const Key('grille-decalage-y'),
+              value: _decalageY.toDouble(),
+              max: CarteCampagne.decalageMax.toDouble(),
+              divisions: CarteCampagne.decalageMax,
+              label: '$_decalageY %',
+              onChanged: (v) => setState(() => _decalageY = v.round()),
               onChangeEnd: (_) => _enregistrerGrille(),
             ),
           ],
@@ -882,6 +920,8 @@ class _VueCarteState extends State<VueCarte> {
                                         painter: PeintreGrille(
                                           _colonnes,
                                           epaisseur: _epaisseur,
+                                          decalageX: _decalageX,
+                                          decalageY: _decalageY,
                                         ),
                                       ),
                                     ),
@@ -942,7 +982,14 @@ class _VueCarteState extends State<VueCarte> {
                       top: 56,
                       right: 8,
                       width: 280,
-                      child: _panneauGrille(context),
+                      bottom: 8,
+                      // Défile si la carte est basse (26/11/2026 : 5 réglages).
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: SingleChildScrollView(
+                          child: _panneauGrille(context),
+                        ),
+                      ),
                     ),
                 ],
               );
@@ -959,9 +1006,18 @@ class _VueCarteState extends State<VueCarte> {
 /// sur la largeur ; traits fins, clairs et soulignés de sombre pour se voir
 /// sur toutes les images.
 class PeintreGrille extends CustomPainter {
-  const PeintreGrille(this.colonnes, {this.epaisseur = 1});
+  const PeintreGrille(
+    this.colonnes, {
+    this.epaisseur = 1,
+    this.decalageX = 0,
+    this.decalageY = 0,
+  });
 
   final int colonnes;
+
+  /// Décalage des traits, en pourcentage d'une case (26/11/2026).
+  final int decalageX;
+  final int decalageY;
 
   /// Épaisseur des traits (1 : fins).
   final int epaisseur;
@@ -976,11 +1032,15 @@ class PeintreGrille extends CustomPainter {
     final clair = Paint()
       ..color = Colors.white.withValues(alpha: 0.55)
       ..strokeWidth = 0.8 * epaisseur;
+    final x0 = pas * decalageX / 100;
+    final y0 = pas * decalageY / 100;
     for (final p in [sombre, clair]) {
-      for (var x = pas; x < size.width - 0.5; x += pas) {
+      for (var x = x0; x < size.width - 0.5; x += pas) {
+        if (x < 0.5) continue;
         canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
       }
-      for (var y = pas; y < size.height - 0.5; y += pas) {
+      for (var y = y0; y < size.height - 0.5; y += pas) {
+        if (y < 0.5) continue;
         canvas.drawLine(Offset(0, y), Offset(size.width, y), p);
       }
     }
@@ -988,7 +1048,10 @@ class PeintreGrille extends CustomPainter {
 
   @override
   bool shouldRepaint(PeintreGrille ancien) =>
-      ancien.colonnes != colonnes || ancien.epaisseur != epaisseur;
+      ancien.colonnes != colonnes ||
+      ancien.epaisseur != epaisseur ||
+      ancien.decalageX != decalageX ||
+      ancien.decalageY != decalageY;
 }
 
 /// Couleur du contour d'un pion selon son camp (21/11/2026) : vert pour

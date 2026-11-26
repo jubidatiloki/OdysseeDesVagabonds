@@ -239,7 +239,7 @@ Un combat se joue **tour par tour**, dans l'ordre d'initiative. À son tour, un 
 
 - Contre ce qui n'a **pas de jet pour toucher** (souffle, bond, tourbillon…), la cible fait un **jet d'esquive** : 1d20 + mod(DEX) (dans la limite de l'armure) + bonus d'esquive, contre la difficulté donnée par le MJ.
 - **Réussite** : la cible ne subit, par défaut, que **la moitié des dégâts**. Certaines attaques précisent qu'une esquive réussie les évite entièrement (« esquive réussie = rien »).
-- **Une seule esquive par tour** (sauf mention contraire).
+- **Une seule esquive par tour** (sauf mention contraire) : elle compte comme la **réaction** de la manche.
 - **Contrecoup** : après une esquive, pas d'action de mouvement au tour suivant, qu'elle réussisse ou non. Certaines compétences l'annulent en cas de réussite (voleur, barde, moine).
 - En séance, l'application propose « Esquiver » ou « Subir » au joueur visé.
 

@@ -29,6 +29,42 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.84.0',
+    date: '26/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Cartes : le MJ décale la grille horizontalement et '
+            'verticalement pour la caler sur l\'image.',
+      ),
+      (
+        type: _a,
+        texte: 'Compétences : nouvelle catégorie Réaction (Contre-attaque, '
+            'Riposte, Tenir en joue, Bouclier mineur…).',
+      ),
+      (
+        type: _m,
+        texte: 'Séance : en réaction, seules les compétences de réaction '
+            'sont possibles ; l\'esquive compte comme la réaction.',
+      ),
+      (
+        type: _a,
+        texte: 'Notes de séance : les réussites et échecs critiques y sont '
+            'notés, pour la narration.',
+      ),
+      (
+        type: _m,
+        texte: 'Embuscade : notée au début du combat, et les créatures '
+            'embusquées cachées sont révélées aux PJ.',
+      ),
+      (
+        type: _c,
+        texte: 'Logs : une créature cachée apparaît en « Créature '
+            'inconnue » (et non « MJ »), dégâts compris.',
+      ),
+    ],
+  ),
+  (
     version: '0.83.0',
     date: '22/11/2026',
     changements: [

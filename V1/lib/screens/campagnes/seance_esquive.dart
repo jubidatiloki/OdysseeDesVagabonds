@@ -52,8 +52,8 @@ class FenetreEsquive extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               dejaUtilisee
-                  ? 'Tu as déjà esquivé pendant ce tour : tu subis les '
-                      'dégâts.'
+                  ? 'Tu as déjà fait ta réaction (ou esquivé) pendant ce '
+                      'tour : tu subis les dégâts.'
                   : 'Jet d\'esquive contre ${d.difficulteEsquive}. Réussi : '
                       '${d.moitieSiEsquive ? 'moitié des dégâts' : 'aucun dégât'}'
                       ' ; raté : tous les dégâts.',

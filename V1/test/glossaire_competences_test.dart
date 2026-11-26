@@ -66,6 +66,26 @@ void main() {
         isNot(contains(CategorieCompetence.soin)));
   });
 
+  test('catégorie Réaction : les rangs choisis le 26/11/2026', () {
+    for (final nom in [
+      'Contre-attaque',
+      'Contre-attaque améliorée',
+      'Riposte',
+      'Cercle de protection',
+      'Tenir en joue',
+      'Bouclier mineur',
+      'Protection',
+      'Chasse en meute',
+    ]) {
+      expect(entree(nom).categories, contains(CategorieCompetence.reaction),
+          reason: nom);
+    }
+    expect(entree('Brutalité').categories,
+        isNot(contains(CategorieCompetence.reaction)));
+    expect(
+        iconeCategorieCompetence(CategorieCompetence.reaction), Icons.flash_on);
+  });
+
   test('filtres et recherche (sans accents)', () {
     final races =
         IndexCompetences.filtrer(index, origines: {OrigineCompetence.race});

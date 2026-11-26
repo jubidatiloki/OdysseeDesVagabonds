@@ -51,6 +51,32 @@ const _fabrication = TypeCompetence('Fabrication', Icons.handyman_outlined,
 const _usageUnique = TypeCompetence('Usage unique', Icons.looks_one_outlined,
     OdvCouleurs.or, 'Usage unique : ne sert qu\'une fois');
 
+const _reaction = TypeCompetence(
+    'Réaction',
+    Icons.flash_on,
+    OdvCouleurs.or,
+    'Réaction : hors de son tour, une par manche (l\'esquive compte '
+        'comme la réaction)');
+const _reactionSiActif = TypeCompetence(
+    'Réaction si actif',
+    Icons.flash_on,
+    OdvCouleurs.or,
+    'Réaction possible tant que l\'effet est actif (une par manche, '
+        'l\'esquive compte comme la réaction)');
+
+/// Catégorie « Réaction » (26/11/2026) d'après le texte « type » : aucune,
+/// réaction, ou réaction seulement tant que l'effet est actif (Cercle de
+/// protection).
+enum GenreReaction { aucune, reaction, siActif }
+
+GenreReaction genreReaction(String type) {
+  final t = type.toLowerCase();
+  if (!t.contains('réaction')) return GenreReaction.aucune;
+  return t.contains('si actif')
+      ? GenreReaction.siActif
+      : GenreReaction.reaction;
+}
+
 /// Découpe le texte « type » en types reconnus, dans un ordre stable.
 List<TypeCompetence> analyserTypeCompetence(String type) {
   final t = type.toLowerCase();
@@ -66,6 +92,14 @@ List<TypeCompetence> analyserTypeCompetence(String type) {
   if (t.contains('gratuit')) res.add(_gratuite);
   if (t.contains('mouvement')) res.add(_mouvement);
   if (t.contains('renforcement')) res.add(_renforcement);
+  switch (genreReaction(type)) {
+    case GenreReaction.reaction:
+      res.add(_reaction);
+    case GenreReaction.siActif:
+      res.add(_reactionSiActif);
+    case GenreReaction.aucune:
+      break;
+  }
   if (t.contains('amélioration')) res.add(_amelioration);
   if (t.contains('soutien')) res.add(_soutien);
   if (t.contains('maintenu') || t.contains('maintien')) res.add(_maintenu);

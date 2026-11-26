@@ -680,7 +680,14 @@ class JetSeance {
     this.tours,
     this.renvoi = '',
     this.action = false,
+    this.critique = '',
   });
+
+  /// Critique d'un jet de d20 (26/11/2026) : « reussite », « echec » ou
+  /// vide. Noté dans les notes de séance par le MJ.
+  final String critique;
+  static const critiqueReussite = 'reussite';
+  static const critiqueEchec = 'echec';
 
   /// Jet qui commence une action du tour (attaque, sort, compétence),
   /// compté dans la limite d'actions par tour (20/11/2026).
@@ -771,6 +778,7 @@ class JetSeance {
         if (tours != null) 'tours': tours,
         if (renvoi.isNotEmpty) 'renvoi': renvoi,
         if (action) 'action': true,
+        if (critique.isNotEmpty) 'critique': critique,
       };
 
   /// Heure du serveur (20/11/2026), pour classer les logs de tous les
@@ -807,7 +815,17 @@ class JetSeance {
         tours: (j['tours'] as num?)?.toInt(),
         renvoi: j['renvoi'] as String? ?? '',
         action: j['action'] as bool? ?? false,
+        critique: j['critique'] as String? ?? '',
       );
+
+  /// Ligne des notes de séance d'un critique (26/11/2026) : « Réussite
+  /// critique : Brom · Toucher CaC · Hache → Chef des bandits (Touché) ».
+  String get ligneCritique => [
+        critique == critiqueEchec ? 'Échec critique' : 'Réussite critique',
+        ' : $auteurNom · $libelle',
+        if (cible.isNotEmpty) ' → $cible',
+        if (resultatCible.isNotEmpty) ' ($resultatCible)',
+      ].join();
 }
 
 /// Camp d'une cible vu de celui qui agit (fenêtre de cibles, 19/11/2026).

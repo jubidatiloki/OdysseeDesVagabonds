@@ -73,6 +73,7 @@ class SeanceController extends ChangeNotifier {
       // Ordre chronologique selon l'heure du serveur (20/11/2026).
       _jets = [...v]..sort((a, b) => a.heure.compareTo(b.heure));
       _traiterInvocations();
+      _noterCritiques();
     });
     suivre(seance.ecouterPresences(c), (v) => _presences = v);
     suivre(seance.ecouterMessages(c, _numero), (v) => _messages = v);
@@ -1470,11 +1471,14 @@ class SeanceController extends ChangeNotifier {
             ordreCombat(joueurs, _creatures, bonusInitiative: _bonusInitiative),
             embusques: embusques));
     if (erreur != null) return erreur;
-    // Embuscade (21/11/2026) : notée dans le récapitulatif.
+    // Embuscade (26/11/2026) : les créatures embusquées cachées sont
+    // révélées aux PJ.
     if (debut && embusques.isNotEmpty) {
-      await noterDansRecap('Embuscade : ${[
-        for (final id in embusques) nomParticipant(id),
-      ].join(', ')}');
+      for (final c in [..._creatures]) {
+        if (c.cachee && embusques.contains(c.id)) {
+          await modifierCreature(c.copie(cachee: false));
+        }
+      }
     }
     final h = maintenant ?? DateTime.now();
     if (debut) {
@@ -1485,8 +1489,14 @@ class SeanceController extends ChangeNotifier {
           if (!c.duCotePj) c.nom,
       ]);
       _debutCombat = h;
+      // Embuscade : précisée sur la même ligne (26/11/2026).
+      final embuscade = embusques.isEmpty
+          ? ''
+          : ', sur une embuscade (${[
+              for (final id in embusques) nomParticipant(id),
+            ].join(', ')})';
       await noterDansRecap(
-        'Début du combat à ${_heure(h)}'
+        'Début du combat à ${_heure(h)}$embuscade'
         '${adversaires.isEmpty ? '' : ' : $adversaires'}',
         maintenant: h,
       );
@@ -1501,6 +1511,30 @@ class SeanceController extends ChangeNotifier {
       );
     }
     return null;
+  }
+
+  /// Ouverture de la séance sur cet appareil, et critiques déjà notés (ou
+  /// déjà là à l'ouverture) : chacun n'est noté qu'une fois.
+  final DateTime _ouverture = DateTime.now();
+  Set<String>? _critiquesVus;
+
+  /// MJ (26/11/2026) : les critiques (réussite ou échec) des jets que tous
+  /// voient sont notés dans les notes de séance, pour la narration.
+  void _noterCritiques() {
+    if (!estMj) return;
+    final vus = _critiquesVus;
+    if (vus == null) {
+      _critiquesVus = {for (final j in _jets) j.id};
+      return;
+    }
+    final depuis = _ouverture.subtract(const Duration(minutes: 5));
+    for (final j in _jets) {
+      if (j.critique.isEmpty || j.id.isEmpty || !vus.add(j.id)) continue;
+      if (j.visibilite != VisibiliteJet.tous || j.heure.isBefore(depuis)) {
+        continue;
+      }
+      unawaited(noterDansRecap(j.ligneCritique));
+    }
   }
 
   /// Heure du début du combat en cours (MJ, pour sa durée).
@@ -1949,7 +1983,7 @@ class SeanceController extends ChangeNotifier {
     final c = creatureChoisie;
     if (estMj && c != null) {
       if (visibilite == VisibiliteJet.mjSeul) return c.nom;
-      return c.cachee ? 'MJ' : c.nomPublic;
+      return c.cachee ? CreatureSeance.nomInconnu : c.nomPublic;
     }
     final nom = attaquant.nom;
     return nom.isEmpty ? (estMj ? 'MJ' : 'Joueur') : nom;
@@ -2107,13 +2141,15 @@ class SeanceController extends ChangeNotifier {
   /// Préfixe des jets faits en réaction, hors de son tour (20/11/2026).
   static const prefixeReaction = 'Réaction · ';
 
-  /// Une seule réaction par manche (20/11/2026) : déjà faite ?
+  /// Une seule réaction par manche (20/11/2026) : déjà faite ? L'esquive
+  /// compte comme la réaction (26/11/2026, choix de l'utilisateur).
   bool get reactionUtilisee =>
       _etat.enCombat &&
       _jets.any(
         (j) =>
             j.auteur == uid &&
-            j.libelle.startsWith(prefixeReaction) &&
+            (j.libelle.startsWith(prefixeReaction) ||
+                j.libelle.startsWith("Jet d'esquive")) &&
             j.mode == ModeJeu.combat &&
             j.manche == _etat.manche,
       );
@@ -2137,16 +2173,9 @@ class SeanceController extends ChangeNotifier {
     return max - faites < 0 ? 0 : max - faites;
   }
 
-  /// Une seule esquive par tour de combat (règles §3.3).
-  bool get esquiveUtilisee =>
-      _etat.enCombat &&
-      _jets.any(
-        (j) =>
-            j.auteur == uid &&
-            j.libelle.startsWith("Jet d'esquive") &&
-            j.mode == ModeJeu.combat &&
-            j.manche == _etat.manche,
-      );
+  /// Une seule esquive par tour de combat (règles §3.3), qui est aussi la
+  /// réaction de la manche (26/11/2026) : impossible après une réaction.
+  bool get esquiveUtilisee => reactionUtilisee;
 
   /// Réponse du joueur à une attaque sans jet : [esquiver] lance
   /// 1d20 + bonus d'esquive contre la difficulté ; réussi, aucun dégât (ou
@@ -2402,6 +2431,7 @@ class SeanceController extends ChangeNotifier {
     bool? touche,
     String sansComparaison = '',
     bool action = false,
+    String critique = '',
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -2429,6 +2459,7 @@ class SeanceController extends ChangeNotifier {
             touche: touche,
             sansComparaison: sansComparaison,
             action: action,
+            critique: critique,
           ),
         ),
       );

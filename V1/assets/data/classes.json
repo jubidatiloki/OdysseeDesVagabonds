@@ -1501,7 +1501,7 @@
             "nom": "Protection",
             "cible": "unique",
             "duree": {"type": "actions", "valeur": "1"},
-            "type": "renforcement",
+            "type": "renforcement, réaction",
             "effet": "S'il ne s'est pas déplacé, fait profiter un allié de sa défense pour intercepter un coup à sa place.",
             "effets": [
               {"type": "texte", "effet": "S'il ne s'est pas déplacé : intercepte un coup destiné à un allié."}
@@ -1634,7 +1634,7 @@
           {
             "rang": 2,
             "nom": "Contre-attaque",
-            "type": "passif",
+            "type": "passif, réaction",
             "effet": "Si une attaque de contact contre lui rate d'au moins 5 sous sa CA : attaque gratuite, avec un d12 (au lieu du d20) pour toucher (1×/tour max).",
             "jets": [
               {"libelle": "Contre-attaque", "des": "1d12", "carac": "ADC", "attaque": {}}
@@ -1643,7 +1643,7 @@
           {
             "rang": 3,
             "nom": "Contre-attaque améliorée",
-            "type": "renforcement",
+            "type": "renforcement, réaction",
             "effet": "Idem, mais le jet pour toucher se fait avec un d20, jusqu'à 2×/tour.",
             "effets": [
               {"type": "renforcement", "nom": "Contre-attaque", "effet": "Attaque gratuite, jet pour toucher avec un d20, jusqu'à 2×/tour."}
@@ -1940,7 +1940,7 @@
             "nom": "Tenir en joue",
             "cible": "unique",
             "duree": {"type": "tours", "valeur": "1"},
-            "type": "action de mouvement",
+            "type": "action de mouvement, réaction",
             "effet": "Action de mouvement : la cible subit une attaque gratuite de l'ingénieur si elle se déplace.",
             "jets": [
               {"libelle": "Tenir en joue : tir de réaction", "des": "1d20", "carac": "ADT", "attaque": {"distance": true}}
@@ -2091,7 +2091,7 @@
             "ciblesMax": "INT",
             "duree": {"type": "tours", "valeur": "INT + 1d4"},
             "bonusDonne": {"valeur": 3, "portee": "ca", "contre": "MAG", "siReussite": false},
-            "type": "actif, sort",
+            "type": "actif, sort, réaction si actif",
             "typesSort": ["support"],
             "effet": "Cercle pour jusqu'à INT personnes : +3 CA MAG aux alliés ; dure INT + 1d4 tours ; brisé si le magicien en sort. Au rang 4 : peut intercepter les sorts visant ses alliés et utiliser sa défense magique.",
             "effetApplique": "Jusqu'à INT alliés : +3 CA MAG pendant INT + 1d4 tours",
@@ -3800,7 +3800,7 @@
           {
             "rang": 4,
             "nom": "Chasse en meute",
-            "type": "passif",
+            "type": "passif, réaction",
             "effet": "Si le rôdeur et son compagnon attaquent la même cible dans le tour : +2 AdC pour les deux et −2 CA pour la cible jusqu'au prochain tour. 1×/combat, le compagnon peut intercepter un coup destiné au rôdeur.",
             "effets": [
               {"type": "test", "categorie": "ADC", "valeur": "2", "condition": "avec le compagnon sur la même cible"},
@@ -3981,7 +3981,7 @@
             "rang": 2,
             "endurance": 1,
             "nom": "Riposte",
-            "type": "passif",
+            "type": "passif, réaction",
             "effet": "Après une attaque ratée contre le voleur : attaque gratuite avec un d12, 1×/tour.",
             "effets": [
               {"type": "texte", "effet": "Après une attaque ratée contre le voleur, 1 fois par tour."}

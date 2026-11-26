@@ -15,7 +15,15 @@ class CarteCampagne {
     this.grille = false,
     this.colonnes = colonnesParDefaut,
     this.epaisseur = 1,
+    this.decalageX = 0,
+    this.decalageY = 0,
   });
+
+  /// Décalage de la grille (26/11/2026), en pourcentage d'une case
+  /// (0 à [decalageMax]) : horizontal et vertical.
+  final int decalageX;
+  final int decalageY;
+  static const int decalageMax = 99;
 
   /// Épaisseur des traits de la grille (22/11/2026), de 1 à [epaisseurMax].
   final int epaisseur;
@@ -62,6 +70,8 @@ class CarteCampagne {
     bool? grille,
     int? colonnes,
     int? epaisseur,
+    int? decalageX,
+    int? decalageY,
   }) =>
       CarteCampagne(
         id: id,
@@ -75,6 +85,8 @@ class CarteCampagne {
         grille: grille ?? this.grille,
         colonnes: (colonnes ?? this.colonnes).clamp(colonnesMin, colonnesMax),
         epaisseur: (epaisseur ?? this.epaisseur).clamp(1, epaisseurMax),
+        decalageX: (decalageX ?? this.decalageX).clamp(0, decalageMax),
+        decalageY: (decalageY ?? this.decalageY).clamp(0, decalageMax),
       );
 
   Map<String, dynamic> versJson() => {
@@ -88,6 +100,8 @@ class CarteCampagne {
         'grille': grille,
         'colonnes': colonnes,
         'epaisseur': epaisseur,
+        'decalageX': decalageX,
+        'decalageY': decalageY,
       };
 
   factory CarteCampagne.depuisJson(String id, Map<String, dynamic> j) =>
@@ -106,6 +120,10 @@ class CarteCampagne {
             .clamp(colonnesMin, colonnesMax),
         epaisseur:
             ((j['epaisseur'] as num?)?.toInt() ?? 1).clamp(1, epaisseurMax),
+        decalageX:
+            ((j['decalageX'] as num?)?.toInt() ?? 0).clamp(0, decalageMax),
+        decalageY:
+            ((j['decalageY'] as num?)?.toInt() ?? 0).clamp(0, decalageMax),
       );
 
   /// Nom propre : sans espaces en trop, sans extension de fichier, pas

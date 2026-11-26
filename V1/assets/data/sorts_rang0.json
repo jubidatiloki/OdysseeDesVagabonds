@@ -110,7 +110,7 @@
     "description": "Réaction : +1 CA jusqu'à la fin du tour.",
     "classes": [],
     "sort": {
-      "type": "gratuit, sort, 1×/tour",
+      "type": "gratuit, sort, réaction, 1×/tour",
       "cible": "soi",
       "duree": {"type": "tours", "valeur": "1"},
       "bonusDonne": {"valeur": 1, "portee": "ca", "siReussite": false},

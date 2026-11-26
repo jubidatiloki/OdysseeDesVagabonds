@@ -14,6 +14,7 @@ IconData iconeCategorieCompetence(CategorieCompetence c) => switch (c) {
       CategorieCompetence.soutien => Icons.pets_outlined,
       CategorieCompetence.soin => Icons.favorite_outline,
       CategorieCompetence.degats => Icons.bolt,
+      CategorieCompetence.reaction => Icons.flash_on,
     };
 
 /// Onglet « Compétences » du Glossaire : toutes les compétences des voies

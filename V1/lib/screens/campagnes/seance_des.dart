@@ -18,6 +18,7 @@ import '../../theme.dart';
 import '../../widgets/animation_lancer.dart';
 import '../../widgets/consultation.dart';
 import '../../widgets/voie_detail.dart';
+import '../../widgets/types_competence.dart';
 import '../de_screen.dart';
 import 'seance_bonus.dart';
 import 'seance_cibles.dart';
@@ -162,6 +163,30 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
   /// les logs (20/11/2026).
   final Map<String, String> _armes = {};
 
+  /// Compétence d'origine des attaques de compétence (« Riposte » →
+  /// « Riposte »), pour le mode Réaction (26/11/2026).
+  final Map<String, String> _originesAttaques = {};
+
+  /// Mode Réaction (26/11/2026) : seules les compétences de la catégorie
+  /// « Réaction » sont permises (tests, aptitudes et dégâts restent libres).
+  bool get _filtreReaction => _enReaction && !_s.estMj;
+
+  /// Compétences de réaction de la fiche, et celles « si actif ».
+  Set<String> _reactions(FicheCalculee f, GenreReaction genre) => {
+        for (final c in f.competencesAcquises)
+          if (genreReaction(c.competence.type) == genre) c.competence.nom,
+      };
+
+  /// Action permise en réaction : sa compétence est une réaction, ou son
+  /// libellé commence par le nom d'une réaction (« Riposte » donnée par
+  /// Désarmement).
+  bool _permiseEnReaction(FicheCalculee? f, String origine, String libelle) {
+    if (!_filtreReaction) return true;
+    if (f == null) return false;
+    final noms = _reactions(f, GenreReaction.reaction);
+    return noms.contains(origine) || noms.any(libelle.startsWith);
+  }
+
   /// Une action du tour commence (attaque, sort, compétence) : le prochain
   /// jet est marqué comme tel (limite d'actions par tour, 20/11/2026).
   var _nouvelleAction = false;
@@ -265,6 +290,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
 
     _sansJet.clear();
     _armes.clear();
+    _originesAttaques.clear();
     if (a.creature case final c?) {
       // Compagnon choisi par le MJ : toucher d'après la fiche de son maître.
       final maitre = _s.ficheDe(_s.creatureChoisie?.proprietaire ?? '');
@@ -334,6 +360,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
               (x.toucher ?? 0),
         );
         _armes[j.libelle] = x.sansArme ? 'Mains nues' : arme!.nom;
+        _originesAttaques[j.libelle] = j.origine;
         final g = degatsAttaque(f, j, x.sansArme ? null : arme);
         ajouter(
           'Dégâts · ${j.libelle}',
@@ -362,6 +389,22 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       }
     }
     return res;
+  }
+
+  /// Mode Réaction : les réactions possibles de la fiche (26/11/2026).
+  String _texteReaction() {
+    final f = _s.attaquant.fiche;
+    final noms = f == null
+        ? const <String>[]
+        : [
+            ..._reactions(f, GenreReaction.reaction),
+            for (final n in _reactions(f, GenreReaction.siActif))
+              '$n (si actif)',
+          ];
+    return noms.isEmpty
+        ? 'Réaction : aucune compétence de réaction ; tests et dégâts '
+            'restent possibles.'
+        : 'Réaction : ${noms.join(', ')}. Notée comme telle dans les logs.';
   }
 
   /// Compétence qui donne la créature [id] au personnage (pour son RANG).
@@ -490,8 +533,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       final m = RegExp(r'^\s*(\d+)\s*PV').firstMatch(sort.soin);
       if (m != null) {
         for (final c in cibles) {
-          await _s.soigner(
-              c, int.parse(m[1]!), '${_s.attaquant.nom} · ${sort.nom}');
+          await _s.soigner(c, int.parse(m[1]!),
+              '${_s.nomDuJet(VisibiliteJet.tous)} · ${sort.nom}');
         }
       }
     }
@@ -730,6 +773,14 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       touche: touche,
       sansComparaison: sansComparaison,
       action: action,
+      // Critique d'un d20 (26/11/2026) : noté dans les notes de séance.
+      critique: r == null || !r.d20
+          ? ''
+          : r.reussiteCritique
+              ? JetSeance.critiqueReussite
+              : r.echecCritique
+                  ? JetSeance.critiqueEchec
+                  : '',
       cibleJet: avecCible
           ? [
               _nomsCibles(ids),
@@ -752,7 +803,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     if (erreur == null && (degats || soin)) {
       // Sort avec un jet d'attaque : seulement les cibles touchées.
       final touchees = _sortEnCours ? _touchees : null;
-      final source = '${_s.attaquant.nom} · $libelle';
+      final source = '${_s.nomDuJet(VisibiliteJet.tous)} · $libelle';
       int? esquive;
       var moitie = false;
       var demande = false;
@@ -978,6 +1029,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         onPressed: pasDeCible ||
                 _horsTour ||
                 _actionsEpuisees ||
+                !_permiseEnReaction(
+                    fiche, s.competence.nom, s.competence.nom) ||
                 fiche.pointsPourSorts < s.cout
             ? null
             : () => _lancerSort(fiche, s),
@@ -994,7 +1047,10 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         texte: '${j.libelle} : ${formaterJet(j.des, j.bonus)}',
         fiche: fiche,
         favori: j.origine,
-        onPressed: pasDeCible || _horsTour || _actionsEpuisees
+        onPressed: pasDeCible ||
+                _horsTour ||
+                _actionsEpuisees ||
+                !_permiseEnReaction(fiche, j.origine, j.libelle)
             ? null
             : () async {
                 // Compétence qui donne un bonus : cibles choisies d'abord.
@@ -1036,6 +1092,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
         onPressed: pasDeCible ||
                 _horsTour ||
                 _actionsEpuisees ||
+                !_permiseEnReaction(fiche, a.origine, a.libelle) ||
                 fiche.peActuels < a.cout
             ? null
             : () async {
@@ -1159,7 +1216,13 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       fiche: fiche,
       favori: 'att:${a.libelle}',
       // Dégâts : partie de l'attaque, jamais bloqués par la limite.
-      onPressed: pasDeCible || _horsTour || (!a.degats && _actionsEpuisees)
+      onPressed: pasDeCible ||
+              _horsTour ||
+              (!a.degats && _actionsEpuisees) ||
+              // En réaction : toucher d'une réaction seulement.
+              (!a.degats &&
+                  !_permiseEnReaction(
+                      fiche, _originesAttaques[a.libelle] ?? '', a.libelle))
           ? null
           : () async {
               // Fenêtre de cibles (19/11/2026) à chaque attaque.
@@ -1781,7 +1844,7 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
                   : () => setState(() => _reactionPendant = _tourActuel),
               icon: const Icon(Icons.flash_on),
               label: Text(_s.reactionUtilisee
-                  ? 'Réaction déjà faite cette manche'
+                  ? 'Réaction (ou esquive) déjà faite cette manche'
                   : 'Réaction'),
             ),
           ),
@@ -1793,8 +1856,11 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
             children: [
               const Icon(Icons.flash_on, size: 18, color: OdvCouleurs.or),
               const SizedBox(width: 6),
-              const Expanded(
-                child: Text('Réaction : tes actions sont notées comme telles.'),
+              Expanded(
+                child: Text(
+                  _texteReaction(),
+                  key: const Key('texte-reaction'),
+                ),
               ),
               TextButton(
                 key: const Key('fin-reaction'),

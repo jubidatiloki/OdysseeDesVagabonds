@@ -16,4 +16,14 @@ void main() {
     expect(_libelles('action de mouvement'), ['Mouvement']);
     expect(_libelles(''), isEmpty);
   });
+
+  test('catégorie Réaction (26/11/2026)', () {
+    expect(_libelles('passif, réaction'), ['Passif', 'Réaction']);
+    expect(_libelles('actif, sort, réaction si actif'),
+        ['Actif', 'Sort', 'Réaction si actif']);
+    expect(genreReaction('passif'), GenreReaction.aucune);
+    expect(genreReaction('renforcement, réaction'), GenreReaction.reaction);
+    expect(
+        genreReaction('actif, sort, réaction si actif'), GenreReaction.siActif);
+  });
 }
