@@ -1635,6 +1635,7 @@
             "rang": 2,
             "nom": "Contre-attaque",
             "type": "passif, réaction",
+            "declencheur": {"type": "attaque-ratee", "contact": true, "ecartMin": 5},
             "effet": "Si une attaque de contact contre lui rate d'au moins 5 sous sa CA : attaque gratuite, avec un d12 (au lieu du d20) pour toucher (1×/tour max).",
             "jets": [
               {"libelle": "Contre-attaque", "des": "1d12", "carac": "ADC", "attaque": {}}
@@ -1675,6 +1676,7 @@
             "rang": 5,
             "nom": "Vétéran des champs de bataille",
             "type": "passif + renforcement",
+            "declencheur": {"type": "attaque-ratee", "contact": true, "pour": "Contre-attaque"},
             "effet": "+2 FOR ou +2 CON. Rangs serrés : max +5, et les alliés au contact gagnent +1 CA. Contre-attaque déclenchée par n'importe quelle attaque ratée (toujours 2×/tour).",
             "effets": [
               {"type": "renforcement", "nom": "Rangs serrés", "effet": "Max +5 ; les alliés au contact gagnent +1 CA."},
@@ -3982,6 +3984,7 @@
             "endurance": 1,
             "nom": "Riposte",
             "type": "passif, réaction",
+            "declencheur": {"type": "attaque-ratee", "contact": true},
             "effet": "Après une attaque ratée contre le voleur : attaque gratuite avec un d12, 1×/tour.",
             "effets": [
               {"type": "texte", "effet": "Après une attaque ratée contre le voleur, 1 fois par tour."}

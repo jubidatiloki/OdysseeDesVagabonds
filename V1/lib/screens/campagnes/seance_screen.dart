@@ -66,6 +66,7 @@ class _SeanceScreenState extends State<SeanceScreen>
     );
     _seance.annonce.addListener(_annoncer);
     _seance.addListener(_verifierEsquives);
+    _seance.addListener(_verifierReactions);
     _seance.addListener(_verifierTourAuSol);
   }
 
@@ -104,6 +105,40 @@ class _SeanceScreenState extends State<SeanceScreen>
       );
       if (jouer == false && mounted) await _seance.passerTour();
     });
+  }
+
+  /// Réaction possible après une attaque ratée (27/11/2026) : une fenêtre
+  /// la propose ; acceptée, le panneau de dés s'ouvre en réaction.
+  var _fenetreReaction = false;
+
+  void _verifierReactions() {
+    if (_fenetreReaction || _fenetreEsquive || !mounted) return;
+    final liste = _seance.reactionsProposees;
+    if (liste.isEmpty) return;
+    final r = liste.first;
+    _fenetreReaction = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _reagir(r));
+  }
+
+  Future<void> _reagir(ReactionProposee r) async {
+    try {
+      if (!mounted) return;
+      final oui = await showDialog<bool>(
+        context: context,
+        builder: (_) => FenetreReaction(reaction: r, mj: _seance.estMj),
+      );
+      if (!mounted) return;
+      if (oui == true) {
+        _seance.demanderReaction(r);
+        // Écran étroit : l'onglet des dés.
+        _vues.animateTo(2);
+      } else {
+        _seance.reactionVue(r);
+      }
+    } finally {
+      _fenetreReaction = false;
+      if (mounted) _verifierReactions();
+    }
   }
 
   /// Attaques sans jet déjà présentées au joueur (une fenêtre chacune).
@@ -184,6 +219,7 @@ class _SeanceScreenState extends State<SeanceScreen>
   void dispose() {
     _seance.annonce.removeListener(_annoncer);
     _seance.removeListener(_verifierEsquives);
+    _seance.removeListener(_verifierReactions);
     _seance.removeListener(_verifierTourAuSol);
     _vues.dispose();
     _seance.dispose();

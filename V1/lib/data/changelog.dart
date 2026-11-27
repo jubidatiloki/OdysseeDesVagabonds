@@ -29,6 +29,27 @@ const _c = TypeChangement.correction;
 
 const List<VersionChangelog> kChangelog = [
   (
+    version: '0.86.0',
+    date: '27/11/2026',
+    changements: [
+      (
+        type: _a,
+        texte: 'Séance : fenêtre « Riposte possible ! » quand une attaque '
+            'ratée au contact déclenche une réaction.',
+      ),
+      (
+        type: _a,
+        texte: 'Séance : groupes repliables à gauche (tous pour le MJ, les '
+            'cartes pour tout le monde) ; groupe Butins.',
+      ),
+      (
+        type: _c,
+        texte: "Séance : l'équipement changé par un PJ part tout de suite en "
+            'ligne, pour que le MJ le voie.',
+      ),
+    ],
+  ),
+  (
     version: '0.85.0',
     date: '26/11/2026',
     changements: [

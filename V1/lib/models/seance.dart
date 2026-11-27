@@ -681,7 +681,14 @@ class JetSeance {
     this.renvoi = '',
     this.action = false,
     this.critique = '',
+    this.ciblesIds = const [],
+    this.contact = false,
   });
+
+  /// Cibles visées (uid ou id de créature, 27/11/2026) et attaque au
+  /// contact : pour proposer une réaction (Contre-attaque, Riposte).
+  final List<String> ciblesIds;
+  final bool contact;
 
   /// Critique d'un jet de d20 (26/11/2026) : « reussite », « echec » ou
   /// vide. Noté dans les notes de séance par le MJ.
@@ -779,6 +786,8 @@ class JetSeance {
         if (renvoi.isNotEmpty) 'renvoi': renvoi,
         if (action) 'action': true,
         if (critique.isNotEmpty) 'critique': critique,
+        if (ciblesIds.isNotEmpty) 'ciblesIds': ciblesIds,
+        if (contact) 'contact': true,
       };
 
   /// Heure du serveur (20/11/2026), pour classer les logs de tous les
@@ -816,6 +825,8 @@ class JetSeance {
         renvoi: j['renvoi'] as String? ?? '',
         action: j['action'] as bool? ?? false,
         critique: j['critique'] as String? ?? '',
+        ciblesIds: [for (final x in j['ciblesIds'] as List? ?? const []) '$x'],
+        contact: j['contact'] as bool? ?? false,
       );
 
   /// Ligne des notes de séance d'un critique (26/11/2026) : « Réussite
@@ -826,6 +837,29 @@ class JetSeance {
         if (cible.isNotEmpty) ' → $cible',
         if (resultatCible.isNotEmpty) ' ($resultatCible)',
       ].join();
+}
+
+/// Réaction proposée après une attaque ratée (27/11/2026) : [reagit] (uid
+/// du PJ ou id de la créature) peut utiliser [competence] contre
+/// [attaquant] ; [ecart] : de combien l'attaque a raté sa CA.
+class ReactionProposee {
+  const ReactionProposee({
+    required this.competence,
+    required this.reagit,
+    required this.nomReagit,
+    required this.attaquant,
+    required this.nomAttaquant,
+    required this.attaque,
+    this.ecart,
+  });
+
+  final String competence;
+  final String reagit;
+  final String nomReagit;
+  final String attaquant;
+  final String nomAttaquant;
+  final String attaque;
+  final int? ecart;
 }
 
 /// Camp d'une cible vu de celui qui agit (fenêtre de cibles, 19/11/2026).

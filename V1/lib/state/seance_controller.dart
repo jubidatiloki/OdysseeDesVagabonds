@@ -20,6 +20,7 @@ import '../models/voie.dart';
 import '../regles/des.dart';
 import '../regles/invocations.dart';
 import '../regles/fiche_calculee.dart';
+import '../regles/reactions.dart';
 import 'campagnes_controller.dart';
 import 'personnages_controller.dart';
 
@@ -74,6 +75,7 @@ class SeanceController extends ChangeNotifier {
       _jets = [...v]..sort((a, b) => a.heure.compareTo(b.heure));
       _traiterInvocations();
       _noterCritiques();
+      _proposerReactions();
     });
     suivre(seance.ecouterPresences(c), (v) => _presences = v);
     suivre(seance.ecouterMessages(c, _numero), (v) => _messages = v);
@@ -1368,7 +1370,26 @@ class SeanceController extends ChangeNotifier {
   void _personnagesChanges() {
     final f = estMj ? null : maFiche;
     final niveau = f?.personnage.niveau;
-    if (niveau != null && _niveauVu != null && niveau != _niveauVu) {
+    // Équipement porté changé (27/11/2026) : la fiche part en ligne tout de
+    // suite, même en envoi différé, pour que le MJ voie l'arme et l'armure
+    // (et la CA publiée) à jour.
+    final equipement = f == null
+        ? null
+        : ([
+            for (final o in f.personnage.inventaire)
+              if (o.equipe) o.id,
+          ]..sort())
+            .join('|');
+    final equipementChange = equipement != null &&
+        _equipementVu != null &&
+        equipement != _equipementVu;
+    if (equipement != null) _equipementVu = equipement;
+    if (equipementChange) {
+      _minuteriePublication?.cancel();
+      _minuteriePublication = null;
+      unawaited(_publier(force: true));
+      unawaited(campagnes.compte.synchroniser());
+    } else if (niveau != null && _niveauVu != null && niveau != _niveauVu) {
       // Montée de niveau pendant la séance (13/11/2026) : nouveaux PV, PM
       // et PE publiés tout de suite, et la fiche envoyée en ligne (le MJ la
       // lit : niveau, compétences), même en envoi différé.
@@ -1385,6 +1406,19 @@ class SeanceController extends ChangeNotifier {
 
   /// Niveau du personnage du joueur, pour repérer une montée de niveau.
   int? _niveauVu;
+
+  /// Objets portés par le personnage du joueur (ids), pour repérer un
+  /// changement d'équipement.
+  String? _equipementVu;
+
+  /// Groupes de la liste de gauche repliés (27/11/2026) : « partie-cartes »
+  /// pour tous, les autres pour le MJ.
+  final Set<String> _groupesReplies = {};
+  bool groupeReplie(String cle) => _groupesReplies.contains(cle);
+  void basculerGroupe(String cle) {
+    if (!_groupesReplies.remove(cle)) _groupesReplies.add(cle);
+    notifyListeners();
+  }
 
   /// Joueur : publie PV, PM, PE, résumé, initiative et CA quand ils changent.
   Future<void> _publier({bool force = false}) async {
@@ -1536,6 +1570,80 @@ class SeanceController extends ChangeNotifier {
       unawaited(noterDansRecap(j.ligneCritique));
     }
   }
+
+  /// Attaques déjà examinées pour une réaction (ou déjà là à l'ouverture).
+  Set<String>? _attaquesVues;
+  final List<ReactionProposee> _reactions = [];
+
+  /// Réactions à proposer dans une fenêtre (27/11/2026).
+  List<ReactionProposee> get reactionsProposees =>
+      List.unmodifiable(_reactions);
+
+  /// Une attaque ratée au contact contre le personnage du joueur (ou, pour
+  /// le MJ, contre une créature dont la fiche a une réaction) : la
+  /// réaction possible (Contre-attaque, Riposte) est proposée.
+  void _proposerReactions() {
+    final vues = _attaquesVues;
+    if (vues == null) {
+      _attaquesVues = {for (final j in _jets) j.id};
+      return;
+    }
+    for (final j in _jets) {
+      if (j.id.isEmpty || !vues.add(j.id)) continue;
+      if (!_etat.enCombat ||
+          j.genre != GenreJet.attaque ||
+          j.touche != false ||
+          j.ciblesIds.length != 1) {
+        continue;
+      }
+      final cible = j.ciblesIds.single;
+      if (cible == j.attaquant) continue;
+      final ecart = j.caCible == null ? null : j.caCible! - j.total;
+      Iterable<Competence>? competences;
+      if (!estMj && cible == uid) {
+        if (reactionUtilisee) continue;
+        competences = maFiche?.competencesAcquises.map((c) => c.competence);
+      } else if (estMj) {
+        for (final c in _creatures) {
+          if (c.id == cible && !c.morte) {
+            competences = [
+              for (final v in ficheCreature(c)?.voies ?? const <Voie>[])
+                ...v.competences,
+            ];
+          }
+        }
+      }
+      if (competences == null) continue;
+      final noms =
+          reactionsDeclenchees(competences, contact: j.contact, ecart: ecart);
+      if (noms.isEmpty) continue;
+      _reactions.add(ReactionProposee(
+        competence: noms.first,
+        reagit: cible,
+        nomReagit: nomParticipant(cible),
+        attaquant: j.attaquant,
+        nomAttaquant: j.auteurNom,
+        attaque: j.libelle,
+        ecart: ecart,
+      ));
+    }
+  }
+
+  /// La fenêtre de réaction a été montrée (acceptée ou non).
+  void reactionVue(ReactionProposee r) => _reactions.remove(r);
+
+  /// Réaction acceptée : le panneau de dés passe en réaction, la compétence
+  /// en avant et l'attaquant ciblé (MJ : la créature agit).
+  ReactionProposee? _reactionDemandee;
+  ReactionProposee? get reactionDemandee => _reactionDemandee;
+  void demanderReaction(ReactionProposee r) {
+    _reactions.remove(r);
+    if (estMj) choisirActeur(r.reagit);
+    _reactionDemandee = r;
+    notifyListeners();
+  }
+
+  void reactionPrise() => _reactionDemandee = null;
 
   /// Heure du début du combat en cours (MJ, pour sa durée).
   DateTime? _debutCombat;
@@ -2432,6 +2540,8 @@ class SeanceController extends ChangeNotifier {
     String sansComparaison = '',
     bool action = false,
     String critique = '',
+    List<String> ciblesIds = const [],
+    bool contact = false,
   }) =>
       _agir(
         (s, c) => s.lancer(
@@ -2460,6 +2570,8 @@ class SeanceController extends ChangeNotifier {
             sansComparaison: sansComparaison,
             action: action,
             critique: critique,
+            ciblesIds: ciblesIds,
+            contact: contact,
           ),
         ),
       );

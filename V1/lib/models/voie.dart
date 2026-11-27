@@ -689,6 +689,36 @@ class BonusDonne {
   }
 }
 
+/// Déclencheur d'une réaction (27/11/2026) : une attaque ratée contre le
+/// personnage, au contact si [contact], d'au moins [ecartMin] sous sa CA
+/// (0 : toute attaque ratée). [pour] : assouplit le déclencheur d'une autre
+/// compétence (Vétéran des champs de bataille → Contre-attaque).
+class DeclencheurReaction {
+  const DeclencheurReaction({
+    this.contact = false,
+    this.ecartMin = 0,
+    this.pour = '',
+  });
+
+  final bool contact;
+  final int ecartMin;
+  final String pour;
+
+  static DeclencheurReaction? depuisJson(Object? j) => j is Map<String, dynamic>
+      ? DeclencheurReaction(
+          contact: j['contact'] == true,
+          ecartMin: (j['ecartMin'] as num?)?.toInt() ?? 0,
+          pour: '${j['pour'] ?? ''}',
+        )
+      : null;
+
+  /// L'attaque ratée (au contact ou non, d'un écart [ecart] sous la CA,
+  /// `null` si la CA est inconnue) déclenche-t-elle la réaction ?
+  bool declenche({required bool contactAttaque, int? ecart}) =>
+      (!contact || contactAttaque) &&
+      (ecartMin <= 0 || (ecart != null && ecart >= ecartMin));
+}
+
 class Competence {
   const Competence({
     required this.rang,
@@ -723,7 +753,12 @@ class Competence {
     this.duree,
     this.bonusDonnes = const [],
     this.ciblesMax = '',
+    this.declencheur,
   });
+
+  /// Réaction proposée dans une fenêtre (27/11/2026) : quand une attaque
+  /// ratée la déclenche (Contre-attaque, Riposte) ; `null` : aucune.
+  final DeclencheurReaction? declencheur;
 
   /// Type de dégâts d'un sort ou d'une attaque (feu, glace, foudre, magique,
   /// chaos, physique) ; vide : physique.
@@ -821,6 +856,7 @@ class Competence {
         duree: duree,
         bonusDonnes: bonusDonnes,
         ciblesMax: ciblesMax ?? this.ciblesMax,
+        declencheur: declencheur,
       );
 
   /// Types du sort (offensif, support…), 1 ou 2 ; vide si ce n'est pas un
@@ -975,6 +1011,7 @@ class Competence {
       duree: duree,
       bonusDonnes: bonusDonnes,
       ciblesMax: ciblesMax,
+      declencheur: declencheur,
     );
   }
 
@@ -1033,6 +1070,7 @@ class Competence {
         duree: DureeCompetence.depuisJson(j['duree']),
         bonusDonnes: BonusDonne.listeDepuisJson(j['bonusDonne']),
         ciblesMax: '${j['ciblesMax'] ?? ''}'.trim(),
+        declencheur: DeclencheurReaction.depuisJson(j['declencheur']),
       );
 
   static Map<String, VarianteCompetence> _variantes(Object? j) => {

@@ -93,6 +93,17 @@ class PanneauDes extends StatelessWidget {
                 ),
               ],
             ),
+            // Réaction acceptée (27/11/2026) : retour à l'onglet des dés.
+            Builder(builder: (contexte) {
+              if (seance.reactionDemandee != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (contexte.mounted) {
+                    DefaultTabController.of(contexte).animateTo(0);
+                  }
+                });
+              }
+              return const SizedBox.shrink();
+            }),
             Expanded(
               child: TabBarView(
                 children: [
@@ -776,6 +787,8 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
       sansComparaison: sansComparaison,
       action: action,
       // Critique d'un d20 (26/11/2026) : noté dans les notes de séance.
+      ciblesIds: visees,
+      contact: attaque && contre == 'CaC',
       critique: r == null || !r.d20
           ? ''
           : r.reussiteCritique
@@ -1787,9 +1800,27 @@ class _LanceurState extends State<_Lanceur> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  /// Réaction acceptée dans la fenêtre (27/11/2026) : mode Réaction (PJ),
+  /// l'attaquant ciblé, la compétence cherchée dans les actions.
+  void _prendreReaction() {
+    final r = _s.reactionDemandee;
+    if (r == null) return;
+    _s.reactionPrise();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        if (!_s.estMj) _reactionPendant = _tourActuel;
+        _ciblesChoisies = [r.attaquant];
+        _champRecherche.text = r.competence;
+        _recherche = r.competence;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    _prendreReaction();
     final theme = Theme.of(context);
     final attaquant = _s.attaquant;
     final fiche = attaquant.fiche;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/seance.dart';
 import '../../regles/des.dart';
+import '../../theme.dart';
 
 /// Attaque sans jet d'attaque (souffle, bond…) qui vise le joueur : une
 /// fenêtre lui demande d'esquiver ou de subir (12/11/2026, à la place du
@@ -197,6 +198,56 @@ class FenetreResultatEsquive extends StatelessWidget {
           key: const Key('fermer-resultat-esquive'),
           onPressed: () => Navigator.pop(context),
           child: const Text('OK'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Réaction possible (27/11/2026) : une attaque ratée au contact déclenche
+/// la Contre-attaque ou la Riposte. Renvoie `true` si elle est utilisée.
+class FenetreReaction extends StatelessWidget {
+  const FenetreReaction({super.key, required this.reaction, this.mj = false});
+
+  final ReactionProposee reaction;
+
+  /// Vue du MJ : la créature [ReactionProposee.nomReagit] peut réagir.
+  final bool mj;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final r = reaction;
+    final rate = r.ecart == null || r.ecart! <= 0
+        ? 'a raté son attaque'
+        : 'a raté son attaque de ${r.ecart}';
+    return AlertDialog(
+      key: const Key('fenetre-reaction'),
+      icon: const Icon(Icons.flash_on, color: OdvCouleurs.or, size: 36),
+      title: Text('${r.competence} possible !'),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Text(
+          '${r.nomAttaquant} $rate (${r.attaque})'
+          '${mj ? ' contre ${r.nomReagit}' : ''}. '
+          '${mj ? '${r.nomReagit} peut' : 'Tu peux'} utiliser '
+          '${r.competence} en réaction (une par manche, l\'esquive compte).',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium,
+        ),
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        OutlinedButton(
+          key: const Key('ignorer-reaction'),
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Ignorer'),
+        ),
+        FilledButton.icon(
+          key: const Key('utiliser-reaction'),
+          onPressed: () => Navigator.pop(context, true),
+          icon: const Icon(Icons.flash_on),
+          label: Text(r.competence),
         ),
       ],
     );

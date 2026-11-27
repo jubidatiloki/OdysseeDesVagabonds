@@ -382,6 +382,32 @@ class ListeCartes extends StatelessWidget {
               : null,
           cleRetirer: 'retirer-${c.id}',
         );
+    // Groupes repliables (27/11/2026) : les cartes pour tous, les autres
+    // pour le MJ.
+    bool repliable(String cle) => cle == 'partie-cartes' || s.estMj;
+    bool replie(String cle) => repliable(cle) && s.groupeReplie(cle);
+    VoidCallback? basculer(String cle) =>
+        repliable(cle) ? () => s.basculerGroupe(cle) : null;
+    final enCombat = [
+      for (final e in s.ordreDesCartes)
+        if (e.joueur case final m?)
+          ...joueur(m)
+        else if (e.creature case final c?)
+          c.duCotePj ? allie(c) : creature(c),
+    ];
+    final personnages = [
+      for (final m in s.joueursOrdonnes) ...joueur(m),
+      for (final c in s.creaturesOrdonnees)
+        if (c.allie && !c.estAUnJoueur) allie(c),
+    ];
+    final neutres = [
+      for (final c in s.creaturesOrdonnees)
+        if (c.neutre) creature(c),
+    ];
+    final ennemis = [
+      for (final c in s.creaturesOrdonnees)
+        if (c.ennemie) creature(c),
+    ];
     return ListView(
       key: const Key('liste-cartes'),
       padding: const EdgeInsets.all(8),
@@ -405,27 +431,32 @@ class ListeCartes extends StatelessWidget {
         // Cartes de la campagne diffusées par le MJ, en haut, dans leur
         // propre bloc (16/11/2026).
         if (s.cartesDeLaListe.isNotEmpty)
-          const _TitrePartie(
+          _TitrePartie(
             cle: 'partie-cartes',
             icone: Icons.map_outlined,
             titre: 'Cartes',
+            nombre: s.cartesDeLaListe.length,
+            replie: replie('partie-cartes'),
+            onTap: basculer('partie-cartes'),
           ),
-        for (final p in s.cartesDeLaListe)
-          _Carte(
-            cle: 'carte-plan-${p.id}',
-            selectionnee: s.carte == '$kPrefixePlan${p.id}',
-            // MJ : carte cachée aux PJ, icône barrée (22/11/2026).
-            icone:
-                p.diffusee ? Icons.map_outlined : Icons.visibility_off_outlined,
-            couleurIcone: p.diffusee ? OdvCouleurs.or : null,
-            titre: p.nom,
-            lignes: [
-              if (s.estMj && !p.diffusee) 'Cachée aux PJ',
-              if (p.grille) 'Grille : ${p.colonnes} cases',
-            ],
-            onTap: () => _choisir('$kPrefixePlan${p.id}'),
-            onMenu: s.estMj ? (pos) => _menuPlan(context, p, pos) : null,
-          ),
+        if (!replie('partie-cartes'))
+          for (final p in s.cartesDeLaListe)
+            _Carte(
+              cle: 'carte-plan-${p.id}',
+              selectionnee: s.carte == '$kPrefixePlan${p.id}',
+              // MJ : carte cachée aux PJ, icône barrée (22/11/2026).
+              icone: p.diffusee
+                  ? Icons.map_outlined
+                  : Icons.visibility_off_outlined,
+              couleurIcone: p.diffusee ? OdvCouleurs.or : null,
+              titre: p.nom,
+              lignes: [
+                if (s.estMj && !p.diffusee) 'Cachée aux PJ',
+                if (p.grille) 'Grille : ${p.colonnes} cases',
+              ],
+              onTap: () => _choisir('$kPrefixePlan${p.id}'),
+              onMenu: s.estMj ? (pos) => _menuPlan(context, p, pos) : null,
+            ),
         // En combat (20/11/2026) : une seule liste, dans l'ordre du combat
         // (initiative, le plus rapide en haut), personnages et créatures
         // mêlés ; les compagnons restent sous leur maître.
@@ -435,12 +466,11 @@ class ListeCartes extends StatelessWidget {
             icone: Icons.sports_martial_arts,
             titre: 'Ordre du combat',
             separe: s.cartesDeLaListe.isNotEmpty,
+            nombre: s.ordreDesCartes.length,
+            replie: replie('partie-combat'),
+            onTap: basculer('partie-combat'),
           ),
-          for (final e in s.ordreDesCartes)
-            if (e.joueur case final m?)
-              ...joueur(m)
-            else if (e.creature case final c?)
-              c.duCotePj ? allie(c) : creature(c),
+          if (!replie('partie-combat')) ...enCombat,
         ] else ...[
           // Deux parties bien séparées : les personnages des joueurs (et
           // leurs compagnons), puis les créatures rencontrées.
@@ -450,54 +480,72 @@ class ListeCartes extends StatelessWidget {
               icone: Icons.groups_outlined,
               titre: 'Personnages',
               separe: s.cartesDeLaListe.isNotEmpty,
+              nombre: s.joueurs.length +
+                  s.creatures.where((c) => c.allie && !c.estAUnJoueur).length,
+              replie: replie('partie-personnages'),
+              onTap: basculer('partie-personnages'),
             ),
-          for (final m in s.joueursOrdonnes) ...joueur(m),
-          for (final c in s.creaturesOrdonnees)
-            if (c.allie && !c.estAUnJoueur) allie(c),
+          if (!replie('partie-personnages')) ...personnages,
           // Neutres (21/11/2026) : marchands, passants…
-          if (s.creatures.any((c) => c.neutre))
-            const _TitrePartie(
+          if (neutres.isNotEmpty)
+            _TitrePartie(
               cle: 'partie-neutres',
               icone: Icons.storefront_outlined,
               titre: 'Neutres',
               separe: true,
+              nombre: neutres.length,
+              replie: replie('partie-neutres'),
+              onTap: basculer('partie-neutres'),
             ),
-          for (final c in s.creaturesOrdonnees)
-            if (c.neutre) creature(c),
-          if (s.creatures.any((c) => c.ennemie))
-            const _TitrePartie(
+          if (!replie('partie-neutres')) ...neutres,
+          if (ennemis.isNotEmpty)
+            _TitrePartie(
               cle: 'partie-creatures',
               icone: Icons.pets_outlined,
               titre: 'Créatures rencontrées',
               separe: true,
+              nombre: ennemis.length,
+              replie: replie('partie-creatures'),
+              onTap: basculer('partie-creatures'),
             ),
-          for (final c in s.creaturesOrdonnees)
-            if (c.ennemie) creature(c),
+          if (!replie('partie-creatures')) ...ennemis,
         ],
-        for (final b in s.butins)
-          _Carte(
-            cle: 'carte-${b.id}',
-            selectionnee: s.carte == b.id,
+        // Butins, dans leur groupe (27/11/2026).
+        if (s.butins.isNotEmpty)
+          _TitrePartie(
+            cle: 'partie-butins',
             icone: Icons.redeem_outlined,
-            couleurIcone: OdvCouleurs.or,
-            titre: b.nom,
-            lignes: [
-              b.resume,
-              if (s.estMj && b.cache) 'Caché aux PJ',
-            ],
-            onTap: () => _choisir(b.id),
-            onMenu: s.estMj ? (pos) => _menuButin(context, b, pos) : null,
-            onRetirer: s.estMj
-                ? () async {
-                    final erreur = await s.retirerButin(b);
-                    if (erreur != null && context.mounted) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(erreur)));
-                    }
-                  }
-                : null,
-            cleRetirer: 'retirer-${b.id}',
+            titre: 'Butins',
+            separe: true,
+            nombre: s.butins.length,
+            replie: replie('partie-butins'),
+            onTap: basculer('partie-butins'),
           ),
+        if (!replie('partie-butins'))
+          for (final b in s.butins)
+            _Carte(
+              cle: 'carte-${b.id}',
+              selectionnee: s.carte == b.id,
+              icone: Icons.redeem_outlined,
+              couleurIcone: OdvCouleurs.or,
+              titre: b.nom,
+              lignes: [
+                b.resume,
+                if (s.estMj && b.cache) 'Caché aux PJ',
+              ],
+              onTap: () => _choisir(b.id),
+              onMenu: s.estMj ? (pos) => _menuButin(context, b, pos) : null,
+              onRetirer: s.estMj
+                  ? () async {
+                      final erreur = await s.retirerButin(b);
+                      if (erreur != null && context.mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text(erreur)));
+                      }
+                    }
+                  : null,
+              cleRetirer: 'retirer-${b.id}',
+            ),
         if (s.estMj)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -1398,12 +1446,22 @@ class _TitrePartie extends StatelessWidget {
     required this.icone,
     required this.titre,
     this.separe = false,
+    this.nombre,
+    this.replie = false,
+    this.onTap,
   });
 
   final String cle;
   final IconData icone;
   final String titre;
   final bool separe;
+
+  /// Nombre de cartes du groupe, affiché quand il est replié.
+  final int? nombre;
+
+  /// Groupe replié (27/11/2026) ; [onTap] nul : pas repliable.
+  final bool replie;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1419,22 +1477,34 @@ class _TitrePartie extends StatelessWidget {
             Divider(height: 1, thickness: 1.5, color: scheme.outlineVariant),
             const SizedBox(height: 10),
           ],
-          Row(
-            children: [
-              Icon(icone, size: 16, color: scheme.primary),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  titre.toUpperCase(),
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.primary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
+          InkWell(
+            key: onTap == null ? null : Key('replier-$cle'),
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(6),
+            child: Row(
+              children: [
+                Icon(icone, size: 16, color: scheme.primary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '${titre.toUpperCase()}'
+                    '${replie && nombre != null ? ' ($nombre)' : ''}',
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                if (onTap != null)
+                  Icon(
+                    replie ? Icons.expand_more : Icons.expand_less,
+                    size: 18,
+                    color: scheme.primary,
+                  ),
+              ],
+            ),
           ),
         ],
       ),

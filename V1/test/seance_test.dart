@@ -100,6 +100,7 @@ const _guerrier = Classe(
           rang: 1,
           nom: 'Parade éclair',
           type: 'actif, réaction',
+          declencheur: DeclencheurReaction(contact: true, ecartMin: 5),
           jets: [
             JetCompetence(libelle: 'Parade éclair', des: '1d20', carac: 'DEX'),
           ],
@@ -956,6 +957,84 @@ void main() {
     compte.dispose();
     personnages.dispose();
   });
+  test('contrôleur PJ : réaction proposée, équipement envoyé tout de suite',
+      () async {
+    final p = await _partie();
+    final c = p.campagne;
+    final brom = _brom()
+      ..rangsVoies['garde'] = 1
+      ..inventaire.add(Objet(nom: 'Bouclier'));
+    final personnages =
+        PersonnagesController(EnMemoirePersonnageRepository([brom]));
+    await personnages.charger();
+    final compte = CompteController(
+      service: _Compte(const Utilisateur(uid: 'j1')),
+      personnages: personnages,
+      local: personnages.repository,
+      depotEnLigne: (_) => EnMemoireDepotEnLigne([brom]),
+    );
+    await compte.demarrer();
+    final campagnes = CampagnesController(
+      compte: compte,
+      service: (u) => ServiceCampagnesMemoire(p.base, u.uid),
+    );
+    await pumpEventQueue();
+    final s = SeanceController(
+      campagnes: campagnes,
+      personnages: personnages,
+      referentiel: _referentiel,
+      campagneId: c.id,
+    );
+    await pumpEventQueue();
+    final mj = ServiceCampagnesMemoire(p.base, 'mj').seance;
+    await mj.ajouterCreature(c, _creature('bandit', 3));
+    await mj.demarrerCombat(c, ['bandit', 'j1', 'j2']);
+    await pumpEventQueue();
+    JetSeance attaque(int total, {bool contact = true}) => JetSeance(
+          auteur: 'mj',
+          auteurNom: 'Bandit',
+          libelle: 'Épée · toucher',
+          detail: '$total',
+          total: total,
+          date: DateTime.now(),
+          seance: 1,
+          lecteurs: const ['mj', 'j1', 'j2'],
+          genre: GenreJet.attaque,
+          mode: ModeJeu.combat,
+          attaquant: 'bandit',
+          caCible: 15,
+          touche: false,
+          ciblesIds: const ['j1'],
+          contact: contact,
+        );
+    // Ratée de 4 seulement, puis à distance : rien.
+    await mj.lancer(c, attaque(11));
+    await mj.lancer(c, attaque(5, contact: false));
+    await pumpEventQueue();
+    expect(s.reactionsProposees, isEmpty);
+    // Ratée de 6 au contact : la Parade éclair est proposée.
+    await mj.lancer(c, attaque(9));
+    await pumpEventQueue();
+    final r = s.reactionsProposees.single;
+    expect(
+        (r.competence, r.attaquant, r.ecart), ('Parade éclair', 'bandit', 6));
+    s.demanderReaction(r);
+    expect(s.reactionsProposees, isEmpty);
+    expect(s.reactionDemandee, r);
+    // Équipement changé : la fiche part en ligne même en envoi différé.
+    await compte.regler(aChaqueModification: false);
+    // Copie, comme l'onglet Inventaire (l'objet en mémoire reste intact).
+    final f = Personnage.depuisJson(personnages.parId('brom')!.versJson());
+    f.inventaire.single.equipe = true;
+    await personnages.sauvegarder(f);
+    await pumpEventQueue();
+    expect(compte.nbEnAttente, 0);
+    s.dispose();
+    campagnes.dispose();
+    compte.dispose();
+    personnages.dispose();
+  });
+
   test('contrôleur MJ : créature inconnue, critiques et embuscade notés',
       () async {
     final p = await _partie();
@@ -2229,6 +2308,98 @@ void main() {
               .widget<OutlinedButton>(find.byKey(const Key('reaction')))
               .onPressed,
           isNull);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('réaction : fenêtre après une attaque ratée au contact',
+        (tester) async {
+      final x = await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()..rangsVoies['garde'] = 1],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj').seance;
+          await mj.ajouterCreature(c, _creature('bandit', 3));
+          await mj.demarrerCombat(c, ['bandit', 'j1', 'j2']);
+        },
+      );
+      await ServiceCampagnesMemoire(x.base, 'mj').seance.lancer(
+            x.campagne,
+            JetSeance(
+              auteur: 'mj',
+              auteurNom: 'bandit',
+              libelle: 'Épée · toucher',
+              detail: '9',
+              total: 9,
+              date: DateTime.now(),
+              seance: 1,
+              lecteurs: const ['mj', 'j1', 'j2'],
+              genre: GenreJet.attaque,
+              mode: ModeJeu.combat,
+              attaquant: 'bandit',
+              caCible: 15,
+              touche: false,
+              ciblesIds: const ['j1'],
+              contact: true,
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('fenetre-reaction')), findsOneWidget);
+      expect(find.text('Parade éclair possible !'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('utiliser-reaction')));
+      // Le panneau passe en réaction, la parade cherchée dans les actions.
+      expect(find.byKey(const Key('en-reaction')), findsOneWidget);
+      expect(
+          tester
+              .widget<TextField>(find.byKey(const Key('recherche-actions')))
+              .controller!
+              .text,
+          'Parade éclair');
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('groupes repliables : tous pour le MJ, cartes pour les PJ',
+        (tester) async {
+      Future<void> avant(BaseCampagnesMemoire b, Campagne c) async {
+        final mj = ServiceCampagnesMemoire(b, 'mj');
+        await mj.seance.ajouterCreature(c, _creature('r', 3));
+        await mj.ajouterCarte(c,
+            nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+        final port = (await mj.ecouterCartes(c).first).last;
+        await mj.modifierCarte(c, port.copie(diffusee: true));
+      }
+
+      await ouvrir(tester, 'mj', avant: avant);
+      expect(find.byKey(const Key('carte-r')), findsOneWidget);
+      await tap(tester, find.byKey(const Key('replier-partie-creatures')));
+      expect(find.byKey(const Key('carte-r')), findsNothing);
+      expect(find.text('CRÉATURES RENCONTRÉES (1)'), findsOneWidget);
+      await tap(tester, find.byKey(const Key('replier-partie-creatures')));
+      expect(find.byKey(const Key('carte-r')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('groupes repliables : le PJ replie les cartes seulement',
+        (tester) async {
+      await ouvrir(
+        tester,
+        'j1',
+        fiches: [_brom()],
+        avant: (b, c) async {
+          final mj = ServiceCampagnesMemoire(b, 'mj');
+          await mj.ajouterCarte(c,
+              nom: 'Port', image: _imageCarte, largeur: 40, hauteur: 30);
+          final port = (await mj.ecouterCartes(c).first).last;
+          await mj.modifierCarte(c, port.copie(diffusee: true));
+        },
+      );
+      expect(find.byKey(const Key('replier-partie-personnages')), findsNothing);
+      expect(find.textContaining('Port'), findsWidgets);
+      await tap(tester, find.byKey(const Key('replier-partie-cartes')));
+      expect(find.text('CARTES (1)'), findsOneWidget);
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
     });
